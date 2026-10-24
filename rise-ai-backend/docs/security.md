@@ -15,6 +15,7 @@ BCrypt cost 12. Registration requires 8–72 chars with letters and digits. Pass
 - `@PreAuthorize` on controllers for role checks; services re-check roles (defense in depth, also covers the seeder path).
 - Resource checks in services: ownership (`loadOwned`, `loadOwnerOrAdmin`), visibility (`loadVisible` → 404), participant checks for disputes, own-record checks for donations/refunds.
 - Conflict-of-interest checks: no self-approval of campaigns, evidence, disbursements, refunds, organization verification, disputes; no self role/status change; creators cannot donate to or dispute their own campaigns.
+- Dual control (Phase 1): settlements and ledger adjustments need a second ADMIN who is neither the proposer nor the campaign creator. The service enforces this and so does a DB CHECK (`decided_by <> proposed_by/requested_by`). These endpoints sit under `/api/v1/admin/**` and carry class-level `@PreAuthorize("hasRole('ADMIN')")`.
 - Client-supplied `userId`, `role`, `ownerId` fields do not exist in request DTOs.
 
 ## Validation & error handling

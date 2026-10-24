@@ -122,6 +122,9 @@ public class CampaignService {
         if (organization(campaign).getVerificationStatus() != VerificationStatus.VERIFIED) {
             throw new ApplicationException(ErrorCode.ORGANIZATION_NOT_VERIFIED);
         }
+        if (!campaign.getEndAt().isAfter(Instant.now())) {
+            throw new ApplicationException(ErrorCode.INVALID_STATE_TRANSITION, "Campaign end date has already passed");
+        }
         campaign.setReviewStatus(ReviewStatus.APPROVED);
         campaign.setReviewNote(reason);
         move(campaign, CampaignStatus.APPROVED, actor, "CAMPAIGN_APPROVED", reason);
@@ -271,6 +274,10 @@ public class CampaignService {
         return campaignRepository.findById(id).orElseThrow(() -> ApplicationException.notFound("Campaign"));
     }
 
+    public Campaign lock(UUID id) {
+        return campaignRepository.findByIdForUpdate(id).orElseThrow(() -> ApplicationException.notFound("Campaign"));
+    }
+
     public Campaign loadVisible(UUID id, AuthUser actor) {
         Campaign campaign = load(id);
         if (!isVisible(campaign, actor)) {
@@ -400,7 +407,7 @@ public class CampaignService {
     }
 
     private CampaignResponse toResponse(Campaign campaign) {
-        Organization organization = organizationRepository.findById(campaign.getOrganizationId()).orElse(null);
+        OrganizationRepository.SummaryView organization = organizationRepository.findSummaries(List.of(campaign.getOrganizationId())).stream().findFirst().orElse(null);
         EscrowAccount account = escrowAccountRepository.findByCampaignIdAndCurrency(campaign.getId(), campaign.getCurrency()).orElse(null);
         return CampaignResponse.from(campaign, organization, account);
     }
@@ -411,8 +418,8 @@ public class CampaignService {
         }
         Map<UUID, EscrowAccount> accounts = escrowAccountRepository.findByCampaignIdIn(page.map(Campaign::getId).toSet()).stream()
                 .collect(Collectors.toMap(EscrowAccount::getCampaignId, Function.identity(), (a, b) -> a));
-        Map<UUID, Organization> organizations = organizationRepository.findAllById(page.map(Campaign::getOrganizationId).toSet()).stream()
-                .collect(Collectors.toMap(Organization::getId, Function.identity()));
+        Map<UUID, OrganizationRepository.SummaryView> organizations = organizationRepository.findSummaries(page.map(Campaign::getOrganizationId).toSet()).stream()
+                .collect(Collectors.toMap(OrganizationRepository.SummaryView::getId, Function.identity()));
         return page.map(c -> CampaignResponse.from(c, organizations.get(c.getOrganizationId()), accounts.get(c.getId())));
     }
 }

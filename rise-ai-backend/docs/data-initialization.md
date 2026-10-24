@@ -20,7 +20,7 @@ Organizations: Sunrise Learning Fund, Green Village Community Group, Hope Kitche
 |---|---|---|
 | Laptops and Learning Kits for Highland Pupils | 120,000,000 (3 milestones) | ACTIVE; 75M confirmed + 5M pending; M1 40M released and COMPLETED; M2 20M request UNDER_REVIEW (reserved) |
 | Riverside Community Library | 80,000,000 (3) | ACTIVE; 45M confirmed; M1 15M released (PARTIALLY_DISBURSED), one evidence rejected; dispute UNDER_REVIEW holds M1 (DISPUTED) with a creator message |
-| Hope Kitchen Weekly Meals | 60,000,000 (3) | ACTIVE; 24M confirmed; FAILED and CANCELLED donations; 2M refund RECORDED; 3M refund REQUESTED |
+| Hope Kitchen Weekly Meals | 60,000,000 (3) | ACTIVE; 24M confirmed; FAILED and CANCELLED donations; 2M refund RECORDED (approve reserves, record releases and records; Phase 1); 3M refund REQUESTED |
 | Mekong Village Clean Water Filters | 150,000,000 (4) | PENDING_REVIEW (organization not yet verified) |
 | First-Generation University Scholarships | 90,000,000 (2) | DRAFT |
 | Green Village Community Centre Repairs | 70,000,000 (2) | PAUSED (escrow FROZEN); 30M confirmed; 15M request NEEDS_MORE_EVIDENCE (reserved) |

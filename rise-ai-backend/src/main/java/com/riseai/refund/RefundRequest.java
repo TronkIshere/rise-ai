@@ -10,6 +10,8 @@ import jakarta.persistence.Version;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -31,10 +33,14 @@ public class RefundRequest extends BaseEntity {
     private UUID requestedBy;
     @Column(nullable = false, precision = 19, scale = 2)
     private BigDecimal amount;
+    @JdbcTypeCode(SqlTypes.CHAR)
     @Column(nullable = false, length = 3)
     private String currency;
     @Column(nullable = false)
+    private boolean fundsReserved;
+    @Column(nullable = false)
     private String reason;
+    private String idempotencyKey;
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private RefundStatus refundStatus;

@@ -10,6 +10,8 @@ import jakarta.persistence.Version;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.time.Instant;
 import java.util.UUID;
@@ -34,6 +36,7 @@ public class EvidenceRecord extends BaseEntity {
     private String title;
     private String description;
     private String fileUrl;
+    @JdbcTypeCode(SqlTypes.CHAR)
     private String fileHash;
     private String externalReference;
     @Enumerated(EnumType.STRING)

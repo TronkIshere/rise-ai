@@ -10,6 +10,8 @@ import jakarta.persistence.Version;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.math.BigDecimal;
 import java.util.UUID;
@@ -22,6 +24,7 @@ import java.util.UUID;
 public class EscrowAccount extends BaseEntity {
     @Column(nullable = false)
     private UUID campaignId;
+    @JdbcTypeCode(SqlTypes.CHAR)
     @Column(nullable = false, length = 3)
     private String currency;
     @Column(nullable = false, precision = 19, scale = 2)
@@ -33,6 +36,12 @@ public class EscrowAccount extends BaseEntity {
     @Column(nullable = false, precision = 19, scale = 2)
     private BigDecimal totalRefunded = BigDecimal.ZERO;
     @Column(nullable = false, precision = 19, scale = 2)
+    private BigDecimal totalRefundReserved = BigDecimal.ZERO;
+    @Column(nullable = false, precision = 19, scale = 2)
+    private BigDecimal totalAdjustmentCredits = BigDecimal.ZERO;
+    @Column(nullable = false, precision = 19, scale = 2)
+    private BigDecimal totalAdjustmentDebits = BigDecimal.ZERO;
+    @Column(nullable = false, precision = 19, scale = 2)
     private BigDecimal availableBalance = BigDecimal.ZERO;
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -41,6 +50,7 @@ public class EscrowAccount extends BaseEntity {
     private Long version;
 
     public BigDecimal heldBalance() {
-        return totalConfirmedContributions.subtract(totalDisbursed).subtract(totalRefunded);
+        return totalConfirmedContributions.add(totalAdjustmentCredits).subtract(totalAdjustmentDebits)
+                .subtract(totalDisbursed).subtract(totalRefunded);
     }
 }

@@ -1,6 +1,14 @@
 rise:
   seed:
     enabled: false
+  jobs:
+    enabled: false
+spring:
+  jpa:
+    properties:
+      hibernate:
+        generate_statistics: true
 logging:
   level:
     com.riseai: INFO
+    org.hibernate.engine.internal.StatisticalLoggingSessionEventListener: WARN

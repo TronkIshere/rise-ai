@@ -7,6 +7,8 @@ import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.time.Instant;
 import java.util.UUID;
@@ -20,6 +22,7 @@ public class RefreshToken extends CreatedEntity {
     @Column(nullable = false)
     private UUID userId;
     @Column(nullable = false, unique = true)
+    @JdbcTypeCode(SqlTypes.CHAR)
     private String tokenHash;
     @Column(nullable = false)
     private Instant expiresAt;

@@ -50,6 +50,7 @@ public class Campaign extends BaseEntity {
     private String beneficiaryDescription;
     @Column(nullable = false, precision = 19, scale = 2)
     private BigDecimal targetAmount;
+    @JdbcTypeCode(SqlTypes.CHAR)
     @Column(nullable = false, length = 3)
     private String currency;
     @Column(nullable = false, precision = 19, scale = 2)
@@ -58,6 +59,7 @@ public class Campaign extends BaseEntity {
     private Instant startAt;
     @Column(nullable = false)
     private Instant endAt;
+    private Instant fundraisingClosedAt;
     @Column(nullable = false)
     private String location;
     @Column(nullable = false)
@@ -83,4 +85,8 @@ public class Campaign extends BaseEntity {
     private Instant cancelledAt;
     @Version
     private Long version;
+
+    public boolean isAcceptingDonations(Instant now) {
+        return campaignStatus == CampaignStatus.ACTIVE && fundraisingClosedAt == null && !now.isBefore(startAt) && !now.isAfter(endAt);
+    }
 }

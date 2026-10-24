@@ -68,6 +68,29 @@ Adaptation: no DRAFT state; requests are submitted on creation.
 ## Other
 Organization verification: UNVERIFIED/REJECTED → PENDING_REVIEW → VERIFIED/REJECTED; VERIFIED → UNVERIFIED on material change.
 Evidence: SUBMITTED → ACCEPTED/REJECTED.
-Refund: REQUESTED → APPROVED → RECORDED; REQUESTED/APPROVED → REJECTED; REQUESTED → CANCELLED.
+Refund: REQUESTED → APPROVED (funds reserved, Phase 1) → RECORDED (reservation released and refund recorded); REQUESTED/APPROVED → REJECTED (reservation released if held); REQUESTED → CANCELLED.
 Escrow account: ACTIVE ↔ FROZEN (pause/resume) → SETTLEMENT (complete/cancel).
 User: ACTIVE ↔ SUSPENDED.
+
+## Phase 1 additions
+Donation: the fundraising-close job (system actor) also performs PENDING → FAILED once the campaign end date has passed. That job does not change the campaign status; it only sets `fundraisingClosedAt`.
+
+Settlement request:
+
+| From | To | Action | Actor |
+|---|---|---|---|
+| — | PROPOSED | propose | ADMIN (not campaign creator) |
+| PROPOSED | EXECUTED | approve (executes) | different ADMIN (not proposer, not creator) |
+| PROPOSED | REJECTED | reject | different ADMIN |
+| PROPOSED | CANCELLED | cancel | proposer |
+
+Escrow adjustment:
+
+| From | To | Action | Actor |
+|---|---|---|---|
+| — | REQUESTED | request | ADMIN (not campaign creator) |
+| REQUESTED | APPLIED | approve (appends ledger entry) | different ADMIN (not requester, not creator) |
+| REQUESTED | REJECTED | reject | different ADMIN |
+| REQUESTED | CANCELLED | cancel | requester |
+
+Reconciliation runs are immutable records, written once with status CONSISTENT, INCONSISTENT or FAILED.

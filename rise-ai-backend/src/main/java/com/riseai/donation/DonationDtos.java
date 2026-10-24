@@ -1,6 +1,5 @@
 package com.riseai.donation;
 
-import com.riseai.user.User;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Digits;
 import jakarta.validation.constraints.NotNull;
@@ -31,14 +30,14 @@ public final class DonationDtos {
                                    BigDecimal amount, BigDecimal refundedAmount, String currency, DonationStatus donationStatus,
                                    PaymentMethod paymentMethod, boolean anonymous, String donorMessage, String simulatedReference,
                                    Instant confirmedAt, Instant createdAt) {
-        public static DonationResponse full(Donation d, User donor) {
-            return new DonationResponse(d.getId(), d.getDonationCode(), d.getCampaignId(), d.getDonorId(), donor == null ? null : donor.getFullName(),
+        public static DonationResponse full(Donation d, String donorName) {
+            return new DonationResponse(d.getId(), d.getDonationCode(), d.getCampaignId(), d.getDonorId(), donorName,
                     d.getAmount(), d.getRefundedAmount(), d.getCurrency(), d.getDonationStatus(), d.getPaymentMethod(), d.isAnonymous(),
                     d.getDonorMessage(), d.getSimulatedReference(), d.getConfirmedAt(), d.getCreatedAt());
         }
 
-        public static DonationResponse masked(Donation d, User donor) {
-            String name = d.isAnonymous() || donor == null ? ANONYMOUS_NAME : donor.getFullName();
+        public static DonationResponse masked(Donation d, String donorName) {
+            String name = d.isAnonymous() || donorName == null ? ANONYMOUS_NAME : donorName;
             return new DonationResponse(d.getId(), d.getDonationCode(), d.getCampaignId(), null, name, d.getAmount(), d.getRefundedAmount(),
                     d.getCurrency(), d.getDonationStatus(), d.getPaymentMethod(), d.isAnonymous(), d.getDonorMessage(), null,
                     d.getConfirmedAt(), d.getCreatedAt());

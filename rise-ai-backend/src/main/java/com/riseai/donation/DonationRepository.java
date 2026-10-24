@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -15,6 +16,10 @@ public interface DonationRepository extends JpaRepository<Donation, UUID> {
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("select d from Donation d where d.id = :id")
     Optional<Donation> findByIdForUpdate(UUID id);
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("select d from Donation d where d.campaignId = :campaignId and d.donationStatus in :statuses order by d.id")
+    List<Donation> lockByCampaignIdAndDonationStatusIn(UUID campaignId, Collection<DonationStatus> statuses);
 
     Optional<Donation> findByDonorIdAndIdempotencyKey(UUID donorId, String idempotencyKey);
 

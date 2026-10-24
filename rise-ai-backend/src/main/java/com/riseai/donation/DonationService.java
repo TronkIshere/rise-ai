@@ -15,22 +15,22 @@ import com.riseai.donation.DonationDtos.DonationResponse;
 import com.riseai.escrow.EscrowEngine;
 import com.riseai.security.AuthUser;
 import com.riseai.user.Role;
-import com.riseai.user.User;
 import com.riseai.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.EnumSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.BiFunction;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
@@ -59,7 +59,7 @@ public class DonationService {
                 if (!donation.getCampaignId().equals(campaignId) || donation.getAmount().compareTo(amount) != 0) {
                     throw new ApplicationException(ErrorCode.DUPLICATE_OPERATION, "Idempotency-Key was already used for a different donation");
                 }
-                return DonationResponse.full(donation, userRepository.findById(actor.id()).orElse(null));
+                return DonationResponse.full(donation, donorName(actor.id()));
             }
         }
         Campaign campaign = campaignService.loadVisible(campaignId, actor);
@@ -89,7 +89,7 @@ public class DonationService {
         donationRepository.saveAndFlush(donation);
         auditService.transition(actor.id(), "DONATION_CREATED", ENTITY, donation.getId(), null, DonationStatus.PENDING,
                 "Amount " + amount.toPlainString() + " " + currency);
-        return DonationResponse.full(donation, userRepository.findById(actor.id()).orElse(null));
+        return DonationResponse.full(donation, donorName(actor.id()));
     }
 
     @Transactional
@@ -110,11 +110,14 @@ public class DonationService {
         if (campaign.getCampaignStatus() != CampaignStatus.ACTIVE) {
             throw new ApplicationException(ErrorCode.CAMPAIGN_NOT_ACCEPTING_DONATIONS, "Campaign is not ACTIVE; fail the donation instead");
         }
+        if (campaign.getFundraisingClosedAt() != null || Instant.now().isAfter(campaign.getEndAt())) {
+            throw new ApplicationException(ErrorCode.CAMPAIGN_NOT_ACCEPTING_DONATIONS, "Fundraising closed at the campaign end date; fail the donation instead");
+        }
         donation.setConfirmedAt(Instant.now());
         donation.setSimulatedReference(simulatedReference == null || simulatedReference.isBlank() ? Codes.generate("SIM") : simulatedReference.trim());
         move(donation, DonationStatus.CONFIRMED, actor.id(), "DONATION_CONFIRMED", "Simulated payment confirmation");
         escrowEngine.recordContribution(campaign.getId(), donation.getCurrency(), donation.getId(), donation.getAmount(), actor.id());
-        return DonationResponse.full(donation, userRepository.findById(donation.getDonorId()).orElse(null));
+        return DonationResponse.full(donation, donorName(donation.getDonorId()));
     }
 
     @Transactional
@@ -123,7 +126,7 @@ public class DonationService {
         Donation donation = lock(id);
         States.require(donation.getDonationStatus(), DonationStatus.PENDING);
         move(donation, DonationStatus.FAILED, actor.id(), "DONATION_FAILED", reason);
-        return DonationResponse.full(donation, userRepository.findById(donation.getDonorId()).orElse(null));
+        return DonationResponse.full(donation, donorName(donation.getDonorId()));
     }
 
     @Transactional
@@ -134,13 +137,22 @@ public class DonationService {
         }
         States.require(donation.getDonationStatus(), DonationStatus.PENDING);
         move(donation, DonationStatus.CANCELLED, actor.id(), "DONATION_CANCELLED", "Cancelled by donor");
-        return DonationResponse.full(donation, userRepository.findById(donation.getDonorId()).orElse(null));
+        return DonationResponse.full(donation, donorName(donation.getDonorId()));
+    }
+
+    @Transactional(propagation = Propagation.MANDATORY)
+    public int failPendingAfterFundraisingClose(UUID campaignId) {
+        List<Donation> pending = donationRepository.lockByCampaignIdAndDonationStatusIn(campaignId, EnumSet.of(DonationStatus.PENDING));
+        for (Donation donation : pending) {
+            move(donation, DonationStatus.FAILED, null, "DONATION_FAILED", "Fundraising closed before the simulated payment was confirmed");
+        }
+        return pending.size();
     }
 
     @Transactional(readOnly = true)
     public DonationResponse get(AuthUser actor, UUID id) {
         Donation donation = donationRepository.findById(id).orElseThrow(() -> ApplicationException.notFound("Donation"));
-        User donor = userRepository.findById(donation.getDonorId()).orElse(null);
+        String donor = donorName(donation.getDonorId());
         if (AuthUser.require(actor).isAdmin() || actor.is(donation.getDonorId())) {
             return DonationResponse.full(donation, donor);
         }
@@ -177,10 +189,17 @@ public class DonationService {
         return map(page, DonationResponse::full);
     }
 
-    private Page<DonationResponse> map(Page<Donation> page, BiFunction<Donation, User, DonationResponse> mapper) {
-        Map<UUID, User> donors = userRepository.findAllById(page.map(Donation::getDonorId).toSet()).stream()
-                .collect(Collectors.toMap(User::getId, Function.identity()));
+    private Page<DonationResponse> map(Page<Donation> page, BiFunction<Donation, String, DonationResponse> mapper) {
+        if (page.isEmpty()) {
+            return page.map(d -> mapper.apply(d, null));
+        }
+        Map<UUID, String> donors = userRepository.findDisplayNames(page.map(Donation::getDonorId).toSet()).stream()
+                .collect(Collectors.toMap(UserRepository.DisplayName::getId, UserRepository.DisplayName::getFullName));
         return page.map(d -> mapper.apply(d, donors.get(d.getDonorId())));
+    }
+
+    private String donorName(UUID donorId) {
+        return userRepository.findDisplayNames(List.of(donorId)).stream().findFirst().map(UserRepository.DisplayName::getFullName).orElse(null);
     }
 
     private void move(Donation donation, DonationStatus target, UUID actorId, String action, String reason) {

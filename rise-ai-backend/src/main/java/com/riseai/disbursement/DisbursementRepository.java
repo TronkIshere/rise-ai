@@ -21,6 +21,8 @@ public interface DisbursementRepository extends JpaRepository<DisbursementReques
     @Query("select r from DisbursementRequest r where r.milestoneId = :milestoneId and r.requestStatus in :statuses order by r.submittedAt")
     List<DisbursementRequest> lockByMilestoneAndStatuses(UUID milestoneId, Collection<DisbursementStatus> statuses);
 
+    Optional<DisbursementRequest> findByRequestedByAndIdempotencyKey(UUID requestedBy, String idempotencyKey);
+
     boolean existsByMilestoneIdAndRequestStatusIn(UUID milestoneId, Collection<DisbursementStatus> statuses);
 
     boolean existsByCampaignIdAndRequestStatusIn(UUID campaignId, Collection<DisbursementStatus> statuses);

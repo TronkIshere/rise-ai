@@ -2,8 +2,8 @@
 
 | Phase | Status | Depends on | Deliverables | Exit criteria |
 |---|---|---|---|---|
-| 0 Core backend | IMPLEMENTED (not yet built/run by agent) | — | Schema, auth, CRUD, simulated escrow, seed, tests, docs | `phase-0-acceptance-criteria.md` items verified locally |
-| 1 Business hardening | PLANNED | 0 verified locally | See `phase-1-business-hardening.md` | Invariant tests, reconciliation job, stable API |
+| 0 Core backend | IMPLEMENTED; verified manually by the developer (2026-10-25) | — | Schema, auth, CRUD, simulated escrow, seed, tests, docs | `phase-0-acceptance-criteria.md` items verified locally |
+| 1 Business hardening | IMPLEMENTED (2026-10-25); see the progress table in `phase-1-business-hardening.md` | 0 verified locally | See `phase-1-business-hardening.md` | Invariant tests, reconciliation job, stable API |
 | 2 AI monitoring integration | PLANNED | 1 | Transactional outbox, event publisher, contracts | `phase-2-ai-monitoring.md` criteria |
 | 3 Avalanche escrow | PLANNED | 1 (2 optional) | Contracts, adapter behind `EscrowEngine`, sync | `phase-3-avalanche.md` criteria |
 | 4 Production readiness | PLANNED | 1–3 as applicable | Ops, security, observability | `phase-4-production-readiness.md` |
@@ -20,4 +20,4 @@
 9. Documentation and ADRs.
 
 ## Next action for any agent
-Run `mvn test` locally (Docker), fix compile/runtime issues found, then mark acceptance items as verified before starting Phase 1.
+Phase 1 is complete; see its progress table for evidence. Do not start Phase 2 (AI monitoring) or Phase 3 (Avalanche) without an explicit request. Phase 3 depends only on Phase 1; Phase 2 is optional for it.

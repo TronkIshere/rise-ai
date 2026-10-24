@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -36,8 +37,10 @@ public class RefundController {
 
     @PostMapping("/donations/{donationId}/refunds")
     @ResponseStatus(HttpStatus.CREATED)
-    public ResponseAPI<RefundResponse> request(@AuthenticationPrincipal AuthUser actor, @PathVariable UUID donationId, @Valid @RequestBody CreateRefundRequest request) {
-        return ResponseAPI.created(refundService.request(actor, donationId, request));
+    public ResponseAPI<RefundResponse> request(@AuthenticationPrincipal AuthUser actor, @PathVariable UUID donationId,
+                                               @RequestHeader(name = "Idempotency-Key", required = false) String idempotencyKey,
+                                               @Valid @RequestBody CreateRefundRequest request) {
+        return ResponseAPI.created(refundService.request(actor, donationId, request, idempotencyKey));
     }
 
     @GetMapping("/refunds/me")

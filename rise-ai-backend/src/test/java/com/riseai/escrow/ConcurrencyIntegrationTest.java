@@ -1,6 +1,8 @@
 package com.riseai.escrow;
 
+import com.riseai.disbursement.DisbursementDtos.CreateDisbursementRequest;
 import com.riseai.disbursement.DisbursementStatus;
+import com.riseai.refund.RefundDtos.CreateRefundRequest;
 import com.riseai.security.AuthUser;
 import com.riseai.support.AbstractMySqlIntegrationTest;
 import com.riseai.user.Role;
@@ -113,5 +115,43 @@ class ConcurrencyIntegrationTest extends AbstractMySqlIntegrationTest {
 
         assertThat(ok).isEqualTo(1);
         assertThat(escrowQueryService.summary(admin, campaign.id()).totalConfirmedContributions()).isEqualByComparingTo("2000000");
+    }
+
+    @Test
+    void concurrentReplaysWithTheSameIdempotencyKeyCreateOneDisbursement() throws Exception {
+        ActiveCampaign campaign = activeCampaign(creator, admin, 10_000_000);
+        confirmedDonation(donor, admin, campaign.id(), 5_000_000);
+        UUID m1 = campaign.milestones().get(0);
+        milestoneService.start(creator, m1);
+        submittedEvidence(creator, m1);
+        List<Callable<Object>> tasks = new ArrayList<>();
+        for (int i = 0; i < 4; i++) {
+            tasks.add(() -> disbursementService.create(creator, m1,
+                    new CreateDisbursementRequest(vnd(1_000_000), "Supplier"), "same-key").id());
+        }
+
+        assertThat(successes(tasks)).isEqualTo(4);
+        assertThat(escrowQueryService.summary(admin, campaign.id()).totalReserved()).isEqualByComparingTo("1000000");
+        assertThat(escrowQueryService.reconcile(campaign.id()).consistent()).isTrue();
+    }
+
+    @Test
+    void refundApprovalAndDisbursementRequestCannotBothClaimTheSameFunds() throws Exception {
+        ActiveCampaign campaign = activeCampaign(creator, admin, 10_000_000);
+        UUID donation = confirmedDonation(donor, admin, campaign.id(), 1_000_000);
+        UUID m1 = campaign.milestones().get(0);
+        milestoneService.start(creator, m1);
+        submittedEvidence(creator, m1);
+        UUID refund = refundService.request(donor, donation, new CreateRefundRequest(vnd(800_000), "Need it")).id();
+
+        long ok = successes(List.of(
+                () -> refundService.approve(admin, refund, "ok"),
+                () -> requestFunds(creator, m1, 800_000)));
+
+        assertThat(ok).isEqualTo(1);
+        EscrowDtos.EscrowSummary summary = escrowQueryService.summary(admin, campaign.id());
+        assertThat(summary.totalReserved().add(summary.totalRefundReserved())).isEqualByComparingTo("800000");
+        assertThat(summary.availableBalance()).isEqualByComparingTo("200000");
+        assertThat(escrowQueryService.reconcile(campaign.id()).consistent()).isTrue();
     }
 }

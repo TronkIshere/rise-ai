@@ -10,6 +10,8 @@ import jakarta.persistence.Version;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.math.BigDecimal;
 import java.time.Instant;
@@ -31,6 +33,7 @@ public class Donation extends BaseEntity {
     private BigDecimal amount;
     @Column(nullable = false, precision = 19, scale = 2)
     private BigDecimal refundedAmount = BigDecimal.ZERO;
+    @JdbcTypeCode(SqlTypes.CHAR)
     @Column(nullable = false, length = 3)
     private String currency;
     @Enumerated(EnumType.STRING)

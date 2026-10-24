@@ -18,7 +18,8 @@ class JwtServiceTest {
     private static RiseProperties properties(String secret, Duration ttl) {
         return new RiseProperties(
                 new RiseProperties.Security(new RiseProperties.Jwt(secret, "rise-ai", ttl, Duration.ofDays(1)), List.of()),
-                new RiseProperties.Escrow("VND", true), new RiseProperties.Simulation(true), new RiseProperties.Seed(false, "x"));
+                new RiseProperties.Escrow("VND", true), new RiseProperties.Simulation(true), new RiseProperties.Seed(false, "x"),
+                new RiseProperties.Jobs(false, "-", "-"));
     }
 
     private static User user() {

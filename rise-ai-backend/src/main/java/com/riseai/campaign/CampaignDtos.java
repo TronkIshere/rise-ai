@@ -2,7 +2,7 @@ package com.riseai.campaign;
 
 import com.riseai.common.Money;
 import com.riseai.escrow.EscrowAccount;
-import com.riseai.organization.Organization;
+import com.riseai.organization.OrganizationRepository;
 import com.riseai.organization.VerificationStatus;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.DecimalMin;
@@ -45,7 +45,7 @@ public final class CampaignDtos {
     }
 
     public record OrganizationSummary(UUID id, String name, String slug, VerificationStatus verificationStatus) {
-        static OrganizationSummary from(Organization o) {
+        static OrganizationSummary from(OrganizationRepository.SummaryView o) {
             return o == null ? null : new OrganizationSummary(o.getId(), o.getName(), o.getSlug(), o.getVerificationStatus());
         }
     }
@@ -69,15 +69,16 @@ public final class CampaignDtos {
                                    BigDecimal minimumDonationAmount, Instant startAt, Instant endAt, String location, Integer beneficiaryCount,
                                    String problemStatement, String solutionDescription, String impactGoals, List<BudgetItem> budgetBreakdown,
                                    CampaignStatus campaignStatus, ReviewStatus reviewStatus, String reviewNote, Instant publishedAt,
-                                   Instant completedAt, Instant cancelledAt, Instant createdAt, Instant updatedAt, FundingSummary funding) {
-        public static CampaignResponse from(Campaign c, Organization org, EscrowAccount account) {
+                                   Instant completedAt, Instant cancelledAt, Instant createdAt, Instant updatedAt, FundingSummary funding,
+                                   Instant fundraisingClosedAt, boolean acceptingDonations) {
+        public static CampaignResponse from(Campaign c, OrganizationRepository.SummaryView org, EscrowAccount account) {
             return new CampaignResponse(c.getId(), c.getCampaignCode(), c.getCreatorId(), OrganizationSummary.from(org), c.getTitle(), c.getSlug(),
                     c.getShortDescription(), c.getFullDescription(), c.getCoverImageUrl(), c.getGalleryImageUrls(), c.getCategory(),
                     c.getBeneficiaryDescription(), c.getTargetAmount(), c.getCurrency(), c.getMinimumDonationAmount(), c.getStartAt(),
                     c.getEndAt(), c.getLocation(), c.getBeneficiaryCount(), c.getProblemStatement(), c.getSolutionDescription(),
                     c.getImpactGoals(), c.getBudgetBreakdown(), c.getCampaignStatus(), c.getReviewStatus(), c.getReviewNote(),
                     c.getPublishedAt(), c.getCompletedAt(), c.getCancelledAt(), c.getCreatedAt(), c.getUpdatedAt(),
-                    FundingSummary.from(account, c.getTargetAmount()));
+                    FundingSummary.from(account, c.getTargetAmount()), c.getFundraisingClosedAt(), c.isAcceptingDonations(Instant.now()));
         }
     }
 

@@ -9,8 +9,6 @@ import com.riseai.common.exception.ErrorCode;
 import com.riseai.donation.Donation;
 import com.riseai.donation.DonationRepository;
 import com.riseai.donation.DonationStatus;
-import com.riseai.escrow.EscrowAccount;
-import com.riseai.escrow.EscrowAccountRepository;
 import com.riseai.escrow.EscrowEngine;
 import com.riseai.refund.RefundDtos.CreateRefundRequest;
 import com.riseai.refund.RefundDtos.RefundResponse;
@@ -24,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -33,16 +32,33 @@ public class RefundService {
 
     private final RefundRepository refundRepository;
     private final DonationRepository donationRepository;
-    private final EscrowAccountRepository escrowAccountRepository;
     private final EscrowEngine escrowEngine;
     private final AuditService auditService;
 
     @Transactional
     public RefundResponse request(AuthUser actor, UUID donationId, CreateRefundRequest request) {
+        return request(actor, donationId, request, null);
+    }
+
+    @Transactional
+    public RefundResponse request(AuthUser actor, UUID donationId, CreateRefundRequest request, String idempotencyKey) {
         AuthUser.require(actor);
+        if (idempotencyKey != null && (idempotencyKey.isBlank() || idempotencyKey.length() > 100)) {
+            throw new ApplicationException(ErrorCode.INVALID_REQUEST, "Idempotency-Key must be 1-100 characters");
+        }
         Donation donation = lockDonation(donationId);
         if (!actor.isAdmin() && !actor.is(donation.getDonorId())) {
             throw ApplicationException.notFound("Donation");
+        }
+        if (idempotencyKey != null) {
+            Optional<RefundRequest> existing = refundRepository.findByRequestedByAndIdempotencyKey(actor.id(), idempotencyKey);
+            if (existing.isPresent()) {
+                RefundRequest refund = existing.get();
+                if (!refund.getDonationId().equals(donationId) || refund.getAmount().compareTo(Money.requirePositive(request.amount())) != 0) {
+                    throw new ApplicationException(ErrorCode.DUPLICATE_OPERATION, "Idempotency-Key was already used for a different refund request");
+                }
+                return RefundResponse.from(refund);
+            }
         }
         States.require(donation.getDonationStatus(), DonationStatus.CONFIRMED, DonationStatus.PARTIALLY_REFUNDED);
         if (refundRepository.existsByDonationIdAndRefundStatusIn(donationId, RefundStatus.OPEN)) {
@@ -61,6 +77,7 @@ public class RefundService {
         refund.setAmount(amount);
         refund.setCurrency(donation.getCurrency());
         refund.setReason(request.reason());
+        refund.setIdempotencyKey(idempotencyKey);
         refund.setRefundStatus(RefundStatus.REQUESTED);
         refundRepository.saveAndFlush(refund);
         auditService.transition(actor.id(), "REFUND_REQUESTED", ENTITY, refund.getId(), null, RefundStatus.REQUESTED, request.reason());
@@ -73,14 +90,11 @@ public class RefundService {
         RefundRequest refund = lock(id);
         Donation donation = requireReviewer(actor, refund);
         States.require(refund.getRefundStatus(), RefundStatus.REQUESTED);
-        EscrowAccount account = escrowAccountRepository.findByCampaignIdAndCurrency(refund.getCampaignId(), refund.getCurrency())
-                .orElseThrow(() -> ApplicationException.notFound("Escrow account"));
-        if (account.getAvailableBalance().compareTo(refund.getAmount()) < 0) {
-            throw new ApplicationException(ErrorCode.INSUFFICIENT_AVAILABLE_BALANCE, "Unreserved escrow balance cannot cover this refund");
-        }
         if (refund.getAmount().compareTo(donation.refundableAmount()) > 0) {
             throw new ApplicationException(ErrorCode.REFUND_EXCEEDS_REFUNDABLE);
         }
+        escrowEngine.reserveRefund(refund.getCampaignId(), refund.getCurrency(), donation.getId(), refund.getId(), refund.getAmount(), actor.id());
+        refund.setFundsReserved(true);
         refund.setReviewedBy(actor.id());
         refund.setReviewedAt(Instant.now());
         refund.setDecisionReason(reason);
@@ -93,6 +107,7 @@ public class RefundService {
         RefundRequest refund = lock(id);
         requireReviewer(actor, refund);
         States.require(refund.getRefundStatus(), RefundStatus.OPEN);
+        releaseReservation(refund, actor.id());
         refund.setReviewedBy(actor.id());
         refund.setReviewedAt(Instant.now());
         refund.setDecisionReason(reason);
@@ -125,6 +140,7 @@ public class RefundService {
         if (refund.getAmount().compareTo(donation.refundableAmount()) > 0) {
             throw new ApplicationException(ErrorCode.REFUND_EXCEEDS_REFUNDABLE);
         }
+        releaseReservation(refund, actor.id());
         escrowEngine.recordRefund(refund.getCampaignId(), refund.getCurrency(), donation.getId(), refund.getId(), refund.getAmount(), actor.id());
         donation.setRefundedAmount(donation.getRefundedAmount().add(refund.getAmount()));
         DonationStatus target = donation.refundableAmount().signum() == 0 ? DonationStatus.REFUNDED : DonationStatus.PARTIALLY_REFUNDED;
@@ -157,6 +173,13 @@ public class RefundService {
     public Page<RefundResponse> adminList(RefundStatus status, Pageable pageable) {
         Page<RefundRequest> page = status == null ? refundRepository.findAll(pageable) : refundRepository.findByRefundStatus(status, pageable);
         return page.map(RefundResponse::from);
+    }
+
+    private void releaseReservation(RefundRequest refund, UUID actorId) {
+        if (refund.isFundsReserved()) {
+            escrowEngine.releaseRefundReservation(refund.getCampaignId(), refund.getCurrency(), refund.getDonationId(), refund.getId(), refund.getAmount(), actorId);
+            refund.setFundsReserved(false);
+        }
     }
 
     private Donation requireReviewer(AuthUser actor, RefundRequest refund) {

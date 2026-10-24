@@ -2,7 +2,7 @@
 
 Status labels used everywhere: **IMPLEMENTED** (in code), **DESIGNED** (specified, not coded), **PLANNED** (future phase), **NOT IMPLEMENTED** (unavailable).
 
-> Phase 0 escrow is an **internal MySQL simulation**. No real money, payments, blockchain transactions or AI calls exist in this codebase. Nothing in this repository has been compiled, tested or run by the AI agent that generated it; see `phase-0-acceptance-criteria.md`.
+> Escrow is an **internal MySQL simulation**. No real money, payments, blockchain transactions or AI calls exist in this codebase. The developer verified Phase 0 manually. Phase 1 was built and tested with `mvn test`; see `phase-1-business-hardening.md` for the evidence.
 
 ## Read first (any future agent)
 1. `project-overview.md` — goals, users, scope, limitations
@@ -31,7 +31,8 @@ Status labels used everywhere: **IMPLEMENTED** (in code), **DESIGNED** (specifie
 | testing-strategy.md | Test layout, commands, scenarios |
 | implementation-plan.md | Phase dependencies and deliverables |
 | phase-0-acceptance-criteria.md | Phase 0 checklist with honest status |
-| phase-1-business-hardening.md | Next phase |
+| phase-1-business-hardening.md | Phase 1 scope, progress and verification evidence (IMPLEMENTED) |
+| api/openapi-v1.json | Frozen OpenAPI contract (Phase 1), checked by `OpenApiContractTest` |
 | phase-2-ai-monitoring.md | Future AI monitoring design (PLANNED) |
 | event-contracts.md | Future event envelope and payloads (DESIGNED) |
 | phase-3-avalanche.md | Future on-chain escrow (PLANNED) |

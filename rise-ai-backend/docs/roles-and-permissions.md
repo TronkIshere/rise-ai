@@ -33,6 +33,10 @@ Roles are an enum stored in `user_roles` (ADR-002). A user may hold several role
 | Message in dispute | ✔ | opener | creator of campaign | – |
 | Assign / resolve dispute (not a party; resolver = assignee) | ✔ | – | – | – |
 | Read all audit logs, statistics, reconciliation | ✔ | – | – | – |
+| Trigger reconciliation run, read run history (Phase 1) | ✔ | – | – | – |
+| Propose settlement / request adjustment, not on own campaign (Phase 1) | ✔ | – | – | – |
+| Approve or reject settlement / adjustment: a different admin from the proposer, not the campaign creator (Phase 1) | ✔ | – | – | – |
+| Cancel own settlement proposal / adjustment request (Phase 1) | ✔ | – | – | – |
 | Read own audit activity | ✔ | ✔ | ✔ | – |
 
 Nobody — including ADMIN — can edit or delete ledger entries, audit logs or status history through the API; DB triggers also block it.

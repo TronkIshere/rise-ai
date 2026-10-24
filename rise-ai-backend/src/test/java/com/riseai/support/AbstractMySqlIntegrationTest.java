@@ -1,5 +1,6 @@
 package com.riseai.support;
 
+import com.riseai.adjustment.AdjustmentService;
 import com.riseai.audit.AuditLogRepository;
 import com.riseai.campaign.CampaignDtos.CampaignRequest;
 import com.riseai.campaign.CampaignCategory;
@@ -13,7 +14,9 @@ import com.riseai.dispute.DisputeService;
 import com.riseai.donation.DonationDtos.CreateDonationRequest;
 import com.riseai.donation.DonationRepository;
 import com.riseai.donation.DonationService;
+import com.riseai.escrow.EscrowAccountRepository;
 import com.riseai.escrow.EscrowQueryService;
+import com.riseai.escrow.ReconciliationService;
 import com.riseai.evidence.EvidenceDtos.EvidenceRequest;
 import com.riseai.evidence.EvidenceService;
 import com.riseai.evidence.EvidenceType;
@@ -25,6 +28,7 @@ import com.riseai.organization.OrganizationService;
 import com.riseai.organization.OrganizationType;
 import com.riseai.refund.RefundService;
 import com.riseai.security.AuthUser;
+import com.riseai.settlement.SettlementService;
 import com.riseai.user.Role;
 import com.riseai.user.User;
 import com.riseai.user.UserRepository;
@@ -33,6 +37,7 @@ import org.assertj.core.api.ThrowableAssert.ThrowingCallable;
 import org.junit.jupiter.api.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
@@ -84,6 +89,11 @@ public abstract class AbstractMySqlIntegrationTest {
     @Autowired protected RefundService refundService;
     @Autowired protected EscrowQueryService escrowQueryService;
     @Autowired protected AuditLogRepository auditLogRepository;
+    @Autowired protected EscrowAccountRepository escrowAccountRepository;
+    @Autowired protected SettlementService settlementService;
+    @Autowired protected AdjustmentService adjustmentService;
+    @Autowired protected ReconciliationService reconciliationService;
+    @Autowired protected JdbcTemplate jdbcTemplate;
 
     protected record ActiveCampaign(UUID id, List<UUID> milestones) {
     }
@@ -175,6 +185,18 @@ public abstract class AbstractMySqlIntegrationTest {
         disbursementService.startReview(admin, id);
         disbursementService.approve(admin, id, "ok");
         return id;
+    }
+
+    protected UUID releasedRequest(AuthUser creator, AuthUser admin, UUID milestoneId, long amount) {
+        acceptedEvidence(creator, admin, milestoneId);
+        UUID id = approvedRequest(creator, admin, milestoneId, amount);
+        disbursementService.release(admin, id);
+        return id;
+    }
+
+    protected void moveEndDateToPast(UUID campaignId) {
+        jdbcTemplate.update("update campaigns set start_at = utc_timestamp(6) - interval 10 day, end_at = utc_timestamp(6) - interval 1 minute where id = ?",
+                campaignId.toString());
     }
 
     protected static BigDecimal vnd(long amount) {

@@ -21,6 +21,7 @@ import java.util.stream.Stream;
 @Transactional(propagation = Propagation.MANDATORY)
 public class SimulatedEscrowEngine implements EscrowEngine {
     private static final Set<EscrowStatus> ACTIVE_ONLY = EnumSet.of(EscrowStatus.ACTIVE);
+    private static final Set<EscrowStatus> SETTLEMENT_ONLY = EnumSet.of(EscrowStatus.SETTLEMENT);
     private static final Set<EscrowStatus> ANY = EnumSet.allOf(EscrowStatus.class);
 
     private final EscrowAccountRepository accountRepository;
@@ -119,6 +120,72 @@ public class SimulatedEscrowEngine implements EscrowEngine {
                 donationId, null, null, "REFUND_REQUEST", refundRequestId, actorId, "Simulated refund recorded; no external payment executed");
     }
 
+    @Override
+    public EscrowLedgerEntry reserveRefund(UUID campaignId, String currency, UUID donationId, UUID refundRequestId, BigDecimal amount, UUID actorId) {
+        BigDecimal value = Money.requirePositive(amount);
+        String key = "REFUND_RESERVE:" + refundRequestId;
+        EscrowAccount account = lockFor(campaignId, currency, ANY, key);
+        if (account.getAvailableBalance().compareTo(value) < 0) {
+            throw new ApplicationException(ErrorCode.INSUFFICIENT_AVAILABLE_BALANCE, "Unreserved escrow balance cannot cover this refund");
+        }
+        account.setAvailableBalance(account.getAvailableBalance().subtract(value));
+        account.setTotalRefundReserved(account.getTotalRefundReserved().add(value));
+        return append(account, LedgerTransactionType.REFUND_RESERVED, LedgerDirection.NEUTRAL, value, key,
+                donationId, null, null, "REFUND_REQUEST", refundRequestId, actorId, "Funds reserved for approved refund");
+    }
+
+    @Override
+    public EscrowLedgerEntry releaseRefundReservation(UUID campaignId, String currency, UUID donationId, UUID refundRequestId, BigDecimal amount, UUID actorId) {
+        BigDecimal value = Money.requirePositive(amount);
+        String key = "REFUND_RESERVATION_RELEASE:" + refundRequestId;
+        EscrowAccount account = lockFor(campaignId, currency, ANY, key);
+        if (account.getTotalRefundReserved().compareTo(value) < 0) {
+            throw new IllegalStateException("Refund reservation is lower than the amount being released");
+        }
+        account.setTotalRefundReserved(account.getTotalRefundReserved().subtract(value));
+        account.setAvailableBalance(account.getAvailableBalance().add(value));
+        return append(account, LedgerTransactionType.REFUND_RESERVATION_RELEASED, LedgerDirection.NEUTRAL, value, key,
+                donationId, null, null, "REFUND_REQUEST", refundRequestId, actorId, "Refund reservation released");
+    }
+
+    @Override
+    public EscrowLedgerEntry recordSettlementRefund(UUID campaignId, String currency, UUID settlementId, UUID donationId, BigDecimal amount, UUID actorId) {
+        BigDecimal value = Money.requirePositive(amount);
+        String key = "SETTLEMENT_REFUND:" + settlementId + ":" + donationId;
+        EscrowAccount account = lockFor(campaignId, currency, SETTLEMENT_ONLY, key);
+        if (account.getAvailableBalance().compareTo(value) < 0) {
+            throw new ApplicationException(ErrorCode.INSUFFICIENT_AVAILABLE_BALANCE, "Available balance is insufficient for this settlement refund");
+        }
+        account.setAvailableBalance(account.getAvailableBalance().subtract(value));
+        account.setTotalRefunded(account.getTotalRefunded().add(value));
+        return append(account, LedgerTransactionType.SETTLEMENT_REFUND_RECORDED, LedgerDirection.DEBIT, value, key,
+                donationId, null, null, "SETTLEMENT_REQUEST", settlementId, actorId, "Simulated pro-rata settlement refund; no external payment executed");
+    }
+
+    @Override
+    public EscrowLedgerEntry recordAdjustment(UUID campaignId, String currency, UUID adjustmentId, LedgerDirection direction, BigDecimal amount, UUID actorId) {
+        BigDecimal value = Money.requirePositive(amount);
+        String key = "ADJUSTMENT:" + adjustmentId;
+        EscrowAccount account = lockFor(campaignId, currency, ANY, key);
+        LedgerTransactionType type;
+        if (direction == LedgerDirection.CREDIT) {
+            account.setTotalAdjustmentCredits(account.getTotalAdjustmentCredits().add(value));
+            account.setAvailableBalance(account.getAvailableBalance().add(value));
+            type = LedgerTransactionType.ADJUSTMENT_CREDIT;
+        } else if (direction == LedgerDirection.DEBIT) {
+            if (account.getAvailableBalance().compareTo(value) < 0) {
+                throw new ApplicationException(ErrorCode.INSUFFICIENT_AVAILABLE_BALANCE, "Available balance is insufficient for this adjustment");
+            }
+            account.setTotalAdjustmentDebits(account.getTotalAdjustmentDebits().add(value));
+            account.setAvailableBalance(account.getAvailableBalance().subtract(value));
+            type = LedgerTransactionType.ADJUSTMENT_DEBIT;
+        } else {
+            throw new ApplicationException(ErrorCode.INVALID_REQUEST, "Adjustment direction must be CREDIT or DEBIT");
+        }
+        return append(account, type, direction, value, key,
+                null, null, null, "ESCROW_ADJUSTMENT", adjustmentId, actorId, "Dual-controlled ledger adjustment");
+    }
+
     private EscrowAccount lockFor(UUID campaignId, String currency, Set<EscrowStatus> allowed, String idempotencyKey) {
         EscrowAccount account = accountRepository.lockByCampaignIdAndCurrency(campaignId, currency)
                 .orElseThrow(() -> new ApplicationException(ErrorCode.ESCROW_NOT_ACTIVE, "Escrow account has not been opened for this campaign"));
@@ -161,8 +228,10 @@ public class SimulatedEscrowEngine implements EscrowEngine {
 
     static void verifyInvariants(EscrowAccount account) {
         boolean negative = Stream.of(account.getTotalConfirmedContributions(), account.getTotalReserved(), account.getTotalDisbursed(),
-                account.getTotalRefunded(), account.getAvailableBalance()).anyMatch(v -> v.signum() < 0);
-        BigDecimal expected = account.getTotalConfirmedContributions().subtract(account.getTotalReserved())
+                account.getTotalRefunded(), account.getTotalRefundReserved(), account.getTotalAdjustmentCredits(),
+                account.getTotalAdjustmentDebits(), account.getAvailableBalance()).anyMatch(v -> v.signum() < 0);
+        BigDecimal expected = account.getTotalConfirmedContributions().add(account.getTotalAdjustmentCredits())
+                .subtract(account.getTotalAdjustmentDebits()).subtract(account.getTotalReserved()).subtract(account.getTotalRefundReserved())
                 .subtract(account.getTotalDisbursed()).subtract(account.getTotalRefunded());
         if (negative || expected.compareTo(account.getAvailableBalance()) != 0) {
             throw new IllegalStateException("Escrow invariant violated for account " + account.getId());

@@ -37,9 +37,11 @@ public class EscrowQueryService {
         return accountRepository.findByCampaignIdAndCurrency(campaignId, campaign.getCurrency())
                 .map(a -> new EscrowSummary(campaignId, a.getId(), a.getCurrency(), a.getEscrowStatus(), a.getTotalConfirmedContributions(),
                         a.getTotalReserved(), a.getTotalDisbursed(), a.getTotalRefunded(), a.getAvailableBalance(), a.heldBalance(),
-                        planned, true, EscrowDtos.SIMULATION_DISCLAIMER))
+                        planned, true, EscrowDtos.SIMULATION_DISCLAIMER, a.getTotalRefundReserved(), a.getTotalAdjustmentCredits(),
+                        a.getTotalAdjustmentDebits()))
                 .orElseGet(() -> new EscrowSummary(campaignId, null, campaign.getCurrency(), null, BigDecimal.ZERO, BigDecimal.ZERO,
-                        BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO, planned, true, EscrowDtos.SIMULATION_DISCLAIMER));
+                        BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO, planned, true, EscrowDtos.SIMULATION_DISCLAIMER,
+                        BigDecimal.ZERO, BigDecimal.ZERO, BigDecimal.ZERO));
     }
 
     public Page<LedgerEntryResponse> ledger(AuthUser actor, UUID campaignId, LedgerTransactionType type, Pageable pageable) {
@@ -68,22 +70,8 @@ public class EscrowQueryService {
             sums.put((LedgerTransactionType) row[0], (BigDecimal) row[1]);
             count += ((Number) row[2]).longValue();
         }
-        BigDecimal confirmed = sums.getOrDefault(LedgerTransactionType.CONTRIBUTION_CONFIRMED, BigDecimal.ZERO);
-        BigDecimal released = sums.getOrDefault(LedgerTransactionType.FUNDS_RELEASED, BigDecimal.ZERO);
-        BigDecimal refunded = sums.getOrDefault(LedgerTransactionType.REFUND_RECORDED, BigDecimal.ZERO);
-        BigDecimal reserved = sums.getOrDefault(LedgerTransactionType.FUNDS_RESERVED, BigDecimal.ZERO)
-                .subtract(sums.getOrDefault(LedgerTransactionType.RESERVATION_CANCELLED, BigDecimal.ZERO))
-                .subtract(released);
-        BigDecimal available = confirmed.subtract(reserved).subtract(released).subtract(refunded);
-        Balances computed = new Balances(confirmed, reserved, released, refunded, available);
-        Balances stored = new Balances(account.getTotalConfirmedContributions(), account.getTotalReserved(), account.getTotalDisbursed(),
-                account.getTotalRefunded(), account.getAvailableBalance());
-        boolean consistent = equal(confirmed, stored.confirmed()) && equal(reserved, stored.reserved()) && equal(released, stored.disbursed())
-                && equal(refunded, stored.refunded()) && equal(available, stored.available());
-        return new ReconciliationReport(account.getCampaignId(), account.getId(), account.getCurrency(), stored, computed, count, consistent);
-    }
-
-    private static boolean equal(BigDecimal a, BigDecimal b) {
-        return a.compareTo(b) == 0;
+        Balances computed = Balances.fromLedger(sums);
+        Balances stored = Balances.from(account);
+        return new ReconciliationReport(account.getCampaignId(), account.getId(), account.getCurrency(), stored, computed, count, computed.matches(stored));
     }
 }

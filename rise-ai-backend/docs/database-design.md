@@ -1,6 +1,6 @@
 # Database Design — IMPLEMENTED
 
-MySQL 8, InnoDB, `utf8mb4_unicode_ci`. Schema owned by Flyway (`src/main/resources/db/migration`); Hibernate `ddl-auto: none`.
+MySQL 8, InnoDB, `utf8mb4_unicode_ci`. Schema owned by Flyway (`src/main/resources/db/migration`); Hibernate `ddl-auto: validate` since Phase 1, so mapping drift fails at startup. `CHAR(n)` columns are mapped with `@JdbcTypeCode(SqlTypes.CHAR)`.
 
 ## Conventions
 - Primary keys: UUID stored as `CHAR(36)` (`hibernate.type.preferred_uuid_jdbc_type=CHAR`).
@@ -29,6 +29,15 @@ MySQL 8, InnoDB, `utf8mb4_unicode_ci`. Schema owned by Flyway (`src/main/resourc
 | dispute_messages | Dispute responses | idx (dispute_id, created_at) |
 | status_history | Every state transition | idx (entity_type, entity_id, created_at); append-only trigger |
 | audit_logs | Audit trail | idx entity, actor, action, created_at, correlation_id; append-only trigger |
+| reconciliation_runs (V4) | Reconciliation report history | unique run_code; CHECK counts; idx started_at, (run_status, started_at); append-only trigger |
+| settlement_requests (V5) | Dual-controlled leftover settlements | unique code; CHECK amount > 0; CHECK decided_by ≠ proposed_by; idx (campaign_id, status) |
+| escrow_adjustments (V5) | Dual-controlled ledger adjustments | unique code; CHECK amount > 0, direction ∈ {CREDIT, DEBIT}, decided_by ≠ requested_by; idx (campaign_id, status) |
+
+Phase 1 columns:
+- `escrow_accounts.total_refund_reserved`, `total_adjustment_credits`, `total_adjustment_debits` (V3). V3 also redefines the non-negative CHECK and the balance identity CHECK.
+- `refund_requests.funds_reserved` (V3).
+- `disbursement_requests.idempotency_key` and `refund_requests.idempotency_key`, each UNIQUE together with `requested_by` (V6).
+- `campaigns.fundraising_closed_at` and index `(campaign_status, end_at)` (V7).
 
 ## Additional tables (justification)
 `refresh_tokens` (revocable sessions), `refund_requests` (spec 8.8 requires requested/approved/recorded distinction), `dispute_messages` (spec "submit responses"), `status_history` (milestone/disbursement/dispute history endpoints). No other tables exist.
@@ -40,5 +49,10 @@ MySQL 8, InnoDB, `utf8mb4_unicode_ci`. Schema owned by Flyway (`src/main/resourc
 ## Migrations
 - `V1__init_schema.sql` — all tables.
 - `V2__append_only_guards.sql` — triggers. Requires `log_bin_trust_function_creators=1` (set in `docker-compose.yml`) when binary logging is on and the user lacks SUPER.
+- `V3__refund_reservation_and_adjustment_balances.sql` — new escrow aggregates, redefined CHECKs, `refund_requests.funds_reserved`.
+- `V4__reconciliation_runs.sql` — run history table and its append-only triggers.
+- `V5__settlements_and_adjustments.sql` — settlement and adjustment request tables.
+- `V6__request_idempotency_keys.sql` — idempotency keys for disbursement and refund requests.
+- `V7__campaign_fundraising_close.sql` — `fundraising_closed_at` and the end-date index.
 
 Never edit applied migrations; add `V3__…`.

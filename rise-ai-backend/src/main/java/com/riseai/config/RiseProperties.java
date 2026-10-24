@@ -6,7 +6,7 @@ import java.time.Duration;
 import java.util.List;
 
 @ConfigurationProperties(prefix = "rise")
-public record RiseProperties(Security security, Escrow escrow, Simulation simulation, Seed seed) {
+public record RiseProperties(Security security, Escrow escrow, Simulation simulation, Seed seed, Jobs jobs) {
 
     public record Security(Jwt jwt, List<String> corsAllowedOrigins) {
     }
@@ -21,5 +21,8 @@ public record RiseProperties(Security security, Escrow escrow, Simulation simula
     }
 
     public record Seed(boolean enabled, String demoPassword) {
+    }
+
+    public record Jobs(boolean enabled, String reconciliationCron, String fundraisingCloseCron) {
     }
 }

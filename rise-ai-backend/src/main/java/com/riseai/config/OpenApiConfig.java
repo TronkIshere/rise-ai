@@ -9,8 +9,8 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 @OpenAPIDefinition(
-        info = @Info(title = "RISE AI Backend API", version = "0.1.0",
-                description = "Phase 0 core backend. Escrow is an internal MySQL simulation: no real funds, payments, blockchain transactions or AI integrations."),
+        info = @Info(title = "RISE AI Backend API", version = "1.0.0",
+                description = "Core backend (Phase 1 contract, frozen in docs/api/openapi-v1.json). Escrow is an internal MySQL simulation: no real funds, payments, blockchain transactions or AI integrations."),
         security = @SecurityRequirement(name = "bearerAuth"))
 @SecurityScheme(name = "bearerAuth", type = SecuritySchemeType.HTTP, scheme = "bearer", bearerFormat = "JWT")
 public class OpenApiConfig {

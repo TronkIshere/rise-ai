@@ -7,5 +7,6 @@
 | ADR-003 | Escrow engine abstraction | Accepted |
 | ADR-004 | AI monitoring event boundary | Accepted (design only) |
 | ADR-005 | Avalanche integration boundary | Accepted (design only) |
+| ADR-006 | Settlement policy and dual-controlled ledger changes | Accepted (Phase 1) |
 
 Format: Context, Decision, Alternatives, Rationale, Consequences. Add new ADRs as `ADR-00N-title.md`; never rewrite accepted ones — supersede them.

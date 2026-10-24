@@ -38,6 +38,7 @@ import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
@@ -60,17 +61,35 @@ public class DisbursementService {
 
     @Transactional
     public DisbursementResponse create(AuthUser actor, UUID milestoneId, CreateDisbursementRequest request) {
+        return create(actor, milestoneId, request, null);
+    }
+
+    @Transactional
+    public DisbursementResponse create(AuthUser actor, UUID milestoneId, CreateDisbursementRequest request, String idempotencyKey) {
         AuthUser.require(actor);
+        if (idempotencyKey != null && (idempotencyKey.isBlank() || idempotencyKey.length() > 100)) {
+            throw new ApplicationException(ErrorCode.INVALID_REQUEST, "Idempotency-Key must be 1-100 characters");
+        }
         Milestone milestone = lockMilestone(milestoneId);
         Campaign campaign = campaignService.loadOwned(actor, milestone.getCampaignId());
+        if (idempotencyKey != null) {
+            Optional<DisbursementRequest> existing = disbursementRepository.findByRequestedByAndIdempotencyKey(actor.id(), idempotencyKey);
+            if (existing.isPresent()) {
+                DisbursementRequest disbursement = existing.get();
+                if (!disbursement.getMilestoneId().equals(milestoneId) || disbursement.getRequestedAmount().compareTo(Money.requirePositive(request.amount())) != 0) {
+                    throw new ApplicationException(ErrorCode.DUPLICATE_OPERATION, "Idempotency-Key was already used for a different disbursement request");
+                }
+                return DisbursementResponse.from(disbursement);
+            }
+        }
         if (campaign.getCampaignStatus() != CampaignStatus.ACTIVE) {
             throw new ApplicationException(ErrorCode.INVALID_STATE_TRANSITION, "Campaign must be ACTIVE to request a disbursement");
         }
-        if (!REQUESTABLE.contains(milestone.getMilestoneStatus())) {
-            throw new ApplicationException(ErrorCode.INVALID_STATE_TRANSITION, "Milestone in status " + milestone.getMilestoneStatus() + " does not accept disbursement requests");
-        }
         if (disbursementRepository.existsByMilestoneIdAndRequestStatusIn(milestoneId, DisbursementStatus.OPEN)) {
             throw new ApplicationException(ErrorCode.OPEN_REQUEST_EXISTS, "Milestone already has an open disbursement request");
+        }
+        if (!REQUESTABLE.contains(milestone.getMilestoneStatus())) {
+            throw new ApplicationException(ErrorCode.INVALID_STATE_TRANSITION, "Milestone in status " + milestone.getMilestoneStatus() + " does not accept disbursement requests");
         }
         BigDecimal amount = Money.requirePositive(request.amount());
         if (amount.compareTo(milestone.remainingAmount()) > 0) {
@@ -88,6 +107,7 @@ public class DisbursementService {
         disbursement.setRequestedAmount(amount);
         disbursement.setCurrency(campaign.getCurrency());
         disbursement.setRequestReason(request.reason());
+        disbursement.setIdempotencyKey(idempotencyKey);
         disbursement.setRequestStatus(DisbursementStatus.SUBMITTED);
         disbursement.setSubmittedAt(Instant.now());
         disbursementRepository.save(disbursement);

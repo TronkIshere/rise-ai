@@ -20,6 +20,10 @@ Modular monolith (ADR-001). One Spring Boot 3.3 / Java 21 application, one MySQL
 | `dispute` | Disputes, messages, assignment, resolution, hold policy |
 | `audit` | Append-only audit log and status history |
 | `admin` | System statistics |
+| `settlement` | Phase 1: dual-controlled pro-rata settlement of leftover balance (`ProRataAllocation`) |
+| `adjustment` | Phase 1: dual-controlled ledger adjustments |
+
+Scheduled jobs (`config/ScheduledJobs`, enabled by `rise.jobs.enabled`) run escrow reconciliation (`escrow/ReconciliationService`) and fundraising close (`campaign/FundraisingCloseService`). Both are safe to run on several instances: reconciliation only reads balances, and fundraising close locks the campaign row and is idempotent.
 
 Each module contains Entity, Repository, Service, Controller and a `*Dtos` holder of request/response records. Entities never leave the service layer.
 
@@ -33,7 +37,8 @@ Rules:
 - Controllers hold no business logic; they pass the authenticated `AuthUser` and DTOs to services.
 - Financial balance changes happen **only** inside `EscrowEngine` implementations. No other class writes `escrow_accounts` or `escrow_ledger_entries`.
 - `EscrowEngine` methods use `Propagation.MANDATORY`: they must run inside the caller's business transaction, so ledger, aggregates, entity states and audit rows commit or roll back together.
-- Bean dependency order (no cycles): Audit ← Escrow ← Campaign ← Milestone ← Evidence ← Disbursement ← Dispute; Campaign ← Donation; Escrow ← Refund.
+- Bean dependency order (no cycles): Audit ← Escrow ← Campaign ← Milestone ← Evidence ← Disbursement ← Dispute; Campaign ← Donation ← FundraisingClose; Escrow ← Refund; Campaign + Escrow ← Settlement, Adjustment; EscrowQuery ← Reconciliation.
+- Lock order is unchanged and extended: business row (settlement/adjustment/refund/donation/request) → campaign (settlement, fundraising close) → donations → milestone → escrow account.
 - Package-level cycles exist between `security` and `user` (identity cluster) and between `campaign` and read-only repositories of other modules; services do not form cycles.
 
 ## Request flow

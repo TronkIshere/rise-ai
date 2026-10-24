@@ -16,6 +16,8 @@ public interface RefundRepository extends JpaRepository<RefundRequest, UUID> {
     @Query("select r from RefundRequest r where r.id = :id")
     Optional<RefundRequest> findByIdForUpdate(UUID id);
 
+    Optional<RefundRequest> findByRequestedByAndIdempotencyKey(UUID requestedBy, String idempotencyKey);
+
     boolean existsByDonationIdAndRefundStatusIn(UUID donationId, Collection<RefundStatus> statuses);
 
     Page<RefundRequest> findByRequestedBy(UUID requestedBy, Pageable pageable);

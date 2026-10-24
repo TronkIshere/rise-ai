@@ -18,7 +18,7 @@
 11. If a budget breakdown is given, it must sum exactly to `targetAmount`.
 12. Submission requires ≥ 1 milestone, milestone sum == target, future `endAt`, organization not REJECTED.
 13. Approval requires an ADMIN who is not the creator and a VERIFIED organization.
-14. Only ACTIVE campaigns inside `[startAt, endAt]` accept donations.
+14. Only ACTIVE campaigns inside `[startAt, endAt]` accept donations. Once `endAt` passes, simulated confirmation of a still-PENDING donation is refused (Phase 1).
 15. Completion and cancellation of published campaigns require no open disbursement requests and zero reserved funds.
 
 ## Milestones
@@ -55,10 +55,35 @@
 ## Refunds
 37. Refund requested ≠ approved ≠ recorded ≠ externally paid. Phase 0 never pays externally (`external_payment_status = NOT_EXECUTED_SIMULATION`).
 38. One open refund per donation; amount ≤ donation amount − refunded.
-39. Refunds draw only from unreserved available balance.
+39. Refunds draw only from unreserved available balance. Since Phase 1, approval reserves the amount (`REFUND_RESERVED`); rejecting an approved refund returns it (`REFUND_RESERVATION_RELEASED`); recording releases the reservation and records the refund in the same transaction. Disbursement requests can therefore never consume funds promised to an approved refund.
 40. Recording is idempotent per refund request.
 
 ## Financial invariants (enforced in code and DB)
 41. No negative balances; `available = confirmed − reserved − disbursed − refunded`.
-42. Ledger is append-only; corrections are compensating entries (only RESERVATION_CANCELLED exists in Phase 0). **DESIGNED:** generic admin adjustment entries — NOT IMPLEMENTED.
+42. Ledger is append-only; corrections are compensating entries (`RESERVATION_CANCELLED`, `REFUND_RESERVATION_RELEASED`) or dual-controlled adjustments (rules 50–53).
 43. All money uses `BigDecimal` / `DECIMAL(19,2)`.
+
+## Phase 1 additions — IMPLEMENTED
+### Reconciliation
+44. A scheduled job (`rise.jobs.reconciliation-cron`, hourly by default) and an ADMIN-triggered run recompute every escrow account from the ledger and compare it with stored aggregates. Each run is stored append-only in `reconciliation_runs` with its findings; every mismatch is logged at ERROR with the prefix `ALERT`. A run never modifies balances.
+
+### Settlement of leftover balance (ADR-006)
+45. Leftover available balance is settled only for COMPLETED or CANCELLED campaigns whose escrow is in SETTLEMENT, with zero disbursement and refund reservations and no donation in REFUND_PENDING.
+46. The only settlement policy is a pro-rata refund to donors: amount = min(available balance, Σ refundable of CONFIRMED/PARTIALLY_REFUNDED donations); each donation receives its share of the amount in proportion to its refundable amount, rounded down to the cent, with remaining cents assigned by largest remainder. No donation can receive more than its refundable amount. Admin-controlled reallocation to another campaign is NOT IMPLEMENTED.
+47. Dual control: one ADMIN proposes, a different ADMIN approves (which executes) or rejects; the proposer can only cancel. Neither may be the campaign creator. One open proposal per campaign.
+48. Approval recomputes the amount under lock; if it differs from the proposal the approval fails with `CONCURRENT_MODIFICATION` and a new proposal is required.
+49. Execution writes one `SETTLEMENT_REFUND_RECORDED` ledger entry per donation and updates the donation to PARTIALLY_REFUNDED or REFUNDED. No external payment is executed.
+
+### Ledger adjustments
+50. `ADJUSTMENT_CREDIT` / `ADJUSTMENT_DEBIT` entries are created only through an adjustment request with a mandatory reason.
+51. Dual control: the requesting ADMIN cannot approve or reject; a different ADMIN decides; the requester can only cancel. Neither may be the campaign creator.
+52. A debit may not exceed the available balance at approval time. Adjustments are allowed in any escrow status.
+53. Adjustments are tracked in separate aggregates (`total_adjustment_credits`, `total_adjustment_debits`); contributions, disbursements and refunds are never edited.
+
+### Idempotency
+54. `POST /milestones/{id}/disbursements` and `POST /donations/{id}/refunds` accept an optional `Idempotency-Key` header (1–100 chars), unique per requesting user. A replay returns the original request; reusing the key for a different milestone/donation or amount fails with `DUPLICATE_OPERATION`. The key is checked after the milestone/donation row lock, so concurrent replays also return the original.
+
+### Campaign end date
+55. A scheduled job (`rise.jobs.fundraising-close-cron`, every 5 minutes by default) closes fundraising for ACTIVE/PAUSED campaigns whose `endAt` has passed: it sets `fundraisingClosedAt`, fails remaining PENDING donations (system actor) and audits `CAMPAIGN_FUNDRAISING_CLOSED`. It is idempotent and does not change the campaign status: completion stays an ADMIN decision because milestone work continues after fundraising ends.
+56. Campaigns whose `endAt` has passed cannot be submitted, approved or published.
+57. Campaign responses expose `fundraisingClosedAt` and `acceptingDonations`.
