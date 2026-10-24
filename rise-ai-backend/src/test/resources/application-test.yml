@@ -1,0 +1,6 @@
+rise:
+  seed:
+    enabled: false
+logging:
+  level:
+    com.riseai: INFO

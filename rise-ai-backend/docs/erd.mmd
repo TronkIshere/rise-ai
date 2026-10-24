@@ -1,0 +1,185 @@
+erDiagram
+    users ||--o{ user_roles : has
+    users ||--o{ refresh_tokens : owns
+    users ||--o{ organizations : creates
+    users ||--o{ campaigns : creates
+    organizations ||--o{ campaigns : runs
+    campaigns ||--o{ campaign_milestones : contains
+    campaigns ||--o{ donations : receives
+    users ||--o{ donations : makes
+    campaigns ||--o| escrow_accounts : "escrow per currency"
+    escrow_accounts ||--o{ escrow_ledger_entries : records
+    campaigns ||--o{ escrow_ledger_entries : references
+    donations ||--o{ escrow_ledger_entries : "contribution or refund"
+    campaign_milestones ||--o{ escrow_ledger_entries : "reserve or release"
+    disbursement_requests ||--o{ escrow_ledger_entries : "reserve, cancel, release"
+    campaign_milestones ||--o{ disbursement_requests : funds
+    campaigns ||--o{ disbursement_requests : has
+    users ||--o{ disbursement_requests : requests
+    donations ||--o{ refund_requests : refunds
+    campaigns ||--o{ refund_requests : has
+    campaign_milestones ||--o{ evidence_records : supports
+    disbursement_requests ||--o{ evidence_records : supports
+    users ||--o{ evidence_records : submits
+    campaigns ||--o{ disputes : concerns
+    campaign_milestones ||--o{ disputes : concerns
+    disbursement_requests ||--o{ disputes : concerns
+    users ||--o{ disputes : opens
+    disputes ||--o{ dispute_messages : has
+
+    users {
+        char36 id PK
+        varchar email UK
+        varchar password_hash
+        varchar full_name
+        varchar status
+        boolean email_verified
+        bigint version
+    }
+    user_roles {
+        char36 user_id PK,FK
+        varchar role PK
+    }
+    refresh_tokens {
+        char36 id PK
+        char36 user_id FK
+        char64 token_hash UK
+        datetime expires_at
+        datetime revoked_at
+    }
+    organizations {
+        char36 id PK
+        varchar slug UK
+        varchar organization_type
+        varchar verification_status
+        char36 created_by FK
+    }
+    campaigns {
+        char36 id PK
+        varchar campaign_code UK
+        varchar slug UK
+        char36 creator_id FK
+        char36 organization_id FK
+        decimal target_amount
+        char3 currency
+        decimal minimum_donation_amount
+        json budget_breakdown
+        json gallery_image_urls
+        varchar campaign_status
+        varchar review_status
+        bigint version
+    }
+    campaign_milestones {
+        char36 id PK
+        char36 campaign_id FK
+        int sequence_number
+        decimal planned_amount
+        decimal reserved_amount
+        decimal released_amount
+        varchar milestone_status
+        varchar pre_dispute_status
+    }
+    donations {
+        char36 id PK
+        varchar donation_code UK
+        char36 campaign_id FK
+        char36 donor_id FK
+        decimal amount
+        decimal refunded_amount
+        varchar donation_status
+        boolean is_anonymous
+        varchar idempotency_key
+    }
+    escrow_accounts {
+        char36 id PK
+        char36 campaign_id FK
+        char3 currency
+        decimal total_confirmed_contributions
+        decimal total_reserved
+        decimal total_disbursed
+        decimal total_refunded
+        decimal available_balance
+        varchar escrow_status
+        bigint version
+    }
+    escrow_ledger_entries {
+        char36 id PK
+        varchar transaction_code UK
+        char36 escrow_account_id FK
+        char36 campaign_id FK
+        char36 donation_id FK
+        char36 milestone_id FK
+        char36 disbursement_id FK
+        varchar transaction_type
+        varchar direction
+        decimal amount
+        varchar idempotency_key UK
+        varchar reference_type
+        char36 reference_id
+        char36 created_by FK
+    }
+    disbursement_requests {
+        char36 id PK
+        varchar request_code UK
+        char36 campaign_id FK
+        char36 milestone_id FK
+        char36 requested_by FK
+        decimal requested_amount
+        varchar request_status
+        varchar pre_dispute_status
+        char36 reviewed_by FK
+        char36 released_by FK
+    }
+    refund_requests {
+        char36 id PK
+        varchar refund_code UK
+        char36 donation_id FK
+        char36 campaign_id FK
+        decimal amount
+        varchar refund_status
+        varchar external_payment_status
+    }
+    evidence_records {
+        char36 id PK
+        char36 campaign_id FK
+        char36 milestone_id FK
+        char36 disbursement_request_id FK
+        varchar evidence_type
+        varchar file_url
+        char64 file_hash
+        varchar evidence_status
+    }
+    disputes {
+        char36 id PK
+        varchar dispute_code UK
+        char36 campaign_id FK
+        char36 milestone_id FK
+        char36 disbursement_request_id FK
+        char36 opened_by FK
+        varchar dispute_status
+        char36 assigned_to FK
+        char36 resolved_by FK
+    }
+    dispute_messages {
+        char36 id PK
+        char36 dispute_id FK
+        char36 author_id FK
+        text message
+    }
+    status_history {
+        char36 id PK
+        varchar entity_type
+        char36 entity_id
+        varchar from_status
+        varchar to_status
+        char36 changed_by
+    }
+    audit_logs {
+        char36 id PK
+        char36 actor_user_id
+        varchar action
+        varchar entity_type
+        char36 entity_id
+        varchar correlation_id
+        json metadata
+    }

@@ -1,0 +1,80 @@
+server:
+  port: 8080
+  error:
+    include-stacktrace: never
+    include-message: never
+
+spring:
+  application:
+    name: rise-ai-backend
+  datasource:
+    url: jdbc:mysql://localhost:3306/rise_ai?useUnicode=true&characterEncoding=utf8&serverTimezone=UTC&useSSL=false&allowPublicKeyRetrieval=true
+    username: rise_dev
+    password: rise_dev_password
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      maximum-pool-size: 10
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: none
+    properties:
+      hibernate:
+        jdbc:
+          time_zone: UTC
+        type:
+          preferred_uuid_jdbc_type: CHAR
+        format_sql: false
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    validate-on-migrate: true
+  jackson:
+    default-property-inclusion: non_null
+    serialization:
+      write-dates-as-timestamps: false
+  data:
+    web:
+      pageable:
+        max-page-size: 100
+        default-page-size: 20
+
+rise:
+  security:
+    jwt:
+      secret: ${RISE_JWT_SECRET:dev-only-change-me-rise-ai-local-jwt-secret-32bytes-min}
+      issuer: rise-ai
+      access-token-ttl: 30m
+      refresh-token-ttl: 7d
+    cors-allowed-origins: http://localhost:3000,http://localhost:5173
+  escrow:
+    currency: VND
+    dispute-auto-hold: true
+  simulation:
+    donation-confirmation-enabled: true
+  seed:
+    enabled: true
+    demo-password: ${RISE_DEMO_PASSWORD:Demo@12345}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: never
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+
+logging:
+  level:
+    root: INFO
+    com.riseai: DEBUG
+    org.hibernate.SQL: WARN
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level [%X{correlationId:-}] %logger{36} - %msg%n"

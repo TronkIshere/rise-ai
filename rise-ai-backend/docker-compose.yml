@@ -1,0 +1,24 @@
+services:
+  mysql:
+    image: mysql:8.4
+    container_name: rise-ai-mysql
+    command:
+      - --log-bin-trust-function-creators=1
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+    environment:
+      MYSQL_DATABASE: rise_ai
+      MYSQL_USER: rise_dev
+      MYSQL_PASSWORD: rise_dev_password
+      MYSQL_ROOT_PASSWORD: rise_root_dev_password
+    ports:
+      - "3306:3306"
+    volumes:
+      - rise_mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-urise_dev", "-prise_dev_password"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+volumes:
+  rise_mysql_data:
