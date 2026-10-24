@@ -1,0 +1,20 @@
+spring:
+  application:
+    name: test-simulator
+  main:
+    web-application-type: none
+    banner-mode: off
+
+logging:
+  level:
+    root: WARN
+
+simulator:
+  core-url: ${SIMULATOR_CORE_URL:http://localhost:8080}
+  scenario-count: 100000
+  seed: 42
+  concurrency: 4
+  request-timeout: 30s
+  report-directory: reports
+  include-ai-scenarios: true
+  fail-fast: true

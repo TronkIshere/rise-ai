@@ -1,0 +1,15 @@
+monitoring:
+  rules:
+    allowed-event-types: [request.completed, job.completed, disk.status, service.heartbeat, deployment.finished]
+    thresholds:
+      - attribute: latencyMs
+        max: 1000
+        severity: HIGH
+      - attribute: freeDiskPercent
+        min: 10
+        severity: MEDIUM
+  delivery:
+    log-results: false
+
+ollama:
+  request-timeout: 20s
