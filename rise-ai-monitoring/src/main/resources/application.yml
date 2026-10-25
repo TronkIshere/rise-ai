@@ -1,0 +1,94 @@
+spring:
+  application:
+    name: rise-ai-monitoring
+  jackson:
+    mapper:
+      accept-case-insensitive-enums: true
+  datasource:
+    url: ${MONITORING_DB_URL:jdbc:h2:mem:rise-ai-monitoring;DB_CLOSE_DELAY=-1}
+    username: ${MONITORING_DB_USERNAME:sa}
+    password: ${MONITORING_DB_PASSWORD:}
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+
+server:
+  port: ${SERVER_PORT:8081}
+  error:
+    include-stacktrace: never
+    include-message: never
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: never
+      show-components: always
+
+logging:
+  pattern:
+    level: "%5p [%X{correlationId:-},%X{eventId:-}]"
+
+monitoring:
+  limits:
+    max-request-bytes: ${MONITORING_MAX_REQUEST_BYTES:262144}
+    max-payload-bytes: ${MONITORING_MAX_PAYLOAD_BYTES:65536}
+    max-payload-depth: 20
+    max-attributes: 50
+    max-attribute-value-length: 1000
+  rules:
+    enabled: ${MONITORING_RULES_ENABLED:true}
+    disabled-rules: []
+    allowed-event-types: []
+    required-attributes: []
+    max-clock-skew: 5m
+    max-event-age: 7d
+    flag-reported-severity-at: HIGH
+    thresholds: []
+  ai:
+    enabled: ${MONITORING_AI_ENABLED:true}
+    trigger: ${MONITORING_AI_TRIGGER:ON_RULE_FLAG}
+    always-analyze-event-types: []
+    on-failure: ${MONITORING_AI_ON_FAILURE:INCONCLUSIVE}
+    max-prompt-event-characters: 8000
+    include-payload: ${MONITORING_AI_INCLUDE_PAYLOAD:false}
+    redacted-field-names: [password, secret, token, authorization, apikey, credential]
+    max-list-items: 5
+    max-item-length: 300
+    max-explanation-length: 1000
+  policy:
+    review-rule-severity: HIGH
+    review-ai-assessments: [NEEDS_REVIEW, LIKELY_ANOMALOUS, INSUFFICIENT_EVIDENCE]
+    review-when-ai-suggests: true
+  deduplication:
+    enabled: ${MONITORING_DEDUPLICATION_ENABLED:true}
+    retention: ${MONITORING_DEDUPLICATION_RETENTION:24h}
+    max-tracked-events: 10000
+  delivery:
+    log-results: true
+  security:
+    service-key: ${MONITORING_SERVICE_KEY:}
+    require-service-key: ${MONITORING_REQUIRE_SERVICE_KEY:false}
+  rise:
+    enabled: ${MONITORING_RISE_ENABLED:true}
+    source: rise-ai-backend
+    supported-schema-versions: [1]
+    minimal-evidence-approval-amount: 50000000
+    minimal-evidence-count: 1
+    resubmission-window: 24h
+    max-requests-per-milestone: 3
+    adjustment-review-amount: 10000000
+    projection-retention: 400d
+
+ollama:
+  base-url: ${OLLAMA_BASE_URL:http://localhost:11434}
+  model: ${OLLAMA_MODEL:qwen3.5:9b}
+  connect-timeout: ${OLLAMA_CONNECT_TIMEOUT:2s}
+  request-timeout: ${OLLAMA_REQUEST_TIMEOUT:60s}
+  status-timeout: 3s
+  temperature: 0.0
+  max-output-tokens: 512
+  think: ${OLLAMA_THINK:false}

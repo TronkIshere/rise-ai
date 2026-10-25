@@ -1,8 +1,0 @@
-management:
-  endpoint:
-    health:
-      show-details: always
-
-logging:
-  level:
-    com.aicore.eventmonitor: DEBUG

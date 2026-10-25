@@ -1,0 +1,36 @@
+server:
+  address: ${SERVER_ADDRESS:127.0.0.1}
+
+spring:
+  datasource:
+    url: ${MONITORING_DB_URL:jdbc:h2:file:./data/rise-ai-monitoring}
+
+monitoring:
+  security:
+    require-service-key: true
+  rules:
+    max-event-age: 30d
+    allowed-event-types:
+      - campaign_created
+      - campaign_submitted_for_review
+      - campaign_approved
+      - campaign_paused
+      - donation_confirmed
+      - milestone_created
+      - milestone_evidence_submitted
+      - evidence_accepted
+      - evidence_rejected
+      - disbursement_requested
+      - disbursement_approved
+      - disbursement_rejected
+      - disbursement_released
+      - dispute_opened
+      - dispute_resolved
+      - refund_requested
+      - refund_recorded
+      - adjustment_applied
+      - settlement_executed
+      - reconciliation_run_completed
+  ai:
+    enabled: ${MONITORING_AI_ENABLED:false}
+    on-failure: RULES_ONLY
