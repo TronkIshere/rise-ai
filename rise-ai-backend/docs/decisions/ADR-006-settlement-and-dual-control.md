@@ -1,5 +1,7 @@
 # ADR-006 — Settlement Policy and Dual-Controlled Ledger Changes
 
+> **Note (2026-10-25):** package paths in this document refer to the capability-based layout used before the layered refactor (ADR-008). For current locations see `architecture.md` › Package layout.
+
 ## Context
 Phase 1 (`phase-1-business-hardening.md`, objectives 3 and 5) needs two things:
 - a policy for the available balance left after a campaign is COMPLETED or CANCELLED, either a "pro-rata refund batch or admin-controlled reallocation";

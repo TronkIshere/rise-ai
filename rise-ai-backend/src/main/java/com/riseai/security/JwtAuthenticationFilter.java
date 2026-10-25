@@ -1,7 +1,7 @@
 package com.riseai.security;
 
-import com.riseai.user.UserRepository;
-import com.riseai.user.UserStatus;
+import com.riseai.enums.UserStatus;
+import com.riseai.repository.UserRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

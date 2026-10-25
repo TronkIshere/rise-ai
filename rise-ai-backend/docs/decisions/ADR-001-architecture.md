@@ -1,5 +1,7 @@
 # ADR-001 — Modular Monolith
 
+> **Status update 2026-10-25:** the modular monolith stands; the package-per-capability layout is superseded by ADR-008 (layered packages).
+
 ## Context
 Small team, Phase 0 scope, strong transactional consistency needed between campaign/milestone state and escrow money.
 

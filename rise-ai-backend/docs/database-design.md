@@ -32,6 +32,9 @@ MySQL 8, InnoDB, `utf8mb4_unicode_ci`. Schema owned by Flyway (`src/main/resourc
 | reconciliation_runs (V4) | Reconciliation report history | unique run_code; CHECK counts; idx started_at, (run_status, started_at); append-only trigger |
 | settlement_requests (V5) | Dual-controlled leftover settlements | unique code; CHECK amount > 0; CHECK decided_by ≠ proposed_by; idx (campaign_id, status) |
 | escrow_adjustments (V5) | Dual-controlled ledger adjustments | unique code; CHECK amount > 0, direction ∈ {CREDIT, DEBIT}, decided_by ≠ requested_by; idx (campaign_id, status) |
+| outbox_events (V8) | Transactional outbox of domain events for AI monitoring | UNIQUE event_id; CHECK status ∈ {PENDING, IN_FLIGHT, PUBLISHED, FAILED}, attempts ≥ 0; idx (status, next_attempt_at), (aggregate_type, aggregate_id, occurred_at); `envelope` MEDIUMTEXT holds the frozen JSON envelope; optimistic `version`. Mutable (relay status); published rows purged after 30 days |
+| monitoring_findings (V9) | Advisory findings from rise-ai-monitoring, with review state | UNIQUE finding_key (64-hex `findingId`); CHECK severity, review_status, counts ≥ 0; FK reviewed_by → users; idx (review_status, severity, last_seen_at), (campaign_id, last_seen_at); `facts` JSON; optimistic `version` |
+| monitoring_finding_occurrences (V9) | One row per (finding, source event) | UNIQUE (finding_id, source_event_id); FK finding_id; idx (finding_id, observed_at); append-only triggers |
 
 Phase 1 columns:
 - `escrow_accounts.total_refund_reserved`, `total_adjustment_credits`, `total_adjustment_debits` (V3). V3 also redefines the non-negative CHECK and the balance identity CHECK.
@@ -40,7 +43,7 @@ Phase 1 columns:
 - `campaigns.fundraising_closed_at` and index `(campaign_status, end_at)` (V7).
 
 ## Additional tables (justification)
-`refresh_tokens` (revocable sessions), `refund_requests` (spec 8.8 requires requested/approved/recorded distinction), `dispute_messages` (spec "submit responses"), `status_history` (milestone/disbursement/dispute history endpoints). No other tables exist.
+`refresh_tokens` (revocable sessions), `refund_requests` (spec 8.8 requires requested/approved/recorded distinction), `dispute_messages` (spec "submit responses"), `status_history` (milestone/disbursement/dispute history endpoints). Phase 2 adds `outbox_events` (reliable event delivery without dual writes, ADR-004) and the two monitoring tables (advisory findings and their per-event occurrences, ADR-007). No business table references the monitoring tables.
 
 ## Budget strategy
 - `campaigns.budget_breakdown` JSON array of `{item, amount, note}`; when non-empty its sum must equal `target_amount`.
@@ -54,5 +57,9 @@ Phase 1 columns:
 - `V5__settlements_and_adjustments.sql` — settlement and adjustment request tables.
 - `V6__request_idempotency_keys.sql` — idempotency keys for disbursement and refund requests.
 - `V7__campaign_fundraising_close.sql` — `fundraising_closed_at` and the end-date index.
+- `V8__outbox_events.sql` — transactional outbox (Phase 2).
+- `V9__monitoring_findings.sql` — findings, occurrences and the occurrence append-only triggers (Phase 2).
+
+V1–V9 were applied to an empty MySQL 8.4 database by the packaged application on 2026-10-25 (Flyway warns that MySQL 8.4 is newer than its tested range; migration succeeded).
 
 Never edit applied migrations; add `V3__…`.

@@ -156,4 +156,21 @@ Escrow summary also returns `totalRefundReserved`, `totalAdjustmentCredits` and 
 | GET | /admin/statistics | ADM | |
 | GET | /actuator/health, /actuator/info | P | |
 
+### AI monitoring findings (Phase 2, ADM only, advisory)
+Findings come from `rise-ai-monitoring` through the outbox relay. They never change business state. Every response item carries `advisoryOnly: true`.
+
+| Method | Path | Who | Notes |
+|---|---|---|---|
+| GET | /admin/monitoring/findings?status&severity&category&campaignId | ADM | Page of `FindingResponse`, default sort `lastSeenAt` desc. `status` ∈ OPEN, ACKNOWLEDGED, CONCERN_CONFIRMED, DISMISSED; `severity` ∈ INFO, LOW, MEDIUM, HIGH, CRITICAL |
+| GET | /admin/monitoring/findings/{id} | ADM | `{finding, occurrences[{sourceEventId, actorId, severity, observedAt}]}` |
+| GET | /admin/monitoring/findings/{id}/history | ADM | Status history (entity `MONITORING_FINDING`) |
+| POST | /admin/monitoring/findings/{id}/review | ADM, not the campaign creator, not an actor of any source event | `{status: ACKNOWLEDGED\|CONCERN_CONFIRMED\|DISMISSED, note}`; note required (≤ 2000). Errors: `INVALID_STATE_TRANSITION`, `CONFLICT_OF_INTEREST`, `VALIDATION_FAILED` |
+| GET | /admin/monitoring/outbox/stats | ADM | `{relayEnabled, pending, inFlight, published, failed, oldestUndeliveredOccurredAt?, oldestUndeliveredAgeSeconds?}` |
+| GET | /admin/monitoring/outbox?status | ADM | Page of outbox rows (no envelope body), default sort `occurredAt` asc |
+| POST | /admin/monitoring/outbox/{id}/requeue | ADM | `{reason?}`; only `FAILED` rows; resets attempts; audited `OUTBOX_EVENT_REQUEUED` |
+
+`FindingResponse`: `id, findingKey, detectorType, ruleId, ruleVersion, category, severity, subjectType, subjectId, campaignId?, milestoneId?, disbursementRequestId?, explanation, recommendedAction, facts[{name,value,sourceEventId}], reviewStatus, occurrenceCount, newOccurrencesSinceReview, firstSeenAt, lastSeenAt, reviewedBy?, reviewedAt?, reviewNote?, advisoryOnly`.
+
+These endpoints were added to the frozen snapshot `docs/api/openapi-v1.json` on 2026-10-25 (additive only: 603 lines added, none removed; `OpenApiContractTest` passes).
+
 P* = public for published campaigns; otherwise owner/admin only, 404 for others.

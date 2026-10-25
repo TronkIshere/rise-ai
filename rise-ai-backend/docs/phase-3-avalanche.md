@@ -3,7 +3,7 @@
 No blockchain code, SDKs, keys or RPC configuration exist in Phase 0. Do not deploy to mainnet or handle real assets without explicit authorization, testing and security review.
 
 ## Inputs & prerequisites
-Phase 1 complete. Read `architecture.md`, `escrow-lifecycle.md`, `ledger-and-balance-rules.md`, ADR-003, ADR-005. Inspect `escrow/EscrowEngine` and `SimulatedEscrowEngine`.
+Phase 1 complete. Read `architecture.md`, `escrow-lifecycle.md`, `ledger-and-balance-rules.md`, ADR-003, ADR-005. Inspect `service/EscrowEngine` and `SimulatedEscrowEngine`.
 
 ## Objectives
 Back campaign/milestone escrow with Solidity contracts on Avalanche C-Chain (local network/Fuji first), keeping the backend as orchestrator and metadata store.

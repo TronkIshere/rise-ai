@@ -34,3 +34,11 @@ CORS allow-list from `rise.security.cors-allowed-origins`. CSRF disabled (statel
 - Demo accounts share one password (`docs/demo-credentials.md`). Disable seeding (`rise.seed.enabled=false`) in any shared environment.
 - Simulated confirmation endpoint is ADMIN-only and can be disabled with `rise.simulation.donation-confirmation-enabled=false`.
 - No email verification, MFA or account lockout. PLANNED (Phase 4).
+
+## AI monitoring (Phase 2)
+- **Service-to-service authentication.** The relay sends `Authorization: Bearer <RISE_MONITORING_SERVICE_KEY>`; the monitor compares it in constant time and returns 401 otherwise. The key has no default; set the same value in `MONITORING_SERVICE_KEY` on the monitor. The monitor's `riseai` profile refuses to start without it and binds to 127.0.0.1 by default.
+- **No shared JWT secret.** The monitor never receives `RISE_JWT_SECRET`: tokens are HMAC-signed, so any holder of the secret could mint ADMIN tokens. Human review therefore happens in the backend.
+- **Data minimization.** Event payloads follow per-type allowlists (`mapper/RiseEvents`); identifiers and file hashes are kept out of the monitor's AI-visible attributes by `MonitoringClient`. The monitor stores only a minimized projection in its own database.
+- **No AI authority.** Findings are advisory (business rules 61–65). AI output, if enabled on the monitor, cannot create, change or remove findings, and the backend never acts on findings automatically.
+- **Logging.** Envelopes are not logged; relay logs carry event IDs, types and error summaries only.
+- **Not yet implemented:** service-key rotation (two keys), mTLS, network policy beyond loopback binding, alerting on FAILED outbox rows (logged with an `ALERT` prefix only).

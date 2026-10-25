@@ -1,6 +1,6 @@
 # Data Initialization — IMPLEMENTED
 
-Schema = Flyway migrations. Demo data = `config/DemoDataSeeder` (ApplicationRunner, enabled by `rise.seed.enabled=true`, default on in `application.yml`, off under the `test` profile).
+Schema = Flyway migrations. Demo data = `configuration/DemoDataSeeder` (ApplicationRunner, enabled by `rise.seed.enabled=true`, default on in `application.yml`, off under the `test` profile).
 
 ## How it seeds
 Demo **users** are inserted directly (roles cannot be self-assigned through the API). Everything else is created **through the real services** (organization review, campaign submission/approval/publication, donations + simulated confirmation, evidence review, disbursement review/release, disputes, refunds). Ledger entries and balances are therefore produced by the same code paths as production traffic and reconcile by construction.

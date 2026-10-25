@@ -7,8 +7,8 @@ import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jose.crypto.MACVerifier;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
-import com.riseai.config.RiseProperties;
-import com.riseai.user.User;
+import com.riseai.configuration.RiseProperties;
+import com.riseai.entity.User;
 import org.springframework.stereotype.Service;
 
 import java.nio.charset.StandardCharsets;

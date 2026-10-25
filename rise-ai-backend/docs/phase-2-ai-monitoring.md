@@ -1,6 +1,10 @@
-# Phase 2 — AI Monitoring Integration (PLANNED, NOT IMPLEMENTED)
+# Phase 2 — AI Monitoring Integration (IMPLEMENTED as MVP, 2026-10-25)
 
-Nothing in Phase 0 publishes events or calls AI. This document is the design to follow when Phase 2 is explicitly requested.
+**Status.** The MVP is implemented and verified end to end: transactional outbox (V8), relay with retry and dead-lettering, 20 event types, findings storage and admin review (V9), and eight deterministic charity rules in `rise-ai-monitoring`. Evidence: `../../docs/ai-monitoring/06-progress-report.md`. Contract: `event-contracts.md`. Decisions: ADR-004, ADR-007. Not implemented (see the roadmap): AI-assisted analysis adapted to charity data (M8), time-based rules, key rotation/mTLS, alert delivery, Dockerfiles/CI (Phase 4).
+
+The original design below is kept for reference; where it differs from the implementation, `event-contracts.md` and ADR-007 are canonical.
+
+> **Detailed plan (2026-10-25):** `docs/ai-monitoring/` at the repository root breaks this phase into sub-phases M0–M10, with contracts, decisions requiring approval, and an acceptance checklist. It keeps every boundary in this document (outbox, at-least-once delivery, advisory-only AI, no AI writes to business tables). Where they differ, the detailed plan refines this document. Main refinements: findings are returned in the monitor's synchronous response and stored by the backend relay (instead of an ingestion API) for the MVP; the relay uses claim-and-lease rather than holding `FOR UPDATE SKIP LOCKED` locks across the HTTP call; the envelope gains optional `actorRole` and `references`.
 
 ## Inputs & prerequisites
 Phase 1 complete. Read `README.md`, `architecture.md`, `event-contracts.md`, ADR-004.

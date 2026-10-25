@@ -1,5 +1,7 @@
 # ADR-004 — AI Monitoring Event Boundary
 
+> **Status update 2026-10-25:** implemented in Phase 2. Transport, return path and review placement are recorded in ADR-007.
+
 ## Context
 An independent AI Monitoring module may analyse activity. It must never become a dependency of financial decisions.
 

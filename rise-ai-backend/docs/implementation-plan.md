@@ -4,7 +4,7 @@
 |---|---|---|---|---|
 | 0 Core backend | IMPLEMENTED; verified manually by the developer (2026-10-25) | — | Schema, auth, CRUD, simulated escrow, seed, tests, docs | `phase-0-acceptance-criteria.md` items verified locally |
 | 1 Business hardening | IMPLEMENTED (2026-10-25); see the progress table in `phase-1-business-hardening.md` | 0 verified locally | See `phase-1-business-hardening.md` | Invariant tests, reconciliation job, stable API |
-| 2 AI monitoring integration | PLANNED | 1 | Transactional outbox, event publisher, contracts | `phase-2-ai-monitoring.md` criteria |
+| 2 AI monitoring integration | MVP IMPLEMENTED (2026-10-25): M0–M7, M10 MVP E2E and most M9 MVP items; M8 (AI-assisted analysis) and production items PENDING. Sub-phases in `../../docs/ai-monitoring/04-roadmap.md` | 1 | Transactional outbox, event publisher, contracts, findings and review (see roadmap) | `phase-2-ai-monitoring.md` criteria and `../../docs/ai-monitoring/05-acceptance-checklist.md` |
 | 3 Avalanche escrow | PLANNED | 1 (2 optional) | Contracts, adapter behind `EscrowEngine`, sync | `phase-3-avalanche.md` criteria |
 | 4 Production readiness | PLANNED | 1–3 as applicable | Ops, security, observability | `phase-4-production-readiness.md` |
 
@@ -20,4 +20,4 @@
 9. Documentation and ADRs.
 
 ## Next action for any agent
-Phase 1 is complete; see its progress table for evidence. Do not start Phase 2 (AI monitoring) or Phase 3 (Avalanche) without an explicit request. Phase 3 depends only on Phase 1; Phase 2 is optional for it.
+Phases 1 and 2 (MVP) are complete; see their documents for evidence. Remaining Phase 2 work is listed in `../../docs/ai-monitoring/06-progress-report.md` › Next steps. Do not start Phase 3 (Avalanche) without an explicit request; it depends only on Phase 1.

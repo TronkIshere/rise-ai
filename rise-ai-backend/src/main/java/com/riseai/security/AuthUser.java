@@ -1,8 +1,8 @@
 package com.riseai.security;
 
-import com.riseai.common.exception.ApplicationException;
-import com.riseai.common.exception.ErrorCode;
-import com.riseai.user.Role;
+import com.riseai.enums.Role;
+import com.riseai.exception.ApplicationException;
+import com.riseai.exception.ErrorCode;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 import java.util.List;

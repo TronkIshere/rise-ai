@@ -87,3 +87,17 @@
 55. A scheduled job (`rise.jobs.fundraising-close-cron`, every 5 minutes by default) closes fundraising for ACTIVE/PAUSED campaigns whose `endAt` has passed: it sets `fundraisingClosedAt`, fails remaining PENDING donations (system actor) and audits `CAMPAIGN_FUNDRAISING_CLOSED`. It is idempotent and does not change the campaign status: completion stays an ADMIN decision because milestone work continues after fundraising ends.
 56. Campaigns whose `endAt` has passed cannot be submitted, approved or published.
 57. Campaign responses expose `fundraisingClosedAt` and `acceptingDonations`.
+
+## Phase 2 additions — AI monitoring — IMPLEMENTED
+### Events
+58. Every action in the event catalogue (`event-contracts.md`) writes exactly one outbox row in the same transaction as the business change; a rolled-back action writes none.
+59. Events carry identifiers, enum values, amounts, counts and timestamps only. Free text, contact data, file URLs and IP addresses are never published.
+60. The relay runs only when `rise.monitoring.enabled=true`; business operations never wait for, call or depend on the monitoring service.
+
+### Findings
+61. Findings are advisory. No service in escrow, disbursement, refund, settlement, adjustment, donation, campaign, milestone, evidence, dispute, organization or user reads them (`LayeredArchitectureTest`). A finding is never proof of fraud or misuse (same principle as rules 24 and 36).
+62. Findings are stored once per `findingId`; each (finding, source event) pair is recorded once; stored severity never decreases.
+63. Only an ADMIN can read or review findings. The campaign creator and any actor of a source event cannot review the finding (`CONFLICT_OF_INTEREST`).
+64. Review transitions: OPEN → ACKNOWLEDGED | CONCERN_CONFIRMED | DISMISSED; ACKNOWLEDGED → CONCERN_CONFIRMED | DISMISSED. CONCERN_CONFIRMED and DISMISSED are final, except that a DISMISSED finding whose severity escalates is reopened to OPEN by the system. Every review needs a note (≤ 2000 characters) and is audited.
+65. Consequential follow-up (requesting evidence, rejecting a request, pausing a campaign, resolving a dispute) happens only through the existing endpoints and their rules.
+66. Only FAILED outbox events can be requeued, by an ADMIN, with an audit entry.

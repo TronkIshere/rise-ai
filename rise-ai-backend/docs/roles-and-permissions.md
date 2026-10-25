@@ -40,3 +40,13 @@ Roles are an enum stored in `user_roles` (ADR-002). A user may hold several role
 | Read own audit activity | ✔ | ✔ | ✔ | – |
 
 Nobody — including ADMIN — can edit or delete ledger entries, audit logs or status history through the API; DB triggers also block it.
+
+## Phase 2 — AI monitoring (advisory)
+| Action | ADMIN | CAMPAIGN_CREATOR | DONOR | Anonymous |
+|---|---|---|---|---|
+| List / read monitoring findings and their history | ✔ | – | – | – |
+| Review a finding | ✔ (not the campaign creator, not an actor of a source event) | – | – | – |
+| Read outbox statistics and rows | ✔ | – | – | – |
+| Requeue a FAILED outbox event | ✔ | – | – | – |
+
+The monitoring service authenticates to nobody in the backend: it has no backend credentials. The backend authenticates to the monitoring service with a shared service key (`rise.monitoring.service-key`).

@@ -1,8 +1,8 @@
 package com.riseai.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.riseai.common.api.ApiError;
-import com.riseai.common.exception.ErrorCode;
+import com.riseai.dto.response.ApiError;
+import com.riseai.exception.ErrorCode;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;

@@ -94,3 +94,24 @@ Escrow adjustment:
 | REQUESTED | CANCELLED | cancel | requester |
 
 Reconciliation runs are immutable records, written once with status CONSISTENT, INCONSISTENT or FAILED.
+
+## Phase 2 additions — AI monitoring
+
+### Outbox event (`outbox_events.status`)
+| From | To | Trigger |
+|---|---|---|
+| (new) | PENDING | business transaction commits |
+| PENDING / IN_FLIGHT (lease expired) | IN_FLIGHT | relay claims the row (attempts + 1, lease set) |
+| IN_FLIGHT | PUBLISHED | monitor answered 200 and findings were stored |
+| IN_FLIGHT | PENDING | retryable failure, attempts below the maximum (backoff) |
+| IN_FLIGHT | FAILED | non-retryable failure, attempts exhausted, or invalid finding contract |
+| FAILED | PENDING | ADMIN requeue (attempts reset) |
+| PUBLISHED | (deleted) | purge after `published-retention` |
+
+### Monitoring finding (`monitoring_findings.review_status`)
+| From | To | Trigger | Who |
+|---|---|---|---|
+| (new) | OPEN | first occurrence ingested | system |
+| OPEN | ACKNOWLEDGED / CONCERN_CONFIRMED / DISMISSED | review | independent ADMIN |
+| ACKNOWLEDGED | CONCERN_CONFIRMED / DISMISSED | review | independent ADMIN |
+| DISMISSED | OPEN | severity escalated by a new occurrence | system |

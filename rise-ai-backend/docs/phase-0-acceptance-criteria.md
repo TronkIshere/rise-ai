@@ -1,5 +1,7 @@
 # Phase 0 Acceptance Criteria
 
+> **Note (2026-10-25):** package paths in this document refer to the capability-based layout used before the layered refactor (ADR-008). For current locations see `architecture.md` › Package layout.
+
 "Code status" reflects what exists in the repository. **No item has been verified by compiling, testing or running** — the generating agent was instructed not to execute builds. Mark "Verified" locally.
 
 | # | Criterion | Code status | Where | Verified |

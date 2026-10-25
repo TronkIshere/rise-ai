@@ -1,8 +1,8 @@
 package com.riseai.security;
 
-import com.riseai.config.RiseProperties;
-import com.riseai.user.Role;
-import com.riseai.user.User;
+import com.riseai.configuration.RiseProperties;
+import com.riseai.entity.User;
+import com.riseai.enums.Role;
 import org.junit.jupiter.api.Test;
 
 import java.time.Duration;

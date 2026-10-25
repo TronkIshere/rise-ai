@@ -34,7 +34,7 @@ adjustment debit  = Σ ADJUSTMENT_DEBIT
 available = confirmed + adjustment credit − adjustment debit − reserved − refund reserved − disbursed − refunded
 held      = confirmed + adjustment credit − adjustment debit − disbursed − refunded
 ```
-Milestone aggregates: `reserved_amount + released_amount ≤ planned_amount` (DB CHECK). The available-balance identity above is a DB CHECK (`ck_escrow_balance_identity`, redefined in V3) and is also enforced by `SimulatedEscrowEngine.verifyInvariants`. The formula is implemented once in `EscrowDtos.Balances.fromLedger`, which reconciliation and the property tests share.
+Milestone aggregates: `reserved_amount + released_amount ≤ planned_amount` (DB CHECK). The available-balance identity above is a DB CHECK (`ck_escrow_balance_identity`, redefined in V3) and is also enforced by `SimulatedEscrowEngine.verifyInvariants`. The formula is implemented once in `dto/response/Balances.fromLedger`, which reconciliation and the property tests share.
 
 ## Transaction boundaries
 One business operation = one DB transaction containing: entity state change, ledger append, aggregate update, status history and audit row. `EscrowEngine` requires an existing transaction (`MANDATORY`).

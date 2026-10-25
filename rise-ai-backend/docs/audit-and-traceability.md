@@ -32,3 +32,12 @@ Phase 1: RECONCILIATION_RUN_COMPLETED, SETTLEMENT_PROPOSED/EXECUTED/REJECTED/CAN
 5. Logs include the correlation id in every line (`logging.pattern.console`).
 
 Example — trace a released disbursement: `/disbursements/{id}/history` → ledger `?type=FUNDS_RELEASED` filtered by `disbursementId` → audit-logs `entityId={ledgerEntryId}` → reconciliation report.
+
+## Phase 2 — AI monitoring
+New audit actions: `MONITORING_FINDING_REVIEWED` (ADMIN review, with note), `MONITORING_FINDING_REOPENED` (system, severity escalation), `OUTBOX_EVENT_REQUEUED` (ADMIN). Entity types `MONITORING_FINDING` and `OUTBOX_EVENT` have status history.
+
+Tracing a finding back to the business action:
+1. `GET /api/v1/admin/monitoring/findings/{id}` → `occurrences[].sourceEventId`.
+2. `outbox_events.event_id = sourceEventId` → `event_type`, `aggregate_type`, `aggregate_id`, `actor_id`, `correlation_id`.
+3. `GET /api/v1/admin/audit-logs?entityId={aggregateId}` → the audit row of the same action (same correlation id when the action came over HTTP).
+4. The monitor's logs carry the same `correlationId` (it is forwarded as `X-Correlation-Id`).

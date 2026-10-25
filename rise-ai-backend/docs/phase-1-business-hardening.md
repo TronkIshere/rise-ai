@@ -1,4 +1,6 @@
-# Phase 1 — Business Hardening (IMPLEMENTED — see Progress)
+# Phase 1 — Business Hardening (IMPLEMENTED and VERIFIED — see Progress and Closure)
+
+> **Note (2026-10-25):** package paths in this document refer to the capability-based layout used before the layered refactor (ADR-008). For current locations see `architecture.md` › Package layout.
 
 ## Inputs & prerequisites
 Phase 0 builds and all tests pass locally; acceptance checklist verified.
@@ -87,3 +89,10 @@ Decisions and deviations:
 - **Do not skip ahead:** do not start Phase 2 or 3 without an explicit request.
 
 **Next recommended action:** find which assertion in `RequestIdempotencyIntegrationTest.reusingAKeyOnSomeoneElsesResourceDoesNotRevealIt` failed, correct it, and rerun `mvn clean test` to reach 110/110.
+
+## Closure (2026-10-25, Phase 2 session)
+All open items above are resolved:
+1. **Failing test fixed.** The failing assertion was the disbursement one (line 87): for an ACTIVE (visible) campaign, `CampaignService.requireOwner` returns `ACCESS_DENIED`, which is correct under business rule 4 (404 only for hidden resources) and reveals nothing about the idempotency key. The test now expects `ACCESS_DENIED`; no production code changed. Baseline `mvn clean test` reproduced 110 run / 1 failure before the fix; after it, the suite passes (see `testing-strategy.md` for the latest full count).
+2. **Smoke boot done.** The packaged jar started with the real `application.yml` (jobs and seeding on) against a fresh MySQL 8.4 container: Flyway applied V1–V9, the seeder created the demo data through the services, `/actuator/health` was UP. The old `rise-phase1-smoke` container was not touched; its removal is left to the owner.
+3. **Objective 10.** `docs/api/openapi-v1.json` was already committed (it is tracked in `c541f9e`); the "git commit pending" note above is stale. Phase 2 added admin monitoring endpoints to the snapshot (additive only).
+4. Root `README.md` now contains setup instructions (Phase 0 acceptance item 19).
