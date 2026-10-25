@@ -1,18 +1,20 @@
 # Documentation Index
 
-Repository-level index. The original documents live under `rise-ai-backend/` and are unchanged; `rise-ai-backend/docs/README.md` is the backend's own index and reading order.
+Repository-level index. Each module keeps its own documentation: `rise-ai-backend/docs/README.md` (backend index and reading order) and `rise-ai-monitoring/docs/README.md` (monitoring service). Cross-module material lives in `docs/ai-monitoring/`.
 
 Status labels used by the backend docs: **IMPLEMENTED** (in code), **DESIGNED** (specified, not coded), **PLANNED** (future phase), **NOT IMPLEMENTED**.
 
-> Phase 0 was verified manually by the developer. Phase 1 (business hardening) is implemented and tested; status and evidence are in `rise-ai-backend/docs/phase-1-business-hardening.md` › Progress.
+> Phase 0 was verified manually by the developer. Phase 1 (business hardening) is implemented and verified. Phase 2 (AI monitoring integration) is implemented as an MVP and verified end to end on 2026-10-25; see `docs/ai-monitoring/06-progress-report.md`.
 
 ## Repository layout
 | Path | Content |
 |---|---|
-| `README.md` | Title only (`# rise-ai`) |
-| `rise-ai-backend/` | Spring Boot 3.3.5 / Java 21 / Maven backend, the only module in the repository |
-| `rise-ai-backend/src/main/java/com/riseai/` | Capability packages: common, config, security, user, organization, campaign, milestone, evidence, donation, refund, escrow, disbursement, dispute, audit, admin, settlement, adjustment |
-| `rise-ai-backend/src/main/resources/db/migration/` | Flyway V1–V7 |
+| `README.md` | Project overview, module map, quick start for both services |
+| `rise-ai-backend/` | Spring Boot 3.3.5 / Java 21 / Maven backend |
+| `rise-ai-monitoring/` | AI monitoring service (Spring Boot 3.5.15 / Java 21, `com.riseai.monitoring`, port 8081), renamed from `local-ai-event-monitor` on 2026-10-25. Docs index: `rise-ai-monitoring/docs/README.md` |
+| `docs/ai-monitoring/` | Cross-module monitoring roadmap, requirements, acceptance checklist and progress report |
+| `rise-ai-backend/src/main/java/com/riseai/` | Layered packages (ADR-008): controller, service, service/impl, repository, entity, enums, dto/{request,response,event}, mapper, client, configuration, security, exception, util |
+| `rise-ai-backend/src/main/resources/db/migration/` | Flyway V1–V9 (V8 outbox, V9 monitoring findings) |
 | `rise-ai-backend/src/test/java/com/riseai/` | Unit, jqwik property, and Testcontainers MySQL integration tests |
 | `rise-ai-backend/docs/api/openapi-v1.json` | Frozen OpenAPI contract, checked by `OpenApiContractTest` |
 | `rise-ai-backend/docker-compose.yml` | Local MySQL 8.4 only (no application container) |
@@ -29,12 +31,15 @@ Status labels used by the backend docs: **IMPLEMENTED** (in code), **DESIGNED** 
 | Document | Purpose |
 |---|---|
 | [docs/project-overview.md](../rise-ai-backend/docs/project-overview.md) | Product, roles, Phase 0 scope, limitations |
-| [docs/architecture.md](../rise-ai-backend/docs/architecture.md) | Modular monolith, package responsibilities, dependency direction, request flow, concurrency |
+| [docs/architecture.md](../rise-ai-backend/docs/architecture.md) | Layered package structure, layer responsibilities and dependency rules, request flow, concurrency, monitoring integration |
+| [docs/development-guide.md](../rise-ai-backend/docs/development-guide.md) | Where to add controllers, services, repositories, entities, DTOs and tests |
 | [docs/decisions/README.md](../rise-ai-backend/docs/decisions/README.md) | ADR index |
 | [ADR-001](../rise-ai-backend/docs/decisions/ADR-001-architecture.md) | Modular monolith |
 | [ADR-002](../rise-ai-backend/docs/decisions/ADR-002-database-and-ledger.md) | MySQL, UUID keys, enum roles, append-only ledger |
 | [ADR-003](../rise-ai-backend/docs/decisions/ADR-003-escrow-abstraction.md) | `EscrowEngine` abstraction |
-| [ADR-004](../rise-ai-backend/docs/decisions/ADR-004-ai-event-boundary.md) | AI monitoring event boundary (design only) |
+| [ADR-004](../rise-ai-backend/docs/decisions/ADR-004-ai-event-boundary.md) | AI monitoring event boundary (implemented in Phase 2) |
+| [ADR-007](../rise-ai-backend/docs/decisions/ADR-007-monitoring-integration.md) | Monitoring integration mechanics (Phase 2) |
+| [ADR-008](../rise-ai-backend/docs/decisions/ADR-008-layered-package-structure.md) | Layered package structure |
 | [ADR-005](../rise-ai-backend/docs/decisions/ADR-005-avalanche-integration-boundary.md) | Avalanche integration boundary (design only) |
 | [ADR-006](../rise-ai-backend/docs/decisions/ADR-006-settlement-and-dual-control.md) | Settlement policy and dual-controlled ledger changes (Phase 1) |
 
@@ -50,7 +55,7 @@ Status labels used by the backend docs: **IMPLEMENTED** (in code), **DESIGNED** 
 | [docs/state-machines.md](../rise-ai-backend/docs/state-machines.md) | State transitions for every entity |
 | [docs/escrow-lifecycle.md](../rise-ai-backend/docs/escrow-lifecycle.md) | End-to-end simulated money flow |
 | [docs/ledger-and-balance-rules.md](../rise-ai-backend/docs/ledger-and-balance-rules.md) | Ledger types, formulas, locking, reconciliation |
-| [docs/event-contracts.md](../rise-ai-backend/docs/event-contracts.md) | Future event envelope and payloads (DESIGNED, not emitted) |
+| [docs/event-contracts.md](../rise-ai-backend/docs/event-contracts.md) | Event envelope, 20-event catalogue, delivery semantics, finding contract (IMPLEMENTED) |
 
 ## Cross-cutting
 | Document | Purpose |
@@ -64,13 +69,24 @@ Status labels used by the backend docs: **IMPLEMENTED** (in code), **DESIGNED** 
 |---|---|
 | [docs/implementation-plan.md](../rise-ai-backend/docs/implementation-plan.md) | Phase map and next action |
 | [docs/phase-0-acceptance-criteria.md](../rise-ai-backend/docs/phase-0-acceptance-criteria.md) | Phase 0 checklist, nothing verified yet |
-| [docs/phase-1-business-hardening.md](../rise-ai-backend/docs/phase-1-business-hardening.md) | IMPLEMENTED; progress table with evidence |
-| [docs/phase-2-ai-monitoring.md](../rise-ai-backend/docs/phase-2-ai-monitoring.md) | PLANNED |
+| [docs/phase-1-business-hardening.md](../rise-ai-backend/docs/phase-1-business-hardening.md) | IMPLEMENTED and verified; progress table and closure |
+| [docs/phase-2-ai-monitoring.md](../rise-ai-backend/docs/phase-2-ai-monitoring.md) | IMPLEMENTED (MVP) |
 | [docs/phase-3-avalanche.md](../rise-ai-backend/docs/phase-3-avalanche.md) | PLANNED |
 | [docs/phase-4-production-readiness.md](../rise-ai-backend/docs/phase-4-production-readiness.md) | PLANNED |
 
+## AI monitoring roadmap and status
+| Document | Purpose |
+|---|---|
+| [ai-monitoring/README.md](ai-monitoring/README.md) | Reading order, status labels, current state, decision register D1–D14 |
+| [ai-monitoring/01-module-rename-plan.md](ai-monitoring/01-module-rename-plan.md) | `local-ai-event-monitor` → `rise-ai-monitoring`: naming layers, change order, verification, rollback |
+| [ai-monitoring/02-architecture-and-integration.md](ai-monitoring/02-architecture-and-integration.md) | Verified state, target architecture, integration alternatives, envelope and finding contracts, delivery, security |
+| [ai-monitoring/03-charity-monitoring-requirements.md](ai-monitoring/03-charity-monitoring-requirements.md) | Charity domain mapping, deterministic rules, AI capabilities, human review, evaluation |
+| [ai-monitoring/04-roadmap.md](ai-monitoring/04-roadmap.md) | Sub-phases M0–M10 of backend Phase 2 |
+| [ai-monitoring/05-acceptance-checklist.md](ai-monitoring/05-acceptance-checklist.md) | Acceptance criteria with evidence (MVP items ticked) |
+| [ai-monitoring/06-progress-report.md](ai-monitoring/06-progress-report.md) | What was implemented, changed files, verification results, gaps, next steps |
+
 ## Known documentation gaps
 These were found during repository discovery on 2026-10-25. The `METHOD_NOT_ALLOWED` and `/actuator/info` omissions were fixed in Phase 1.
-- The root `README.md` contains only a title, but `phase-0-acceptance-criteria.md` #19 points to it for setup instructions. The setup instructions are in `rise-ai-backend/README.md`.
+- (Resolved 2026-10-25) The root `README.md` now contains setup instructions.
 - `security.md` describes role checks as `@PreAuthorize` on controllers. Some GET routes fall under the public `PUBLIC_READ_ENDPOINTS` URL prefixes but need authentication, and they enforce it only in the service layer (`AuthUser.require`, `loadOwnerOrAdmin`): `/campaigns/mine`, `/organizations/mine`, `/campaigns/{id}/donations/manage` and `/campaigns/{id}/disputes`.
-- There is no `CLAUDE.md`, CI configuration, Maven wrapper (`mvnw`) or application Dockerfile, and no document explains their absence.
+- There is no `CLAUDE.md`, CI configuration, backend Maven wrapper or application Dockerfile (planned for backend Phase 4 / roadmap M10). The monitoring module has `./mvnw`.
