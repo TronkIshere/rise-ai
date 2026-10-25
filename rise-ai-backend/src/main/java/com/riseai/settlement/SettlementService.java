@@ -16,6 +16,8 @@ import com.riseai.escrow.EscrowAccount;
 import com.riseai.escrow.EscrowAccountRepository;
 import com.riseai.escrow.EscrowEngine;
 import com.riseai.escrow.EscrowStatus;
+import com.riseai.outbox.DomainEventPublisher;
+import com.riseai.outbox.RiseEvents;
 import com.riseai.security.AuthUser;
 import com.riseai.settlement.SettlementDtos.SettlementResponse;
 import com.riseai.user.Role;
@@ -47,6 +49,7 @@ public class SettlementService {
     private final CampaignService campaignService;
     private final EscrowEngine escrowEngine;
     private final AuditService auditService;
+    private final DomainEventPublisher domainEvents;
 
     @Transactional
     public SettlementResponse propose(AuthUser actor, UUID campaignId, String reason) {
@@ -105,6 +108,7 @@ public class SettlementService {
         settlement.setExecutedAt(now);
         settlement.setDonationCount(count);
         move(settlement, SettlementStatus.EXECUTED, actor.id(), "SETTLEMENT_EXECUTED", reason);
+        domainEvents.publish(RiseEvents.settlementExecuted(settlement, actor));
         return SettlementResponse.from(settlement);
     }
 

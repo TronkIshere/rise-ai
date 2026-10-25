@@ -21,6 +21,8 @@ import com.riseai.donation.DonationStatus;
 import com.riseai.milestone.Milestone;
 import com.riseai.milestone.MilestoneRepository;
 import com.riseai.milestone.MilestoneService;
+import com.riseai.outbox.DomainEventPublisher;
+import com.riseai.outbox.RiseEvents;
 import com.riseai.security.AuthUser;
 import com.riseai.user.Role;
 import com.riseai.user.User;
@@ -52,6 +54,7 @@ public class DisputeService {
     private final DisbursementService disbursementService;
     private final MilestoneService milestoneService;
     private final AuditService auditService;
+    private final DomainEventPublisher domainEvents;
     private final RiseProperties properties;
 
     @Transactional
@@ -99,6 +102,7 @@ public class DisputeService {
         dispute.setDisputeStatus(DisputeStatus.OPEN);
         disputeRepository.save(dispute);
         auditService.transition(actor.id(), "DISPUTE_OPENED", ENTITY, dispute.getId(), null, DisputeStatus.OPEN, request.title());
+        domainEvents.publish(RiseEvents.disputeOpened(dispute, actor));
         if (milestoneId != null && properties.escrow().disputeAutoHold()) {
             String reason = "Held by dispute " + dispute.getDisputeCode();
             disbursementService.holdForDispute(milestoneId, actor.id(), reason);
@@ -146,6 +150,7 @@ public class DisputeService {
         dispute.setResolvedBy(actor.id());
         dispute.setResolvedAt(Instant.now());
         move(dispute, upheld ? DisputeStatus.RESOLVED_UPHELD : DisputeStatus.RESOLVED_DISMISSED, actor.id(), "DISPUTE_RESOLVED", request.resolution());
+        domainEvents.publish(RiseEvents.disputeResolved(dispute, actor));
         releaseHolds(dispute, actor.id(), upheld);
         return DisputeResponse.from(dispute);
     }

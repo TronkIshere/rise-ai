@@ -912,6 +912,115 @@
         },
         "type" : "object"
       },
+      "FindingDetailResponse" : {
+        "properties" : {
+          "finding" : {
+            "$ref" : "#/components/schemas/FindingResponse"
+          },
+          "occurrences" : {
+            "items" : {
+              "$ref" : "#/components/schemas/OccurrenceResponse"
+            },
+            "type" : "array"
+          }
+        },
+        "type" : "object"
+      },
+      "FindingResponse" : {
+        "properties" : {
+          "advisoryOnly" : {
+            "type" : "boolean"
+          },
+          "campaignId" : {
+            "format" : "uuid",
+            "type" : "string"
+          },
+          "category" : {
+            "type" : "string"
+          },
+          "detectorType" : {
+            "type" : "string"
+          },
+          "disbursementRequestId" : {
+            "format" : "uuid",
+            "type" : "string"
+          },
+          "explanation" : {
+            "type" : "string"
+          },
+          "facts" : {
+            "items" : {
+              "additionalProperties" : {
+                "type" : "object"
+              },
+              "type" : "object"
+            },
+            "type" : "array"
+          },
+          "findingKey" : {
+            "type" : "string"
+          },
+          "firstSeenAt" : {
+            "format" : "date-time",
+            "type" : "string"
+          },
+          "id" : {
+            "format" : "uuid",
+            "type" : "string"
+          },
+          "lastSeenAt" : {
+            "format" : "date-time",
+            "type" : "string"
+          },
+          "milestoneId" : {
+            "format" : "uuid",
+            "type" : "string"
+          },
+          "newOccurrencesSinceReview" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "occurrenceCount" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "recommendedAction" : {
+            "type" : "string"
+          },
+          "reviewNote" : {
+            "type" : "string"
+          },
+          "reviewStatus" : {
+            "enum" : [ "OPEN", "ACKNOWLEDGED", "CONCERN_CONFIRMED", "DISMISSED" ],
+            "type" : "string"
+          },
+          "reviewedAt" : {
+            "format" : "date-time",
+            "type" : "string"
+          },
+          "reviewedBy" : {
+            "format" : "uuid",
+            "type" : "string"
+          },
+          "ruleId" : {
+            "type" : "string"
+          },
+          "ruleVersion" : {
+            "type" : "string"
+          },
+          "severity" : {
+            "enum" : [ "INFO", "LOW", "MEDIUM", "HIGH", "CRITICAL" ],
+            "type" : "string"
+          },
+          "subjectId" : {
+            "type" : "string"
+          },
+          "subjectType" : {
+            "type" : "string"
+          }
+        },
+        "type" : "object"
+      },
       "FundingSummary" : {
         "properties" : {
           "availableBalance" : {
@@ -1135,6 +1244,27 @@
         },
         "type" : "object"
       },
+      "OccurrenceResponse" : {
+        "properties" : {
+          "actorId" : {
+            "format" : "uuid",
+            "type" : "string"
+          },
+          "observedAt" : {
+            "format" : "date-time",
+            "type" : "string"
+          },
+          "severity" : {
+            "enum" : [ "INFO", "LOW", "MEDIUM", "HIGH", "CRITICAL" ],
+            "type" : "string"
+          },
+          "sourceEventId" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        },
+        "type" : "object"
+      },
       "OpenDisputeRequest" : {
         "properties" : {
           "description" : {
@@ -1274,6 +1404,84 @@
           "verificationStatus" : {
             "enum" : [ "UNVERIFIED", "PENDING_REVIEW", "VERIFIED", "REJECTED" ],
             "type" : "string"
+          }
+        },
+        "type" : "object"
+      },
+      "OutboxEventResponse" : {
+        "properties" : {
+          "aggregateId" : {
+            "format" : "uuid",
+            "type" : "string"
+          },
+          "aggregateType" : {
+            "type" : "string"
+          },
+          "attempts" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "eventId" : {
+            "format" : "uuid",
+            "type" : "string"
+          },
+          "eventType" : {
+            "type" : "string"
+          },
+          "id" : {
+            "format" : "uuid",
+            "type" : "string"
+          },
+          "lastError" : {
+            "type" : "string"
+          },
+          "nextAttemptAt" : {
+            "format" : "date-time",
+            "type" : "string"
+          },
+          "occurredAt" : {
+            "format" : "date-time",
+            "type" : "string"
+          },
+          "publishedAt" : {
+            "format" : "date-time",
+            "type" : "string"
+          },
+          "status" : {
+            "enum" : [ "PENDING", "IN_FLIGHT", "PUBLISHED", "FAILED" ],
+            "type" : "string"
+          }
+        },
+        "type" : "object"
+      },
+      "OutboxStatsResponse" : {
+        "properties" : {
+          "failed" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "inFlight" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "oldestUndeliveredAgeSeconds" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "oldestUndeliveredOccurredAt" : {
+            "format" : "date-time",
+            "type" : "string"
+          },
+          "pending" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "published" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "relayEnabled" : {
+            "type" : "boolean"
           }
         },
         "type" : "object"
@@ -1494,6 +1702,33 @@
         },
         "type" : "object"
       },
+      "PageResponseFindingResponse" : {
+        "properties" : {
+          "currentPage" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "data" : {
+            "items" : {
+              "$ref" : "#/components/schemas/FindingResponse"
+            },
+            "type" : "array"
+          },
+          "pageSize" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "totalElements" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "totalPages" : {
+            "format" : "int32",
+            "type" : "integer"
+          }
+        },
+        "type" : "object"
+      },
       "PageResponseLedgerEntryResponse" : {
         "properties" : {
           "currentPage" : {
@@ -1530,6 +1765,33 @@
           "data" : {
             "items" : {
               "$ref" : "#/components/schemas/OrganizationResponse"
+            },
+            "type" : "array"
+          },
+          "pageSize" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "totalElements" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "totalPages" : {
+            "format" : "int32",
+            "type" : "integer"
+          }
+        },
+        "type" : "object"
+      },
+      "PageResponseOutboxEventResponse" : {
+        "properties" : {
+          "currentPage" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "data" : {
+            "items" : {
+              "$ref" : "#/components/schemas/OutboxEventResponse"
             },
             "type" : "array"
           },
@@ -2047,6 +2309,36 @@
         },
         "type" : "object"
       },
+      "ResponseAPIFindingDetailResponse" : {
+        "properties" : {
+          "code" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "data" : {
+            "$ref" : "#/components/schemas/FindingDetailResponse"
+          },
+          "message" : {
+            "type" : "string"
+          }
+        },
+        "type" : "object"
+      },
+      "ResponseAPIFindingResponse" : {
+        "properties" : {
+          "code" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "data" : {
+            "$ref" : "#/components/schemas/FindingResponse"
+          },
+          "message" : {
+            "type" : "string"
+          }
+        },
+        "type" : "object"
+      },
       "ResponseAPIListMilestoneResponse" : {
         "properties" : {
           "code" : {
@@ -2124,6 +2416,36 @@
           },
           "data" : {
             "$ref" : "#/components/schemas/OrganizationResponse"
+          },
+          "message" : {
+            "type" : "string"
+          }
+        },
+        "type" : "object"
+      },
+      "ResponseAPIOutboxEventResponse" : {
+        "properties" : {
+          "code" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "data" : {
+            "$ref" : "#/components/schemas/OutboxEventResponse"
+          },
+          "message" : {
+            "type" : "string"
+          }
+        },
+        "type" : "object"
+      },
+      "ResponseAPIOutboxStatsResponse" : {
+        "properties" : {
+          "code" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "data" : {
+            "$ref" : "#/components/schemas/OutboxStatsResponse"
           },
           "message" : {
             "type" : "string"
@@ -2251,6 +2573,21 @@
         },
         "type" : "object"
       },
+      "ResponseAPIPageResponseFindingResponse" : {
+        "properties" : {
+          "code" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "data" : {
+            "$ref" : "#/components/schemas/PageResponseFindingResponse"
+          },
+          "message" : {
+            "type" : "string"
+          }
+        },
+        "type" : "object"
+      },
       "ResponseAPIPageResponseLedgerEntryResponse" : {
         "properties" : {
           "code" : {
@@ -2274,6 +2611,21 @@
           },
           "data" : {
             "$ref" : "#/components/schemas/PageResponseOrganizationResponse"
+          },
+          "message" : {
+            "type" : "string"
+          }
+        },
+        "type" : "object"
+      },
+      "ResponseAPIPageResponseOutboxEventResponse" : {
+        "properties" : {
+          "code" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "data" : {
+            "$ref" : "#/components/schemas/PageResponseOutboxEventResponse"
           },
           "message" : {
             "type" : "string"
@@ -2459,6 +2811,21 @@
             "type" : "string"
           }
         },
+        "type" : "object"
+      },
+      "ReviewFindingRequest" : {
+        "properties" : {
+          "note" : {
+            "maxLength" : 2000,
+            "minLength" : 0,
+            "type" : "string"
+          },
+          "status" : {
+            "enum" : [ "OPEN", "ACKNOWLEDGED", "CONCERN_CONFIRMED", "DISMISSED" ],
+            "type" : "string"
+          }
+        },
+        "required" : [ "note", "status" ],
         "type" : "object"
       },
       "SettlementResponse" : {
@@ -3480,6 +3847,242 @@
           }
         },
         "tags" : [ "Escrow (simulated)" ]
+      }
+    },
+    "/api/v1/admin/monitoring/findings" : {
+      "get" : {
+        "operationId" : "findings",
+        "parameters" : [ {
+          "in" : "query",
+          "name" : "status",
+          "required" : false,
+          "schema" : {
+            "enum" : [ "OPEN", "ACKNOWLEDGED", "CONCERN_CONFIRMED", "DISMISSED" ],
+            "type" : "string"
+          }
+        }, {
+          "in" : "query",
+          "name" : "severity",
+          "required" : false,
+          "schema" : {
+            "enum" : [ "INFO", "LOW", "MEDIUM", "HIGH", "CRITICAL" ],
+            "type" : "string"
+          }
+        }, {
+          "in" : "query",
+          "name" : "category",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        }, {
+          "in" : "query",
+          "name" : "campaignId",
+          "required" : false,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        }, {
+          "in" : "query",
+          "name" : "pageable",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/components/schemas/Pageable"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ResponseAPIPageResponseFindingResponse"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "Admin - AI monitoring findings (advisory)" ]
+      }
+    },
+    "/api/v1/admin/monitoring/findings/{id}" : {
+      "get" : {
+        "operationId" : "finding",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ResponseAPIFindingDetailResponse"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "Admin - AI monitoring findings (advisory)" ]
+      }
+    },
+    "/api/v1/admin/monitoring/findings/{id}/history" : {
+      "get" : {
+        "operationId" : "history_4",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ResponseAPIListStatusHistoryResponse"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "Admin - AI monitoring findings (advisory)" ]
+      }
+    },
+    "/api/v1/admin/monitoring/findings/{id}/review" : {
+      "post" : {
+        "operationId" : "review",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/ReviewFindingRequest"
+              }
+            }
+          },
+          "required" : true
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ResponseAPIFindingResponse"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "Admin - AI monitoring findings (advisory)" ]
+      }
+    },
+    "/api/v1/admin/monitoring/outbox" : {
+      "get" : {
+        "operationId" : "outbox",
+        "parameters" : [ {
+          "in" : "query",
+          "name" : "status",
+          "required" : false,
+          "schema" : {
+            "enum" : [ "PENDING", "IN_FLIGHT", "PUBLISHED", "FAILED" ],
+            "type" : "string"
+          }
+        }, {
+          "in" : "query",
+          "name" : "pageable",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/components/schemas/Pageable"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ResponseAPIPageResponseOutboxEventResponse"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "Admin - AI monitoring findings (advisory)" ]
+      }
+    },
+    "/api/v1/admin/monitoring/outbox/stats" : {
+      "get" : {
+        "operationId" : "outboxStats",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ResponseAPIOutboxStatsResponse"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "Admin - AI monitoring findings (advisory)" ]
+      }
+    },
+    "/api/v1/admin/monitoring/outbox/{id}/requeue" : {
+      "post" : {
+        "operationId" : "requeue",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/ReasonRequest"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ResponseAPIOutboxEventResponse"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "Admin - AI monitoring findings (advisory)" ]
       }
     },
     "/api/v1/admin/organizations/{id}/reject-verification" : {

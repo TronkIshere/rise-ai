@@ -10,6 +10,9 @@ import com.riseai.donation.Donation;
 import com.riseai.donation.DonationRepository;
 import com.riseai.donation.DonationStatus;
 import com.riseai.escrow.EscrowEngine;
+import com.riseai.escrow.EscrowLedgerEntry;
+import com.riseai.outbox.DomainEventPublisher;
+import com.riseai.outbox.RiseEvents;
 import com.riseai.refund.RefundDtos.CreateRefundRequest;
 import com.riseai.refund.RefundDtos.RefundResponse;
 import com.riseai.security.AuthUser;
@@ -34,6 +37,7 @@ public class RefundService {
     private final DonationRepository donationRepository;
     private final EscrowEngine escrowEngine;
     private final AuditService auditService;
+    private final DomainEventPublisher domainEvents;
 
     @Transactional
     public RefundResponse request(AuthUser actor, UUID donationId, CreateRefundRequest request) {
@@ -81,6 +85,7 @@ public class RefundService {
         refund.setRefundStatus(RefundStatus.REQUESTED);
         refundRepository.saveAndFlush(refund);
         auditService.transition(actor.id(), "REFUND_REQUESTED", ENTITY, refund.getId(), null, RefundStatus.REQUESTED, request.reason());
+        domainEvents.publish(RiseEvents.refundRequested(refund, actor));
         moveDonation(donation, DonationStatus.REFUND_PENDING, actor.id(), "Refund requested " + refund.getRefundCode());
         return RefundResponse.from(refund);
     }
@@ -141,13 +146,14 @@ public class RefundService {
             throw new ApplicationException(ErrorCode.REFUND_EXCEEDS_REFUNDABLE);
         }
         releaseReservation(refund, actor.id());
-        escrowEngine.recordRefund(refund.getCampaignId(), refund.getCurrency(), donation.getId(), refund.getId(), refund.getAmount(), actor.id());
+        EscrowLedgerEntry entry = escrowEngine.recordRefund(refund.getCampaignId(), refund.getCurrency(), donation.getId(), refund.getId(), refund.getAmount(), actor.id());
         donation.setRefundedAmount(donation.getRefundedAmount().add(refund.getAmount()));
         DonationStatus target = donation.refundableAmount().signum() == 0 ? DonationStatus.REFUNDED : DonationStatus.PARTIALLY_REFUNDED;
         moveDonation(donation, target, actor.id(), "Refund recorded " + refund.getRefundCode());
         refund.setRecordedBy(actor.id());
         refund.setRecordedAt(Instant.now());
         move(refund, RefundStatus.RECORDED, actor.id(), "REFUND_RECORDED", "Simulated ledger refund; no external payment executed");
+        domainEvents.publish(RiseEvents.refundRecorded(refund, entry, actor));
         return RefundResponse.from(refund);
     }
 

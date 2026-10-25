@@ -59,6 +59,19 @@ rise:
     enabled: true
     reconciliation-cron: "0 0 * * * *"
     fundraising-close-cron: "0 */5 * * * *"
+  monitoring:
+    enabled: ${RISE_MONITORING_ENABLED:false}
+    base-url: ${RISE_MONITORING_BASE_URL:http://localhost:8081}
+    service-key: ${RISE_MONITORING_SERVICE_KEY:}
+    relay-interval: PT5S
+    batch-size: 20
+    lease: PT2M
+    connect-timeout: PT2S
+    read-timeout: PT90S
+    max-attempts: 12
+    initial-backoff: PT5S
+    max-backoff: PT15M
+    published-retention: P30D
 
 management:
   endpoints:

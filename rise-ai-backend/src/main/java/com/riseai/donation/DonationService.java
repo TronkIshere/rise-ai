@@ -13,6 +13,9 @@ import com.riseai.config.RiseProperties;
 import com.riseai.donation.DonationDtos.CreateDonationRequest;
 import com.riseai.donation.DonationDtos.DonationResponse;
 import com.riseai.escrow.EscrowEngine;
+import com.riseai.escrow.EscrowLedgerEntry;
+import com.riseai.outbox.DomainEventPublisher;
+import com.riseai.outbox.RiseEvents;
 import com.riseai.security.AuthUser;
 import com.riseai.user.Role;
 import com.riseai.user.UserRepository;
@@ -43,6 +46,7 @@ public class DonationService {
     private final CampaignService campaignService;
     private final EscrowEngine escrowEngine;
     private final AuditService auditService;
+    private final DomainEventPublisher domainEvents;
     private final RiseProperties properties;
 
     @Transactional
@@ -116,7 +120,8 @@ public class DonationService {
         donation.setConfirmedAt(Instant.now());
         donation.setSimulatedReference(simulatedReference == null || simulatedReference.isBlank() ? Codes.generate("SIM") : simulatedReference.trim());
         move(donation, DonationStatus.CONFIRMED, actor.id(), "DONATION_CONFIRMED", "Simulated payment confirmation");
-        escrowEngine.recordContribution(campaign.getId(), donation.getCurrency(), donation.getId(), donation.getAmount(), actor.id());
+        EscrowLedgerEntry entry = escrowEngine.recordContribution(campaign.getId(), donation.getCurrency(), donation.getId(), donation.getAmount(), actor.id());
+        domainEvents.publish(RiseEvents.donationConfirmed(donation, entry, actor));
         return DonationResponse.full(donation, donorName(donation.getDonorId()));
     }
 

@@ -13,6 +13,8 @@ import com.riseai.common.exception.ErrorCode;
 import com.riseai.escrow.EscrowAccountRepository;
 import com.riseai.escrow.EscrowEngine;
 import com.riseai.escrow.LedgerDirection;
+import com.riseai.outbox.DomainEventPublisher;
+import com.riseai.outbox.RiseEvents;
 import com.riseai.security.AuthUser;
 import com.riseai.user.Role;
 import lombok.RequiredArgsConstructor;
@@ -35,6 +37,7 @@ public class AdjustmentService {
     private final CampaignService campaignService;
     private final EscrowEngine escrowEngine;
     private final AuditService auditService;
+    private final DomainEventPublisher domainEvents;
 
     @Transactional
     public AdjustmentResponse request(AuthUser actor, UUID campaignId, CreateAdjustmentRequest request) {
@@ -71,6 +74,7 @@ public class AdjustmentService {
                 adjustment.getAmount(), actor.id());
         decide(adjustment, actor, reason);
         move(adjustment, AdjustmentStatus.APPLIED, actor.id(), "ADJUSTMENT_APPLIED", reason);
+        domainEvents.publish(RiseEvents.adjustmentApplied(adjustment, actor));
         return AdjustmentResponse.from(adjustment);
     }
 

@@ -29,6 +29,8 @@ import com.riseai.milestone.MilestoneStatus;
 import com.riseai.organization.Organization;
 import com.riseai.organization.OrganizationRepository;
 import com.riseai.organization.VerificationStatus;
+import com.riseai.outbox.DomainEventPublisher;
+import com.riseai.outbox.RiseEvents;
 import com.riseai.security.AuthUser;
 import com.riseai.user.Role;
 import lombok.RequiredArgsConstructor;
@@ -68,6 +70,7 @@ public class CampaignService {
     private final DisputeRepository disputeRepository;
     private final EscrowEngine escrowEngine;
     private final AuditService auditService;
+    private final DomainEventPublisher domainEvents;
     private final RiseProperties properties;
 
     @Transactional
@@ -82,6 +85,7 @@ public class CampaignService {
         campaign.setReviewStatus(ReviewStatus.NOT_SUBMITTED);
         campaignRepository.saveAndFlush(campaign);
         auditService.transition(actor.id(), "CAMPAIGN_CREATED", ENTITY, campaign.getId(), null, CampaignStatus.DRAFT, null);
+        domainEvents.publish(RiseEvents.campaignCreated(campaign, actor));
         return toResponse(campaign);
     }
 
@@ -113,6 +117,7 @@ public class CampaignService {
         }
         campaign.setReviewStatus(ReviewStatus.PENDING);
         move(campaign, CampaignStatus.PENDING_REVIEW, actor, "CAMPAIGN_SUBMITTED_FOR_REVIEW", null);
+        domainEvents.publish(RiseEvents.campaignSubmitted(campaign, milestones.size(), actor));
         return toResponse(campaign);
     }
 
@@ -128,6 +133,7 @@ public class CampaignService {
         campaign.setReviewStatus(ReviewStatus.APPROVED);
         campaign.setReviewNote(reason);
         move(campaign, CampaignStatus.APPROVED, actor, "CAMPAIGN_APPROVED", reason);
+        domainEvents.publish(RiseEvents.campaignApproved(campaign, actor));
         return toResponse(campaign);
     }
 
@@ -164,6 +170,7 @@ public class CampaignService {
         States.require(campaign.getCampaignStatus(), CampaignStatus.ACTIVE);
         escrowEngine.changeStatus(id, campaign.getCurrency(), EscrowStatus.FROZEN, actor.id(), reason);
         move(campaign, CampaignStatus.PAUSED, actor, "CAMPAIGN_PAUSED", reason);
+        domainEvents.publish(RiseEvents.campaignPaused(campaign, actor));
         return toResponse(campaign);
     }
 

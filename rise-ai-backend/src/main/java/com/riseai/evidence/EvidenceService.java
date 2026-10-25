@@ -16,6 +16,8 @@ import com.riseai.milestone.Milestone;
 import com.riseai.milestone.MilestoneRepository;
 import com.riseai.milestone.MilestoneService;
 import com.riseai.milestone.MilestoneStatus;
+import com.riseai.outbox.DomainEventPublisher;
+import com.riseai.outbox.RiseEvents;
 import com.riseai.security.AuthUser;
 import com.riseai.user.Role;
 import lombok.RequiredArgsConstructor;
@@ -44,6 +46,7 @@ public class EvidenceService {
     private final CampaignService campaignService;
     private final MilestoneService milestoneService;
     private final AuditService auditService;
+    private final DomainEventPublisher domainEvents;
 
     @Transactional
     public EvidenceResponse submit(AuthUser actor, UUID milestoneId, UUID disbursementRequestId, EvidenceRequest request) {
@@ -86,6 +89,7 @@ public class EvidenceService {
             milestone.setSubmittedAt(evidence.getSubmittedAt());
         }
         auditService.transition(actor.id(), "MILESTONE_EVIDENCE_SUBMITTED", ENTITY, evidence.getId(), null, EvidenceStatus.SUBMITTED, request.title());
+        domainEvents.publish(RiseEvents.evidenceSubmitted(evidence, actor));
         milestoneService.refreshStatus(milestone, actor.id(), "Evidence submitted");
         return EvidenceResponse.from(evidence);
     }
@@ -105,6 +109,7 @@ public class EvidenceService {
         evidence.setReviewedAt(Instant.now());
         evidence.setReviewNote(note);
         auditService.transition(actor.id(), accept ? "EVIDENCE_ACCEPTED" : "EVIDENCE_REJECTED", ENTITY, id, EvidenceStatus.SUBMITTED, target, note);
+        domainEvents.publish(RiseEvents.evidenceReviewed(evidence, accept, actor));
         Milestone milestone = milestoneRepository.findByIdForUpdate(evidence.getMilestoneId()).orElseThrow(() -> ApplicationException.notFound("Milestone"));
         milestoneService.refreshStatus(milestone, actor.id(), "Evidence reviewed");
         return EvidenceResponse.from(evidence);

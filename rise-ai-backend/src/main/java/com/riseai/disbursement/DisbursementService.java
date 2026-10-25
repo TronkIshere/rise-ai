@@ -16,6 +16,7 @@ import com.riseai.disbursement.DisbursementDtos.DisbursementResponse;
 import com.riseai.dispute.DisputeRepository;
 import com.riseai.dispute.DisputeStatus;
 import com.riseai.escrow.EscrowEngine;
+import com.riseai.escrow.EscrowLedgerEntry;
 import com.riseai.evidence.EvidenceDtos.EvidenceRequest;
 import com.riseai.evidence.EvidenceDtos.EvidenceResponse;
 import com.riseai.evidence.EvidenceRepository;
@@ -25,6 +26,8 @@ import com.riseai.milestone.Milestone;
 import com.riseai.milestone.MilestoneRepository;
 import com.riseai.milestone.MilestoneService;
 import com.riseai.milestone.MilestoneStatus;
+import com.riseai.outbox.DomainEventPublisher;
+import com.riseai.outbox.RiseEvents;
 import com.riseai.security.AuthUser;
 import com.riseai.user.Role;
 import lombok.RequiredArgsConstructor;
@@ -57,6 +60,7 @@ public class DisbursementService {
     private final EvidenceService evidenceService;
     private final EscrowEngine escrowEngine;
     private final AuditService auditService;
+    private final DomainEventPublisher domainEvents;
     private final RiseProperties properties;
 
     @Transactional
@@ -114,6 +118,7 @@ public class DisbursementService {
         escrowEngine.reserve(campaign.getId(), campaign.getCurrency(), milestoneId, disbursement.getId(), amount, actor.id());
         milestone.setReservedAmount(milestone.getReservedAmount().add(amount));
         auditService.transition(actor.id(), "DISBURSEMENT_REQUESTED", ENTITY, disbursement.getId(), null, DisbursementStatus.SUBMITTED, request.reason());
+        domainEvents.publish(RiseEvents.disbursementRequested(disbursement, milestone, actor));
         milestoneService.refreshStatus(milestone, actor.id(), "Disbursement requested");
         return DisbursementResponse.from(disbursement);
     }
@@ -163,6 +168,8 @@ public class DisbursementService {
         disbursement.setReviewedAt(Instant.now());
         disbursement.setDecisionReason(reason);
         move(disbursement, DisbursementStatus.APPROVED, actor.id(), "DISBURSEMENT_APPROVED", reason);
+        long acceptedEvidence = evidenceRepository.countByMilestoneIdAndEvidenceStatus(disbursement.getMilestoneId(), EvidenceStatus.ACCEPTED);
+        domainEvents.publish(RiseEvents.disbursementApproved(disbursement, acceptedEvidence, actor));
         return DisbursementResponse.from(disbursement);
     }
 
@@ -176,6 +183,7 @@ public class DisbursementService {
         disbursement.setReviewedAt(Instant.now());
         disbursement.setDecisionReason(reason);
         closeAndReturnReservation(disbursement, DisbursementStatus.REJECTED, actor.id(), "DISBURSEMENT_REJECTED", reason);
+        domainEvents.publish(RiseEvents.disbursementRejected(disbursement, actor));
         return DisbursementResponse.from(disbursement);
     }
 
@@ -208,7 +216,7 @@ public class DisbursementService {
         if (milestone.getReservedAmount().compareTo(amount) < 0) {
             throw new IllegalStateException("Milestone reservation is lower than the approved amount");
         }
-        escrowEngine.release(campaign.getId(), disbursement.getCurrency(), milestone.getId(), disbursement.getId(), amount, actor.id());
+        EscrowLedgerEntry entry = escrowEngine.release(campaign.getId(), disbursement.getCurrency(), milestone.getId(), disbursement.getId(), amount, actor.id());
         Instant now = Instant.now();
         milestone.setReservedAmount(milestone.getReservedAmount().subtract(amount));
         milestone.setReleasedAmount(milestone.getReleasedAmount().add(amount));
@@ -216,6 +224,7 @@ public class DisbursementService {
         disbursement.setReleasedAt(now);
         disbursement.setReleasedBy(actor.id());
         move(disbursement, DisbursementStatus.RELEASED, actor.id(), "DISBURSEMENT_RELEASED", "Simulated release; no real transfer was executed");
+        domainEvents.publish(RiseEvents.disbursementReleased(disbursement, entry, actor));
         milestoneService.refreshStatus(milestone, actor.id(), "Funds released");
         return DisbursementResponse.from(disbursement);
     }

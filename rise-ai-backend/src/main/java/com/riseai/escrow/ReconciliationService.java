@@ -5,6 +5,8 @@ import com.riseai.common.Codes;
 import com.riseai.common.exception.ApplicationException;
 import com.riseai.escrow.EscrowDtos.ReconciliationReport;
 import com.riseai.escrow.EscrowDtos.ReconciliationRunResponse;
+import com.riseai.outbox.DomainEventPublisher;
+import com.riseai.outbox.RiseEvents;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -26,13 +28,15 @@ public class ReconciliationService {
     private final EscrowQueryService escrowQueryService;
     private final ReconciliationRunRepository runRepository;
     private final AuditService auditService;
+    private final DomainEventPublisher domainEvents;
     private final TransactionTemplate transactionTemplate;
 
     public ReconciliationService(EscrowQueryService escrowQueryService, ReconciliationRunRepository runRepository, AuditService auditService,
-                                 PlatformTransactionManager transactionManager) {
+                                 DomainEventPublisher domainEvents, PlatformTransactionManager transactionManager) {
         this.escrowQueryService = escrowQueryService;
         this.runRepository = runRepository;
         this.auditService = auditService;
+        this.domainEvents = domainEvents;
         this.transactionTemplate = new TransactionTemplate(transactionManager);
     }
 
@@ -86,6 +90,7 @@ public class ReconciliationService {
             auditService.record(run.getTriggeredBy(), "RECONCILIATION_RUN_COMPLETED", ENTITY, run.getId(), null, run.getRunStatus().name(),
                     AuditService.meta("runCode", run.getRunCode(), "trigger", run.getTriggerType(), "accountsChecked", run.getAccountsChecked(),
                             "inconsistentAccounts", run.getInconsistentAccounts()));
+            domainEvents.publish(RiseEvents.reconciliationCompleted(run));
         });
     }
 }

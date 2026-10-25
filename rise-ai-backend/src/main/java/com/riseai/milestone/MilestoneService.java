@@ -15,6 +15,8 @@ import com.riseai.evidence.EvidenceRepository;
 import com.riseai.evidence.EvidenceStatus;
 import com.riseai.milestone.MilestoneDtos.MilestoneRequest;
 import com.riseai.milestone.MilestoneDtos.MilestoneResponse;
+import com.riseai.outbox.DomainEventPublisher;
+import com.riseai.outbox.RiseEvents;
 import com.riseai.security.AuthUser;
 import com.riseai.user.Role;
 import lombok.RequiredArgsConstructor;
@@ -47,6 +49,7 @@ public class MilestoneService {
     private final EvidenceRepository evidenceRepository;
     private final DisbursementRepository disbursementRepository;
     private final AuditService auditService;
+    private final DomainEventPublisher domainEvents;
 
     @Transactional
     public MilestoneResponse create(AuthUser actor, UUID campaignId, MilestoneRequest request) {
@@ -65,6 +68,7 @@ public class MilestoneService {
         milestone.setMilestoneStatus(MilestoneStatus.PLANNED);
         milestoneRepository.saveAndFlush(milestone);
         auditService.transition(actor.id(), "MILESTONE_CREATED", ENTITY, milestone.getId(), null, MilestoneStatus.PLANNED, null);
+        domainEvents.publish(RiseEvents.milestoneCreated(milestone, campaign.getCurrency(), actor));
         return MilestoneResponse.from(milestone, 0L);
     }
 

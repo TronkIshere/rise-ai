@@ -12,6 +12,8 @@ public interface EvidenceRepository extends JpaRepository<EvidenceRecord, UUID> 
 
     long countByMilestoneId(UUID milestoneId);
 
+    long countByMilestoneIdAndEvidenceStatus(UUID milestoneId, EvidenceStatus status);
+
     Page<EvidenceRecord> findByMilestoneId(UUID milestoneId, Pageable pageable);
 
     Page<EvidenceRecord> findByDisbursementRequestId(UUID disbursementRequestId, Pageable pageable);
