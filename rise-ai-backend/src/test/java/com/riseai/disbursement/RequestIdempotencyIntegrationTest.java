@@ -85,6 +85,6 @@ class RequestIdempotencyIntegrationTest extends AbstractMySqlIntegrationTest {
         AuthUser otherCreator = user(Role.CAMPAIGN_CREATOR);
         UUID m1 = campaign.milestones().get(0);
         assertError(() -> disbursementService.create(otherCreator, m1, new CreateDisbursementRequest(vnd(1), "x"), "probe-key"),
-                ErrorCode.RESOURCE_NOT_FOUND);
+                ErrorCode.ACCESS_DENIED);
     }
 }
