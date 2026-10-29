@@ -65,7 +65,10 @@ public class ServiceKeyAuthenticationFilter extends OncePerRequestFilter {
             return false;
         }
         byte[] presented = header.substring(BEARER_PREFIX.length()).getBytes(StandardCharsets.UTF_8);
-        byte[] expected = properties.getSecurity().getServiceKey().getBytes(StandardCharsets.UTF_8);
-        return MessageDigest.isEqual(presented, expected);
+        MonitoringProperties.Security security = properties.getSecurity();
+        boolean current = MessageDigest.isEqual(presented, security.getServiceKey().getBytes(StandardCharsets.UTF_8));
+        boolean previous = security.hasPreviousServiceKey()
+                && MessageDigest.isEqual(presented, security.getPreviousServiceKey().getBytes(StandardCharsets.UTF_8));
+        return current | previous;
     }
 }

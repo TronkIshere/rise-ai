@@ -2375,6 +2375,24 @@
         },
         "type" : "object"
       },
+      "ResponseAPIListRulePrecisionResponse" : {
+        "properties" : {
+          "code" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "data" : {
+            "items" : {
+              "$ref" : "#/components/schemas/RulePrecisionResponse"
+            },
+            "type" : "array"
+          },
+          "message" : {
+            "type" : "string"
+          }
+        },
+        "type" : "object"
+      },
       "ResponseAPIListStatusHistoryResponse" : {
         "properties" : {
           "code" : {
@@ -2826,6 +2844,37 @@
           }
         },
         "required" : [ "note", "status" ],
+        "type" : "object"
+      },
+      "RulePrecisionResponse" : {
+        "properties" : {
+          "acknowledged" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "concernConfirmed" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "dismissed" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "open" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "precision" : {
+            "type" : "number"
+          },
+          "ruleId" : {
+            "type" : "string"
+          },
+          "total" : {
+            "format" : "int64",
+            "type" : "integer"
+          }
+        },
         "type" : "object"
       },
       "SettlementResponse" : {
@@ -3897,6 +3946,24 @@
               "*/*" : {
                 "schema" : {
                   "$ref" : "#/components/schemas/ResponseAPIPageResponseFindingResponse"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "Admin - AI monitoring findings (advisory)" ]
+      }
+    },
+    "/api/v1/admin/monitoring/findings/precision" : {
+      "get" : {
+        "operationId" : "rulePrecision",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ResponseAPIListRulePrecisionResponse"
                 }
               }
             },

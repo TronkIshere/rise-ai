@@ -53,6 +53,28 @@ class ScenarioEvaluatorTest {
     }
 
     @Test
+    void assertsFindingPresenceSeverityAndAbsence() {
+        ObjectNode data = normalData();
+        ObjectNode finding = data.putArray("findings").addObject();
+        finding.putObject("detector").put("id", "rise.test.rule");
+        finding.put("severity", "HIGH");
+
+        ExpectedOutcome required = ExpectedOutcome.builder().httpStatus(200).requiredFindings(java.util.Map.of("rise.test.rule", "HIGH")).build();
+        assertThat(evaluator.evaluate(single(required), List.of(ok(data))).getStatus()).isEqualTo(ScenarioStatus.PASS);
+
+        ExpectedOutcome wrongSeverity = ExpectedOutcome.builder().httpStatus(200).requiredFindings(java.util.Map.of("rise.test.rule", "LOW")).build();
+        assertThat(evaluator.evaluate(single(wrongSeverity), List.of(ok(data))).getFailureReason())
+                .contains("finding rise.test.rule severity expected LOW, actual HIGH");
+
+        ExpectedOutcome missing = ExpectedOutcome.builder().httpStatus(200).requiredFindings(java.util.Map.of("rise.other.rule", "LOW")).build();
+        assertThat(evaluator.evaluate(single(missing), List.of(ok(data))).getFailureReason()).contains("finding rise.other.rule missing");
+
+        ExpectedOutcome forbidden = ExpectedOutcome.builder().httpStatus(200).forbiddenFindings(Set.of("rise.test.rule")).build();
+        assertThat(evaluator.evaluate(single(forbidden), List.of(ok(data))).getFailureReason()).contains("finding rise.test.rule was not expected");
+        assertThat(evaluator.evaluate(single(forbidden), List.of(ok(normalData()))).getStatus()).isEqualTo(ScenarioStatus.PASS);
+    }
+
+    @Test
     void comparesHttpStatusAndErrorCodeForRejectedRequests() {
         ExpectedOutcome expected = Outcomes.error(400, 1000, "test");
 

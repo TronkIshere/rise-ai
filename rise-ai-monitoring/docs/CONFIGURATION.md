@@ -85,6 +85,9 @@ These are illustrative defaults, not validated thresholds.
 | Property | Env | Default | Notes |
 |---|---|---|---|
 | `service-key` | `MONITORING_SERVICE_KEY` | empty | When set, `/api/v1/**` and `/actuator/metrics/**` require `Authorization: Bearer <key>` |
+| `rise.ai-notes-enabled` | `MONITORING_RISE_AI_NOTES_ENABLED` | `false` | AI notes on Rise findings; needs `monitoring.ai.enabled=true`. Advisory only; not evaluated against the gate |
+| `rise.ai-note-budget` | `MONITORING_RISE_AI_NOTE_BUDGET` | `20s` | No new AI-note call starts after this time per event; a safety default, not validated |
+| `previous-service-key` | `MONITORING_PREVIOUS_SERVICE_KEY` | empty | Optional second accepted key for rotation without downtime; clear it after the backend uses the new key |
 | `require-service-key` | `MONITORING_REQUIRE_SERVICE_KEY` | `false` (`true` in the `riseai` profile) | Startup fails with "monitoring.security.service-key must be set…" when true and the key is empty (verified 2026-10-25) |
 
 ## monitoring.rise.*

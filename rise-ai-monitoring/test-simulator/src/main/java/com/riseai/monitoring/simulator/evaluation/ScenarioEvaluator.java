@@ -130,6 +130,16 @@ public class ScenarioEvaluator {
         if (!missing.isEmpty()) {
             mismatches.add(prefix + "rule findings missing " + missing + ", actual " + actual.getRuleIds());
         }
+        expected.getRequiredFindings().forEach((ruleId, severity) -> {
+            String actualSeverity = actual.getFindingSeverities().get(ruleId);
+            if (actualSeverity == null) {
+                mismatches.add(prefix + "finding " + ruleId + " missing, actual " + actual.getFindingSeverities());
+            } else if (!actualSeverity.equals(severity)) {
+                mismatches.add(prefix + "finding " + ruleId + " severity expected " + severity + ", actual " + actualSeverity);
+            }
+        });
+        expected.getForbiddenFindings().stream().filter(actual.getFindingSeverities()::containsKey)
+                .forEach(ruleId -> mismatches.add(prefix + "finding " + ruleId + " was not expected"));
         if (expected.isNoFindings() && !actual.getRuleIds().isEmpty()) {
             mismatches.add(prefix + "expected no rule findings, actual " + actual.getRuleIds());
         }

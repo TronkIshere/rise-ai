@@ -6,6 +6,7 @@ import com.riseai.dto.response.FindingDetailResponse;
 import com.riseai.dto.response.FindingResponse;
 import com.riseai.dto.response.OutboxEventResponse;
 import com.riseai.dto.response.OutboxStatsResponse;
+import com.riseai.dto.response.RulePrecisionResponse;
 import com.riseai.dto.response.PageResponse;
 import com.riseai.dto.response.ResponseAPI;
 import com.riseai.dto.response.StatusHistoryResponse;
@@ -64,6 +65,11 @@ public class FindingController {
     public ResponseAPI<FindingResponse> review(@AuthenticationPrincipal AuthUser actor, @PathVariable UUID id,
                                                @Valid @RequestBody ReviewFindingRequest body) {
         return ResponseAPI.ok(findingService.review(actor, id, body.status(), body.note()));
+    }
+
+    @GetMapping("/findings/precision")
+    public ResponseAPI<List<RulePrecisionResponse>> rulePrecision() {
+        return ResponseAPI.ok(findingService.rulePrecision());
     }
 
     @GetMapping("/outbox/stats")

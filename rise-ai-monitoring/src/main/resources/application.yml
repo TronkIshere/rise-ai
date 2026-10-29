@@ -71,6 +71,7 @@ monitoring:
     log-results: true
   security:
     service-key: ${MONITORING_SERVICE_KEY:}
+    previous-service-key: ${MONITORING_PREVIOUS_SERVICE_KEY:}
     require-service-key: ${MONITORING_REQUIRE_SERVICE_KEY:false}
   rise:
     enabled: ${MONITORING_RISE_ENABLED:true}

@@ -279,6 +279,37 @@ class RiseMonitoringIntegrationTest {
         throw new AssertionError("No finding from " + ruleId + " in " + result.path("findings"));
     }
 
+    @Test
+    void concurrentIdenticalRequestsProduceOneAnalysisAndNoDuplicateProjectionRows() throws Exception {
+        Map<String, Object> event = evidence(id(), id(), id(), hash(), "INVOICE");
+        String body = objectMapper.writeValueAsString(event);
+        String eventId = (String) event.get("eventId");
+        int threads = 8;
+        java.util.concurrent.ExecutorService pool = java.util.concurrent.Executors.newFixedThreadPool(threads);
+        java.util.concurrent.CountDownLatch start = new java.util.concurrent.CountDownLatch(1);
+        List<java.util.concurrent.Future<org.springframework.mock.web.MockHttpServletResponse>> calls = new ArrayList<>();
+        for (int i = 0; i < threads; i++) {
+            calls.add(pool.submit(() -> {
+                start.await();
+                return mockMvc.perform(post(MONITOR).header("Authorization", "Bearer " + KEY)
+                        .contentType(MediaType.APPLICATION_JSON).content(body)).andReturn().getResponse();
+            }));
+        }
+        start.countDown();
+        int fresh = 0;
+        for (java.util.concurrent.Future<org.springframework.mock.web.MockHttpServletResponse> call : calls) {
+            org.springframework.mock.web.MockHttpServletResponse response = call.get(30, java.util.concurrent.TimeUnit.SECONDS);
+            assertThat(response.getStatus()).isIn(200, 409);
+            if (response.getStatus() == 200 && !objectMapper.readTree(response.getContentAsString()).path("data").path("duplicate").asBoolean()) {
+                fresh++;
+            }
+        }
+        pool.shutdown();
+        assertThat(fresh).isEqualTo(1);
+        assertThat(jdbcClient.sql("select count(*) from rise_evidence_hashes where event_id = ?").param(eventId).query(Integer.class).single()).isEqualTo(1);
+        assertThat(jdbcClient.sql("select count(*) from rise_processed_events where event_id = ?").param(eventId).query(Integer.class).single()).isEqualTo(1);
+    }
+
     private Map<String, Object> evidence(String campaignId, String milestoneId, String evidenceId, String hash, String type) {
         Map<String, Object> payload = new LinkedHashMap<>();
         payload.put("evidenceId", evidenceId);

@@ -7,6 +7,7 @@ import lombok.experimental.FieldDefaults;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -23,6 +24,10 @@ public class ExpectedOutcome {
     Set<String> requiredRuleIds = Set.of();
 
     boolean noFindings;
+    @Builder.Default
+    Map<String, String> requiredFindings = Map.of();
+    @Builder.Default
+    Set<String> forbiddenFindings = Set.of();
     String riskLevel;
     Boolean duplicate;
     Boolean reviewRequired;
@@ -47,6 +52,12 @@ public class ExpectedOutcome {
         }
         if (!requiredRuleIds.isEmpty()) {
             parts.add("rules include " + new TreeSet<>(requiredRuleIds));
+        }
+        if (!requiredFindings.isEmpty()) {
+            parts.add("findings " + new java.util.TreeMap<>(requiredFindings));
+        }
+        if (!forbiddenFindings.isEmpty()) {
+            parts.add("without findings " + new TreeSet<>(forbiddenFindings));
         }
         if (noFindings) {
             parts.add("no findings");

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.riseai.dto.request.LoginRequest;
 import com.riseai.dto.response.FindingResponse;
+import com.riseai.dto.response.RulePrecisionResponse;
 import com.riseai.entity.MonitoringFinding;
 import com.riseai.entity.OutboxEvent;
 import com.riseai.enums.FindingReviewStatus;
@@ -50,11 +51,16 @@ class OutboxRelayIntegrationTest extends AbstractMySqlIntegrationTest {
     private static final String SERVICE_KEY = "test-service-key";
     private static final HttpServer MONITOR;
     private static final List<Captured> REQUESTS = new CopyOnWriteArrayList<>();
+    private static final HttpServer ALERTS;
+    private static final List<JsonNode> ALERT_BODIES = new CopyOnWriteArrayList<>();
+    private static final List<String> ALERT_AUTHORIZATIONS = new CopyOnWriteArrayList<>();
+    private static final String ALERT_TOKEN = "alert-token-test";
     private static volatile Function<JsonNode, StubResponse> responder = request -> StubResponse.ok(request, List.of());
 
     static {
         try {
             MONITOR = HttpServer.create(new InetSocketAddress("127.0.0.1", 0), 0);
+            ALERTS = HttpServer.create(new InetSocketAddress("127.0.0.1", 0), 0);
         } catch (IOException ex) {
             throw new UncheckedIOException(ex);
         }
@@ -71,6 +77,13 @@ class OutboxRelayIntegrationTest extends AbstractMySqlIntegrationTest {
             }
         });
         MONITOR.start();
+        ALERTS.createContext("/alerts", exchange -> {
+            ALERT_AUTHORIZATIONS.add(String.valueOf(exchange.getRequestHeaders().getFirst("Authorization")));
+            ALERT_BODIES.add(mapper.readTree(exchange.getRequestBody()));
+            exchange.sendResponseHeaders(204, -1);
+            exchange.close();
+        });
+        ALERTS.start();
     }
 
     @DynamicPropertySource
@@ -78,6 +91,8 @@ class OutboxRelayIntegrationTest extends AbstractMySqlIntegrationTest {
         registry.add("rise.monitoring.base-url", () -> "http://127.0.0.1:" + MONITOR.getAddress().getPort());
         registry.add("rise.monitoring.service-key", () -> SERVICE_KEY);
         registry.add("rise.monitoring.max-attempts", () -> "3");
+        registry.add("rise.monitoring.alert-webhook-token", () -> ALERT_TOKEN);
+        registry.add("rise.monitoring.alert-webhook-url", () -> "http://127.0.0.1:" + ALERTS.getAddress().getPort() + "/alerts");
     }
 
     @Autowired
@@ -104,6 +119,8 @@ class OutboxRelayIntegrationTest extends AbstractMySqlIntegrationTest {
     void setUp() {
         jdbcTemplate.update("update outbox_events set status = 'PUBLISHED', published_at = utc_timestamp(6), lease_until = null where status <> 'PUBLISHED'");
         REQUESTS.clear();
+        ALERT_BODIES.clear();
+        ALERT_AUTHORIZATIONS.clear();
         responder = request -> StubResponse.ok(request, List.of());
         creator = user(Role.CAMPAIGN_CREATOR);
         admin = user(Role.ADMIN);
@@ -135,6 +152,91 @@ class OutboxRelayIntegrationTest extends AbstractMySqlIntegrationTest {
     }
 
     @Test
+    void twoConcurrentRelaysNeverDeliverTheSameEventTwice() throws Exception {
+        for (int i = 0; i < 6; i++) {
+            activeCampaign(creator, admin, 1_000_000 + i);
+        }
+        long pending = outboxEventRepository.countByStatus(OutboxStatus.PENDING);
+        assertThat(pending).isGreaterThan(20);
+
+        java.util.concurrent.ExecutorService pool = java.util.concurrent.Executors.newFixedThreadPool(2);
+        java.util.concurrent.CountDownLatch start = new java.util.concurrent.CountDownLatch(1);
+        List<java.util.concurrent.Future<OutboxRelay.RelayRun>> runs = new java.util.ArrayList<>();
+        for (int i = 0; i < 2; i++) {
+            runs.add(pool.submit(() -> {
+                start.await();
+                OutboxRelay.RelayRun total = new OutboxRelay.RelayRun(0, 0, 0, 0);
+                for (int round = 0; round < 4; round++) {
+                    OutboxRelay.RelayRun run = outboxRelay.relayOnce();
+                    total = new OutboxRelay.RelayRun(total.claimed() + run.claimed(), total.published() + run.published(),
+                            total.retried() + run.retried(), total.failed() + run.failed());
+                }
+                return total;
+            }));
+        }
+        start.countDown();
+        long claimed = 0;
+        for (java.util.concurrent.Future<OutboxRelay.RelayRun> run : runs) {
+            claimed += run.get(60, java.util.concurrent.TimeUnit.SECONDS).claimed();
+        }
+        pool.shutdown();
+
+        List<String> delivered = REQUESTS.stream().map(captured -> captured.body().path("eventId").asText()).toList();
+        assertThat(delivered).doesNotHaveDuplicates().hasSize((int) pending);
+        assertThat(claimed).isEqualTo(pending);
+        assertThat(outboxEventRepository.countByStatus(OutboxStatus.PENDING)).isZero();
+        assertThat(outboxEventRepository.countByStatus(OutboxStatus.IN_FLIGHT)).isZero();
+    }
+
+    @Test
+    void criticalFindingRaisesOneAlertAndRepeatsDoNot() {
+        ActiveCampaign campaign = activeCampaign(creator, admin, 3_000_000);
+        String key = "c".repeat(64);
+        responder = request -> StubResponse.ok(request, request.path("eventType").asText().equals(RiseEvents.CAMPAIGN_APPROVED)
+                ? List.of(finding(key, "CRITICAL", campaign.id())) : List.of());
+        outboxRelay.relayOnce();
+        awaitAlerts(1);
+        assertThat(ALERT_BODIES).hasSize(1);
+        assertThat(ALERT_BODIES.get(0).path("kind").asText()).isEqualTo("CRITICAL_FINDING");
+        assertThat(ALERT_BODIES.get(0).path("details").path("ruleId").asText()).isEqualTo("test-rule");
+
+        OutboxEvent approved = outboxEventRepository.findByAggregateTypeAndAggregateIdOrderByOccurredAtAsc("CAMPAIGN", campaign.id()).stream()
+                .filter(event -> event.getEventType().equals(RiseEvents.CAMPAIGN_APPROVED)).findFirst().orElseThrow();
+        jdbcTemplate.update("update outbox_events set status = 'PENDING', next_attempt_at = utc_timestamp(6) where id = ?", approved.getId().toString());
+        outboxRelay.relayOnce();
+        assertThat(ALERT_BODIES).hasSize(1);
+        assertThat(ALERT_AUTHORIZATIONS).allMatch(value -> value.equals("Bearer " + ALERT_TOKEN));
+    }
+
+    @Test
+    void monitoringAndReviewActivityNeverChangeBusinessTables() {
+        ActiveCampaign campaign = activeCampaign(creator, admin, 4_000_000);
+        outboxRelay.relayOnce();
+        Map<String, Long> before = businessChecksums();
+        assertThat(before.values()).isNotEmpty();
+
+        String key = "d".repeat(64);
+        responder = request -> StubResponse.ok(request, List.of(finding(key, "CRITICAL", campaign.id())));
+        jdbcTemplate.update("update outbox_events set status = 'PENDING', next_attempt_at = utc_timestamp(6) where status = 'PUBLISHED'");
+        outboxRelay.relayOnce();
+        MonitoringFinding stored = findingRepository.findAll().stream().filter(f -> f.getFindingKey().equals(key)).findFirst().orElseThrow();
+        findingService.review(reviewer, stored.getId(), FindingReviewStatus.ACKNOWLEDGED, "Looking");
+        findingService.review(reviewer, stored.getId(), FindingReviewStatus.CONCERN_CONFIRMED, "Confirmed");
+
+        assertThat(businessChecksums()).isEqualTo(before);
+    }
+
+    private Map<String, Long> businessChecksums() {
+        Map<String, Long> checksums = new java.util.TreeMap<>();
+        for (String table : List.of("organizations", "campaigns", "campaign_milestones", "donations", "escrow_accounts",
+                "disbursement_requests", "refund_requests", "escrow_ledger_entries", "evidence_records", "disputes",
+                "dispute_messages", "settlement_requests", "escrow_adjustments")) {
+            checksums.put(table, jdbcTemplate.queryForObject("checksum table " + table, (rs, row) -> rs.getLong(2)));
+        }
+        return checksums;
+    }
+
+    @Test
     void retryableFailuresBackOffAndPermanentFailuresDeadLetter() {
         responder = request -> new StubResponse(503, "{\"status\":2003,\"error\":\"busy\"}");
         activeCampaign(creator, admin, 1_000_000);
@@ -154,6 +256,11 @@ class OutboxRelayIntegrationTest extends AbstractMySqlIntegrationTest {
         OutboxRelay.RelayRun second = outboxRelay.relayOnce();
         assertThat(second.failed()).isEqualTo(second.claimed()).isPositive();
         assertThat(outboxEventRepository.countByStatus(OutboxStatus.FAILED)).isGreaterThanOrEqualTo(second.failed());
+        awaitAlerts(second.failed());
+        assertThat(ALERT_BODIES).hasSize(second.failed()).allSatisfy(alert -> {
+            assertThat(alert.path("kind").asText()).isEqualTo("OUTBOX_EVENT_FAILED");
+            assertThat(alert.path("details").has("eventId")).isTrue();
+        });
 
         OutboxEvent failed = outboxEventRepository.findByStatus(OutboxStatus.FAILED, org.springframework.data.domain.Pageable.unpaged()).getContent().get(0);
         findingService.requeue(admin, failed.getId(), "Monitor fixed");
@@ -185,11 +292,18 @@ class OutboxRelayIntegrationTest extends AbstractMySqlIntegrationTest {
         assertThat(findingRepository.findById(stored.getId()).orElseThrow().getOccurrenceCount()).isEqualTo(1);
         assertThat(occurrenceRepository.findByFindingIdOrderByObservedAtAsc(stored.getId())).hasSize(1);
 
+        RulePrecisionResponse before = rulePrecision("test-rule");
         assertError(() -> findingService.review(admin, stored.getId(), FindingReviewStatus.DISMISSED, "I approved it"), ErrorCode.CONFLICT_OF_INTEREST);
         assertError(() -> findingService.review(creator, stored.getId(), FindingReviewStatus.DISMISSED, "Mine"), ErrorCode.ACCESS_DENIED);
         FindingResponse dismissed = findingService.review(reviewer, stored.getId(), FindingReviewStatus.DISMISSED, "Expected pattern");
         assertThat(dismissed.reviewStatus()).isEqualTo(FindingReviewStatus.DISMISSED);
         assertThat(dismissed.advisoryOnly()).isTrue();
+        RulePrecisionResponse after = rulePrecision("test-rule");
+        assertThat(after.dismissed()).isEqualTo(before.dismissed() + 1);
+        assertThat(after.open()).isEqualTo(before.open() - 1);
+        assertThat(after.total()).isEqualTo(before.total());
+        assertThat(after.precision()).isEqualTo(java.math.BigDecimal.valueOf(after.concernConfirmed())
+                .divide(java.math.BigDecimal.valueOf(after.concernConfirmed() + after.dismissed()), 4, java.math.RoundingMode.HALF_UP));
         assertError(() -> findingService.review(reviewer, stored.getId(), FindingReviewStatus.ACKNOWLEDGED, "Again"), ErrorCode.INVALID_STATE_TRANSITION);
 
         responder = request -> StubResponse.ok(request, List.of(finding(key, "HIGH", campaign.id())));
@@ -224,6 +338,17 @@ class OutboxRelayIntegrationTest extends AbstractMySqlIntegrationTest {
         mvc.perform(get("/api/v1/admin/monitoring/findings").header("Authorization", bearer(donor))).andExpect(status().isForbidden());
         mvc.perform(get("/api/v1/admin/monitoring/findings").header("Authorization", bearer(admin))).andExpect(status().isOk());
         mvc.perform(get("/api/v1/admin/monitoring/outbox/stats").header("Authorization", bearer(admin))).andExpect(status().isOk());
+        mvc.perform(get("/api/v1/admin/monitoring/findings/precision").header("Authorization", bearer(admin))).andExpect(status().isOk());
+        mvc.perform(get("/api/v1/admin/monitoring/findings/precision").header("Authorization", bearer(creator))).andExpect(status().isForbidden());
+    }
+
+    private static void awaitAlerts(int expected) {
+        org.awaitility.Awaitility.await().atMost(java.time.Duration.ofSeconds(10)).until(() -> ALERT_BODIES.size() >= expected);
+    }
+
+    private RulePrecisionResponse rulePrecision(String ruleId) {
+        return findingService.rulePrecision().stream().filter(row -> row.ruleId().equals(ruleId)).findFirst()
+                .orElse(new RulePrecisionResponse(ruleId, 0, 0, 0, 0, 0, null));
     }
 
     private String bearer(AuthUser user) {

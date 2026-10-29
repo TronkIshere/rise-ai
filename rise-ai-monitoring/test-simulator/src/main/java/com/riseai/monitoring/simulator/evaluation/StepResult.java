@@ -27,6 +27,8 @@ public class StepResult {
 
     @Builder.Default
     List<String> ruleIds = List.of();
+    @Builder.Default
+    java.util.Map<String, String> findingSeverities = java.util.Map.of();
 
     String riskLevel;
     Boolean duplicate;
@@ -62,12 +64,17 @@ public class StepResult {
         for (JsonNode finding : data.path("ruleFindings")) {
             ruleIds.add(finding.path("ruleId").asText());
         }
+        java.util.Map<String, String> findingSeverities = new java.util.LinkedHashMap<>();
+        for (JsonNode finding : data.path("findings")) {
+            findingSeverities.put(finding.path("detector").path("id").asText(), finding.path("severity").asText());
+        }
         JsonNode ai = data.path("aiAnalysis");
         return builder
                 .responseEventId(text(data, "eventId"))
                 .monitoringStatus(text(data, "monitoringStatus"))
                 .ruleDecision(text(data, "ruleDecision"))
                 .ruleIds(List.copyOf(ruleIds))
+                .findingSeverities(java.util.Map.copyOf(findingSeverities))
                 .riskLevel(text(data, "overallRiskLevel"))
                 .duplicate(bool(data, "duplicate"))
                 .reviewRequired(bool(data, "reviewRequired"))

@@ -72,6 +72,8 @@ rise:
     initial-backoff: PT5S
     max-backoff: PT15M
     published-retention: P30D
+    alert-webhook-url: ${RISE_ALERT_WEBHOOK_URL:}
+    alert-webhook-token: ${RISE_ALERT_WEBHOOK_TOKEN:}
 
 management:
   endpoints:

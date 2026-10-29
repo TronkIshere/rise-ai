@@ -32,6 +32,7 @@ public class FindingResponse {
     String explanation;
     RecommendedAction recommendedAction;
     Instant observedAt;
+    String aiNote;
 
     public record Detector(String type, String id, String version) {
     }

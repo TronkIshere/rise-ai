@@ -18,7 +18,9 @@ public class SimulatorRunner implements ApplicationRunner, ExitCodeGenerator {
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
-        exitCode = new SimulationRun(properties, objectMapper, System.out).execute();
+        exitCode = "rise".equals(properties.getSuite())
+                ? new RiseSuiteRun(properties, objectMapper, System.out).execute()
+                : new SimulationRun(properties, objectMapper, System.out).execute();
     }
 
     @Override

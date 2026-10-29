@@ -1,5 +1,6 @@
 package com.riseai.monitoring.service.impl;
 
+import com.riseai.monitoring.analysis.FindingNoteService;
 import com.riseai.monitoring.configuration.MonitoringProperties;
 import com.riseai.monitoring.constants.PlatformConstants;
 import com.riseai.monitoring.core.analysis.AiAnalysis;
@@ -54,6 +55,7 @@ public class EventMonitoringServiceImpl implements EventMonitoringService {
     EventNormalizer eventNormalizer;
     RuleEngine ruleEngine;
     RiseFindingEngine riseFindingEngine;
+    FindingNoteService findingNoteService;
     Clock clock;
 
     @Override
@@ -116,6 +118,7 @@ public class EventMonitoringServiceImpl implements EventMonitoringService {
         try {
             RuleEvaluation evaluation = ruleEngine.evaluate(event);
             List<Finding> findings = evaluation.getDecision() == RuleDecision.REJECT ? List.of() : riseFindingEngine.evaluate(event);
+            findings = findingNoteService.annotate(findings);
             if (!findings.isEmpty()) {
                 evaluation = ruleEngine.withAdditionalFindings(event, evaluation, findings.stream()
                         .map(finding -> RuleFinding.flag(finding.getRuleId(), finding.getSeverity(), finding.getExplanation()))

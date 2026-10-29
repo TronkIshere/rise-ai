@@ -84,9 +84,11 @@ Status labels used by the backend docs: **IMPLEMENTED** (in code), **DESIGNED** 
 | [ai-monitoring/04-roadmap.md](ai-monitoring/04-roadmap.md) | Sub-phases M0–M10 of backend Phase 2 |
 | [ai-monitoring/05-acceptance-checklist.md](ai-monitoring/05-acceptance-checklist.md) | Acceptance criteria with evidence (MVP items ticked) |
 | [ai-monitoring/06-progress-report.md](ai-monitoring/06-progress-report.md) | What was implemented, changed files, verification results, gaps, next steps |
+| [ai-monitoring/07-operations-runbook.md](ai-monitoring/07-operations-runbook.md) | Monitor down, FAILED outbox rows, key rotation, CRITICAL findings (drilled once on Compose, 2026-10-29) |
+| [ai-monitoring/08-d12-threshold-proposal.md](ai-monitoring/08-d12-threshold-proposal.md) | D12 threshold proposal for owner review (not active) |
 
 ## Known documentation gaps
 These were found during repository discovery on 2026-10-25. The `METHOD_NOT_ALLOWED` and `/actuator/info` omissions were fixed in Phase 1.
 - (Resolved 2026-10-25) The root `README.md` now contains setup instructions.
 - `security.md` describes role checks as `@PreAuthorize` on controllers. Some GET routes fall under the public `PUBLIC_READ_ENDPOINTS` URL prefixes but need authentication, and they enforce it only in the service layer (`AuthUser.require`, `loadOwnerOrAdmin`): `/campaigns/mine`, `/organizations/mine`, `/campaigns/{id}/donations/manage` and `/campaigns/{id}/disputes`.
-- There is no `CLAUDE.md`, CI configuration, backend Maven wrapper or application Dockerfile (planned for backend Phase 4 / roadmap M10). The monitoring module has `./mvnw`.
+- There is no `CLAUDE.md` or backend Maven wrapper. Dockerfiles, a root `docker-compose.yml` and `.github/workflows/ci.yml` were added on 2026-10-29 (Compose verified; the CI workflow has not run on a runner). The monitoring module has `./mvnw`.

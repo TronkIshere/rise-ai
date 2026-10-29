@@ -47,6 +47,7 @@ public class MonitoringResultMapper {
                 .explanation(finding.getExplanation())
                 .recommendedAction(finding.getRecommendedAction())
                 .observedAt(finding.getObservedAt())
+                .aiNote(finding.getAiNote())
                 .build();
     }
 

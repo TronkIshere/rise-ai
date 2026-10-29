@@ -12,6 +12,7 @@ import com.riseai.exception.FindingContractException;
 import com.riseai.repository.FindingOccurrenceRepository;
 import com.riseai.repository.MonitoringFindingRepository;
 import com.riseai.service.AuditService;
+import com.riseai.service.AlertNotifier;
 import com.riseai.service.FindingIngestionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -40,6 +41,7 @@ public class FindingIngestionServiceImpl implements FindingIngestionService {
     private final FindingOccurrenceRepository occurrenceRepository;
     private final AuditService auditService;
     private final ObjectMapper objectMapper;
+    private final AlertNotifier alertNotifier;
 
     @Transactional(propagation = Propagation.MANDATORY)
     @Override
@@ -73,6 +75,7 @@ public class FindingIngestionServiceImpl implements FindingIngestionService {
 
         FindingSeverity previousSeverity = finding.getSeverity();
         boolean escalated = incoming.severity().compareTo(previousSeverity) > 0;
+        boolean newCritical = incoming.severity() == FindingSeverity.CRITICAL && (finding.getOccurrenceCount() == 0 || escalated);
         if (escalated) {
             finding.setSeverity(incoming.severity());
             finding.setExplanation(incoming.explanation());
@@ -96,6 +99,10 @@ public class FindingIngestionServiceImpl implements FindingIngestionService {
         occurrence.setObservedAt(incoming.observedAt());
         occurrenceRepository.save(occurrence);
 
+        if (newCritical) {
+            alertNotifier.alert("CRITICAL_FINDING", Map.of("findingId", finding.getId().toString(), "ruleId", incoming.ruleId(),
+                    "category", incoming.category()));
+        }
         if (escalated && finding.getReviewStatus() == FindingReviewStatus.DISMISSED) {
             finding.setReviewStatus(FindingReviewStatus.OPEN);
             auditService.transition(null, "MONITORING_FINDING_REOPENED", ENTITY, finding.getId(), FindingReviewStatus.DISMISSED,

@@ -8,6 +8,9 @@ import com.riseai.monitoring.deduplication.EventDeduplicator;
 import com.riseai.monitoring.dto.response.status.AiRuntimeStatusResponse;
 import com.riseai.monitoring.dto.response.status.MonitoringStatusResponse;
 import com.riseai.monitoring.dto.response.status.RuleResponse;
+import com.riseai.monitoring.core.rule.RuleCategory;
+import com.riseai.monitoring.core.rule.RuleEffect;
+import com.riseai.monitoring.rise.RiseFindingEngine;
 import com.riseai.monitoring.rule.RuleEngine;
 import com.riseai.monitoring.service.MonitoringStatusService;
 import lombok.AccessLevel;
@@ -17,6 +20,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Stream;
 
 @Slf4j
 @Service
@@ -31,6 +35,7 @@ public class MonitoringStatusServiceImpl implements MonitoringStatusService {
 
     AiEventAnalyzer aiEventAnalyzer;
     RuleEngine ruleEngine;
+    RiseFindingEngine riseFindingEngine;
     EventDeduplicator eventDeduplicator;
     MonitoringProperties properties;
 
@@ -56,15 +61,23 @@ public class MonitoringStatusServiceImpl implements MonitoringStatusService {
 
     @Override
     public List<RuleResponse> getRules() {
-        return ruleEngine.getRules().stream()
+        Stream<RuleResponse> generic = ruleEngine.getRules().stream()
                 .map(rule -> RuleResponse.builder()
                         .id(rule.getId())
                         .description(rule.getDescription())
                         .category(rule.getCategory())
                         .effect(rule.getEffect())
                         .active(ruleEngine.isActive(rule))
-                        .build())
-                .toList();
+                        .build());
+        Stream<RuleResponse> charity = riseFindingEngine.getRules().stream()
+                .map(rule -> RuleResponse.builder()
+                        .id(rule.getId())
+                        .description(rule.getDescription())
+                        .category(RuleCategory.CHARITY)
+                        .effect(RuleEffect.FLAG)
+                        .active(properties.getRise().isEnabled())
+                        .build());
+        return Stream.concat(generic, charity).toList();
     }
 
     private AiRuntimeStatus checkRuntime() {

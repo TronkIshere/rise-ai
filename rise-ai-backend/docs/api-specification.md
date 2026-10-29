@@ -165,6 +165,7 @@ Findings come from `rise-ai-monitoring` through the outbox relay. They never cha
 | GET | /admin/monitoring/findings/{id} | ADM | `{finding, occurrences[{sourceEventId, actorId, severity, observedAt}]}` |
 | GET | /admin/monitoring/findings/{id}/history | ADM | Status history (entity `MONITORING_FINDING`) |
 | POST | /admin/monitoring/findings/{id}/review | ADM, not the campaign creator, not an actor of any source event | `{status: ACKNOWLEDGED\|CONCERN_CONFIRMED\|DISMISSED, note}`; note required (≤ 2000). Errors: `INVALID_STATE_TRANSITION`, `CONFLICT_OF_INTEREST`, `VALIDATION_FAILED` |
+| GET | /admin/monitoring/findings/precision | ADM | List of `{ruleId, total, open, acknowledged, concernConfirmed, dismissed, precision?}`; precision = confirmed / (confirmed + dismissed), null when none decided |
 | GET | /admin/monitoring/outbox/stats | ADM | `{relayEnabled, pending, inFlight, published, failed, oldestUndeliveredOccurredAt?, oldestUndeliveredAgeSeconds?}` |
 | GET | /admin/monitoring/outbox?status | ADM | Page of outbox rows (no envelope body), default sort `occurredAt` asc |
 | POST | /admin/monitoring/outbox/{id}/requeue | ADM | `{reason?}`; only `FAILED` rows; resets attempts; audited `OUTBOX_EVENT_REQUEUED` |

@@ -110,6 +110,7 @@ public class ScenarioGenerator {
             case EVENT_SEQUENCE -> sequence(draft);
             case LARGE_PAYLOAD -> largePayload(draft);
             case AI_RESILIENCE -> resilience(draft);
+            case RISE_RULES -> throw new IllegalStateException("RISE_RULES scenarios exist only in the rise suite");
         };
     }
 

@@ -8,7 +8,8 @@ import java.time.Duration;
 @ConfigurationProperties(prefix = "rise.monitoring")
 public record MonitoringRelayProperties(boolean enabled, URI baseUrl, String serviceKey, Integer batchSize, Duration lease,
                                         Duration connectTimeout, Duration readTimeout, Integer maxAttempts,
-                                        Duration initialBackoff, Duration maxBackoff, Duration publishedRetention) {
+                                        Duration initialBackoff, Duration maxBackoff, Duration publishedRetention,
+                                        String alertWebhookUrl, String alertWebhookToken) {
     public MonitoringRelayProperties {
         baseUrl = baseUrl == null ? URI.create("http://localhost:8081") : baseUrl;
         batchSize = batchSize == null || batchSize < 1 ? 20 : batchSize;
@@ -19,6 +20,14 @@ public record MonitoringRelayProperties(boolean enabled, URI baseUrl, String ser
         initialBackoff = initialBackoff == null ? Duration.ofSeconds(5) : initialBackoff;
         maxBackoff = maxBackoff == null ? Duration.ofMinutes(15) : maxBackoff;
         publishedRetention = publishedRetention == null ? Duration.ofDays(30) : publishedRetention;
+    }
+
+    public boolean hasAlertWebhook() {
+        return alertWebhookUrl != null && !alertWebhookUrl.isBlank();
+    }
+
+    public boolean hasAlertWebhookToken() {
+        return alertWebhookToken != null && !alertWebhookToken.isBlank();
     }
 
     public boolean hasServiceKey() {

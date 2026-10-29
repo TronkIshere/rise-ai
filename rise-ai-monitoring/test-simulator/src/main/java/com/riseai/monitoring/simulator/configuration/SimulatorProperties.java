@@ -47,6 +47,20 @@ public class SimulatorProperties {
 
     boolean failFast = true;
 
+    @NotBlank
+    String suite = "generic";
+
+    String serviceKey;
+
+    @NotNull
+    java.math.BigDecimal riseApprovalAmount = new java.math.BigDecimal("50000000");
+
+    @NotNull
+    java.math.BigDecimal riseAdjustmentAmount = new java.math.BigDecimal("10000000");
+
+    @Min(2)
+    int riseMaxRequestsPerMilestone = 3;
+
     @NotNull
     Map<Category, Integer> distribution = new LinkedHashMap<>(Category.defaultDistribution());
 }

@@ -8,6 +8,7 @@ import com.riseai.enums.OutboxStatus;
 import com.riseai.exception.FindingContractException;
 import com.riseai.repository.OutboxEventRepository;
 import com.riseai.service.FindingIngestionService;
+import com.riseai.service.AlertNotifier;
 import com.riseai.service.OutboxRelay;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -18,6 +19,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -31,14 +33,16 @@ public class OutboxRelayImpl implements OutboxRelay {
     private final FindingIngestionService findingIngestionService;
     private final MonitoringRelayProperties properties;
     private final TransactionTemplate transactionTemplate;
+    private final AlertNotifier alertNotifier;
 
     public OutboxRelayImpl(OutboxEventRepository outboxEventRepository, MonitoringClient monitoringClient,
                            FindingIngestionService findingIngestionService, MonitoringRelayProperties properties,
-                           PlatformTransactionManager transactionManager) {
+                           PlatformTransactionManager transactionManager, AlertNotifier alertNotifier) {
         this.outboxEventRepository = outboxEventRepository;
         this.monitoringClient = monitoringClient;
         this.findingIngestionService = findingIngestionService;
         this.properties = properties;
+        this.alertNotifier = alertNotifier;
         this.transactionTemplate = new TransactionTemplate(transactionManager);
     }
 
@@ -144,7 +148,8 @@ public class OutboxRelayImpl implements OutboxRelay {
         event.setStatus(OutboxStatus.FAILED);
         event.setLeaseUntil(null);
         event.setLastError(truncate(error));
-        log.error("ALERT outbox event {} ({}) failed permanently: {}", event.getEventId(), event.getEventType(), event.getLastError());
+        alertNotifier.alert("OUTBOX_EVENT_FAILED", Map.of("eventId", String.valueOf(event.getEventId()), "eventType", event.getEventType(),
+                "error", String.valueOf(event.getLastError())));
         return OutboxStatus.FAILED;
     }
 

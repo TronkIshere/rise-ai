@@ -4,6 +4,7 @@ import com.riseai.dto.response.FindingDetailResponse;
 import com.riseai.dto.response.FindingResponse;
 import com.riseai.dto.response.OutboxEventResponse;
 import com.riseai.dto.response.OutboxStatsResponse;
+import com.riseai.dto.response.RulePrecisionResponse;
 import com.riseai.dto.response.StatusHistoryResponse;
 import com.riseai.enums.FindingReviewStatus;
 import com.riseai.enums.FindingSeverity;
@@ -23,6 +24,8 @@ public interface FindingService {
     List<StatusHistoryResponse> history(UUID id);
 
     FindingResponse review(AuthUser actor, UUID id, FindingReviewStatus target, String note);
+
+    List<RulePrecisionResponse> rulePrecision();
 
     OutboxStatsResponse outboxStats();
 

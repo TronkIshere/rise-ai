@@ -17,7 +17,8 @@ public enum Category {
     OPTIONAL_FIELDS("G", "Missing and optional fields", "Valid optional-field variations that must be accepted", 7, false),
     EVENT_SEQUENCE("H", "Event sequences", "Ordered related events sharing a correlation ID, evaluated per event", 5, false),
     LARGE_PAYLOAD("I", "Large and unusual valid payloads", "Valid payloads of varying size, depth and character sets within limits", 5, false),
-    AI_RESILIENCE("J", "AI failure resilience", "Flagged events checked for the AI failure contract in whatever AI state the Core is in", 5, true);
+    AI_RESILIENCE("J", "AI failure resilience", "Flagged events checked for the AI failure contract in whatever AI state the Core is in", 5, true),
+    RISE_RULES("K", "Rise charity rules", "Rise envelopes asserted against findings[]; run only through the rise suite", 0, false);
 
     private final String code;
     private final String label;

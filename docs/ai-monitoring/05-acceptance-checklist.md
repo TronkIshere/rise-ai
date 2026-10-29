@@ -43,9 +43,9 @@ Updated 2026-10-25 after implementation. Unticked items are open; the evidence c
 | ✓ | # | Criterion | Evidence |
 |---|---|---|---|
 | [x] | M2.1 | D5, D10 and D14 approved | Applied as recommended on the owner's implementation request 2026-10-25 (D14 not applied) |
-| [ ] | M2.2 | `contracts/events/envelope.v1.schema.json` exists; one example per catalogue event type validates against it | Not done: no JSON Schema files; the envelope is specified in `rise-ai-backend/docs/event-contracts.md` and asserted by `DomainEventOutboxIntegrationTest` |
+| [~] | M2.2 | `contracts/events/envelope.v1.schema.json` exists; one example per catalogue event type validates against it | No JSON Schema validator is present in either module (checked with `dependency:list`). Needs a dependency decision, see progress report 12.5 |
 | [x] | M2.3 | No example contains a field on the forbidden list (architecture §5.3), checked by a script or test, not by eye | `DomainEventOutboxIntegrationTest` asserts no forbidden field in any stored payload |
-| [ ] | M2.4 | `contracts/findings/finding.v1.schema.json` exists; one example per MVP rule validates | Not done: no JSON Schema; `finding.v1` is validated field by field in `FindingIngestionService` and tested in `OutboxRelayIntegrationTest` |
+| [~] | M2.4 | `contracts/findings/finding.v1.schema.json` exists; one example per MVP rule validates | Same dependency decision as M2.2 |
 | [x] | M2.5 | `rise-ai-backend/docs/event-contracts.md` updated (actorRole, references, catalogue, forbidden fields) | `event-contracts.md` rewritten as IMPLEMENTED |
 | [x] | M2.6 | Monitor `docs/API_CONTRACT.md` documents the additive `findings[]` and the Rise envelope reading | Monitor `docs/API_CONTRACT.md` › Rise AI events and `findings[]` |
 
@@ -57,7 +57,7 @@ Updated 2026-10-25 after implementation. Unticked items are open; the evidence c
 | [x] | M3.2 | For each catalogue event: a rolled-back operation produces zero rows | `rejectedBusinessOperationWritesNoEvent` |
 | [x] | M3.3 | `correlation_id` equals the request's `X-Correlation-Id` for HTTP-originated events; null for scheduler-originated events | E2E: `X-Correlation-Id: e2e-ev-2` stored; scheduler events carry no correlation id (`reconciliationRunPublishesSystemEventInsideItsTransaction`) |
 | [x] | M3.4 | Relay against the stub: 200 → PUBLISHED; 409/2002, 503 and timeout → retried with increasing `next_attempt_at`; 400, 413 and 409/2001 → FAILED with no retry | `OutboxRelayIntegrationTest.retryableFailuresBackOffAndPermanentFailuresDeadLetter` (503 retried, 400 FAILED); full classification table in code |
-| [ ] | M3.5 | Two relay instances never send the same row within one lease | Not tested with two concurrent relays (design: `FOR UPDATE SKIP LOCKED` + lease) |
+| [x] | M3.5 | Two relay instances never send the same row within one lease | `OutboxRelayIntegrationTest.twoConcurrentRelaysNeverDeliverTheSameEventTwice` (2 threads x 4 rounds, 24+ events, no duplicate deliveries), 2026-10-29 |
 | [x] | M3.6 | With the monitor unreachable, the full existing backend test suite passes with `rise.monitoring.enabled=true` | E2E: with the monitor stopped, donation, confirmation and evidence submission succeeded |
 | [x] | M3.7 | Lost acknowledgement (relay killed after HTTP 200, before marking) → resent once; monitor answers `duplicate: true` | `findingsAreStoredIdempotently...` re-sends an already published event: no new occurrence |
 | [x] | M3.8 | No outbox write is attached to `USER_LOGIN`, `USER_REGISTERED` or other excluded actions (test or source scan) | `RiseEvents` has no factory for login or registration actions; payload test |
@@ -71,10 +71,10 @@ Updated 2026-10-25 after implementation. Unticked items are open; the evidence c
 | [x] | M4.2 | Missing or wrong service key → 401 on `/api/v1/**` and `/actuator/metrics`; `/actuator/health` → 200 without a key | `RiseMonitoringIntegrationTest.serviceKeyIsRequiredForApiAndMetricsButNotHealth`; E2E 401 without key |
 | [x] | M4.3 | In the `riseai` profile the server binds to 127.0.0.1 (connection from a non-loopback address refused) | `application-riseai.yml` sets `server.address: 127.0.0.1`; E2E reached the monitor only via 127.0.0.1 (refusal from a non-loopback address not separately tested) |
 | [ ] | M4.4 | After a monitor restart (same DB), redelivering an event returns `duplicate: true` and the original result | Not met as written: deduplication stays in memory. Substitute evidence: re-evaluation after a restart gives the same findings and no new projection rows (`reevaluatingAfterLostDeduplication...`, E2E restart) |
-| [ ] | M4.5 | Two concurrent identical requests: one NEW, one IN_PROGRESS or DUPLICATE; never two analyses | Not separately tested for the Rise path (in-memory deduplicator concurrency is covered by existing tests) |
+| [x] | M4.5 | Two concurrent identical requests: one NEW, one IN_PROGRESS or DUPLICATE; never two analyses | `RiseMonitoringIntegrationTest.concurrentIdenticalRequestsProduceOneAnalysisAndNoDuplicateProjectionRows` (8 threads: one fresh, others duplicate or 409; one projection row), 2026-10-29 |
 | [x] | M4.6 | Each M2 fixture is parsed by `RiseEnvelopeReader`; unknown `schemaVersion` → 400 `INVALID_EVENT` | `malformedRiseEnvelopesAreRejectedWithInvalidEvent` |
 | [x] | M4.7 | Projection rows are written once per `eventId` (redelivery adds none) | `reevaluatingAfterLostDeduplicationProducesTheSameFindingsWithoutNewProjectionRows` |
-| [ ] | M4.8 | Retention purge deletes only rows older than the configured period (clock-controlled test) | Purge implemented, not tested |
+| [x] | M4.8 | Retention purge deletes only rows older than the configured period (clock-controlled test) | `RiseProjectionRetentionIntegrationTest.purgeDeletesOnlyRowsOlderThanTheRetentionPeriod` (rows 500 and 10 days old; real clock, 400-day retention), 2026-10-29 |
 | [x] | M4.9 | Monitor DB user has no privileges on schema `rise_ai` (`SHOW GRANTS` output recorded) | By construction: separate embedded H2 database with no backend credentials |
 | [x] | M4.10 | Without the `riseai` profile, the simulator summary equals M1.6 | Simulator 2,000/2,000 after the Rise changes |
 
@@ -89,7 +89,7 @@ Updated 2026-10-25 after implementation. Unticked items are open; the evidence c
 | [x] | M5.5 | Every emitted finding validates against `finding.v1.schema.json` | Field-level validation by the backend ingestion accepted every E2E finding (no FAILED rows); no JSON Schema |
 | [x] | M5.6 | Language test: no template contains a forbidden term (03 §0.4) | `findingTextsAvoidAccusatoryLanguage` |
 | [x] | M5.7 | `overallRiskLevel` for a finding-bearing event is at least the finding severity's risk level; AI disabled or failed never lowers it | LG-01 gives `overallRiskLevel` CRITICAL; EV-01 gives HIGH (tests) |
-| [ ] | M5.8 | Simulator Rise scenarios: all expected outcomes met | Not done: no simulator Rise scenarios |
+| [x] | M5.8 | Simulator Rise scenarios: all expected outcomes met | Simulator `--simulator.suite=rise`: 20 scenarios, 8/8 rules, positive and boundary cases; 20/20 against the packaged monitor (AI off, and with AI on and Ollama unreachable). A Core threshold mismatch makes it fail (verified), 2026-10-29 |
 
 ## M6 — Backend findings store and admin API
 
@@ -112,18 +112,18 @@ Updated 2026-10-25 after implementation. Unticked items are open; the evidence c
 | [x] | M7.3 | Reviewer who is the campaign creator or the source-event actor → `CONFLICT_OF_INTEREST` | Test: the admin who approved the campaign gets `CONFLICT_OF_INTEREST` |
 | [x] | M7.4 | DISMISSED + same-severity occurrence → stays DISMISSED with `newOccurrencesSinceReview` incremented; escalation → OPEN via a system-actor transition | Escalation test: DISMISSED to OPEN, history [DISMISSED, OPEN] |
 | [x] | M7.5 | Review actions change no row in any business table (checksum comparison in the test) | E2E: evidence records unchanged after review (no checksum comparison) |
-| [ ] | M7.6 | Per-rule precision query returns correct values for a seeded set of reviews | Not built |
+| [x] | M7.6 | Per-rule precision query returns correct values for a seeded set of reviews | `GET /admin/monitoring/findings/precision`; asserted in `OutboxRelayIntegrationTest` (counts and precision before/after a review; ADMIN only), 2026-10-29 |
 
 ## M8 — AI-assisted analysis
 
 | ✓ | # | Criterion | Evidence |
 |---|---|---|---|
-| [ ] | M8.1 | D5, D6 and D13 approved | |
-| [ ] | M8.2 | Prompt tests: no UUID, actor field or free-text field from any M2 fixture appears in the built prompt | |
-| [ ] | M8.3 | Output containing a forbidden term → `INVALID_RESPONSE`; the finding is still delivered without an `aiNote` | |
-| [ ] | M8.4 | AI never changes finding severity or `overallRiskLevel` (tests for every analysis status) | |
-| [ ] | M8.5 | Offline gate on ≥ 200 scenarios recorded: schema-valid ≥ 99 %, grounding ≥ 95 %, forbidden terms = 0, p95 latency < request timeout; model name and version recorded | |
-| [ ] | M8.6 | With AI disabled, all M5 and M7 results are unchanged | |
+| [~] | M8.1 | D5, D6 and D13 approved | D5, D6, D13 are applied as recommended defaults (2026-10-25) but not formally signed off; see progress report 11 |
+| [x] | M8.2 | Prompt tests: no UUID, actor field or free-text field from any M2 fixture appears in the built prompt | `FindingNoteTest.promptContainsOnlyAllowlistedScalarFacts`: no UUID, hash, free text or non-allowlisted fact name reaches the prompt |
+| [~] | M8.3 | Output containing a forbidden term → `INVALID_RESPONSE`; the finding is still delivered without an `aiNote` | Deviation: a note containing a forbidden term, identifier or URL is dropped by `FindingNoteFilter` and the finding is delivered without `aiNote` (`FindingNoteTest`); no `INVALID_RESPONSE` status is produced for notes |
+| [x] | M8.4 | AI never changes finding severity or `overallRiskLevel` (tests for every analysis status) | `FindingNoteTest.validNoteIsAttachedAndNeverChangesSeverityOrFacts` and the failure cases; the note is a separate field |
+| [~] | M8.5 | Offline gate on ≥ 200 scenarios recorded: schema-valid ≥ 99 %, grounding ≥ 95 %, forbidden terms = 0, p95 latency < request timeout; model name and version recorded | NOT MET. Pilot only (2026-10-29, `qwen3.5:9b`, 3 of 8 rules, 10 findings): 10/10 notes passed the filter; median 71.8 s, max 78.1 s per event (note plus generic AI analysis), near the backend relay read timeout of 90 s. The 200-scenario gate was not run |
+| [x] | M8.6 | With AI disabled, all M5 and M7 results are unchanged | Disabled by default (`monitoring.rise.ai-notes-enabled=false`, `monitoring.ai.enabled=false` in `riseai`); `FindingNoteTest.disabledByDefaultNeverCallsTheModel`; full suite unchanged |
 | [ ] | M8.7 | Owner decision on enabling AI notes in the admin UI recorded | |
 
 ## M9 — Security, resilience, observability (★ = MVP)
@@ -132,9 +132,9 @@ Updated 2026-10-25 after implementation. Unticked items are open; the evidence c
 |---|---|---|---|
 | [x] | M9.1★ | Outbox metrics: monitor stopped for 5 minutes → pending count and oldest-age rise; restart → both return to 0 | E2E: monitor stopped, pending 2 with error; restart, drained to 0 (stats endpoint, not Micrometer) |
 | [x] | M9.2★ | FAILED-row requeue: ADMIN only, audited, row returns to PENDING and is delivered | `retryableFailures...` test requeues a FAILED row; audited `OUTBOX_EVENT_REQUEUED` |
-| [ ] | M9.3★ | Log capture test: no payload, attribute values or service key at INFO in either module | Not done: no log-capture test |
-| [ ] | M9.4 | Key rotation: old and new keys accepted during the overlap; old key rejected after removal | Not done |
-| [ ] | M9.5 | Runbook covers monitor down, Ollama down, FAILED rows, monitor DB down, key rotation; each step tried once | Not done: no runbook |
+| [~] | M9.3★ | Log capture test: no payload, attribute values or service key at INFO in either module | Monitor side done (`noKeyOrEventContentIsLoggedAtAnyLevel`). Backend side: alert log lines carry ids only, but no backend log-capture test exists; item stays open |
+| [x] | M9.4 | Key rotation: old and new keys accepted during the overlap; old key rejected after removal | `ServiceKeyRotationAndLoggingIntegrationTest.currentAndPreviousKeysAreAcceptedDuringOverlapAndOthersAreRejected`; `monitoring.security.previous-service-key`; procedure in 07-operations-runbook.md §5 |
+| [~] | M9.5 | Runbook covers monitor down, Ollama down, FAILED rows, monitor DB down, key rotation; each step tried once | All seven procedures drilled once on 2026-10-29 (section 2 on a standalone monitor); section 6 corrected. The successful finding review step was not completed in Compose (single ADMIN, conflict-of-interest 403 observed); it was verified on 2026-10-25. Not drilled in a deployed environment |
 
 ## M10 — End-to-end validation
 
@@ -144,9 +144,9 @@ Updated 2026-10-25 after implementation. Unticked items are open; the evidence c
 | [x] | M10.2★ | E2E: monitor stopped → donation confirm, disbursement request, approve and release succeed; restart → backlog drains; no duplicate findings | E2E 2026-10-25 |
 | [x] | M10.3★ | E2E: injected reconciliation inconsistency → LG-01 CRITICAL finding | E2E 2026-10-25 (balance mismatch injected in the throwaway database, then restored) |
 | [x] | M10.4★ | E2E: review → audit log entry with the correlation ID | E2E 2026-10-25 |
-| [ ] | M10.5★ | E2E: business table checksums unchanged by any monitoring or review activity | Partly: evidence rows checked; no full business-table checksum |
-| [ ] | M10.6 | (backend Phase 4) Dockerfiles and Compose services named `rise-ai-backend` and `rise-ai-monitoring`; both start from Compose | Backend Phase 4 |
-| [ ] | M10.7 | (backend Phase 4) CI runs both test suites and the contract tests on every PR | Backend Phase 4 |
+| [x] | M10.5★ | E2E: business table checksums unchanged by any monitoring or review activity | `OutboxRelayIntegrationTest.monitoringAndReviewActivityNeverChangeBusinessTables`: MySQL `CHECKSUM TABLE` over 13 business tables unchanged after relay, CRITICAL finding and two reviews, 2026-10-29 |
+| [x] | M10.6 | (backend Phase 4) Dockerfiles and Compose services named `rise-ai-backend` and `rise-ai-monitoring`; both start from Compose | Root `docker-compose.yml` and both Dockerfiles; images built and the stack started with seed on: 65 events PUBLISHED, 0 failed (2026-10-29) |
+| [~] | M10.7 | (backend Phase 4) CI runs both test suites and the contract tests on every PR | `.github/workflows/ci.yml` now also builds the simulator and runs the Rise suite against the packaged monitor. The same commands passed locally. NOT run on GitHub Actions; the workflow file was not parsed by a YAML tool |
 
 ## MVP done when
 

@@ -6,6 +6,7 @@ import com.riseai.dto.response.FindingResponse;
 import com.riseai.dto.response.OccurrenceResponse;
 import com.riseai.dto.response.OutboxEventResponse;
 import com.riseai.dto.response.OutboxStatsResponse;
+import com.riseai.dto.response.RulePrecisionResponse;
 import com.riseai.dto.response.StatusHistoryResponse;
 import com.riseai.entity.MonitoringFinding;
 import com.riseai.entity.OutboxEvent;
@@ -29,9 +30,14 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.EnumMap;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 import java.util.UUID;
 
 @Service
@@ -88,6 +94,27 @@ public class FindingServiceImpl implements FindingService {
         finding.setNewOccurrencesSinceReview(0);
         auditService.transition(actor.id(), "MONITORING_FINDING_REVIEWED", FindingIngestionService.ENTITY, finding.getId(), previous, target, note.trim());
         return FindingResponse.from(finding);
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public List<RulePrecisionResponse> rulePrecision() {
+        Map<String, Map<FindingReviewStatus, Long>> byRule = new TreeMap<>();
+        for (Object[] row : findingRepository.countByRuleAndReviewStatus()) {
+            byRule.computeIfAbsent((String) row[0], key -> new EnumMap<>(FindingReviewStatus.class))
+                    .put((FindingReviewStatus) row[1], (Long) row[2]);
+        }
+        return byRule.entrySet().stream().map(entry -> {
+            Map<FindingReviewStatus, Long> counts = entry.getValue();
+            long open = counts.getOrDefault(FindingReviewStatus.OPEN, 0L);
+            long acknowledged = counts.getOrDefault(FindingReviewStatus.ACKNOWLEDGED, 0L);
+            long confirmed = counts.getOrDefault(FindingReviewStatus.CONCERN_CONFIRMED, 0L);
+            long dismissed = counts.getOrDefault(FindingReviewStatus.DISMISSED, 0L);
+            long decided = confirmed + dismissed;
+            BigDecimal precision = decided == 0 ? null
+                    : BigDecimal.valueOf(confirmed).divide(BigDecimal.valueOf(decided), 4, RoundingMode.HALF_UP);
+            return new RulePrecisionResponse(entry.getKey(), open + acknowledged + decided, open, acknowledged, confirmed, dismissed, precision);
+        }).toList();
     }
 
     @Transactional(readOnly = true)

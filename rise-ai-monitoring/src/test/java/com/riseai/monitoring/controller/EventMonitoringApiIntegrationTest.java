@@ -214,7 +214,7 @@ class EventMonitoringApiIntegrationTest {
     void rulesEndpointListsActiveRules() throws Exception {
         mockMvc.perform(get("/api/v1/monitoring/rules"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data", hasSize(6)))
+                .andExpect(jsonPath("$.data", hasSize(14)))
                 .andExpect(jsonPath("$.data[*].id", hasItems("required-fields", "timestamp-validity",
                         "supported-event-type", "payload-limits", "attribute-threshold", "reported-severity")));
     }

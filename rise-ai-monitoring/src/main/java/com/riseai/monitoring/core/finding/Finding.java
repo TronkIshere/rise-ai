@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Map;
 
 @Getter
-@Builder
+@Builder(toBuilder = true)
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class Finding {
     public static final String CONTRACT_VERSION = "finding.v1";
@@ -41,6 +41,7 @@ public class Finding {
     String explanation;
     RecommendedAction recommendedAction;
     Instant observedAt;
+    String aiNote;
 
     public static String idFor(String ruleId, String subjectType, String subjectId, String discriminator) {
         String canonical = ruleId + "|" + subjectType + "|" + subjectId + "|" + (discriminator == null ? "" : discriminator);

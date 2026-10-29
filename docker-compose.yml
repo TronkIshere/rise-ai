@@ -1,0 +1,62 @@
+services:
+  mysql:
+    image: mysql:8.4
+    container_name: rise-ai-mysql
+    command:
+      - --log-bin-trust-function-creators=1
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+    environment:
+      MYSQL_DATABASE: rise_ai
+      MYSQL_USER: rise_app
+      MYSQL_PASSWORD: ${RISE_DB_PASSWORD:?set RISE_DB_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${RISE_DB_ROOT_PASSWORD:?set RISE_DB_ROOT_PASSWORD}
+    volumes:
+      - rise_mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -urise_app -p$$MYSQL_PASSWORD"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  rise-ai-monitoring:
+    build: ./rise-ai-monitoring
+    container_name: rise-ai-monitoring
+    environment:
+      SPRING_PROFILES_ACTIVE: riseai
+      MONITORING_SERVICE_KEY: ${RISE_MONITORING_SERVICE_KEY:?set RISE_MONITORING_SERVICE_KEY}
+      MONITORING_PREVIOUS_SERVICE_KEY: ${RISE_MONITORING_PREVIOUS_SERVICE_KEY:-}
+      MONITORING_AI_ENABLED: "false"
+      SERVER_ADDRESS: 0.0.0.0
+    volumes:
+      - rise_monitoring_data:/data
+    healthcheck:
+      test: ["CMD-SHELL", "bash -c 'exec 3<>/dev/tcp/localhost/8081 && printf \"GET /actuator/health HTTP/1.0\r\n\r\n\" >&3 && grep -q UP <&3'"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+
+  rise-ai-backend:
+    build: ./rise-ai-backend
+    container_name: rise-ai-backend
+    depends_on:
+      mysql:
+        condition: service_healthy
+      rise-ai-monitoring:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/rise_ai?useUnicode=true&characterEncoding=utf8&serverTimezone=UTC&useSSL=false&allowPublicKeyRetrieval=true
+      SPRING_DATASOURCE_USERNAME: rise_app
+      SPRING_DATASOURCE_PASSWORD: ${RISE_DB_PASSWORD:?set RISE_DB_PASSWORD}
+      RISE_JWT_SECRET: ${RISE_JWT_SECRET:?set RISE_JWT_SECRET}
+      RISE_MONITORING_ENABLED: "true"
+      RISE_MONITORING_BASE_URL: http://rise-ai-monitoring:8081
+      RISE_MONITORING_SERVICE_KEY: ${RISE_BACKEND_MONITORING_KEY:-${RISE_MONITORING_SERVICE_KEY:?set RISE_MONITORING_SERVICE_KEY}}
+      RISE_SEED_ENABLED: ${RISE_SEED_ENABLED:-false}
+      RISE_SIMULATION_DONATION_CONFIRMATION_ENABLED: ${RISE_SIMULATION_ENABLED:-false}
+    ports:
+      - "8080:8080"
+
+volumes:
+  rise_mysql_data:
+  rise_monitoring_data:

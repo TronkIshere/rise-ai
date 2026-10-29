@@ -25,7 +25,14 @@ public class CoreClient {
     private final ObjectMapper objectMapper;
     private final HttpClient httpClient;
 
+    private final String serviceKey;
+
     public CoreClient(URI baseUrl, Duration requestTimeout, ObjectMapper objectMapper) {
+        this(baseUrl, requestTimeout, objectMapper, null);
+    }
+
+    public CoreClient(URI baseUrl, Duration requestTimeout, ObjectMapper objectMapper, String serviceKey) {
+        this.serviceKey = serviceKey == null || serviceKey.isBlank() ? null : serviceKey;
         String url = baseUrl.toString();
         this.baseUrl = url.endsWith("/") ? url.substring(0, url.length() - 1) : url;
         this.requestTimeout = requestTimeout;
@@ -37,20 +44,24 @@ public class CoreClient {
     }
 
     public CoreResponse postEvent(String body, String contentType) {
-        return send(HttpRequest.newBuilder(URI.create(baseUrl + CoreContract.MONITOR_PATH))
+        return send(authorized(HttpRequest.newBuilder(URI.create(baseUrl + CoreContract.MONITOR_PATH))
                 .timeout(requestTimeout)
                 .header("Content-Type", contentType)
                 .header("Accept", "application/json")
-                .POST(HttpRequest.BodyPublishers.ofString(body, StandardCharsets.UTF_8))
+                .POST(HttpRequest.BodyPublishers.ofString(body, StandardCharsets.UTF_8)))
                 .build());
     }
 
     public CoreResponse get(String path) {
-        return send(HttpRequest.newBuilder(URI.create(baseUrl + path))
+        return send(authorized(HttpRequest.newBuilder(URI.create(baseUrl + path))
                 .timeout(requestTimeout)
                 .header("Accept", "application/json")
-                .GET()
+                .GET())
                 .build());
+    }
+
+    private HttpRequest.Builder authorized(HttpRequest.Builder builder) {
+        return serviceKey == null ? builder : builder.header("Authorization", "Bearer " + serviceKey);
     }
 
     private CoreResponse send(HttpRequest request) {

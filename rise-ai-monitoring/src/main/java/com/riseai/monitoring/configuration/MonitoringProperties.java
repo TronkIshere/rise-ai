@@ -226,10 +226,16 @@ public class MonitoringProperties {
 
         String serviceKey;
 
+        String previousServiceKey;
+
         boolean requireServiceKey = false;
 
         public boolean hasServiceKey() {
             return serviceKey != null && !serviceKey.isBlank();
+        }
+
+        public boolean hasPreviousServiceKey() {
+            return previousServiceKey != null && !previousServiceKey.isBlank();
         }
 
         @AssertTrue(message = "monitoring.security.service-key must be set when require-service-key is true")
@@ -262,6 +268,14 @@ public class MonitoringProperties {
 
         @Min(2)
         int maxRequestsPerMilestone = 3;
+
+        boolean aiNotesEnabled = false;
+
+        @Min(80)
+        int aiNoteMaxLength = 400;
+
+        @NotNull
+        Duration aiNoteBudget = Duration.ofSeconds(20);
 
         @NotNull
         BigDecimal adjustmentReviewAmount = new BigDecimal("10000000");

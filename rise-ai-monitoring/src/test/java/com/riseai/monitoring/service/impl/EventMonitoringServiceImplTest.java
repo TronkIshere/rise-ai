@@ -27,6 +27,7 @@ import com.riseai.monitoring.ollama.OllamaClient;
 import com.riseai.monitoring.ollama.OllamaEventAnalyzer;
 import com.riseai.monitoring.result.MonitoringResultAssembler;
 import com.riseai.monitoring.rise.RiseEnvelopeReader;
+import com.riseai.monitoring.analysis.FindingNoteService;
 import com.riseai.monitoring.rise.RiseFindingEngine;
 import com.riseai.monitoring.rule.AttributeThresholdRule;
 import com.riseai.monitoring.rule.EventTypeRule;
@@ -311,6 +312,7 @@ class EventMonitoringServiceImplTest {
                 new EventNormalizer(new ObjectMapper(), properties, clock),
                 ruleEngine,
                 new RiseFindingEngine(new RiseEnvelopeReader(properties), null, List.of(), properties, clock),
+                new FindingNoteService(properties, new OllamaProperties(), null, new ObjectMapper()),
                 clock);
     }
 }
