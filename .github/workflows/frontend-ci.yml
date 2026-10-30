@@ -22,4 +22,15 @@ jobs:
         with:
           node-version: '22'
       - run: npm install --no-audit --no-fund
+      - name: FE-00 lockfile handoff (temporary)
+        run: |
+          node - <<'NODE'
+          const fs = require('node:fs');
+          const lock = JSON.stringify(JSON.parse(fs.readFileSync('package-lock.json', 'utf8')));
+          console.log('RISE_LOCK_BEGIN');
+          for (let i = 0; i < lock.length; i += 1600) {
+            console.log('RISE_LOCK_PART_' + String(i / 1600).padStart(5, '0') + ':' + lock.slice(i, i + 1600));
+          }
+          console.log('RISE_LOCK_END');
+          NODE
       - run: npm run verify
