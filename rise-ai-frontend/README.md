@@ -6,13 +6,13 @@ This UI only calls the Spring Boot **Backend** (`/api/v1`); it never calls AI Mo
 ## Local development (from repository root)
 ```bash
 cd rise-ai-frontend
-npm install
+npm ci
 npm run verify
 npm run dev
 ```
 Start Backend on port 8080 first. Frontend runs on http://localhost:5173. If Backend is down, public campaign pages show an explicit error rather than invented data.
 
-The `package-lock.json` is not generated in this environment. **Generate and commit it after `npm install`, then replace `npm install` with `npm ci` in CI.** Do not claim full build verification before that.
+The committed `package-lock.json` makes installs reproducible via `npm ci` in local development and GitHub Actions. The release gate is `npm run verify` and GitHub CI, plus separate manual browser smoke with a running Backend.
 
 ## What exists
 Home, public campaign list/detail, login and an authenticated **placeholder** workspace. No donor payment, evidence upload, admin approval or AI-action screens are claimed as finished. Donations/escrow are simulated.

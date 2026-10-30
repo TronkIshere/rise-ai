@@ -10,6 +10,8 @@ on:
       - 'rise-ai-frontend/**'
       - '.github/workflows/frontend-ci.yml'
       - 'rise-ai-backend/docs/api/openapi-v1.json'
+permissions:
+  contents: read
 jobs:
   frontend:
     runs-on: ubuntu-latest
@@ -21,16 +23,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - run: npm install --no-audit --no-fund
-      - name: FE-00 lockfile handoff (temporary)
-        run: |
-          node - <<'NODE'
-          const fs = require('node:fs');
-          const lock = JSON.stringify(JSON.parse(fs.readFileSync('package-lock.json', 'utf8')));
-          console.log('RISE_LOCK_BEGIN');
-          for (let i = 0; i < lock.length; i += 1600) {
-            console.log('RISE_LOCK_PART_' + String(i / 1600).padStart(5, '0') + ':' + lock.slice(i, i + 1600));
-          }
-          console.log('RISE_LOCK_END');
-          NODE
+          cache: npm
+          cache-dependency-path: rise-ai-frontend/package-lock.json
+      - run: npm ci --no-audit --no-fund
       - run: npm run verify

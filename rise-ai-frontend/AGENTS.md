@@ -10,3 +10,9 @@
 8. Scope every PR, do not touch Backend/Monitoring. If Backend contract is insufficient, document a blocker instead of modifying it.
 9. Run `npm run verify`; attach actual outputs/screenshots, never claim PASS without execution. No direct push or merge to `master`.
 10. Follow docs/ARCHITECTURE.md and docs/PROGRESS.md; update progress only with evidence.
+
+## Git history discipline (2026-10-31)
+- Prefer one meaningful commit per scoped task, not one commit per styling tweak, test rerun, or documentation update.
+- Accumulate related changes, run checks, then commit together; squash merge PRs into `master` after review.
+- Never force-push, rewrite collaborators' commits, or commit directly to `master`.
+- Progress entries must reflect actual evidence; keep commit history concise without sacrificing traceability.
