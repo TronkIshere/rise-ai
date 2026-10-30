@@ -1,0 +1,18 @@
+/* Only source for Rise AI semantic colors / dimensions. */
+@theme {
+  --color-brand: #176850;
+  --color-brand-hover: #0f513e;
+  --color-brand-ink: #102d25;
+  --color-surface: #ffffff;
+  --color-canvas: #f6f8f4;
+  --color-soft-mint: #e9f3eb;
+  --color-soft-sand: #fbf7e8;
+  --color-subtle: #e8eee8;
+  --color-border: #dce5dc;
+  --color-copy: #192b25;
+  --color-muted: #596b62;
+  --color-warning: #9e5d14;
+  --color-danger: #b63d45;
+  --radius-card: 1.25rem;
+  --font-sans: 'Be Vietnam Pro', 'Segoe UI', system-ui, sans-serif;
+}

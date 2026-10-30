@@ -1,0 +1,27 @@
+# Rise AI — Frontend (FE-00)
+
+A lean, **non-SaaS**, charity transparency web application. React + TypeScript + Vite + Tailwind CSS 4.
+This UI only calls the Spring Boot **Backend** (`/api/v1`); it never calls AI Monitoring directly.
+
+## Local development (from repository root)
+```bash
+cd rise-ai-frontend
+npm install
+npm run verify
+npm run dev
+```
+Start Backend on port 8080 first. Frontend runs on http://localhost:5173. If Backend is down, public campaign pages show an explicit error rather than invented data.
+
+The `package-lock.json` is not generated in this environment. **Generate and commit it after `npm install`, then replace `npm install` with `npm ci` in CI.** Do not claim full build verification before that.
+
+## What exists
+Home, public campaign list/detail, login and an authenticated **placeholder** workspace. No donor payment, evidence upload, admin approval or AI-action screens are claimed as finished. Donations/escrow are simulated.
+
+## Contracts
+Backend is the sole contract source: `../rise-ai-backend/docs/api/openapi-v1.json`.
+`npm run contract:generate` generates optional full type declarations (ignored until reviewed).
+`npm run contract:check` validates the FE-00 subset and required fields; it does **not** prove E2E compatibility.
+
+## Architecture
+Read [AGENTS.md](AGENTS.md), [Architecture](docs/ARCHITECTURE.md), [Design system](docs/DESIGN_SYSTEM.md), [Progress](docs/PROGRESS.md) before coding.
+Never copy hotel-specific components, MUI, session storage or business workflows from the separate Advanced-Web-Programming reference.
