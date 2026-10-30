@@ -88,3 +88,6 @@ Backend semantics (`FindingIngestionService`): upsert by `findingId`; one occurr
 3. A breaking change creates a new `schemaVersion`; the monitor rejects versions not in `monitoring.rise.supported-schema-versions` with 400/2000, which dead-letters the row, so deploy the consumer first.
 4. `eventType` names are permanent.
 5. Ordering only per aggregate; tolerate gaps and duplicates.
+
+## AI note persistence (2026-10-30)
+The optional `aiNote` (finding.v1, at most 400 characters) is stored on the `monitoring_finding_occurrences` row of the event that carried it (`ai_note`, migration V11), after control characters and whitespace runs are collapsed. It is advisory: it never alters severity, explanation, facts, recommended action or the finding key, and it is returned only through the ADMIN finding detail endpoint as `occurrences[].aiNote`. The contract has no model identifier, so none is stored.

@@ -58,3 +58,6 @@ Still open: evidence-review edge cases and load tests for lock contention. Neith
 Commands: `mvn clean test` (requires Docker). The default `JAVA_HOME` on the development machine is JDK 20; set it to JDK 21 first, or the build fails with "release version 21 not supported".
 
 Latest full run (2026-10-25, after the layered refactor): **122 tests, 0 failures** (110 Phase 0/1 tests, including the corrected `RequestIdempotencyIntegrationTest`, 8 Phase 2 integration tests and 4 `LayeredArchitectureTest` rules). Before the refactor the same suite ran 120 tests (with a 2-test predecessor of the architecture test). End-to-end verification against the real monitoring service is recorded in `../../docs/ai-monitoring/06-progress-report.md`.
+
+## Test count (2026-10-30)
+Full backend run: 177 tests, 0 failures (`mvn -B clean test`, JDK 21, Testcontainers MySQL 8.4). New in this run: hardening, alert administration, secrets validation, AI note persistence, production pool timings.

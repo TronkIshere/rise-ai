@@ -193,7 +193,10 @@ def stable_facts(facts):
 
 def gate(summary, timeout_seconds):
     checks = {
-        "events>=%d" % GATE_MIN_EVENTS: summary["events"] >= GATE_MIN_EVENTS,
+        "validScenarios>=%d" % GATE_MIN_EVENTS: summary["validScenarios"] >= GATE_MIN_EVENTS,
+        "invalidScenarios==0": summary["invalidScenarios"] == 0,
+        "falsePositives==0": summary["falsePositives"] == 0,
+        "falseNegatives==0": summary["falseNegatives"] == 0,
         "noteRate>=%.2f" % GATE_MIN_NOTE_RATE: (summary["noteRate"] or 0) >= GATE_MIN_NOTE_RATE,
         "groundingRate>=%.2f" % GATE_MIN_GROUNDING: (summary["groundingRate"] or 0) >= GATE_MIN_GROUNDING,
         "forbiddenTerms==0": summary["notesWithForbiddenTerms"] == 0 and summary["notesFailingChecks"] == 0,
@@ -201,6 +204,10 @@ def gate(summary, timeout_seconds):
         "httpFailures==0": summary["httpFailures"] == 0,
     }
     return {"checks": checks, "met": all(checks.values())}
+
+
+def valid_scenario(result):
+    return result["http"] == 200 and result["monitoringStatus"] not in (None, "REJECTED") and bool(result["findings"]) == result["expectFinding"]
 
 
 def summarize(results, baseline, gate_timeout):
@@ -217,8 +224,14 @@ def summarize(results, baseline, gate_timeout):
             ungrounded[r["name"]] = extra
     latencies = [r["seconds"] for r in results if r["findings"]]
     forbidden = sum(1 for r, f in noted if FORBIDDEN.search(f["note"]))
+    valid = [r for r in results if valid_scenario(r)]
     summary = {
         "events": len(results),
+        "validScenarios": len(valid),
+        "invalidScenarios": len(results) - len(valid),
+        "invalidScenarioNames": [r["name"] for r in results if not valid_scenario(r)],
+        "falseNegatives": sum(1 for r in results if r["http"] == 200 and r["expectFinding"] and not r["findings"]),
+        "falsePositives": sum(1 for r in results if r["http"] == 200 and not r["expectFinding"] and r["findings"]),
         "eventsExpectingFindings": sum(1 for r in results if r["expectFinding"]),
         "findings": len(scored),
         "notesProduced": len(noted),
@@ -253,6 +266,7 @@ def main():
     parser.add_argument("--approval-amount", default="50000000.00")
     parser.add_argument("--max-requests", type=int, default=3)
     parser.add_argument("--gate-timeout", type=float, default=90.0, help="request timeout in seconds that the p95 latency must stay under (the backend relay read timeout)")
+    parser.add_argument("--require-gate", action="store_true", help="exit non-zero unless the gate is met")
     parser.add_argument("--repeat", type=int, default=1, help="run the fixed dataset this many times with fresh identifiers")
     args = parser.parse_args()
     baseline = json.load(open(args.baseline)) if args.baseline else None
@@ -261,6 +275,8 @@ def main():
     print(json.dumps(summary, indent=2))
     if args.out:
         json.dump({"label": args.label, "summary": summary, "results": results}, open(args.out, "w"), indent=2)
+    if args.require_gate and not summary["gate"]["met"]:
+        return 1
     return 0 if summary["httpFailures"] == 0 else 1
 
 

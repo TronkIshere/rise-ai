@@ -41,6 +41,10 @@ Environment: Windows 11, JDK 21.0.2 (`JAVA_HOME` set explicitly to JDK 21; the m
 
 Those gaps were closed by the 2026-10-25 runs above.
 
+### Rule failure and deduplication error paths (2026-10-30)
+
+`RiseRuleFailureIsolationIntegrationTest` (2 tests: failing rule plus healthy real rule on one event, redelivery after the fix gives the full finding once with no duplicate rows, metric per rule, no exception message in logs), three new cases in `EventMonitoringServiceImplTest` (completion failure releases the registration, evaluation exception releases it, `Error` releases it). Stale in-progress takeover was already covered by `JdbcEventDeduplicatorTest.anInterruptedEventIsTakenOverOnceItsInProgressTimeoutHasPassed`; the in-memory store has no takeover (entries leave only by retention). Full run `sh ./mvnw -B clean test` (JDK 21): **223 of 223 passed**, 0 failures, 0 skipped, BUILD SUCCESS.
+
 ### Rise monitoring tests (`controller/RiseMonitoringIntegrationTest`, 11 tests)
 
 Service-key enforcement (API, metrics, health open); EV-01 across campaigns with idempotent redelivery; re-evaluation after lost deduplication adds no projection rows; EV-02; DB-02 and DB-03 including an out-of-order delivery that must not produce a finding; DB-01 thresholds; LG-01 CRITICAL and quiet consistent runs; AO-01 severities; DP-01 only after a release; malformed envelopes (`schemaVersion`, mismatched `eventId`, missing envelope) rejected with 2000; no accusatory terms in any explanation.

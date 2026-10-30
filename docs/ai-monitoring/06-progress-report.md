@@ -513,3 +513,53 @@ Run 40994596201 for `0186911` failed in `monitoring` on the same DP-01 test (`ba
 
 ### 19.5 Checklist changes from this session
 M4.4 and M5.4 ticked with the evidence above. M9.6 moved to partial (restart drill, end-to-end rule-failure run, real destination and multi-instance dispatch not demonstrated). M10.7 moved from ticked back to partial. Owner decisions are unchanged: D12 thresholds, alert destination and owner, alert backlog and retention policy, AI model, M8.7, validator-dependency sign-off, accepting M1.9 and M1.11.
+
+
+## 20. 2026-10-30 - non-blockchain completion sprint
+
+Scope: Backend Phases 0, 1, 2 and the locally achievable part of 4. No blockchain work. CI was not run or inspected. Nothing was committed. Starting point: `master` at `8598b54`, clean tree.
+
+### 20.1 Implemented
+- AI advisory notes persisted by the backend per finding occurrence (migration V11); ADMIN-only exposure; sanitised; separate from deterministic finding fields.
+- Alert operations: admin list, stats and audited requeue of FAILED alerts.
+- Request hardening: security headers, rate limiting, request size limit, liveness and readiness probes, ADMIN-only `/actuator/metrics`, prod secret validation, configtree secrets import, TLS profile, Hikari settings.
+- Compose: restart policy, graceful stop, capability drop, no-new-privileges, backend readiness healthcheck, demo password passed through.
+- `scripts/backup-mysql.sh`, `scripts/restore-mysql.sh`, `scripts/load_test.py`.
+- Monitor: rule-failure semantics verified and documented (no design change), rule exception logs no longer include the exception message, new error-path tests for deduplication, evaluation script gate counts valid scenarios only and reports false positives and negatives.
+
+### 20.2 Defects found
+- The prod Hikari timings first written as `25m`, `10s`, `30s` crashed the backend at startup (Hikari takes milliseconds). Found by the Compose run, fixed, covered by `ProductionProfileConfigurationTest`.
+- Pre-existing: Compose with `RISE_SEED_ENABLED=true` and the simulation endpoint disabled stops at startup because the seeder needs simulation. Documented, not changed.
+- The rule failure behaviour described in M9.6 was accurate; no defect beyond the deliberate "fail the event, retry" behaviour was found.
+
+### 20.3 Verification (2026-10-30)
+- Backend `mvn -B clean test` (JDK 21, Testcontainers MySQL 8.4): 169 run, 0 failures, 0 errors, 0 skipped (149 before).
+- Monitor `sh ./mvnw -B clean test` (JDK 21): 223 run, 0 failures (218 before).
+- Compose stack built and started with seed on, prod profile; headers, probes, rate limit and metrics authorisation checked live; load test (warm) 1,000 requests, 0 errors, p95 about 0.15 s (a cold first run had p95 2.8 s); backup and restore drill into a second database succeeded. The stack and its volumes were removed afterwards.
+- Not run: the 200-scenario AI evaluation, Ollama, restart drills for queued alerts, TLS with a real certificate, any CI.
+
+### 20.4 Open owner decisions
+D12 thresholds (M5.1), D5/D6/D13 sign-off and model choice (M8.1, M8.5), AI notes in the admin UI (M8.7), acceptance of M1.9 and M1.11, alert destination and owner, alert retention, data retention, MFA approach, production database platform.
+
+
+## 21. 2026-10-30 - post-sprint review
+
+Scope: strict review of the working tree left by section 20. No commit, no push, no CI. Base `8598b54`; 29 modified and 17 untracked files before this review (no `pom.xml` change, no new dependency, one new migration `V11`, `test-simulator` untouched and therefore not rerun).
+
+### 21.1 Independently rerun in this session (Maven 3.9.12, JDK 21)
+- Backend `mvn -B clean test`: 169 run, 0 failures, 0 errors, 0 skipped, BUILD SUCCESS.
+- Monitor `mvn -B clean test` (system Maven, not `./mvnw`): 223 run, 0 failures, 0 errors, 0 skipped, BUILD SUCCESS. This confirms the sub-agent's reported count.
+
+### 21.2 Defects confirmed and fixed
+1. An oversized **chunked** request body returned 400 `INVALID_REQUEST` instead of 413. Reproduced live (3 MB chunked login body), cause: the message converter wrapped the limit exception. Fix: `GlobalExceptionHandler.handleBadRequest` maps a `REQUEST_TOO_LARGE` cause to 413. Tests: `GlobalExceptionHandlerTest` (3), `RequestSizeLimitFilterTest` (4, new); live recheck returned 413.
+2. Seed enabled with simulation disabled failed with an opaque `SIMULATION_DISABLED` error. This is an intentional dependency (the seeder confirms donations through the simulation path), so default behaviour was not changed; the `prod` profile now fails fast with an explicit message. Test: `ProductionSecretsValidatorTest.seedingWithoutTheSimulationPathFailsFastWithAClearMessage`; live recheck showed the message.
+
+### 21.3 Review findings not changed (no confirmed defect, or owner decision)
+- Rate limiting keys on the socket address and ignores `X-Forwarded-For` (spoof-proof, confirmed live), so behind a reverse proxy all clients share one auth bucket. Needs a deployment decision.
+- Alert requeue resets `attempts` to 0. A worker from before the alert reached FAILED could in theory match a later claim's attempt number, but that needs a lease-expired worker to survive twelve retry cycles; recorded as a low risk, not fixed. Requeue and dispatch serialise on the row lock, FAILED rows are never selected by the dispatcher, and requeue is audited (`AlertAdminIntegrationTest`).
+- Multi-instance behaviour of alert dispatch (`FOR UPDATE SKIP LOCKED`), rate limiting (in memory) and event deduplication against a shared server database remains unproven; only single-instance runs exist.
+- The `/run/secrets` configtree import has a property-level test only; it was not exercised with real mounted secret files. TLS was not started with a certificate.
+- The 200-scenario evaluation is 21 distinct scenarios repeated; see `rise-ai-monitoring/docs/evaluation/README.md`, section "Readiness".
+
+### 21.4 Final count after the review fixes
+Backend `mvn -B clean test` after both fixes: 177 run, 0 failures, 0 errors, 0 skipped, exit code 0 (169 + 8 new). Monitor unchanged at 223. The Compose stack used for the live checks was removed with its volumes afterwards.
