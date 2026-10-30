@@ -76,6 +76,7 @@ class DomainEventOutboxIntegrationTest extends AbstractMySqlIntegrationTest {
         OutboxEvent submitted = outboxEventRepository.findByAggregateTypeAndAggregateIdOrderByOccurredAtAsc("EVIDENCE", evidence).get(0);
         JsonNode envelope = objectMapper.readTree(submitted.getEnvelope());
         assertThat(fieldNames(envelope)).isSubsetOf(ENVELOPE_FIELDS);
+        assertThat(com.riseai.support.EventSchemaContract.validate(envelope)).isEmpty();
         assertThat(envelope.path("eventId").asText()).isEqualTo(submitted.getEventId().toString());
         assertThat(envelope.path("schemaVersion").asInt()).isEqualTo(1);
         assertThat(envelope.path("producer").asText()).isEqualTo("rise-ai-backend");
@@ -123,6 +124,7 @@ class DomainEventOutboxIntegrationTest extends AbstractMySqlIntegrationTest {
         List<OutboxEvent> events = outboxEventRepository.findByEventTypeOrderByOccurredAtAsc(RiseEvents.RECONCILIATION_RUN_COMPLETED);
         assertThat(events).isNotEmpty();
         JsonNode envelope = objectMapper.readTree(events.get(events.size() - 1).getEnvelope());
+        assertThat(com.riseai.support.EventSchemaContract.validate(envelope)).isEmpty();
         assertThat(envelope.path("actorRole").asText()).isEqualTo("SYSTEM");
         assertThat(envelope.has("actorId")).isFalse();
         assertThat(envelope.path("payload").path("runStatus").asText()).isIn("CONSISTENT", "INCONSISTENT", "FAILED");

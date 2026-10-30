@@ -1,0 +1,204 @@
+{
+  "CAMPAIGN_CREATED": {
+    "aggregateType": "CAMPAIGN",
+    "payload": {
+      "campaignId": "00000001-1111-4111-8111-000000000001",
+      "organizationId": "00000006-1111-4111-8111-000000000006",
+      "creatorId": "00000007-1111-4111-8111-000000000007",
+      "targetAmount": "100000000.00",
+      "currency": "VND",
+      "category": "EDUCATION"
+    }
+  },
+  "CAMPAIGN_SUBMITTED_FOR_REVIEW": {
+    "aggregateType": "CAMPAIGN",
+    "payload": {
+      "campaignId": "00000001-1111-4111-8111-000000000001",
+      "milestoneCount": 3,
+      "targetAmount": "100000000.00",
+      "currency": "VND"
+    }
+  },
+  "CAMPAIGN_APPROVED": {
+    "aggregateType": "CAMPAIGN",
+    "payload": {
+      "campaignId": "00000001-1111-4111-8111-000000000001",
+      "reviewerId": "00000008-1111-4111-8111-000000000008"
+    }
+  },
+  "CAMPAIGN_PAUSED": {
+    "aggregateType": "CAMPAIGN",
+    "payload": {
+      "campaignId": "00000001-1111-4111-8111-000000000001"
+    }
+  },
+  "DONATION_CONFIRMED": {
+    "aggregateType": "DONATION",
+    "payload": {
+      "donationId": "00000004-1111-4111-8111-000000000004",
+      "campaignId": "00000001-1111-4111-8111-000000000001",
+      "amount": "500000.00",
+      "currency": "VND",
+      "anonymous": false,
+      "ledgerTransactionCode": "TX-1"
+    }
+  },
+  "MILESTONE_CREATED": {
+    "aggregateType": "MILESTONE",
+    "payload": {
+      "milestoneId": "00000002-1111-4111-8111-000000000002",
+      "campaignId": "00000001-1111-4111-8111-000000000001",
+      "sequenceNumber": 1,
+      "plannedAmount": "30000000.00",
+      "currency": "VND",
+      "dueAt": "2026-12-01T00:00:00Z"
+    }
+  },
+  "MILESTONE_EVIDENCE_SUBMITTED": {
+    "aggregateType": "EVIDENCE",
+    "payload": {
+      "evidenceId": "00000005-1111-4111-8111-000000000005",
+      "milestoneId": "00000002-1111-4111-8111-000000000002",
+      "campaignId": "00000001-1111-4111-8111-000000000001",
+      "evidenceType": "RECEIPT",
+      "fileHash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    }
+  },
+  "EVIDENCE_ACCEPTED": {
+    "aggregateType": "EVIDENCE",
+    "payload": {
+      "evidenceId": "00000005-1111-4111-8111-000000000005",
+      "milestoneId": "00000002-1111-4111-8111-000000000002",
+      "campaignId": "00000001-1111-4111-8111-000000000001",
+      "evidenceType": "RECEIPT"
+    }
+  },
+  "EVIDENCE_REJECTED": {
+    "aggregateType": "EVIDENCE",
+    "payload": {
+      "evidenceId": "00000005-1111-4111-8111-000000000005",
+      "milestoneId": "00000002-1111-4111-8111-000000000002",
+      "campaignId": "00000001-1111-4111-8111-000000000001",
+      "evidenceType": "RECEIPT"
+    }
+  },
+  "DISBURSEMENT_REQUESTED": {
+    "aggregateType": "DISBURSEMENT_REQUEST",
+    "payload": {
+      "requestId": "00000003-1111-4111-8111-000000000003",
+      "milestoneId": "00000002-1111-4111-8111-000000000002",
+      "campaignId": "00000001-1111-4111-8111-000000000001",
+      "amount": "1000000.00",
+      "currency": "VND",
+      "milestonePlannedAmount": "30000000.00",
+      "milestoneRemaining": "29000000.00"
+    }
+  },
+  "DISBURSEMENT_APPROVED": {
+    "aggregateType": "DISBURSEMENT_REQUEST",
+    "payload": {
+      "requestId": "00000003-1111-4111-8111-000000000003",
+      "milestoneId": "00000002-1111-4111-8111-000000000002",
+      "campaignId": "00000001-1111-4111-8111-000000000001",
+      "amount": "1000000.00",
+      "currency": "VND",
+      "reviewerId": "00000008-1111-4111-8111-000000000008",
+      "acceptedEvidenceCount": 2
+    }
+  },
+  "DISBURSEMENT_REJECTED": {
+    "aggregateType": "DISBURSEMENT_REQUEST",
+    "payload": {
+      "requestId": "00000003-1111-4111-8111-000000000003",
+      "milestoneId": "00000002-1111-4111-8111-000000000002",
+      "campaignId": "00000001-1111-4111-8111-000000000001",
+      "amount": "1000000.00",
+      "currency": "VND"
+    }
+  },
+  "DISBURSEMENT_RELEASED": {
+    "aggregateType": "DISBURSEMENT_REQUEST",
+    "payload": {
+      "requestId": "00000003-1111-4111-8111-000000000003",
+      "milestoneId": "00000002-1111-4111-8111-000000000002",
+      "campaignId": "00000001-1111-4111-8111-000000000001",
+      "amount": "1000000.00",
+      "currency": "VND",
+      "ledgerTransactionCode": "TX-2",
+      "simulated": true
+    }
+  },
+  "DISPUTE_OPENED": {
+    "aggregateType": "DISPUTE",
+    "payload": {
+      "disputeId": "00000004-1111-4111-8111-000000000004",
+      "campaignId": "00000001-1111-4111-8111-000000000001",
+      "disputeType": "MISUSE_OF_FUNDS"
+    }
+  },
+  "DISPUTE_RESOLVED": {
+    "aggregateType": "DISPUTE",
+    "payload": {
+      "disputeId": "00000004-1111-4111-8111-000000000004",
+      "campaignId": "00000001-1111-4111-8111-000000000001",
+      "disputeType": "MISUSE_OF_FUNDS",
+      "outcome": "RESOLVED_DISMISSED"
+    }
+  },
+  "REFUND_REQUESTED": {
+    "aggregateType": "REFUND_REQUEST",
+    "payload": {
+      "refundId": "00000009-1111-4111-8111-000000000009",
+      "donationId": "00000004-1111-4111-8111-000000000004",
+      "campaignId": "00000001-1111-4111-8111-000000000001",
+      "amount": "500000.00",
+      "currency": "VND"
+    }
+  },
+  "REFUND_RECORDED": {
+    "aggregateType": "REFUND_REQUEST",
+    "payload": {
+      "refundId": "00000009-1111-4111-8111-000000000009",
+      "donationId": "00000004-1111-4111-8111-000000000004",
+      "campaignId": "00000001-1111-4111-8111-000000000001",
+      "amount": "500000.00",
+      "currency": "VND",
+      "ledgerTransactionCode": "TX-3",
+      "externalPaymentStatus": "SIMULATED"
+    }
+  },
+  "ADJUSTMENT_APPLIED": {
+    "aggregateType": "ESCROW_ADJUSTMENT",
+    "payload": {
+      "adjustmentId": "0000000a-1111-4111-8111-00000000000a",
+      "campaignId": "00000001-1111-4111-8111-000000000001",
+      "direction": "CREDIT",
+      "amount": "1000.00",
+      "currency": "VND",
+      "requestedBy": "00000008-1111-4111-8111-000000000008",
+      "decidedBy": "0000000b-1111-4111-8111-00000000000b"
+    }
+  },
+  "SETTLEMENT_EXECUTED": {
+    "aggregateType": "SETTLEMENT_REQUEST",
+    "payload": {
+      "settlementId": "0000000c-1111-4111-8111-00000000000c",
+      "campaignId": "00000001-1111-4111-8111-000000000001",
+      "settlementType": "REFUND_ALL",
+      "amount": "2000000.00",
+      "currency": "VND",
+      "donationCount": 4
+    }
+  },
+  "RECONCILIATION_RUN_COMPLETED": {
+    "aggregateType": "RECONCILIATION_RUN",
+    "payload": {
+      "runId": "0000000d-1111-4111-8111-00000000000d",
+      "runCode": "RUN-1",
+      "runStatus": "CONSISTENT",
+      "trigger": "SCHEDULED",
+      "accountsChecked": 5,
+      "inconsistentAccounts": 0
+    }
+  }
+}

@@ -1,6 +1,8 @@
 spring:
   application:
     name: rise-ai-monitoring
+  lifecycle:
+    timeout-per-shutdown-phase: 30s
   jackson:
     mapper:
       accept-case-insensitive-enums: true
@@ -14,6 +16,7 @@ spring:
 
 server:
   port: ${SERVER_PORT:8081}
+  shutdown: graceful
   error:
     include-stacktrace: never
     include-message: never

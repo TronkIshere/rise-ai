@@ -46,12 +46,10 @@ public class RepeatedRequestsRule implements RiseFindingRule {
             return List.of();
         }
         String milestoneId = envelope.text("milestoneId");
-        if (milestoneId == null) {
+        if (!RuleSupport.validId(milestoneId)) {
             return List.of();
         }
-        long count = projection.disbursementEvents(milestoneId, RiseEventTypes.DISBURSEMENT_REQUESTED, envelope.eventId()).stream()
-                .filter(row -> !row.occurredAt().isAfter(envelope.occurredAt()))
-                .count() + 1;
+        long count = projection.disbursementEvents(milestoneId, RiseEventTypes.DISBURSEMENT_REQUESTED, envelope.eventId()).size() + 1L;
         int limit = properties.getRise().getMaxRequestsPerMilestone();
         if (count < limit) {
             return List.of();

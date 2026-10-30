@@ -86,7 +86,7 @@ These are illustrative defaults, not validated thresholds.
 |---|---|---|---|
 | `service-key` | `MONITORING_SERVICE_KEY` | empty | When set, `/api/v1/**` and `/actuator/metrics/**` require `Authorization: Bearer <key>` |
 | `rise.ai-notes-enabled` | `MONITORING_RISE_AI_NOTES_ENABLED` | `false` | AI notes on Rise findings; needs `monitoring.ai.enabled=true`. Advisory only; not evaluated against the gate |
-| `rise.ai-note-budget` | `MONITORING_RISE_AI_NOTE_BUDGET` | `20s` | No new AI-note call starts after this time per event; a safety default, not validated |
+| `rise.ai-note-budget` | `MONITORING_RISE_AI_NOTE_BUDGET` | `20s` | Per event: no new AI-note call starts after this time, and each call's timeout is capped at the remaining budget (an in-flight call is cancelled at the budget, or at `OLLAMA_REQUEST_TIMEOUT` if that is shorter); a safety default, not validated |
 | `previous-service-key` | `MONITORING_PREVIOUS_SERVICE_KEY` | empty | Optional second accepted key for rotation without downtime; clear it after the backend uses the new key |
 | `require-service-key` | `MONITORING_REQUIRE_SERVICE_KEY` | `false` (`true` in the `riseai` profile) | Startup fails with "monitoring.security.service-key must be set…" when true and the key is empty (verified 2026-10-25) |
 
@@ -104,7 +104,11 @@ These are illustrative defaults, not validated thresholds.
 | `adjustment-review-amount` | (none) | `10000000` | AO-01: MEDIUM at or above, INFO below |
 | `projection-retention` | (none) | `400d` | Daily purge of projection rows (`monitoring.rise.purge-cron`, default `0 15 4 * * *`) |
 
-Thresholds are illustrative placeholders, not validated values.
+Thresholds are illustrative placeholders, not validated values, and none of them has been approved by the owner (D12). The `riseai` profile does not override them; the 2026-10-29 pilot values (20,000,000 and 5) briefly became that profile's defaults in an uncommitted change and were reverted on 2026-10-30. To use other values set the environment variable, for example `MONITORING_RISE_MINIMAL_EVIDENCE_APPROVAL_AMOUNT`, and restart.
+
+Startup validation: the amounts must be greater than zero, the durations positive, the counts within their bounds, `supported-schema-versions` non-empty, and the service keys at least 16 characters when `require-service-key` is true (`RiseThresholdValidationTest`).
+
+Payload values the rules read are bounded regardless of configuration: amounts must be plain decimals (at most 18 integer digits and 8 decimals), file hashes 64 hexadecimal characters, identifiers `[A-Za-z0-9._:-]{1,80}`; a value outside those shapes is ignored by the rule that would have used it.
 
 ## Database (projection store)
 

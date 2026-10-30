@@ -171,7 +171,9 @@ The `MILESTONE_EVIDENCE_SUBMITTED` payload must include `fileHash` when present 
 
 **Excluded from events (privacy and minimization):** `USER_LOGIN`, `USER_REGISTERED`, `REFRESH_TOKEN_REUSE_DETECTED` (security telemetry, not charity monitoring; IP addresses are recorded in `audit_logs`); all free-text fields (`reason`, `title`, `description`, `review_note`, `donor_message`, dispute messages, `beneficiary_description`); `file_url`, `external_reference`; organization contact data.
 
-## 6. Monitoring finding contract `finding.v1` (PROPOSED)
+## 6. Monitoring finding contract `finding.v1` (IMPLEMENTED; machine-readable form in `contracts/findings/finding.v1.schema.json`)
+
+Implementation differences from the proposal below: `aiNote` is an optional plain string (at most 400 characters), not an object; `sourceEventIds` has 1 to 20 entries; unknown fields are allowed. Where this section and the schema disagree, the schema is the contract.
 
 The monitor returns findings inside its existing `MonitoringResultResponse` as a new **additive** field `findings[]`. Existing fields and their meaning are unchanged.
 

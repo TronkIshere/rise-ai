@@ -1,0 +1,1177 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://rise-ai.example/contracts/events/rise-event-envelope.v1.schema.json",
+  "title": "Rise AI domain event envelope, schema version 1",
+  "description": "Producer: rise-ai-backend. Consumer: rise-ai-monitoring. Unknown fields are allowed (compatibility rule 2). Nulls are never sent.",
+  "type": "object",
+  "required": [
+    "eventId",
+    "eventType",
+    "schemaVersion",
+    "occurredAt",
+    "producer",
+    "aggregateType",
+    "aggregateId",
+    "payload"
+  ],
+  "properties": {
+    "eventId": {
+      "type": "string",
+      "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+    },
+    "eventType": {
+      "enum": [
+        "CAMPAIGN_CREATED",
+        "CAMPAIGN_SUBMITTED_FOR_REVIEW",
+        "CAMPAIGN_APPROVED",
+        "CAMPAIGN_PAUSED",
+        "DONATION_CONFIRMED",
+        "MILESTONE_CREATED",
+        "MILESTONE_EVIDENCE_SUBMITTED",
+        "EVIDENCE_ACCEPTED",
+        "EVIDENCE_REJECTED",
+        "DISBURSEMENT_REQUESTED",
+        "DISBURSEMENT_APPROVED",
+        "DISBURSEMENT_REJECTED",
+        "DISBURSEMENT_RELEASED",
+        "DISPUTE_OPENED",
+        "DISPUTE_RESOLVED",
+        "REFUND_REQUESTED",
+        "REFUND_RECORDED",
+        "ADJUSTMENT_APPLIED",
+        "SETTLEMENT_EXECUTED",
+        "RECONCILIATION_RUN_COMPLETED"
+      ]
+    },
+    "schemaVersion": {
+      "const": 1
+    },
+    "occurredAt": {
+      "type": "string",
+      "format": "date-time",
+      "pattern": "Z$"
+    },
+    "producer": {
+      "const": "rise-ai-backend"
+    },
+    "aggregateType": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64
+    },
+    "aggregateId": {
+      "type": "string",
+      "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+    },
+    "actorId": {
+      "type": "string",
+      "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+    },
+    "actorRole": {
+      "enum": [
+        "ADMIN",
+        "CAMPAIGN_CREATOR",
+        "DONOR",
+        "SYSTEM"
+      ]
+    },
+    "correlationId": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128
+    },
+    "references": {
+      "type": "object",
+      "properties": {
+        "campaignId": {
+          "type": "string",
+          "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+        },
+        "milestoneId": {
+          "type": "string",
+          "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+        },
+        "disbursementRequestId": {
+          "type": "string",
+          "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+        },
+        "donationId": {
+          "type": "string",
+          "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+        },
+        "evidenceId": {
+          "type": "string",
+          "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+        }
+      }
+    },
+    "payload": {
+      "type": "object"
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "eventType": {
+            "const": "CAMPAIGN_CREATED"
+          }
+        },
+        "required": [
+          "eventType"
+        ]
+      },
+      "then": {
+        "properties": {
+          "aggregateType": {
+            "const": "CAMPAIGN"
+          },
+          "payload": {
+            "type": "object",
+            "properties": {
+              "campaignId": {
+                "type": "string",
+                "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+              },
+              "organizationId": {
+                "type": "string",
+                "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+              },
+              "creatorId": {
+                "type": "string",
+                "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+              },
+              "targetAmount": {
+                "type": "string",
+                "pattern": "^-?[0-9]{1,18}\\.[0-9]{2}$"
+              },
+              "currency": {
+                "type": "string",
+                "pattern": "^[A-Z]{3}$"
+              },
+              "category": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 64
+              }
+            },
+            "required": [
+              "campaignId",
+              "organizationId",
+              "creatorId",
+              "targetAmount",
+              "currency",
+              "category"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "eventType": {
+            "const": "CAMPAIGN_SUBMITTED_FOR_REVIEW"
+          }
+        },
+        "required": [
+          "eventType"
+        ]
+      },
+      "then": {
+        "properties": {
+          "aggregateType": {
+            "const": "CAMPAIGN"
+          },
+          "payload": {
+            "type": "object",
+            "properties": {
+              "campaignId": {
+                "type": "string",
+                "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+              },
+              "milestoneCount": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "targetAmount": {
+                "type": "string",
+                "pattern": "^-?[0-9]{1,18}\\.[0-9]{2}$"
+              },
+              "currency": {
+                "type": "string",
+                "pattern": "^[A-Z]{3}$"
+              }
+            },
+            "required": [
+              "campaignId",
+              "milestoneCount",
+              "targetAmount",
+              "currency"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "eventType": {
+            "const": "CAMPAIGN_APPROVED"
+          }
+        },
+        "required": [
+          "eventType"
+        ]
+      },
+      "then": {
+        "properties": {
+          "aggregateType": {
+            "const": "CAMPAIGN"
+          },
+          "payload": {
+            "type": "object",
+            "properties": {
+              "campaignId": {
+                "type": "string",
+                "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+              },
+              "reviewerId": {
+                "type": "string",
+                "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+              }
+            },
+            "required": [
+              "campaignId",
+              "reviewerId"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "eventType": {
+            "const": "CAMPAIGN_PAUSED"
+          }
+        },
+        "required": [
+          "eventType"
+        ]
+      },
+      "then": {
+        "properties": {
+          "aggregateType": {
+            "const": "CAMPAIGN"
+          },
+          "payload": {
+            "type": "object",
+            "properties": {
+              "campaignId": {
+                "type": "string",
+                "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+              }
+            },
+            "required": [
+              "campaignId"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "eventType": {
+            "const": "DONATION_CONFIRMED"
+          }
+        },
+        "required": [
+          "eventType"
+        ]
+      },
+      "then": {
+        "properties": {
+          "aggregateType": {
+            "const": "DONATION"
+          },
+          "payload": {
+            "type": "object",
+            "properties": {
+              "donationId": {
+                "type": "string",
+                "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+              },
+              "campaignId": {
+                "type": "string",
+                "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+              },
+              "amount": {
+                "type": "string",
+                "pattern": "^-?[0-9]{1,18}\\.[0-9]{2}$"
+              },
+              "currency": {
+                "type": "string",
+                "pattern": "^[A-Z]{3}$"
+              },
+              "anonymous": {
+                "type": "boolean"
+              },
+              "ledgerTransactionCode": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128
+              }
+            },
+            "required": [
+              "donationId",
+              "campaignId",
+              "amount",
+              "currency",
+              "anonymous",
+              "ledgerTransactionCode"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "eventType": {
+            "const": "MILESTONE_CREATED"
+          }
+        },
+        "required": [
+          "eventType"
+        ]
+      },
+      "then": {
+        "properties": {
+          "aggregateType": {
+            "const": "MILESTONE"
+          },
+          "payload": {
+            "type": "object",
+            "properties": {
+              "milestoneId": {
+                "type": "string",
+                "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+              },
+              "campaignId": {
+                "type": "string",
+                "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+              },
+              "sequenceNumber": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "plannedAmount": {
+                "type": "string",
+                "pattern": "^-?[0-9]{1,18}\\.[0-9]{2}$"
+              },
+              "currency": {
+                "type": "string",
+                "pattern": "^[A-Z]{3}$"
+              },
+              "dueAt": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 40
+              }
+            },
+            "required": [
+              "milestoneId",
+              "campaignId",
+              "sequenceNumber",
+              "plannedAmount",
+              "currency",
+              "dueAt"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "eventType": {
+            "const": "MILESTONE_EVIDENCE_SUBMITTED"
+          }
+        },
+        "required": [
+          "eventType"
+        ]
+      },
+      "then": {
+        "properties": {
+          "aggregateType": {
+            "const": "EVIDENCE"
+          },
+          "payload": {
+            "type": "object",
+            "properties": {
+              "evidenceId": {
+                "type": "string",
+                "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+              },
+              "milestoneId": {
+                "type": "string",
+                "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+              },
+              "campaignId": {
+                "type": "string",
+                "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+              },
+              "disbursementRequestId": {
+                "type": "string",
+                "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+              },
+              "evidenceType": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 64
+              },
+              "fileHash": {
+                "type": "string",
+                "pattern": "^[0-9a-fA-F]{64}$"
+              }
+            },
+            "required": [
+              "evidenceId",
+              "milestoneId",
+              "campaignId",
+              "evidenceType"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "eventType": {
+            "const": "EVIDENCE_ACCEPTED"
+          }
+        },
+        "required": [
+          "eventType"
+        ]
+      },
+      "then": {
+        "properties": {
+          "aggregateType": {
+            "const": "EVIDENCE"
+          },
+          "payload": {
+            "type": "object",
+            "properties": {
+              "evidenceId": {
+                "type": "string",
+                "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+              },
+              "milestoneId": {
+                "type": "string",
+                "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+              },
+              "campaignId": {
+                "type": "string",
+                "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+              },
+              "evidenceType": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 64
+              }
+            },
+            "required": [
+              "evidenceId",
+              "milestoneId",
+              "campaignId",
+              "evidenceType"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "eventType": {
+            "const": "EVIDENCE_REJECTED"
+          }
+        },
+        "required": [
+          "eventType"
+        ]
+      },
+      "then": {
+        "properties": {
+          "aggregateType": {
+            "const": "EVIDENCE"
+          },
+          "payload": {
+            "type": "object",
+            "properties": {
+              "evidenceId": {
+                "type": "string",
+                "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+              },
+              "milestoneId": {
+                "type": "string",
+                "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+              },
+              "campaignId": {
+                "type": "string",
+                "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+              },
+              "evidenceType": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 64
+              }
+            },
+            "required": [
+              "evidenceId",
+              "milestoneId",
+              "campaignId",
+              "evidenceType"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "eventType": {
+            "const": "DISBURSEMENT_REQUESTED"
+          }
+        },
+        "required": [
+          "eventType"
+        ]
+      },
+      "then": {
+        "properties": {
+          "aggregateType": {
+            "const": "DISBURSEMENT_REQUEST"
+          },
+          "payload": {
+            "type": "object",
+            "properties": {
+              "requestId": {
+                "type": "string",
+                "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+              },
+              "milestoneId": {
+                "type": "string",
+                "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+              },
+              "campaignId": {
+                "type": "string",
+                "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+              },
+              "amount": {
+                "type": "string",
+                "pattern": "^-?[0-9]{1,18}\\.[0-9]{2}$"
+              },
+              "currency": {
+                "type": "string",
+                "pattern": "^[A-Z]{3}$"
+              },
+              "milestonePlannedAmount": {
+                "type": "string",
+                "pattern": "^-?[0-9]{1,18}\\.[0-9]{2}$"
+              },
+              "milestoneRemaining": {
+                "type": "string",
+                "pattern": "^-?[0-9]{1,18}\\.[0-9]{2}$"
+              }
+            },
+            "required": [
+              "requestId",
+              "milestoneId",
+              "campaignId",
+              "amount",
+              "currency",
+              "milestonePlannedAmount",
+              "milestoneRemaining"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "eventType": {
+            "const": "DISBURSEMENT_APPROVED"
+          }
+        },
+        "required": [
+          "eventType"
+        ]
+      },
+      "then": {
+        "properties": {
+          "aggregateType": {
+            "const": "DISBURSEMENT_REQUEST"
+          },
+          "payload": {
+            "type": "object",
+            "properties": {
+              "requestId": {
+                "type": "string",
+                "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+              },
+              "milestoneId": {
+                "type": "string",
+                "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+              },
+              "campaignId": {
+                "type": "string",
+                "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+              },
+              "amount": {
+                "type": "string",
+                "pattern": "^-?[0-9]{1,18}\\.[0-9]{2}$"
+              },
+              "currency": {
+                "type": "string",
+                "pattern": "^[A-Z]{3}$"
+              },
+              "reviewerId": {
+                "type": "string",
+                "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+              },
+              "acceptedEvidenceCount": {
+                "type": "integer",
+                "minimum": 0
+              }
+            },
+            "required": [
+              "requestId",
+              "milestoneId",
+              "campaignId",
+              "amount",
+              "currency",
+              "reviewerId",
+              "acceptedEvidenceCount"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "eventType": {
+            "const": "DISBURSEMENT_REJECTED"
+          }
+        },
+        "required": [
+          "eventType"
+        ]
+      },
+      "then": {
+        "properties": {
+          "aggregateType": {
+            "const": "DISBURSEMENT_REQUEST"
+          },
+          "payload": {
+            "type": "object",
+            "properties": {
+              "requestId": {
+                "type": "string",
+                "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+              },
+              "milestoneId": {
+                "type": "string",
+                "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+              },
+              "campaignId": {
+                "type": "string",
+                "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+              },
+              "amount": {
+                "type": "string",
+                "pattern": "^-?[0-9]{1,18}\\.[0-9]{2}$"
+              },
+              "currency": {
+                "type": "string",
+                "pattern": "^[A-Z]{3}$"
+              }
+            },
+            "required": [
+              "requestId",
+              "milestoneId",
+              "campaignId",
+              "amount",
+              "currency"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "eventType": {
+            "const": "DISBURSEMENT_RELEASED"
+          }
+        },
+        "required": [
+          "eventType"
+        ]
+      },
+      "then": {
+        "properties": {
+          "aggregateType": {
+            "const": "DISBURSEMENT_REQUEST"
+          },
+          "payload": {
+            "type": "object",
+            "properties": {
+              "requestId": {
+                "type": "string",
+                "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+              },
+              "milestoneId": {
+                "type": "string",
+                "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+              },
+              "campaignId": {
+                "type": "string",
+                "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+              },
+              "amount": {
+                "type": "string",
+                "pattern": "^-?[0-9]{1,18}\\.[0-9]{2}$"
+              },
+              "currency": {
+                "type": "string",
+                "pattern": "^[A-Z]{3}$"
+              },
+              "ledgerTransactionCode": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128
+              },
+              "simulated": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "requestId",
+              "milestoneId",
+              "campaignId",
+              "amount",
+              "currency",
+              "ledgerTransactionCode",
+              "simulated"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "eventType": {
+            "const": "DISPUTE_OPENED"
+          }
+        },
+        "required": [
+          "eventType"
+        ]
+      },
+      "then": {
+        "properties": {
+          "aggregateType": {
+            "const": "DISPUTE"
+          },
+          "payload": {
+            "type": "object",
+            "properties": {
+              "disputeId": {
+                "type": "string",
+                "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+              },
+              "campaignId": {
+                "type": "string",
+                "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+              },
+              "milestoneId": {
+                "type": "string",
+                "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+              },
+              "disbursementRequestId": {
+                "type": "string",
+                "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+              },
+              "disputeType": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 64
+              }
+            },
+            "required": [
+              "disputeId",
+              "campaignId",
+              "disputeType"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "eventType": {
+            "const": "DISPUTE_RESOLVED"
+          }
+        },
+        "required": [
+          "eventType"
+        ]
+      },
+      "then": {
+        "properties": {
+          "aggregateType": {
+            "const": "DISPUTE"
+          },
+          "payload": {
+            "type": "object",
+            "properties": {
+              "disputeId": {
+                "type": "string",
+                "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+              },
+              "campaignId": {
+                "type": "string",
+                "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+              },
+              "milestoneId": {
+                "type": "string",
+                "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+              },
+              "disputeType": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 64
+              },
+              "outcome": {
+                "enum": [
+                  "RESOLVED_UPHELD",
+                  "RESOLVED_DISMISSED"
+                ]
+              }
+            },
+            "required": [
+              "disputeId",
+              "campaignId",
+              "disputeType",
+              "outcome"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "eventType": {
+            "const": "REFUND_REQUESTED"
+          }
+        },
+        "required": [
+          "eventType"
+        ]
+      },
+      "then": {
+        "properties": {
+          "aggregateType": {
+            "const": "REFUND_REQUEST"
+          },
+          "payload": {
+            "type": "object",
+            "properties": {
+              "refundId": {
+                "type": "string",
+                "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+              },
+              "donationId": {
+                "type": "string",
+                "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+              },
+              "campaignId": {
+                "type": "string",
+                "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+              },
+              "amount": {
+                "type": "string",
+                "pattern": "^-?[0-9]{1,18}\\.[0-9]{2}$"
+              },
+              "currency": {
+                "type": "string",
+                "pattern": "^[A-Z]{3}$"
+              }
+            },
+            "required": [
+              "refundId",
+              "donationId",
+              "campaignId",
+              "amount",
+              "currency"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "eventType": {
+            "const": "REFUND_RECORDED"
+          }
+        },
+        "required": [
+          "eventType"
+        ]
+      },
+      "then": {
+        "properties": {
+          "aggregateType": {
+            "const": "REFUND_REQUEST"
+          },
+          "payload": {
+            "type": "object",
+            "properties": {
+              "refundId": {
+                "type": "string",
+                "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+              },
+              "donationId": {
+                "type": "string",
+                "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+              },
+              "campaignId": {
+                "type": "string",
+                "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+              },
+              "amount": {
+                "type": "string",
+                "pattern": "^-?[0-9]{1,18}\\.[0-9]{2}$"
+              },
+              "currency": {
+                "type": "string",
+                "pattern": "^[A-Z]{3}$"
+              },
+              "ledgerTransactionCode": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128
+              },
+              "externalPaymentStatus": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 64
+              }
+            },
+            "required": [
+              "refundId",
+              "donationId",
+              "campaignId",
+              "amount",
+              "currency",
+              "ledgerTransactionCode",
+              "externalPaymentStatus"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "eventType": {
+            "const": "ADJUSTMENT_APPLIED"
+          }
+        },
+        "required": [
+          "eventType"
+        ]
+      },
+      "then": {
+        "properties": {
+          "aggregateType": {
+            "const": "ESCROW_ADJUSTMENT"
+          },
+          "payload": {
+            "type": "object",
+            "properties": {
+              "adjustmentId": {
+                "type": "string",
+                "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+              },
+              "campaignId": {
+                "type": "string",
+                "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+              },
+              "direction": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 64
+              },
+              "amount": {
+                "type": "string",
+                "pattern": "^-?[0-9]{1,18}\\.[0-9]{2}$"
+              },
+              "currency": {
+                "type": "string",
+                "pattern": "^[A-Z]{3}$"
+              },
+              "requestedBy": {
+                "type": "string",
+                "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+              },
+              "decidedBy": {
+                "type": "string",
+                "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+              }
+            },
+            "required": [
+              "adjustmentId",
+              "campaignId",
+              "direction",
+              "amount",
+              "currency",
+              "requestedBy",
+              "decidedBy"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "eventType": {
+            "const": "SETTLEMENT_EXECUTED"
+          }
+        },
+        "required": [
+          "eventType"
+        ]
+      },
+      "then": {
+        "properties": {
+          "aggregateType": {
+            "const": "SETTLEMENT_REQUEST"
+          },
+          "payload": {
+            "type": "object",
+            "properties": {
+              "settlementId": {
+                "type": "string",
+                "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+              },
+              "campaignId": {
+                "type": "string",
+                "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+              },
+              "settlementType": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 64
+              },
+              "amount": {
+                "type": "string",
+                "pattern": "^-?[0-9]{1,18}\\.[0-9]{2}$"
+              },
+              "currency": {
+                "type": "string",
+                "pattern": "^[A-Z]{3}$"
+              },
+              "donationCount": {
+                "type": "integer",
+                "minimum": 0
+              }
+            },
+            "required": [
+              "settlementId",
+              "campaignId",
+              "settlementType",
+              "amount",
+              "currency",
+              "donationCount"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "eventType": {
+            "const": "RECONCILIATION_RUN_COMPLETED"
+          }
+        },
+        "required": [
+          "eventType"
+        ]
+      },
+      "then": {
+        "properties": {
+          "aggregateType": {
+            "const": "RECONCILIATION_RUN"
+          },
+          "payload": {
+            "type": "object",
+            "properties": {
+              "runId": {
+                "type": "string",
+                "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+              },
+              "runCode": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 128
+              },
+              "runStatus": {
+                "enum": [
+                  "CONSISTENT",
+                  "INCONSISTENT",
+                  "FAILED"
+                ]
+              },
+              "trigger": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 64
+              },
+              "accountsChecked": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "inconsistentAccounts": {
+                "type": "integer",
+                "minimum": 0
+              }
+            },
+            "required": [
+              "runId",
+              "runCode",
+              "runStatus",
+              "trigger",
+              "accountsChecked",
+              "inconsistentAccounts"
+            ]
+          }
+        }
+      }
+    }
+  ]
+}

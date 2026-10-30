@@ -10,9 +10,16 @@ import com.riseai.monitoring.rise.RiseEnvelope;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.regex.Pattern;
 
 final class RuleSupport {
     private static final List<String> REFERENCE_NAMES = List.of("campaignId", "milestoneId", "disbursementRequestId", "donationId", "evidenceId");
+
+    private static final Pattern SAFE_ID = Pattern.compile("^[A-Za-z0-9._:-]{1,80}$");
+    private static final Set<String> DIRECTIONS = Set.of("CREDIT", "DEBIT", "NEUTRAL");
+    private static final Pattern CURRENCY = Pattern.compile("^[A-Z]{3}$");
+    private static final Pattern ENUM_TEXT = Pattern.compile("^[A-Z][A-Z0-9_]{0,39}$");
 
     private RuleSupport() {
     }
@@ -30,11 +37,35 @@ final class RuleSupport {
                 .subjectId(subjectId)
                 .references(references(envelope))
                 .sourceEventIds(List.of(envelope.eventId()))
-                .facts(List.copyOf(facts))
+                .facts(facts.stream().filter(fact -> fact.value() != null).toList())
                 .explanation(explanation)
                 .recommendedAction(action)
                 .observedAt(envelope.occurredAt())
                 .build();
+    }
+
+    static boolean validId(String value) {
+        return value != null && SAFE_ID.matcher(value).matches();
+    }
+
+    static String enumText(String value) {
+        return value != null && ENUM_TEXT.matcher(value).matches() ? value : null;
+    }
+
+    static String direction(String value) {
+        return value != null && DIRECTIONS.contains(value) ? value : null;
+    }
+
+    static String currency(String value) {
+        return value != null && CURRENCY.matcher(value).matches() ? value : null;
+    }
+
+    static String code(String value) {
+        return validId(value) ? value : null;
+    }
+
+    static String orUnspecified(String value) {
+        return value == null ? "unspecified" : value;
     }
 
     static FindingFact fact(String name, Object value, RiseEnvelope envelope) {

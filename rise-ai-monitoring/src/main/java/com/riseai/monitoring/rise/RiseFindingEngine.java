@@ -83,7 +83,7 @@ public class RiseFindingEngine {
         }
         switch (envelope.eventType()) {
             case RiseEventTypes.MILESTONE_EVIDENCE_SUBMITTED -> {
-                String hash = envelope.text("fileHash");
+                String hash = envelope.fileHash();
                 String evidenceId = envelope.text("evidenceId");
                 String milestoneId = envelope.text("milestoneId");
                 if (hash != null && evidenceId != null && milestoneId != null) {

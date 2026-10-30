@@ -1,6 +1,6 @@
 # 08 — D12 Threshold Proposal (for owner review)
 
-Status: **PROPOSAL. Nothing here is active.** The shipped configuration keeps the placeholder values. No production data on campaign size, milestone size or disbursement behaviour was available, so every number below is a pilot hypothesis to be confirmed with real data and with the per-rule precision report (`GET /api/v1/admin/monitoring/findings/precision`), not a validated value.
+Status: **PROPOSAL. Nothing here is active** (checked 2026-10-30: neither the monitor profiles, the simulator defaults nor the evaluation script set 20,000,000 or 5; an uncommitted change that did so was reverted). The shipped configuration keeps the placeholder values. No production data on campaign size, milestone size or disbursement behaviour was available, so every number below is a pilot hypothesis to be confirmed with real data and with the per-rule precision report (`GET /api/v1/admin/monitoring/findings/precision`), not a validated value.
 
 ## Rules and their numeric inputs
 

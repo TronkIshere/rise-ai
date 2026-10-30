@@ -4,9 +4,11 @@ import com.riseai.monitoring.core.analysis.AiAssessment;
 import com.riseai.monitoring.core.event.Severity;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.AssertTrue;
+import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -242,6 +244,11 @@ public class MonitoringProperties {
         public boolean isServiceKeyConfigured() {
             return !requireServiceKey || hasServiceKey();
         }
+
+        @AssertTrue(message = "monitoring.security.service-key and previous-service-key must be at least 16 characters when require-service-key is true")
+        public boolean isServiceKeyLongEnough() {
+            return !requireServiceKey || (!hasServiceKey() || serviceKey.length() >= 16) && (!hasPreviousServiceKey() || previousServiceKey.length() >= 16);
+        }
     }
 
     @Getter
@@ -254,10 +261,11 @@ public class MonitoringProperties {
         @NotBlank
         String source = "rise-ai-backend";
 
-        @NotNull
+        @NotEmpty
         List<Integer> supportedSchemaVersions = new ArrayList<>(List.of(1));
 
         @NotNull
+        @DecimalMin(value = "0", inclusive = false)
         BigDecimal minimalEvidenceApprovalAmount = new BigDecimal("50000000");
 
         @Min(1)
@@ -278,9 +286,19 @@ public class MonitoringProperties {
         Duration aiNoteBudget = Duration.ofSeconds(20);
 
         @NotNull
+        @DecimalMin(value = "0", inclusive = false)
         BigDecimal adjustmentReviewAmount = new BigDecimal("10000000");
 
         @NotNull
         Duration projectionRetention = Duration.ofDays(400);
+
+        @AssertTrue(message = "monitoring.rise durations must be positive")
+        public boolean isDurationsPositive() {
+            return isPositive(resubmissionWindow) && isPositive(aiNoteBudget) && isPositive(projectionRetention);
+        }
+
+        private static boolean isPositive(Duration value) {
+            return value != null && !value.isNegative() && !value.isZero();
+        }
     }
 }

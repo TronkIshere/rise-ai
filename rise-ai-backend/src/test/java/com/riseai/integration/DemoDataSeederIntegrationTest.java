@@ -27,6 +27,10 @@ import static org.assertj.core.api.Assertions.assertThat;
         "rise.jobs.reconciliation-cron=0 0 0 1 1 *", "rise.jobs.fundraising-close-cron=0 0 0 1 1 *"})
 class DemoDataSeederIntegrationTest extends AbstractMySqlIntegrationTest {
     @Autowired
+    com.riseai.repository.OutboxEventRepository outboxEventRepository;
+    @Autowired
+    com.fasterxml.jackson.databind.ObjectMapper objectMapper;
+    @Autowired
     DemoDataSeeder seeder;
     @Autowired
     ScheduledJobs scheduledJobs;
@@ -54,6 +58,17 @@ class DemoDataSeederIntegrationTest extends AbstractMySqlIntegrationTest {
 
         assertThat(escrowQueryService.reconcileAll()).allSatisfy(report -> assertThat(report.consistent()).isTrue())
                 .extracting(ReconciliationReport::ledgerEntryCount).isNotEmpty();
+    }
+
+    @Test
+    void everySeededEventConformsToTheEnvelopeSchema() throws Exception {
+        java.util.List<com.riseai.entity.OutboxEvent> events = outboxEventRepository.findAll();
+        assertThat(events).isNotEmpty();
+        for (com.riseai.entity.OutboxEvent event : events) {
+            assertThat(com.riseai.support.EventSchemaContract.validate(objectMapper.readTree(event.getEnvelope())))
+                    .as(event.getEventType()).isEmpty();
+        }
+        assertThat(events.stream().map(com.riseai.entity.OutboxEvent::getEventType).distinct().count()).isGreaterThanOrEqualTo(15);
     }
 
     @Test

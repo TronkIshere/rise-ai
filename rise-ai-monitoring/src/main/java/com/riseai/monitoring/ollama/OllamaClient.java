@@ -18,6 +18,7 @@ import java.net.http.HttpConnectTimeoutException;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.net.http.HttpTimeoutException;
+import java.time.Duration;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
@@ -45,8 +46,13 @@ public class OllamaClient implements DisposableBean {
     }
 
     public OllamaChatResponse chat(OllamaChatRequest request) {
+        return chat(request, properties.getRequestTimeout());
+    }
+
+    public OllamaChatResponse chat(OllamaChatRequest request, Duration timeout) {
+        Duration effective = timeout.compareTo(properties.getRequestTimeout()) < 0 ? timeout : properties.getRequestTimeout();
         HttpRequest httpRequest = HttpRequest.newBuilder(endpoint(CHAT_PATH))
-                .timeout(properties.getRequestTimeout())
+                .timeout(effective)
                 .header("Content-Type", JSON_CONTENT_TYPE)
                 .header("Accept", JSON_CONTENT_TYPE)
                 .POST(HttpRequest.BodyPublishers.ofByteArray(toJson(request)))

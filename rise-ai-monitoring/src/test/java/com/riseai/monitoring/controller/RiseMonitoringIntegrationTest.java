@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.riseai.monitoring.core.event.MonitoringEvent;
 import com.riseai.monitoring.core.finding.Finding;
 import com.riseai.monitoring.rise.RiseFindingEngine;
+import com.riseai.monitoring.testsupport.FindingSchemaContract;
 import com.riseai.monitoring.rise.rule.DuplicateEvidenceHashRule;
 import com.riseai.monitoring.rise.rule.FinancialEvidenceWithoutHashRule;
 import com.riseai.monitoring.rise.rule.ManualAdjustmentRule;
@@ -136,7 +137,7 @@ class RiseMonitoringIntegrationTest {
     }
 
     @Test
-    void rapidResubmissionAndRepeatedRequestsAreFlaggedOnlyInCausalOrder() throws Exception {
+    void rapidResubmissionIsFlaggedOnceWhicheverEventIsDeliveredFirstAndRepeatedRequestsAreCounted() throws Exception {
         String campaign = id();
         String milestone = id();
         monitor(disbursement("DISBURSEMENT_REQUESTED", campaign, milestone, id(), "1000000.00", Map.of()));
@@ -158,7 +159,31 @@ class RiseMonitoringIntegrationTest {
         JsonNode rejectionDeliveredLate = monitor(disbursement("DISBURSEMENT_REJECTED", campaign, otherMilestone, id(), "1.00", Map.of()));
         clock = requestTime;
         assertThat(rules(requestDeliveredFirst)).doesNotContain(RapidResubmissionRule.ID);
-        assertThat(rules(rejectionDeliveredLate)).isEmpty();
+        assertThat(rules(rejectionDeliveredLate)).containsExactly(RapidResubmissionRule.ID);
+        assertThat(finding(rejectionDeliveredLate, RapidResubmissionRule.ID).path("subject").path("type").asText()).isEqualTo("DISBURSEMENT_REQUEST");
+    }
+
+    @Test
+    void duplicateHashAndRepeatedRequestsAreFlaggedEvenWhenDeliveredOutOfOrder() throws Exception {
+        String hash = hash();
+        String campaign = id();
+        Instant later = next();
+        Instant earlier = next().minusSeconds(3600);
+        clock = later;
+        JsonNode laterFirst = monitor(evidence(campaign, id(), id(), hash, "RECEIPT"));
+        clock = earlier;
+        JsonNode earlierSecond = monitor(evidence(campaign, id(), id(), hash, "RECEIPT"));
+        assertThat(rules(laterFirst)).doesNotContain(DuplicateEvidenceHashRule.ID);
+        assertThat(rules(earlierSecond)).contains(DuplicateEvidenceHashRule.ID);
+
+        String milestone = id();
+        clock = next();
+        Instant third = clock;
+        monitor(disbursement("DISBURSEMENT_REQUESTED", campaign, milestone, id(), "1.00", Map.of()));
+        monitor(disbursement("DISBURSEMENT_REQUESTED", campaign, milestone, id(), "1.00", Map.of()));
+        clock = third.minusSeconds(7200);
+        JsonNode oldestDeliveredLast = monitor(disbursement("DISBURSEMENT_REQUESTED", campaign, milestone, id(), "1.00", Map.of()));
+        assertThat(rules(oldestDeliveredLast)).contains(RepeatedRequestsRule.ID);
     }
 
     @Test
@@ -237,9 +262,13 @@ class RiseMonitoringIntegrationTest {
         reconciliationInconsistencyIsCriticalAndConsistentRunIsQuiet();
         manualAdjustmentSeverityFollowsTheReviewAmount();
         misuseDisputeIsHighOnlyAfterFundsWereReleased();
-        rapidResubmissionAndRepeatedRequestsAreFlaggedOnlyInCausalOrder();
+        rapidResubmissionIsFlaggedOnceWhicheverEventIsDeliveredFirstAndRepeatedRequestsAreCounted();
 
         assertThat(allFindings).hasSizeGreaterThanOrEqualTo(8);
+        assertThat(allFindings.stream().map(f -> f.path("detector").path("id").asText()).distinct()).hasSize(8);
+        for (JsonNode finding : allFindings) {
+            assertThat(FindingSchemaContract.validate(finding)).as(finding.path("detector").path("id").asText()).isEmpty();
+        }
         for (JsonNode finding : allFindings) {
             String text = finding.path("explanation").asText().toLowerCase(Locale.ROOT);
             assertThat(FORBIDDEN_TERMS).noneMatch(text::contains);

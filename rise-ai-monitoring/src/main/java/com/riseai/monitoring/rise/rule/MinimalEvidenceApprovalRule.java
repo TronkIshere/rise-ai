@@ -48,16 +48,16 @@ public class MinimalEvidenceApprovalRule implements RiseFindingRule {
         BigDecimal amount = envelope.decimal("amount");
         long accepted = envelope.number("acceptedEvidenceCount", -1);
         MonitoringProperties.Rise rise = properties.getRise();
-        if (requestId == null || amount == null || accepted < 0 || accepted > rise.getMinimalEvidenceCount()
+        if (!RuleSupport.validId(requestId) || amount == null || accepted < 0 || accepted > rise.getMinimalEvidenceCount()
                 || amount.compareTo(rise.getMinimalEvidenceApprovalAmount()) < 0) {
             return List.of();
         }
         return List.of(RuleSupport.finding(ID, getVersion(), envelope, FindingCategory.DISBURSEMENT_PATTERN, Severity.MEDIUM,
                 "DISBURSEMENT_REQUEST", requestId, null,
-                List.of(RuleSupport.fact("amount", amount.toPlainString(), envelope), RuleSupport.fact("currency", envelope.text("currency"), envelope),
+                List.of(RuleSupport.fact("amount", amount.toPlainString(), envelope), RuleSupport.fact("currency", RuleSupport.currency(envelope.text("currency")), envelope),
                         RuleSupport.fact("acceptedEvidenceCount", accepted, envelope),
                         RuleSupport.fact("reviewThreshold", rise.getMinimalEvidenceApprovalAmount().toPlainString(), envelope)),
-                "A disbursement of " + amount.toPlainString() + " " + envelope.text("currency") + " was approved with " + accepted
+                "A disbursement of " + amount.toPlainString() + " " + RuleSupport.orUnspecified(RuleSupport.currency(envelope.text("currency"))) + " was approved with " + accepted
                         + " accepted evidence record(s). This is allowed by platform rules, but larger releases on little documentation deserve a second look.",
                 RecommendedAction.REVIEW_EVIDENCE));
     }

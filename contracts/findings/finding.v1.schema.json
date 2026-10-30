@@ -1,0 +1,136 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://rise-ai.example/contracts/findings/finding.v1.schema.json",
+  "title": "Rise AI monitoring finding, contract version finding.v1",
+  "description": "Producer: rise-ai-monitoring (findings[] of the monitor response). Consumer: rise-ai-backend FindingIngestionServiceImpl. Unknown fields are allowed so that additive changes stay compatible; the consumer ignores them. Nulls are never sent. aiNote is advisory text and never influences findingId, severity or recommendedAction.",
+  "type": "object",
+  "required": [
+    "findingId",
+    "contractVersion",
+    "detector",
+    "category",
+    "severity",
+    "subject",
+    "references",
+    "sourceEventIds",
+    "facts",
+    "explanation",
+    "recommendedAction",
+    "observedAt"
+  ],
+  "properties": {
+    "findingId": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "contractVersion": {
+      "const": "finding.v1"
+    },
+    "detector": {
+      "type": "object",
+      "required": ["type", "id", "version"],
+      "properties": {
+        "type": { "enum": ["RULE", "AI"] },
+        "id": { "$ref": "#/$defs/token" },
+        "version": { "$ref": "#/$defs/token" }
+      }
+    },
+    "category": {
+      "enum": [
+        "EVIDENCE_INTEGRITY",
+        "DISBURSEMENT_PATTERN",
+        "LEDGER_INTEGRITY",
+        "ADMINISTRATIVE_OVERRIDE",
+        "DISPUTE_PATTERN",
+        "DATA_QUALITY",
+        "MILESTONE_PROGRESS"
+      ]
+    },
+    "severity": {
+      "enum": ["INFO", "LOW", "MEDIUM", "HIGH", "CRITICAL"]
+    },
+    "subject": {
+      "type": "object",
+      "required": ["type", "id"],
+      "properties": {
+        "type": { "$ref": "#/$defs/token" },
+        "id": { "$ref": "#/$defs/token" }
+      }
+    },
+    "references": {
+      "type": "object",
+      "properties": {
+        "campaignId": { "$ref": "#/$defs/uuid" },
+        "milestoneId": { "$ref": "#/$defs/uuid" },
+        "disbursementRequestId": { "$ref": "#/$defs/uuid" },
+        "donationId": { "type": "string", "minLength": 1, "maxLength": 80 },
+        "evidenceId": { "type": "string", "minLength": 1, "maxLength": 80 }
+      },
+      "additionalProperties": { "type": "string" }
+    },
+    "sourceEventIds": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 20,
+      "items": { "$ref": "#/$defs/uuid" }
+    },
+    "facts": {
+      "type": "array",
+      "maxItems": 20,
+      "items": {
+        "type": "object",
+        "required": ["name", "value", "sourceEventId"],
+        "properties": {
+          "name": { "type": "string", "minLength": 1, "maxLength": 80 },
+          "value": {
+            "oneOf": [
+              { "type": "string", "maxLength": 2000 },
+              { "type": "number" },
+              { "type": "boolean" },
+              {
+                "type": "array",
+                "maxItems": 20,
+                "items": { "type": ["string", "number", "boolean"] }
+              }
+            ]
+          },
+          "sourceEventId": { "$ref": "#/$defs/uuid" }
+        }
+      }
+    },
+    "explanation": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 2000
+    },
+    "recommendedAction": {
+      "enum": [
+        "REVIEW_EVIDENCE",
+        "REQUEST_CLARIFICATION",
+        "CHECK_RECONCILIATION",
+        "REVIEW_ADMIN_ACTION",
+        "NONE_INFORMATIONAL"
+      ]
+    },
+    "observedAt": {
+      "type": "string",
+      "format": "date-time",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\\.[0-9]{1,9})?Z$"
+    },
+    "aiNote": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 400
+    }
+  },
+  "$defs": {
+    "token": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9._:-]{1,80}$"
+    },
+    "uuid": {
+      "type": "string",
+      "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$"
+    }
+  }
+}

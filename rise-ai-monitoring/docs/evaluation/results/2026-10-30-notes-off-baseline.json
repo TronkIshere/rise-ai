@@ -1,0 +1,485 @@
+{
+  "label": "notes-off",
+  "summary": {
+    "events": 21,
+    "eventsExpectingFindings": 14,
+    "findings": 14,
+    "notesProduced": 0,
+    "notesFailingChecks": 0,
+    "problemDetail": {},
+    "httpFailures": 0,
+    "latencySecondsMedianForEventsWithFindings": 2.0,
+    "latencySecondsMax": 2.19
+  },
+  "results": [
+    {
+      "name": "EV-01 duplicate across campaigns (setup)",
+      "expectFinding": false,
+      "http": 200,
+      "seconds": 2.19,
+      "monitoringStatus": "COMPLETED",
+      "findings": []
+    },
+    {
+      "name": "EV-01 duplicate across campaigns",
+      "expectFinding": true,
+      "http": 200,
+      "seconds": 2.05,
+      "monitoringStatus": "COMPLETED_WITHOUT_AI",
+      "findings": [
+        {
+          "ruleId": "rise.evidence.duplicate-file-hash",
+          "severity": "HIGH",
+          "facts": [
+            {
+              "name": "fileHash",
+              "value": "abababababababababababababababababababababababababababababababab",
+              "sourceEventId": "032b89f8-f594-414d-b751-1a6867a514de"
+            },
+            {
+              "name": "earlierEvidenceIds",
+              "value": [
+                "fac20bd1-40d4-4bfb-a668-37df3c8974ee"
+              ],
+              "sourceEventId": "032b89f8-f594-414d-b751-1a6867a514de"
+            },
+            {
+              "name": "earlierMilestoneIds",
+              "value": [
+                "e64d7f05-2f7a-46ee-a281-c7c223ca6045"
+              ],
+              "sourceEventId": "032b89f8-f594-414d-b751-1a6867a514de"
+            },
+            {
+              "name": "earlierEvidenceCount",
+              "value": 1,
+              "sourceEventId": "032b89f8-f594-414d-b751-1a6867a514de"
+            },
+            {
+              "name": "otherCampaignCount",
+              "value": 1,
+              "sourceEventId": "032b89f8-f594-414d-b751-1a6867a514de"
+            }
+          ],
+          "note": null
+        }
+      ]
+    },
+    {
+      "name": "EV-02 invoice without hash",
+      "expectFinding": true,
+      "http": 200,
+      "seconds": 2.04,
+      "monitoringStatus": "COMPLETED_WITHOUT_AI",
+      "findings": [
+        {
+          "ruleId": "rise.evidence.financial-without-hash",
+          "severity": "LOW",
+          "facts": [
+            {
+              "name": "evidenceType",
+              "value": "INVOICE",
+              "sourceEventId": "564c8f3e-d8b5-4aff-b3cc-c7291a514b21"
+            }
+          ],
+          "note": null
+        }
+      ]
+    },
+    {
+      "name": "EV-02 receipt without hash",
+      "expectFinding": true,
+      "http": 200,
+      "seconds": 2.05,
+      "monitoringStatus": "COMPLETED_WITHOUT_AI",
+      "findings": [
+        {
+          "ruleId": "rise.evidence.financial-without-hash",
+          "severity": "LOW",
+          "facts": [
+            {
+              "name": "evidenceType",
+              "value": "RECEIPT",
+              "sourceEventId": "52faa47d-aed5-4a29-8647-67510b89d0ea"
+            }
+          ],
+          "note": null
+        }
+      ]
+    },
+    {
+      "name": "LG-01 inconsistent run",
+      "expectFinding": true,
+      "http": 200,
+      "seconds": 2.05,
+      "monitoringStatus": "COMPLETED_WITHOUT_AI",
+      "findings": [
+        {
+          "ruleId": "rise.ledger.reconciliation-inconsistent",
+          "severity": "CRITICAL",
+          "facts": [
+            {
+              "name": "runStatus",
+              "value": "INCONSISTENT",
+              "sourceEventId": "75448fe2-a7b3-496d-a6b3-98e6671ddc30"
+            },
+            {
+              "name": "runCode",
+              "value": "EVAL-INCONSISTENT",
+              "sourceEventId": "75448fe2-a7b3-496d-a6b3-98e6671ddc30"
+            },
+            {
+              "name": "accountsChecked",
+              "value": 5,
+              "sourceEventId": "75448fe2-a7b3-496d-a6b3-98e6671ddc30"
+            },
+            {
+              "name": "inconsistentAccounts",
+              "value": 2,
+              "sourceEventId": "75448fe2-a7b3-496d-a6b3-98e6671ddc30"
+            }
+          ],
+          "note": null
+        }
+      ]
+    },
+    {
+      "name": "LG-01 failed run",
+      "expectFinding": true,
+      "http": 200,
+      "seconds": 2.06,
+      "monitoringStatus": "COMPLETED_WITHOUT_AI",
+      "findings": [
+        {
+          "ruleId": "rise.ledger.reconciliation-inconsistent",
+          "severity": "HIGH",
+          "facts": [
+            {
+              "name": "runStatus",
+              "value": "FAILED",
+              "sourceEventId": "52c36760-af9c-4cc3-8c60-440be341c670"
+            },
+            {
+              "name": "runCode",
+              "value": "EVAL-FAILED",
+              "sourceEventId": "52c36760-af9c-4cc3-8c60-440be341c670"
+            },
+            {
+              "name": "accountsChecked",
+              "value": 5,
+              "sourceEventId": "52c36760-af9c-4cc3-8c60-440be341c670"
+            },
+            {
+              "name": "inconsistentAccounts",
+              "value": 0,
+              "sourceEventId": "52c36760-af9c-4cc3-8c60-440be341c670"
+            }
+          ],
+          "note": null
+        }
+      ]
+    },
+    {
+      "name": "DB-01 approval at threshold",
+      "expectFinding": true,
+      "http": 200,
+      "seconds": 2.04,
+      "monitoringStatus": "COMPLETED_WITHOUT_AI",
+      "findings": [
+        {
+          "ruleId": "rise.disbursement.minimal-evidence-approval",
+          "severity": "MEDIUM",
+          "facts": [
+            {
+              "name": "amount",
+              "value": "50000000.00",
+              "sourceEventId": "478bed53-5467-4162-a801-fab9b8a94a38"
+            },
+            {
+              "name": "currency",
+              "value": "VND",
+              "sourceEventId": "478bed53-5467-4162-a801-fab9b8a94a38"
+            },
+            {
+              "name": "acceptedEvidenceCount",
+              "value": 1,
+              "sourceEventId": "478bed53-5467-4162-a801-fab9b8a94a38"
+            },
+            {
+              "name": "reviewThreshold",
+              "value": "50000000",
+              "sourceEventId": "478bed53-5467-4162-a801-fab9b8a94a38"
+            }
+          ],
+          "note": null
+        }
+      ]
+    },
+    {
+      "name": "DB-02 setup request",
+      "expectFinding": false,
+      "http": 200,
+      "seconds": 2.06,
+      "monitoringStatus": "COMPLETED",
+      "findings": []
+    },
+    {
+      "name": "DB-02 setup rejection",
+      "expectFinding": false,
+      "http": 200,
+      "seconds": 2.05,
+      "monitoringStatus": "COMPLETED",
+      "findings": []
+    },
+    {
+      "name": "DB-02 resubmission",
+      "expectFinding": true,
+      "http": 200,
+      "seconds": 2.05,
+      "monitoringStatus": "COMPLETED_WITHOUT_AI",
+      "findings": [
+        {
+          "ruleId": "rise.disbursement.rapid-resubmission",
+          "severity": "MEDIUM",
+          "facts": [
+            {
+              "name": "rejectedRequestId",
+              "value": "1696ae0e-2744-49f0-af0d-b0068941857b",
+              "sourceEventId": "a000e848-174f-4d4d-84d8-6d4079c2a818"
+            },
+            {
+              "name": "minutesSinceRejection",
+              "value": 0,
+              "sourceEventId": "a000e848-174f-4d4d-84d8-6d4079c2a818"
+            },
+            {
+              "name": "rejectionsInWindow",
+              "value": 1,
+              "sourceEventId": "a000e848-174f-4d4d-84d8-6d4079c2a818"
+            }
+          ],
+          "note": null
+        }
+      ]
+    },
+    {
+      "name": "DB-03 request 1",
+      "expectFinding": false,
+      "http": 200,
+      "seconds": 2.04,
+      "monitoringStatus": "COMPLETED",
+      "findings": []
+    },
+    {
+      "name": "DB-03 request 2",
+      "expectFinding": false,
+      "http": 200,
+      "seconds": 2.03,
+      "monitoringStatus": "COMPLETED",
+      "findings": []
+    },
+    {
+      "name": "DB-03 request 3",
+      "expectFinding": true,
+      "http": 200,
+      "seconds": 2.05,
+      "monitoringStatus": "COMPLETED_WITHOUT_AI",
+      "findings": [
+        {
+          "ruleId": "rise.disbursement.repeated-requests",
+          "severity": "LOW",
+          "facts": [
+            {
+              "name": "requestCount",
+              "value": 3,
+              "sourceEventId": "69c0a110-dfc2-405c-88fe-22e12ef3ab7c"
+            },
+            {
+              "name": "reviewThreshold",
+              "value": 3,
+              "sourceEventId": "69c0a110-dfc2-405c-88fe-22e12ef3ab7c"
+            }
+          ],
+          "note": null
+        }
+      ]
+    },
+    {
+      "name": "AO-01 large adjustment",
+      "expectFinding": true,
+      "http": 200,
+      "seconds": 2.04,
+      "monitoringStatus": "COMPLETED_WITHOUT_AI",
+      "findings": [
+        {
+          "ruleId": "rise.override.manual-adjustment",
+          "severity": "MEDIUM",
+          "facts": [
+            {
+              "name": "direction",
+              "value": "CREDIT",
+              "sourceEventId": "82e36e1c-9431-44b9-98c2-bf93cb79e924"
+            },
+            {
+              "name": "amount",
+              "value": "20000000.00",
+              "sourceEventId": "82e36e1c-9431-44b9-98c2-bf93cb79e924"
+            },
+            {
+              "name": "currency",
+              "value": "VND",
+              "sourceEventId": "82e36e1c-9431-44b9-98c2-bf93cb79e924"
+            }
+          ],
+          "note": null
+        }
+      ]
+    },
+    {
+      "name": "AO-01 small adjustment",
+      "expectFinding": true,
+      "http": 200,
+      "seconds": 2.05,
+      "monitoringStatus": "COMPLETED_WITHOUT_AI",
+      "findings": [
+        {
+          "ruleId": "rise.override.manual-adjustment",
+          "severity": "INFO",
+          "facts": [
+            {
+              "name": "direction",
+              "value": "CREDIT",
+              "sourceEventId": "fb5413bb-0d7b-428d-8889-a614ef324683"
+            },
+            {
+              "name": "amount",
+              "value": "1000.00",
+              "sourceEventId": "fb5413bb-0d7b-428d-8889-a614ef324683"
+            },
+            {
+              "name": "currency",
+              "value": "VND",
+              "sourceEventId": "fb5413bb-0d7b-428d-8889-a614ef324683"
+            }
+          ],
+          "note": null
+        }
+      ]
+    },
+    {
+      "name": "DP-01 release (setup)",
+      "expectFinding": false,
+      "http": 200,
+      "seconds": 2.05,
+      "monitoringStatus": "COMPLETED",
+      "findings": []
+    },
+    {
+      "name": "DP-01 misuse dispute after release",
+      "expectFinding": true,
+      "http": 200,
+      "seconds": 2.05,
+      "monitoringStatus": "COMPLETED_WITHOUT_AI",
+      "findings": [
+        {
+          "ruleId": "rise.dispute.misuse-after-release",
+          "severity": "HIGH",
+          "facts": [
+            {
+              "name": "releaseCount",
+              "value": 1,
+              "sourceEventId": "a1214723-3799-4cc0-a9ed-e86389117e3f"
+            },
+            {
+              "name": "releasedAmount",
+              "value": "3000000.00",
+              "sourceEventId": "a1214723-3799-4cc0-a9ed-e86389117e3f"
+            }
+          ],
+          "note": null
+        }
+      ]
+    },
+    {
+      "name": "ADV AO-01 enum-like injection in direction and currency",
+      "expectFinding": true,
+      "http": 200,
+      "seconds": 2.05,
+      "monitoringStatus": "COMPLETED_WITHOUT_AI",
+      "findings": [
+        {
+          "ruleId": "rise.override.manual-adjustment",
+          "severity": "MEDIUM",
+          "facts": [
+            {
+              "name": "amount",
+              "value": "20000000.00",
+              "sourceEventId": "91f2402e-4c56-4c51-b7fe-060652ad5826"
+            }
+          ],
+          "note": null
+        }
+      ]
+    },
+    {
+      "name": "ADV AO-01 free-text injection in direction and currency",
+      "expectFinding": true,
+      "http": 200,
+      "seconds": 2.05,
+      "monitoringStatus": "COMPLETED_WITHOUT_AI",
+      "findings": [
+        {
+          "ruleId": "rise.override.manual-adjustment",
+          "severity": "MEDIUM",
+          "facts": [
+            {
+              "name": "amount",
+              "value": "20000000.00",
+              "sourceEventId": "d396ca30-9a42-4d28-bb00-f9d724bc08f1"
+            }
+          ],
+          "note": null
+        }
+      ]
+    },
+    {
+      "name": "ADV LG-01 free-text injection in runCode",
+      "expectFinding": true,
+      "http": 200,
+      "seconds": 2.06,
+      "monitoringStatus": "COMPLETED_WITHOUT_AI",
+      "findings": [
+        {
+          "ruleId": "rise.ledger.reconciliation-inconsistent",
+          "severity": "CRITICAL",
+          "facts": [
+            {
+              "name": "runStatus",
+              "value": "INCONSISTENT",
+              "sourceEventId": "8aebaa43-4e0f-4a53-a809-92360f5487b5"
+            },
+            {
+              "name": "accountsChecked",
+              "value": 5,
+              "sourceEventId": "8aebaa43-4e0f-4a53-a809-92360f5487b5"
+            },
+            {
+              "name": "inconsistentAccounts",
+              "value": 1,
+              "sourceEventId": "8aebaa43-4e0f-4a53-a809-92360f5487b5"
+            }
+          ],
+          "note": null
+        }
+      ]
+    },
+    {
+      "name": "ADV EV-02 injection in evidenceType (no finding expected)",
+      "expectFinding": false,
+      "http": 200,
+      "seconds": 2.05,
+      "monitoringStatus": "COMPLETED",
+      "findings": []
+    }
+  ]
+}

@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -40,21 +41,22 @@ public class FindingNoteService {
         long deadline = System.nanoTime() + properties.getRise().getAiNoteBudget().toNanos();
         List<Finding> result = new ArrayList<>();
         for (Finding finding : findings) {
-            if (System.nanoTime() >= deadline) {
+            long remaining = deadline - System.nanoTime();
+            if (remaining <= 0) {
                 log.warn("AI note budget exhausted; rule {} is returned without a note", finding.getRuleId());
                 result.add(finding);
             } else {
-                result.add(annotate(finding));
+                result.add(annotate(finding, Duration.ofNanos(remaining)));
             }
         }
         return List.copyOf(result);
     }
 
-    Finding annotate(Finding finding) {
-        return note(finding).map(note -> finding.toBuilder().aiNote(note).build()).orElse(finding);
+    Finding annotate(Finding finding, Duration timeout) {
+        return note(finding, timeout).map(note -> finding.toBuilder().aiNote(note).build()).orElse(finding);
     }
 
-    public Optional<String> note(Finding finding) {
+    public Optional<String> note(Finding finding, Duration timeout) {
         try {
             FindingNotePrompt prompt = FindingNotePrompt.build(finding);
             OllamaChatResponse response = ollamaClient.chat(OllamaChatRequest.builder()
@@ -66,7 +68,7 @@ public class FindingNoteService {
                     .format(prompt.outputSchema())
                     .think(ollamaProperties.getThink())
                     .options(options())
-                    .build());
+                    .build(), timeout);
             JsonNode root = objectMapper.readTree(response.getMessage().getContent());
             Optional<String> accepted = FindingNoteFilter.accept(root.path("note").asText(null), properties.getRise().getAiNoteMaxLength());
             if (accepted.isEmpty()) {

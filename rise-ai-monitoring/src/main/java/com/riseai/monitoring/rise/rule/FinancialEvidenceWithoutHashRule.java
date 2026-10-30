@@ -36,13 +36,13 @@ public class FinancialEvidenceWithoutHashRule implements RiseFindingRule {
     public List<Finding> evaluate(RiseEnvelope envelope) {
         String evidenceType = envelope.text("evidenceType");
         String evidenceId = envelope.text("evidenceId");
-        if (!envelope.is(RiseEventTypes.MILESTONE_EVIDENCE_SUBMITTED) || evidenceId == null
-                || !FINANCIAL_TYPES.contains(evidenceType) || envelope.text("fileHash") != null) {
+        if (!envelope.is(RiseEventTypes.MILESTONE_EVIDENCE_SUBMITTED) || !RuleSupport.validId(evidenceId)
+                || evidenceType == null || !FINANCIAL_TYPES.contains(evidenceType) || envelope.fileHash() != null) {
             return List.of();
         }
         return List.of(RuleSupport.finding(ID, getVersion(), envelope, FindingCategory.DATA_QUALITY, Severity.LOW, "EVIDENCE", evidenceId, null,
                 List.of(RuleSupport.fact("evidenceType", evidenceType, envelope)),
-                "A " + evidenceType.toLowerCase() + " was submitted without a file hash, so duplicate-document checks cannot cover it. Ask for the file hash if the document is available.",
+                "A " + evidenceType.toLowerCase() + " was submitted without a usable file hash, so duplicate-document checks cannot cover it. Ask for the file hash if the document is available.",
                 RecommendedAction.REQUEST_CLARIFICATION));
     }
 }

@@ -92,6 +92,29 @@ class OllamaClientTest {
     }
 
     @Test
+    void aShorterCallerTimeoutCancelsAnInFlightRequestEarly() {
+        properties.setRequestTimeout(Duration.ofSeconds(10));
+        server.delayChatResponses(Duration.ofSeconds(5));
+        long startedAt = System.nanoTime();
+
+        assertThatThrownBy(() -> client.chat(request(), Duration.ofMillis(300)))
+                .isInstanceOfSatisfying(OllamaException.class, ex -> assertThat(ex.getType()).isEqualTo(OllamaErrorType.TIMEOUT));
+
+        assertThat(Duration.ofNanos(System.nanoTime() - startedAt)).isLessThan(Duration.ofSeconds(3));
+    }
+
+    @Test
+    void aLongerCallerTimeoutNeverExceedsTheConfiguredRequestTimeout() {
+        server.delayChatResponses(Duration.ofSeconds(3));
+        long startedAt = System.nanoTime();
+
+        assertThatThrownBy(() -> client.chat(request(), Duration.ofSeconds(60)))
+                .isInstanceOfSatisfying(OllamaException.class, ex -> assertThat(ex.getType()).isEqualTo(OllamaErrorType.TIMEOUT));
+
+        assertThat(Duration.ofNanos(System.nanoTime() - startedAt)).isLessThan(Duration.ofSeconds(2));
+    }
+
+    @Test
     void reportsTimeoutsWithinTheConfiguredLimit() {
         server.delayChatResponses(Duration.ofSeconds(3));
         long startedAt = System.nanoTime();

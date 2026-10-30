@@ -15,7 +15,6 @@ import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
-import java.util.Locale;
 import java.util.Objects;
 
 @Component
@@ -23,6 +22,7 @@ import java.util.Objects;
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class DuplicateEvidenceHashRule implements RiseFindingRule {
     public static final String ID = "rise.evidence.duplicate-file-hash";
+    private static final int MAX_LISTED_IDS = 20;
 
     RiseProjectionRepository projection;
 
@@ -46,16 +46,15 @@ public class DuplicateEvidenceHashRule implements RiseFindingRule {
         if (!envelope.is(RiseEventTypes.MILESTONE_EVIDENCE_SUBMITTED)) {
             return List.of();
         }
-        String hash = envelope.text("fileHash") == null ? null : envelope.text("fileHash").toLowerCase(Locale.ROOT);
+        String hash = envelope.fileHash();
         String evidenceId = envelope.text("evidenceId");
         String milestoneId = envelope.text("milestoneId");
-        if (hash == null || evidenceId == null || milestoneId == null) {
+        if (hash == null || !RuleSupport.validId(evidenceId) || !RuleSupport.validId(milestoneId)) {
             return List.of();
         }
         String campaignId = envelope.reference("campaignId");
         List<EvidenceHashRow> earlier = projection.evidenceWithHash(hash, envelope.eventId()).stream()
                 .filter(row -> !row.milestoneId().equals(milestoneId) && !row.evidenceId().equals(evidenceId))
-                .filter(row -> !row.occurredAt().isAfter(envelope.occurredAt()))
                 .toList();
         if (earlier.isEmpty()) {
             return List.of();
@@ -69,8 +68,9 @@ public class DuplicateEvidenceHashRule implements RiseFindingRule {
                 + ". Reusing one document can be legitimate, for example an invoice that covers several milestones, so a reviewer should confirm how it applies here. This finding does not establish misuse.";
         return List.of(RuleSupport.finding(ID, getVersion(), envelope, FindingCategory.EVIDENCE_INTEGRITY, severity, "EVIDENCE", evidenceId, hash,
                 List.of(RuleSupport.fact("fileHash", hash, envelope),
-                        RuleSupport.fact("earlierEvidenceIds", earlier.stream().map(EvidenceHashRow::evidenceId).distinct().toList(), envelope),
-                        RuleSupport.fact("earlierMilestoneIds", earlier.stream().map(EvidenceHashRow::milestoneId).distinct().toList(), envelope),
+                        RuleSupport.fact("earlierEvidenceIds", earlier.stream().map(row -> RuleSupport.code(row.evidenceId())).filter(Objects::nonNull).distinct().limit(MAX_LISTED_IDS).toList(), envelope),
+                        RuleSupport.fact("earlierMilestoneIds", earlier.stream().map(row -> RuleSupport.code(row.milestoneId())).filter(Objects::nonNull).distinct().limit(MAX_LISTED_IDS).toList(), envelope),
+                        RuleSupport.fact("earlierEvidenceCount", earlier.stream().map(EvidenceHashRow::evidenceId).distinct().count(), envelope),
                         RuleSupport.fact("otherCampaignCount", otherCampaigns, envelope)),
                 explanation, RecommendedAction.REVIEW_EVIDENCE));
     }

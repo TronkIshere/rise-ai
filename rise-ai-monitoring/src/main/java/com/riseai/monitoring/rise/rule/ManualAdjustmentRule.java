@@ -46,16 +46,16 @@ public class ManualAdjustmentRule implements RiseFindingRule {
         }
         String adjustmentId = envelope.text("adjustmentId");
         BigDecimal amount = envelope.decimal("amount");
-        if (adjustmentId == null || amount == null) {
+        if (!RuleSupport.validId(adjustmentId) || amount == null) {
             return List.of();
         }
         boolean large = amount.compareTo(properties.getRise().getAdjustmentReviewAmount()) >= 0;
         return List.of(RuleSupport.finding(ID, getVersion(), envelope, FindingCategory.ADMINISTRATIVE_OVERRIDE, large ? Severity.MEDIUM : Severity.INFO,
                 "ESCROW_ADJUSTMENT", adjustmentId, null,
-                List.of(RuleSupport.fact("direction", envelope.text("direction"), envelope),
-                        RuleSupport.fact("amount", amount.toPlainString(), envelope), RuleSupport.fact("currency", envelope.text("currency"), envelope)),
-                "A manual escrow " + String.valueOf(envelope.text("direction")).toLowerCase() + " adjustment of " + amount.toPlainString() + " "
-                        + envelope.text("currency") + " was applied under dual control. Recorded for oversight of administrative changes to ledger balances.",
+                List.of(RuleSupport.fact("direction", RuleSupport.direction(envelope.text("direction")), envelope),
+                        RuleSupport.fact("amount", amount.toPlainString(), envelope), RuleSupport.fact("currency", RuleSupport.currency(envelope.text("currency")), envelope)),
+                "A manual escrow " + RuleSupport.orUnspecified(RuleSupport.direction(envelope.text("direction"))).toLowerCase() + " adjustment of " + amount.toPlainString() + " "
+                        + RuleSupport.orUnspecified(RuleSupport.currency(envelope.text("currency"))) + " was applied under dual control. Recorded for oversight of administrative changes to ledger balances.",
                 large ? RecommendedAction.REVIEW_ADMIN_ACTION : RecommendedAction.NONE_INFORMATIONAL));
     }
 }

@@ -1,5 +1,6 @@
 server:
   port: 8080
+  shutdown: graceful
   error:
     include-stacktrace: never
     include-message: never
@@ -7,6 +8,8 @@ server:
 spring:
   application:
     name: rise-ai-backend
+  lifecycle:
+    timeout-per-shutdown-phase: 30s
   datasource:
     url: jdbc:mysql://localhost:3306/rise_ai?useUnicode=true&characterEncoding=utf8&serverTimezone=UTC&useSSL=false&allowPublicKeyRetrieval=true
     username: rise_dev

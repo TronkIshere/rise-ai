@@ -37,7 +37,7 @@ public class ReconciliationInconsistencyRule implements RiseFindingRule {
         }
         String status = envelope.text("runStatus");
         String runId = envelope.text("runId");
-        if (runId == null || !("INCONSISTENT".equals(status) || "FAILED".equals(status))) {
+        if (!RuleSupport.validId(runId) || !("INCONSISTENT".equals(status) || "FAILED".equals(status))) {
             return List.of();
         }
         boolean inconsistent = "INCONSISTENT".equals(status);
@@ -47,7 +47,7 @@ public class ReconciliationInconsistencyRule implements RiseFindingRule {
                 : "An escrow reconciliation run failed, so ledger consistency was not verified for this run.";
         return List.of(RuleSupport.finding(ID, getVersion(), envelope, FindingCategory.LEDGER_INTEGRITY,
                 inconsistent ? Severity.CRITICAL : Severity.HIGH, "RECONCILIATION_RUN", runId, null,
-                List.of(RuleSupport.fact("runStatus", status, envelope), RuleSupport.fact("runCode", envelope.text("runCode"), envelope),
+                List.of(RuleSupport.fact("runStatus", status, envelope), RuleSupport.fact("runCode", RuleSupport.code(envelope.text("runCode")), envelope),
                         RuleSupport.fact("accountsChecked", envelope.number("accountsChecked", 0), envelope),
                         RuleSupport.fact("inconsistentAccounts", envelope.number("inconsistentAccounts", 0), envelope)),
                 explanation, RecommendedAction.CHECK_RECONCILIATION));

@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.riseai.dto.request.LoginRequest;
 import com.riseai.dto.response.FindingResponse;
 import com.riseai.dto.response.RulePrecisionResponse;
+import com.riseai.support.FindingSchemaContract;
 import com.riseai.entity.MonitoringFinding;
 import com.riseai.entity.OutboxEvent;
 import com.riseai.enums.FindingReviewStatus;
@@ -322,6 +323,7 @@ class OutboxRelayIntegrationTest extends AbstractMySqlIntegrationTest {
         activeCampaign(creator, admin, 1_000_000);
         long before = findingRepository.count();
         responder = request -> StubResponse.ok(request, List.of(Map.of("contractVersion", "finding.v1", "findingId", "not-a-key")));
+        assertThat(FindingSchemaContract.validate(new ObjectMapper().valueToTree(Map.of("contractVersion", "finding.v1", "findingId", "not-a-key")))).isNotEmpty();
 
         OutboxRelay.RelayRun run = outboxRelay.relayOnce();
 
@@ -329,6 +331,43 @@ class OutboxRelayIntegrationTest extends AbstractMySqlIntegrationTest {
         assertThat(findingRepository.count()).isEqualTo(before);
         assertThat(outboxEventRepository.findByStatus(OutboxStatus.FAILED, org.springframework.data.domain.Pageable.unpaged()).getContent())
                 .anyMatch(event -> event.getLastError().startsWith("Invalid finding contract"));
+    }
+
+    @Test
+    void noKeyTokenPayloadOrMonitorResponseIsLoggedAtAnyLevel() {
+        ch.qos.logback.classic.Logger root = (ch.qos.logback.classic.Logger) org.slf4j.LoggerFactory.getLogger(org.slf4j.Logger.ROOT_LOGGER_NAME);
+        ch.qos.logback.classic.Logger application = (ch.qos.logback.classic.Logger) org.slf4j.LoggerFactory.getLogger("com.riseai");
+        ch.qos.logback.classic.Level previous = application.getLevel();
+        ch.qos.logback.core.read.ListAppender<ch.qos.logback.classic.spi.ILoggingEvent> appender = new ch.qos.logback.core.read.ListAppender<>();
+        appender.start();
+        root.addAppender(appender);
+        application.setLevel(ch.qos.logback.classic.Level.TRACE);
+        String leakedBody = "LEAKED-RESPONSE-" + UUID.randomUUID();
+        try {
+            ActiveCampaign campaign = activeCampaign(creator, admin, 1_000_000);
+            String key = UUID.randomUUID().toString().replace("-", "") + UUID.randomUUID().toString().replace("-", "");
+            java.util.concurrent.atomic.AtomicInteger calls = new java.util.concurrent.atomic.AtomicInteger();
+            responder = request -> switch (calls.incrementAndGet() % 3) {
+                case 0 -> new StubResponse(400, "{\"error\":\"" + leakedBody + "\"}");
+                case 1 -> new StubResponse(503, leakedBody);
+                default -> StubResponse.ok(request, List.of(finding(key, "HIGH", campaign.id())));
+            };
+            for (int round = 0; round < 3; round++) {
+                outboxRelay.relayOnce();
+            }
+        } finally {
+            root.detachAppender(appender);
+            application.setLevel(previous);
+        }
+        assertThat(REQUESTS).isNotEmpty();
+        List<String> payloads = REQUESTS.stream().map(captured -> captured.body().path("payload").toString()).distinct().toList();
+        List<String> lines = appender.list.stream().map(event -> event.getFormattedMessage() + " "
+                + (event.getThrowableProxy() == null ? "" : event.getThrowableProxy().getMessage())).toList();
+        assertThat(lines).isNotEmpty();
+        assertThat(lines).noneMatch(line -> line.contains(SERVICE_KEY) || line.contains(ALERT_TOKEN) || line.contains("Bearer ")
+                || line.contains(leakedBody) || line.contains("Test pattern requires review"));
+        assertThat(lines).noneMatch(line -> payloads.stream().anyMatch(payload -> payload.length() > 20 && line.contains(payload)));
+        assertThat(lines).noneMatch(line -> line.contains("\"payload\""));
     }
 
     @Test
@@ -356,12 +395,18 @@ class OutboxRelayIntegrationTest extends AbstractMySqlIntegrationTest {
     }
 
     private static Map<String, Object> finding(String key, String severity, UUID campaignId) {
-        return Map.ofEntries(Map.entry("findingId", key), Map.entry("contractVersion", "finding.v1"),
+        Map<String, Object> finding = findingUnchecked(key, severity, campaignId);
+        assertThat(FindingSchemaContract.validate(new ObjectMapper().valueToTree(finding))).isEmpty();
+        return finding;
+    }
+
+    private static Map<String, Object> findingUnchecked(String key, String severity, UUID campaignId) {
+        return Map.ofEntries(Map.entry("findingId", key), Map.entry("sourceEventIds", List.of(UUID.randomUUID().toString())), Map.entry("contractVersion", "finding.v1"),
                 Map.entry("detector", Map.of("type", "RULE", "id", "test-rule", "version", "1")),
                 Map.entry("category", "DISBURSEMENT_PATTERN"), Map.entry("severity", severity),
                 Map.entry("subject", Map.of("type", "CAMPAIGN", "id", campaignId.toString())),
                 Map.entry("references", Map.of("campaignId", campaignId.toString())),
-                Map.entry("facts", List.of(Map.of("name", "count", "value", 3))),
+                Map.entry("facts", List.of(Map.of("name", "count", "value", 3, "sourceEventId", UUID.randomUUID().toString()))),
                 Map.entry("explanation", "Test pattern requires review"), Map.entry("recommendedAction", "REVIEW_EVIDENCE"),
                 Map.entry("observedAt", Instant.now().toString()));
     }

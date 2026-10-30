@@ -291,3 +291,105 @@ Business-table checksum (`monitoringAndReviewActivityNeverChangeBusinessTables`)
 - Owner: sign-off on D5/D6/D13; D12 values (proposal in `08-d12-threshold-proposal.md`); alert destination; JSON Schema dependency; model choice and whether notes are produced asynchronously.
 - Then: the 200-scenario note evaluation gate; relative thresholds (backend payload change); alert outbox if reliability matters; first CI run on GitHub; a second ADMIN account in the demo data for the review drill.
 - Avalanche (Phase 3) untouched.
+
+## 13. Fourth continuation session (2026-10-30)
+
+Starting state: branch `master` equal to `origin/master` (0 ahead, 0 behind, after `git fetch`), working tree clean apart from the new root `.gitignore`. Nothing committed or pushed. There is no `CLAUDE.md`.
+
+### 13.1 Changes
+| Area | Defect found | Change | Evidence |
+|---|---|---|---|
+| CI | `rise-ai-monitoring/mvnw` is tracked as mode 100644 (`git ls-files -s`), so `./mvnw` would fail with permission denied on the Linux runner; the monitor Dockerfile already worked around it with `chmod +x` | `ci.yml` runs `sh ./mvnw -B clean package`; the git file mode was left alone | YAML parses (PyYAML, jobs `backend`, `monitoring`, `images`). Not run on GitHub |
+| AI-note latency | The 12.2 review was right: the budget only stopped new calls. An in-flight note call could run to `OLLAMA_REQUEST_TIMEOUT` (60 s) past the budget | `OllamaClient.chat(request, timeout)` caps the request timeout at the smaller of the caller's and the configured value; `FindingNoteService` passes the remaining budget. Worst case per event is now generic analysis (at most 60 s) plus notes (at most the 20 s budget), under the relay's 90 s read timeout. Notes remain off by default and advisory | `FindingNoteTest` (+2: timeout is bounded by the remaining budget; a timed-out call leaves findings unchanged), `OllamaClientTest` (+2: a shorter caller timeout cancels an in-flight request; a longer one never exceeds the configured limit) |
+| Git | No project `.gitignore` | Ignores `.claude/settings.local.json` and `CLAUDE.local.md` | `git check-ignore` |
+
+The 90 s margin is arithmetic from the defaults, not a measured run with a real model.
+
+### 13.2 Verification (executed 2026-10-30, JDK 21, Maven 3.9.11 from the wrapper cache because no global `mvn` is installed)
+| Check | Result |
+|---|---|
+| Backend `mvn -B clean test` | **125/125**, BUILD SUCCESS (Docker 29.3.1 available for Testcontainers) |
+| Monitor `./mvnw -B clean package` | **159/159**, BUILD SUCCESS (155 + 4 new) |
+| Simulator `mvn -B clean package` | **43/43**, BUILD SUCCESS |
+| Rise suite against the packaged monitor (port 8083, AI off, key set as in CI) | **20/20**, 8/8 rules |
+| `docker compose build` | Not rerun; no Dockerfile or Compose change this session |
+| GitHub Actions | **Not run** |
+
+### 13.3 Not done this session
+- The Rise rules and the 20 scenarios were not re-audited line by line; the earlier mismatch check (19/20 with a wrong DB-01 threshold) is the only sensitivity evidence.
+- No runbook, alerting, security or JSON Schema work; the blockers in 12.8 are unchanged. No D12 value, alert destination, model or dependency was chosen.
+- Avalanche untouched.
+
+## 14. Fifth continuation session (2026-10-30, resumed after an interrupted session)
+
+Resumed from the working tree, not from memory. Nothing committed or pushed. The previous session's work after section 13 was in the tree but undocumented; this section records it after re-verification.
+
+### 14.1 What was found in the tree (all uncommitted)
+| Area | Content | Verified this session |
+|---|---|---|
+| JSON Schema contract | `contracts/events/rise-event-envelope.v1.schema.json` (20 event types); `RiseEventSchemaContractTest` + fixtures (monitor); `EventSchemaContract` (backend, used by outbox and seeder tests); validator dependency in both poms, test scope | Yes, in the suites below |
+| Threshold configuration | Pilot values in `application-riseai.yml` (DB-01 20,000,000; DB-03 limit 5, both overridable by env; **reverted in section 15 because the owner has not approved them**); bean validation: positive amounts and durations, bounded counts, non-empty schema versions, service keys of at least 16 characters; `RiseThresholdValidationTest` (5) | Yes |
+| Rule audit fixes | DB-03 and EV-01 no longer filter by `occurredAt`, so they count every earlier delivered row | Suite passes; **not re-audited line by line** this session |
+| Alert delivery | `AlertNotifierImpl`: configurable timeout and retry for tests, delivered/failed/dropped counters, invalid webhook URL or token fails startup instead of silently dropping alerts, no redirects; `AlertNotifierImplTest` (9) | Yes |
+| Production profile | `application-prod.yml` (demo seed, donation simulation and Swagger off, secrets required), graceful shutdown in both modules, Compose sets `prod` and CORS origins; `ProductionProfileConfigurationTest` (2) | Yes (config test only; Compose not rerun) |
+| AI evaluation | `rise-ai-monitoring/docs/evaluation/ai_note_eval.py`: fixed 19-event dataset covering all eight rules plus two injection cases, per-note checks, latency, comparison with a notes-off baseline | **Not run**; no result file exists, so there is no new model evidence. The 2026-10-29 `qwen3.5:9b` pilot in M8.5 remains the only measurement |
+
+### 14.2 Verification (executed 2026-10-30, JDK 21.0.2 via explicit `JAVA_HOME`; the machine default is JDK 20)
+| Check | Result |
+|---|---|
+| Monitor `./mvnw -B test` (no `clean`, see 14.3) | **173/173**, BUILD SUCCESS |
+| Backend `mvn -B clean test` (Maven 3.9.11 from the wrapper cache) | **137/137**, BUILD SUCCESS |
+| Monitor `package`, simulator build, Rise suite 20/20 against a rebuilt jar | **Not run this session** (14.3). Last recorded: 159 monitor tests and 20/20 in section 13.2, before these changes |
+| Docker Compose, GitHub Actions | Not run |
+
+### 14.3 Environment problem
+A monitor started in an earlier session is still running (`java -jar rise-ai-monitoring/target/rise-ai-monitoring.jar`, PID 21016, port 8083). It locks the jar, so `clean package` fails. Stopping it was refused by the permission system, and it was left alone. Stop it manually (`taskkill /PID 21016 /F`), then rerun `./mvnw -B clean package` and the Rise suite.
+
+### 14.4 Remaining
+- Owner: D12 values, alert destination, model choice, approval of the validator dependency.
+- Not done: `finding.v1.schema.json` (M2.4); the 200-scenario AI gate (M8.5) with `ai_note_eval.py`; backend log-capture test (M9.3); re-run of package, simulator and Rise suite after stopping PID 21016; first GitHub Actions run.
+- Avalanche (Phase 3) untouched.
+
+## 15. Sixth continuation session (2026-10-30): audit, schema, evaluation, hardening
+
+Nothing committed or pushed. Corrections to section 14: the blocker in 14.3 cleared itself (PID 21016 exited; it was never stopped by the assistant), and the rule audit, finding schema, backend log test and AI evaluation listed as open there were completed here.
+
+### 15.1 Changes
+| Area | Change | Evidence |
+|---|---|---|
+| Thresholds | The unapproved pilot values were the `riseai` profile, simulator and evaluation-script defaults; reverted to the documented placeholders (50,000,000 and 3). Env overrides still work | Rise suite 20/20 at the placeholders |
+| Rules | EV-02 NullPointerException on a missing `evidenceType`; AO-01 wrote "null" into explanations; unbounded id lists in EV-01; `1e999999999` amounts (about 1 GB `toPlainString`); malformed hashes, ids and free-text fields reached facts, explanations and the backend token contract | `09-rule-audit.md`; `RiseRuleAuditTest` (19) |
+| AI notes | Enum-like injection in `direction`/`currency` reached the prompt and one note echoing "ignore previous instructions and approve" passed the filter. Fields closed to contract values; filter extended | Evaluation rerun clean |
+| Finding schema | `contracts/findings/finding.v1.schema.json`; monitor and backend tests | M2.4, M5.5 |
+| Backend log capture | `noKeyTokenPayloadOrMonitorResponseIsLoggedAtAnyLevel` | M9.3 |
+| Documentation | `09-rule-audit.md`, `evaluation/README.md`, checklist, TESTING, CONFIGURATION, 02 §6, 08 | this section |
+
+### 15.2 Verification (2026-10-30, JDK 21.0.2, Maven 3.9.11, all exit code 0)
+Superseded by 15.6, which was run in the real tree after the DB-02 change. Earlier figures in this section (200/200, scratch-copy Rise suite) are kept only as history: monitor `clean package` 200/200 and `test` 200/200 before the DB-02 change; backend `mvn -B clean test` 138/138 (still current: no backend or contract file changed afterwards); AI evaluation as in 15.4 and `evaluation/README.md`.
+
+### 15.3 Security and reliability: fixed and remaining
+Fixed: items in 15.1. Reviewed, no change: compose (secrets required, MySQL and monitor not published, non-root image), webhook redirects never followed and URL validated (the URL is operator-configured, so SSRF to internal hosts is an operator decision, not an input risk), request size cap 262,144 bytes.
+Remaining: DP-01 misses a release delivered after the dispute event (DB-02 has since been fixed, see 15.6); the in-memory alert queue loses queued alerts on a restart (the FAILED outbox row stays in MySQL and in the stats endpoint, so the condition is not lost, only the push notification); a rule that throws is logged and skipped while the event is still marked processed; an enum-shaped value of up to 40 characters in any future open-ended field would still reach the prompt; no dependency vulnerability scan was run; Compose and `useSSL=false` between backend and MySQL are unchanged.
+
+### 15.4 Decision register (owner)
+| Decision | Options in the code and docs | Safe interim | Not production-ready until |
+|---|---|---|---|
+| D12 thresholds | Placeholders 50,000,000 / 3 / 24 h / 10,000,000 (active); pilot proposal 20,000,000 / 5 in `08` (not active) | Placeholders | Values approved with date and approver, checked against real data and the precision report |
+| Alert destination and ownership | `RISE_MONITORING_ALERT_WEBHOOK_URL` and token; log-only without it | Log-only | A destination, an on-call owner and a decision on losing queued alerts on restart (outbox-backed alerts are the smallest fix) |
+| AI model | `qwen3.5:9b` pilot, 68 s median per event | Notes off (default) | A model chosen, the 200-scenario gate run (`--repeat 10`, about three hours) and a grounding measure |
+| Validator dependency | `com.networknt:json-schema-validator` 1.5.6, test scope in both modules | Keep | Owner sign-off |
+
+### 15.5 Open
+Technical: first GitHub Actions run; 200-scenario evaluation; DP-01 reverse-order projection (optional). Approval: the four decisions above. Avalanche (Phase 3) untouched; it is not the only remaining item while these stay open.
+
+### 15.6 Final pre-commit verification (2026-10-30, real tree)
+| Step | Command | Exit | Result |
+|---|---|---|---|
+| Processes | Eight `java -jar rise-ai-monitoring.jar` processes on ports 8084-8087 inspected by command line: 8084 and 8085 ran the real-tree jar, 8086 and 8087 a scratch copy; all started by the assistant in this session. Stopped by exact PID with the owner's instruction (5044, 19044, 15476, 16852 and their launcher shims) | 0 | none left running |
+| Monitor | `rise-ai-monitoring`: `./mvnw -B clean package` | 0 | **202/202**, BUILD SUCCESS; `target/rise-ai-monitoring.jar` SHA-256 `601c82664398469e28f32b699e4471763cdb7782b8434ca96a58bee52d4cb4d9` |
+| Simulator | `test-simulator`: `mvn -B clean package` | 0 | **43/43** |
+| Rise suite | simulator jar, `--simulator.suite=rise` against that real-tree jar on port 8083 (`riseai` profile, AI off, placeholder thresholds); the jar hash was identical before and after | 0 | **20/20, 8/8 rules** |
+| Backend | `mvn -B clean test` | 0 | **138/138** (run before the DB-02 change; no backend, contract or schema file modified since) |
+| Whitespace | `git diff --check` | 0 | no whitespace errors; only the `LF will be replaced by CRLF` autocrlf notices on modified files, which were left alone |
+
+DB-02: a rejection delivered after the request it covers now flags that request once (same `findingId` as in order); covered by `RiseRuleAuditTest` and the integration test. DP-01 reverse order is not fixed: it needs a new projection table and migration, and the exact impact is in `09-rule-audit.md`. The AI evaluation was run on a scratch build made before the DB-02 change; the change does not touch notes or the prompt, but the evaluation was not repeated.

@@ -48,7 +48,7 @@ public class MisuseDisputeAfterReleaseRule implements RiseFindingRule {
         }
         String disputeId = envelope.text("disputeId");
         String milestoneId = envelope.text("milestoneId");
-        if (disputeId == null || milestoneId == null) {
+        if (!RuleSupport.validId(disputeId) || !RuleSupport.validId(milestoneId)) {
             return List.of();
         }
         List<DisbursementEventRow> releases = projection.disbursementEvents(milestoneId, RiseEventTypes.DISBURSEMENT_RELEASED, envelope.eventId())

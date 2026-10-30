@@ -30,16 +30,16 @@ jobs:
           cache: maven
       - name: Monitoring tests and package
         working-directory: rise-ai-monitoring
-        run: ./mvnw -B clean package
+        run: sh ./mvnw -B clean package
       - name: Simulator tests and package
         working-directory: rise-ai-monitoring/test-simulator
         run: mvn -B clean package
       - name: Rise rule suite against the packaged monitor
         run: |
           mkdir -p "$RUNNER_TEMP/suite" && cd "$RUNNER_TEMP/suite"
-          MONITORING_SERVICE_KEY=ci-suite-key SERVER_PORT=8083 MONITORING_AI_ENABLED=false SPRING_PROFILES_ACTIVE=riseai             java -jar "$GITHUB_WORKSPACE/rise-ai-monitoring/target/rise-ai-monitoring.jar" > monitor.log 2>&1 &
+          MONITORING_SERVICE_KEY=ci-suite-key-0123456789 SERVER_PORT=8083 MONITORING_AI_ENABLED=false SPRING_PROFILES_ACTIVE=riseai             java -jar "$GITHUB_WORKSPACE/rise-ai-monitoring/target/rise-ai-monitoring.jar" > monitor.log 2>&1 &
           for i in $(seq 1 45); do curl -sf localhost:8083/actuator/health > /dev/null && break; sleep 2; done
-          java -jar "$GITHUB_WORKSPACE/rise-ai-monitoring/test-simulator/target/rise-ai-monitoring-simulator.jar"             --simulator.suite=rise --simulator.core-url=http://localhost:8083 --simulator.service-key=ci-suite-key             --simulator.report-directory="$RUNNER_TEMP/suite/reports"
+          java -jar "$GITHUB_WORKSPACE/rise-ai-monitoring/test-simulator/target/rise-ai-monitoring-simulator.jar"             --simulator.suite=rise --simulator.core-url=http://localhost:8083 --simulator.service-key=ci-suite-key-0123456789             --simulator.report-directory="$RUNNER_TEMP/suite/reports"
 
   images:
     runs-on: ubuntu-latest

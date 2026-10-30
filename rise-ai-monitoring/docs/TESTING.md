@@ -6,6 +6,9 @@ Environment: Windows 11, JDK 21.0.2 (`JAVA_HOME` set explicitly to JDK 21; the m
 
 | Command / action | Result |
 |---|---|
+| `./mvnw -B clean package` (2026-10-30, JDK 21, final tree) | **202 of 202 passed**, BUILD SUCCESS. New: `RiseRuleAuditTest` (21), `FindingSchemaContractTest` (8), `RiseEventSchemaContractTest` (9), `RiseThresholdValidationTest` (5). The same jar was then used for the Rise suite |
+| Simulator `mvn -B clean package` / Rise suite against the real-tree jar from the row above (SHA-256 begins `601c8266`) | **43/43**; **20/20, 8/8 rules** (2026-10-30, `riseai` profile, AI off, default thresholds 50,000,000 and 3) |
+| AI note evaluation (`docs/evaluation/README.md`) | 21 scenarios, 14/14 notes passed, 0 failures, median 68.3 s; not the 200-scenario gate |
 | `./mvnw clean test` before any change (baseline, old name) | **133 of 133 passed**, BUILD SUCCESS. First real run of the Spring/MockMvc integration tests and `MonitoringMetricsTest` |
 | `./mvnw clean package` after the rename | **133 of 133 passed**; produced `target/rise-ai-monitoring.jar` |
 | `./mvnw clean package` after the Rise integration (final) | **144 of 144 passed** (11 new in `RiseMonitoringIntegrationTest`), BUILD SUCCESS |
