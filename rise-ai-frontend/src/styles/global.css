@@ -1,0 +1,11 @@
+@import 'tailwindcss';
+@import './tokens.css';
+@layer base {
+  :root { font-family: var(--font-sans); color: var(--color-copy); background: var(--color-canvas); color-scheme: light; }
+  *, *::before, *::after { box-sizing: border-box; }
+  body { margin: 0; min-width: 320px; }
+  a { color: inherit; text-decoration: none; }
+  button, input { font: inherit; }
+  button { cursor: pointer; }
+  :focus-visible { outline: 3px solid var(--color-brand); outline-offset: 3px; }
+}

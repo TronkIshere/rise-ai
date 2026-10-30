@@ -1,0 +1,46 @@
+{
+  "name": "rise-ai-frontend",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": { "node": ">=22.12.0" },
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc -b --pretty false",
+    "lint": "eslint . --max-warnings 0",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "arch:check": "node scripts/check-architecture.mjs",
+    "contract:check": "node scripts/verify-contract.mjs",
+    "contract:generate": "openapi-typescript ../rise-ai-backend/docs/api/openapi-v1.json -o src/api/generated.d.ts",
+    "test": "node --test scripts/*.test.mjs",
+    "verify": "npm run arch:check && npm run contract:check && npm run lint && npm run typecheck && npm run test && npm run build"
+  },
+  "dependencies": {
+    "@tanstack/react-query": "^5.80.0",
+    "lucide-react": "^0.511.0",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "react-router": "^7.6.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.28.0",
+    "@tailwindcss/vite": "^4.1.0",
+    "@types/node": "^22.15.0",
+    "@types/react": "^19.1.6",
+    "@types/react-dom": "^19.1.6",
+    "@vitejs/plugin-react": "^4.5.0",
+    "eslint": "^9.28.0",
+    "eslint-plugin-react-hooks": "^5.2.0",
+    "eslint-plugin-react-refresh": "^0.4.20",
+    "globals": "^16.2.0",
+    "openapi-typescript": "^7.8.0",
+    "prettier": "^3.5.3",
+    "tailwindcss": "^4.1.0",
+    "typescript": "~5.8.3",
+    "typescript-eslint": "^8.33.0",
+    "vite": "^6.3.5"
+  }
+}
