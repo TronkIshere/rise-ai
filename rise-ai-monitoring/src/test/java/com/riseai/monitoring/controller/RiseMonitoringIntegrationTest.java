@@ -258,6 +258,17 @@ class RiseMonitoringIntegrationTest {
     }
 
     @Test
+    void anEnvelopeEventIdLongerThanTheProjectionColumnIsRejectedAsInvalidInsteadOfFailingLater() throws Exception {
+        String longId = "e".repeat(70);
+        Map<String, Object> request = request("RECONCILIATION_RUN_COMPLETED", "RECONCILIATION_RUN", Map.of(),
+                Map.of("runId", id(), "runStatus", "CONSISTENT"));
+        request.put("eventId", longId);
+        castPayload(request).put("eventId", longId);
+
+        expectInvalid(request);
+    }
+
+    @Test
     void identifiersTooLongForTheProjectionAreNotRecordedAndDoNotFailTheEvent() throws Exception {
         String longId = "m".repeat(100);
 

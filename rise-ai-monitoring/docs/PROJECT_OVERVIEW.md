@@ -67,7 +67,8 @@ Verified from `pom.xml` and the source:
 | REST API (3 endpoints) and actuator | Implemented. Compiled; not run in a Spring container. |
 | Validation, normalization, request size limit | Implemented and unit-tested |
 | In-memory deduplication (conflict, in-progress, replay, capacity) | Implemented and unit-tested, including concurrency |
-| JDBC deduplication ledger (restart replay on a durable database, stale in-progress takeover, retention, capacity, concurrent registration) | Implemented 2026-10-30; test source written (`JdbcEventDeduplicatorTest`), not executed |
+| Over-long envelope event ids rejected as invalid (400, `FAILED` outbox row and alert) instead of failing the projection insert | Implemented 2026-10-30; covered by `RiseMonitoringIntegrationTest` (passed in the 218/218 baseline) |
+| JDBC deduplication ledger (restart replay on a durable database, stale in-progress takeover, retention, capacity, concurrent registration) | Implemented 2026-10-30; `JdbcEventDeduplicatorTest` passed (10/10); restart replay verified manually on a file-backed H2 database only, multi-instance use unverified |
 | Rule engine and six rules | Implemented and unit-tested |
 | Ollama adapter and analyzer | Implemented. Tested against a local stub HTTP server, **not** against a real Ollama or model. |
 | AI output contract `monitoring-assessment.v1` | Implemented and unit-tested |

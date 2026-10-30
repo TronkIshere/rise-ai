@@ -452,4 +452,64 @@ Runbook (alert lifecycle, rule-failure recovery, monitor database section), modu
 - Alert delivery is at-least-once: a crash between the HTTP call and the status update repeats one delivery.
 - If a slow first processor outlives `in-progress-timeout`, a taker can evaluate the same event concurrently (outcome identical because writes and finding ids are idempotent). The timeout is not validated against the AI timeouts.
 - The ledger's in-flight capacity check is a soft limit under concurrency (count then insert).
-- All new tests remain unexecuted: `AlertWithoutWebhookIntegrationTest`, the added cases in `AlertDeliveryIntegrationTest`, `AlertWebhookClientTest` and `JdbcEventDeduplicatorTest`, and two new `RiseMonitoringIntegrationTest` cases.
+- These tests were written without being run and were subsequently executed; the results are recorded in section 19: `AlertWithoutWebhookIntegrationTest`, the added cases in `AlertDeliveryIntegrationTest`, `AlertWebhookClientTest` and `JdbcEventDeduplicatorTest`, and two new `RiseMonitoringIntegrationTest` cases.
+
+## 18. Ninth session: final source-level correctness review (2026-10-30)
+
+No test, build, Docker command or evaluation was executed.
+
+### 18.1 Flows traced
+Alert claim, delivery and outcome recording (`AlertDispatcherImpl`, `AlertNotificationRepository`, `AlertDispatchScheduler`, `AlertWebhookClient`); deduplication register, complete, release and takeover (`JdbcEventDeduplicator`, `EventMonitoringServiceImpl`); projection recording (`RiseFindingEngine`, `RiseEnvelopeReader`); backend outbox retry (`OutboxRelayImpl`, `MonitoringClient.classify`).
+
+### 18.2 Defects found and fixed
+| Defect | Effect | Fix |
+|---|---|---|
+| A superseded alert worker could write its failure over the state of the worker that re-claimed the row (shorter backoff than the new lease, wrong `last_error`, even `FAILED` while the new worker was delivering) | a third claim during the second worker's delivery; misleading failure state | `attempts` is now a fencing token (`claimedAttempt`); failures from a superseded claim are ignored, successes are always recorded and final; outcome recording takes a pessimistic row lock (`lockById`) |
+| A claim of up to 20 rows could outlast the 2-minute lease at about 6 s per slow delivery | rows late in the batch re-claimed while still queued in the same worker | at most 10 rows per run |
+| `complete` failing after the projection committed left the event IN_PROGRESS until the 5-minute timeout | avoidable stall, 409 answers meanwhile | `EventMonitoringServiceImpl` releases the row when `complete` throws |
+| Identifiers valid for the rules but unstorable (37-80 characters for evidence and disbursements) were skipped without any trace | later events silently could not be compared with that event | a WARN with event id and type is logged whenever a hashed evidence event, a disbursement event or a misuse dispute is not recorded; nothing is transformed or truncated |
+| An envelope `eventId` of 65-128 characters passed validation but overflowed `rise_processed_events.event_id` (64) | the insert threw and the event became a poison event retried until `FAILED` | rejected up front as `INVALID_EVENT` (400), which the backend marks `FAILED` at once and alerts |
+| Documentation claimed that configuring a webhook later "releases the whole backlog at once" | wrong; delivery is oldest first, 10 per interval | corrected in the runbook |
+
+### 18.3 Reviewed, no defect
+- Alert crash recovery and retry scheduling under concurrent runs: `FOR UPDATE SKIP LOCKED` plus the lease prevent concurrent claims; a crash after the HTTP call repeats one delivery (at-least-once, documented).
+- Deduplication: insert race and takeover race each have one winner (primary key; conditional update on `registered_at`); a crash leaves a row that recovers by timeout within the backend's retry budget; the ledger and the projection are separate transactions by design and every failure point re-evaluates idempotently.
+- Backlog and retention: `FAILED` rows are never selected for delivery and never deleted; pending rows drain oldest first; there is no cap or expiry.
+
+### 18.4 Remaining limitations and owner decisions
+- Alert rows: no retention, expiry or cap for `PENDING`, `RETRYING` or `FAILED` (owner decision); no admin endpoint or metric.
+- A worker slower than the lease, or a crash after the HTTP call, repeats a webhook delivery.
+- A processor slower than `in-progress-timeout` can overlap a taker; the ledger has no fencing token, so a stale `complete` or `release` can touch the taker's row (the stored response is equivalent because evaluation is deterministic and idempotent). The timeout is not validated against the AI timeouts.
+- Evidence and disbursement identifiers over 36 characters are not stored in the projection (warning only).
+- These tests were written without being run and were subsequently executed; the results are recorded in section 19: `AlertDispatcherFencingIntegrationTest`, one case in `RiseMonitoringIntegrationTest`. No test covers `complete` failing; M8.5 stays NOT MET. The checklist states for M4.4, M5.4 and M9.6 given at the time of writing were updated afterwards (section 19.5).
+
+## 19. Verification session (2026-10-30, after sections 16 to 18)
+
+Sections 16 to 18 describe changes whose tests had not been run. This section records the run. Where those sections say "not executed" or "not verified by execution", this section supersedes them for the items it lists. Verified tree: `HEAD` `0186911` plus the uncommitted working-tree changes of sections 17 and 18 and the one fix below. Environment: Windows 11, JDK 21.0.2, Maven 3.9.11, Docker 29.3.1.
+
+### 19.1 Results
+| Step | Command | Exit | Result |
+|---|---|---|---|
+| Monitor, first run | `./mvnw -B clean package` | 1 | 218 run, **1 failure**: `RiseRuleAuditTest.dp01FlagsADisputeExactlyOnceInEitherDeliveryOrder` |
+| Monitor, after fix | `./mvnw -B clean package` | 0 | **218/218**, BUILD SUCCESS, jar SHA-256 begins `dd3ee98e` |
+| Backend | `mvn -B clean test` | 0 | **149/149**, 0 skipped (real MySQL via Testcontainers) |
+| Simulator | `mvn -B clean package` | 0 | **43/43** |
+| Rise suite | simulator `--simulator.suite=rise` against the jar above, `riseai` profile, AI off, port 8083 | 0 | **20/20, 8/8 rules** |
+| Restart durability | manual: deliver, replay, stop, restart on the same file database, replay | n/a | `duplicate: false`, then `true`, then `true` after the restart, finding preserved |
+| Docker Compose | `docker compose -p rise-ai up -d --build`, checks, `down -v` | 0 | mysql, monitoring and backend healthy; backend Flyway at V10 (MySQL 8.4); monitor Flyway V1 and V2 applied; no ERROR logs |
+
+### 19.2 Failure and fix
+Root cause of the single failure: the test expected the released amount `3000000`, but the projection stores `DECIMAL(19,2)`, so the in-order path reports `3000000.00`. The run also showed a real inconsistency: when the dispute was delivered first, the fact was taken from the envelope (`3000000`). `MisuseDisputeAfterReleaseRule` now normalises that amount to scale 2 (`HALF_UP`) so both delivery orders give the same fact values, and the test expects `3000000.00`. Files: `MisuseDisputeAfterReleaseRule.java`, `RiseRuleAuditTest.java`. Only the failed test class and then the full monitor build were rerun. No other failure occurred.
+
+### 19.3 GitHub Actions
+Run 40994596201 for `0186911` failed in `monitoring` on the same DP-01 test (`backend` succeeded, `images` skipped). Run 40992026800 for `0994bcd` succeeded. The fix and the section 17 and 18 changes are uncommitted, so no CI run has covered them. **M10.7 stays open** until a run passes on the commit that contains them.
+
+### 19.4 What this does and does not establish
+- Restart durability was verified with a **file-backed H2 database**, one instance. It was not verified with `jdbc:h2:mem:` (not durable by design) or with a server database for the monitor.
+- **Multi-instance behaviour is unverified** for deduplication and for alert dispatch: the concurrency tests run inside one JVM, and Compose ran one instance of each service.
+- Webhook delivery is **at-least-once**, never exactly-once. The webhook has only been exercised against local stubs; no destination exists.
+- Compose was started and stopped; no business traffic was driven through it.
+- The 200-scenario AI evaluation (M8.5) was not run.
+
+### 19.5 Checklist changes from this session
+M4.4 and M5.4 ticked with the evidence above. M9.6 moved to partial (restart drill, end-to-end rule-failure run, real destination and multi-instance dispatch not demonstrated). M10.7 moved from ticked back to partial. Owner decisions are unchanged: D12 thresholds, alert destination and owner, alert backlog and retention policy, AI model, M8.7, validator-dependency sign-off, accepting M1.9 and M1.11.

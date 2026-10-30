@@ -45,12 +45,12 @@ flowchart LR
 | M1 | DONE | Rename verified (01 §6) |
 | M2 | DONE, partial | Contract finalized in `rise-ai-backend/docs/event-contracts.md`; no shared `contracts/` folder or JSON Schemas (D14 not applied) |
 | M3 | DONE | Outbox, 20 events, relay; integration tests |
-| M4 | DONE, with deviation | Service key, `riseai` profile, envelope reader, H2 projection, retention. Durable deduplication implemented 2026-10-30 (`JdbcEventDeduplicator`, migration V2; tests written, not executed) |
+| M4 | DONE, with deviation | Service key, `riseai` profile, envelope reader, H2 projection, retention. Durable deduplication implemented and verified 2026-10-30 on a file-backed H2 database (`JdbcEventDeduplicator`, migration V2; single instance only, not on `jdbc:h2:mem:`) |
 | M5 | DONE | Eight rules, `findings[]`, metrics, tests. Simulator Rise scenarios **not** added (rules are covered by `RiseMonitoringIntegrationTest`) |
 | M6 | DONE | Findings store, admin read API, OpenAPI snapshot, boundary test (now `LayeredArchitectureTest`) |
 | M7 | DONE | Review, conflict of interest, escalation reopen, audit. Precision query **not** built |
 | M8 | PARTIAL (2026-10-29; timing review in progress report 12.2) | Allowlisted prompt, output filter, `aiNote` on findings, default off; pilot run on `qwen3.5:9b`. Evaluation gate (200 scenarios), latency fit and owner sign-off open; backend does not store `aiNote` |
-| M9 | ★ items MOSTLY DONE | Done: outbox stats (★), requeue (★), `ALERT` log lines, key rotation (2026-10-29), monitor-side log-capture test (★, backend side not tested), runbook written (`07-operations-runbook.md`, not drilled). Alert persistence and dispatch implemented 2026-10-30 (`alert_notifications`, V10; tests written, not executed); the alert destination is still an owner decision |
+| M9 | ★ items MOSTLY DONE | Done: outbox stats (★), requeue (★), `ALERT` log lines, key rotation (2026-10-29), monitor-side log-capture test (★, backend side not tested), runbook written (`07-operations-runbook.md`, not drilled). Alert persistence and dispatch implemented 2026-10-30 (`alert_notifications`, V10; integration tests passed against MySQL, at-least-once delivery, no restart drill, stub webhook only); the alert destination is still an owner decision |
 | M10 | MVP E2E DONE (manual) | Scripted live run, not an automated test. 2026-10-29: Dockerfiles and root Compose verified (images built, stack started, 65 events PUBLISHED); CI workflow written but never run on a runner. Remaining production items belong to backend Phase 4 |
 
 Evidence for each item: [05-acceptance-checklist.md](05-acceptance-checklist.md) and [06-progress-report.md](06-progress-report.md).

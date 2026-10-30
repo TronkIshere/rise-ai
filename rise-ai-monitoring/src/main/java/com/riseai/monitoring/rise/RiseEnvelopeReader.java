@@ -23,6 +23,8 @@ import java.util.Optional;
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class RiseEnvelopeReader {
+    private static final int MAX_EVENT_ID_LENGTH = 64;
+
     MonitoringProperties properties;
 
     public boolean isRiseEvent(MonitoringEvent event) {
@@ -43,6 +45,9 @@ public class RiseEnvelopeReader {
             throw invalid("unsupported Rise envelope schemaVersion " + schemaVersion);
         }
         String eventId = required(envelope, "eventId");
+        if (eventId.length() > MAX_EVENT_ID_LENGTH) {
+            throw invalid("envelope eventId exceeds " + MAX_EVENT_ID_LENGTH + " characters");
+        }
         if (!eventId.equals(event.getEventId())) {
             throw invalid("envelope eventId does not match the request eventId");
         }

@@ -96,6 +96,11 @@ public class RiseFindingEngine {
         return value != null && value.length() <= maxLength && STORABLE_ID.matcher(value).matches() ? value : null;
     }
 
+    private void notRecorded(RiseEnvelope envelope) {
+        log.warn("Rise event {} ({}) has a missing or unstorable identifier or hash and was not added to the projection; later events cannot be compared with it",
+                envelope.eventId(), envelope.eventType());
+    }
+
     private void record(RiseEnvelope envelope) {
         if (!projection.markProcessed(envelope)) {
             return;
@@ -107,6 +112,8 @@ public class RiseFindingEngine {
                 String milestoneId = storable(envelope.text("milestoneId"), ROW_ID_LENGTH);
                 if (hash != null && evidenceId != null && milestoneId != null) {
                     projection.recordEvidenceHash(envelope, evidenceId, hash, milestoneId, storable(envelope.reference("campaignId"), ROW_ID_LENGTH));
+                } else if (hash != null) {
+                    notRecorded(envelope);
                 }
             }
             case RiseEventTypes.DISBURSEMENT_REQUESTED, RiseEventTypes.DISBURSEMENT_APPROVED, RiseEventTypes.DISBURSEMENT_REJECTED,
@@ -115,6 +122,8 @@ public class RiseFindingEngine {
                 String milestoneId = storable(envelope.text("milestoneId"), ROW_ID_LENGTH);
                 if (requestId != null && milestoneId != null) {
                     projection.recordDisbursementEvent(envelope, requestId, milestoneId, storable(envelope.reference("campaignId"), ROW_ID_LENGTH), envelope.decimal("amount"));
+                } else {
+                    notRecorded(envelope);
                 }
             }
             case RiseEventTypes.DISPUTE_OPENED -> {
@@ -122,6 +131,8 @@ public class RiseFindingEngine {
                 String milestoneId = storable(envelope.text("milestoneId"), DISPUTE_ID_LENGTH);
                 if ("MISUSE_OF_FUNDS".equals(envelope.text("disputeType")) && disputeId != null && milestoneId != null) {
                     projection.recordDisputeEvent(envelope, disputeId, milestoneId, storable(envelope.reference("campaignId"), ROW_ID_LENGTH));
+                } else if ("MISUSE_OF_FUNDS".equals(envelope.text("disputeType"))) {
+                    notRecorded(envelope);
                 }
             }
             default -> {

@@ -16,6 +16,7 @@ import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -69,7 +70,7 @@ public class MisuseDisputeAfterReleaseRule implements RiseFindingRule {
         if (!RuleSupport.validId(milestoneId)) {
             return List.of();
         }
-        List<DisbursementEventRow> thisRelease = List.of(new DisbursementEventRow(release.eventId(), release.text("requestId"), release.decimal("amount"), release.occurredAt()));
+        List<DisbursementEventRow> thisRelease = List.of(new DisbursementEventRow(release.eventId(), release.text("requestId"), storedScale(release.decimal("amount")), release.occurredAt()));
         List<Finding> findings = new ArrayList<>();
         for (DisputeEventRow dispute : projection.disputeEvents(milestoneId, release.eventId())) {
             if (!dispute.occurredAt().isBefore(release.occurredAt()) && RuleSupport.validId(dispute.disputeId())
@@ -78,6 +79,10 @@ public class MisuseDisputeAfterReleaseRule implements RiseFindingRule {
             }
         }
         return findings;
+    }
+
+    private static BigDecimal storedScale(BigDecimal amount) {
+        return amount == null ? null : amount.setScale(2, RoundingMode.HALF_UP);
     }
 
     private List<DisbursementEventRow> releasesUpTo(String milestoneId, String excludeEventId, Instant disputedAt) {

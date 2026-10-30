@@ -340,7 +340,7 @@ class RiseRuleAuditTest {
             assertThat(flagged.getFindingId()).isEqualTo(Finding.idFor(MisuseDisputeAfterReleaseRule.ID, "DISPUTE", dispute.text("disputeId"), null));
             assertThat(flagged.getFacts()).anySatisfy(fact -> {
                 assertThat(fact.name()).isEqualTo("releasedAmount");
-                assertThat(fact.value()).isEqualTo("3000000");
+                assertThat(fact.value()).isEqualTo("3000000.00");
             });
         }
     }

@@ -108,11 +108,20 @@ public class EventMonitoringServiceImpl implements EventMonitoringService {
         if (result.getMonitoringStatus() == MonitoringStatus.INCONCLUSIVE) {
             eventDeduplicator.release(event);
         } else {
-            eventDeduplicator.complete(event, response);
+            complete(event, response);
         }
         monitoringMetrics.resultProduced(result);
         publish(result);
         return response;
+    }
+
+    private void complete(MonitoringEvent event, MonitoringResultResponse response) {
+        try {
+            eventDeduplicator.complete(event, response);
+        } catch (RuntimeException ex) {
+            eventDeduplicator.release(event);
+            throw ex;
+        }
     }
 
     private MonitoringResult evaluate(MonitoringEvent event, long startedAt) {

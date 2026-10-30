@@ -19,6 +19,7 @@ import java.util.UUID;
 @Slf4j
 @Component
 public class AlertDispatcherImpl implements AlertDispatcher {
+    static final int MAX_CLAIMED_PER_RUN = 10;
     private static final String EXHAUSTED = "Attempts exhausted";
     private static final int MAX_ERROR = 200;
 
@@ -41,8 +42,8 @@ public class AlertDispatcherImpl implements AlertDispatcher {
             return 0;
         }
         int sent = 0;
-        for (UUID id : claim()) {
-            if (deliver(id)) {
+        for (Claim claim : claim()) {
+            if (deliver(claim)) {
                 sent++;
             }
         }
@@ -56,11 +57,15 @@ public class AlertDispatcherImpl implements AlertDispatcher {
         return deleted == null ? 0 : deleted;
     }
 
-    private List<UUID> claim() {
-        List<UUID> claimed = transactionTemplate.execute(status -> {
+    void recordOutcome(UUID id, int claimedAttempt, AlertWebhookClient.Delivery delivery) {
+        transactionTemplate.executeWithoutResult(status -> record(id, claimedAttempt, delivery));
+    }
+
+    private List<Claim> claim() {
+        List<Claim> claimed = transactionTemplate.execute(status -> {
             Instant now = Instant.now();
-            List<UUID> ids = new ArrayList<>();
-            for (String id : repository.lockDueIds(now, properties.batchSize())) {
+            List<Claim> claims = new ArrayList<>();
+            for (String id : repository.lockDueIds(now, Math.min(properties.batchSize(), MAX_CLAIMED_PER_RUN))) {
                 AlertNotification alert = repository.findById(UUID.fromString(id)).orElseThrow();
                 if (alert.getAttempts() >= properties.maxAttempts()) {
                     markFailed(alert, now, EXHAUSTED + "; last error: " + alert.getLastError());
@@ -68,25 +73,25 @@ public class AlertDispatcherImpl implements AlertDispatcher {
                 }
                 alert.setAttempts(alert.getAttempts() + 1);
                 alert.setNextAttemptAt(now.plus(properties.lease()));
-                ids.add(alert.getId());
+                claims.add(new Claim(alert.getId(), alert.getAttempts()));
             }
-            return ids;
+            return claims;
         });
         return claimed == null ? List.of() : claimed;
     }
 
-    private boolean deliver(UUID id) {
-        AlertNotification snapshot = repository.findById(id).orElse(null);
+    private boolean deliver(Claim claim) {
+        AlertNotification snapshot = repository.findById(claim.id()).orElse(null);
         if (snapshot == null) {
             return false;
         }
         AlertWebhookClient.Delivery delivery = webhookClient.post(snapshot.getKind(), snapshot.getDetails(), snapshot.getCreatedAt());
-        transactionTemplate.executeWithoutResult(status -> record(id, delivery));
+        recordOutcome(claim.id(), claim.attempt(), delivery);
         return delivery.delivered();
     }
 
-    private void record(UUID id, AlertWebhookClient.Delivery delivery) {
-        AlertNotification alert = repository.findById(id).orElseThrow();
+    private void record(UUID id, int claimedAttempt, AlertWebhookClient.Delivery delivery) {
+        AlertNotification alert = repository.lockById(id).orElseThrow();
         if (alert.getStatus() == AlertStatus.SENT || alert.getStatus() == AlertStatus.FAILED) {
             return;
         }
@@ -95,6 +100,9 @@ public class AlertDispatcherImpl implements AlertDispatcher {
             alert.setStatus(AlertStatus.SENT);
             alert.setDeliveredAt(now);
             alert.setLastError(null);
+            return;
+        }
+        if (alert.getAttempts() != claimedAttempt) {
             return;
         }
         if (!delivery.retryable() || alert.getAttempts() >= properties.maxAttempts()) {
@@ -121,5 +129,8 @@ public class AlertDispatcherImpl implements AlertDispatcher {
     Duration backoff(int attempts) {
         long base = properties.initialBackoff().toMillis() * (1L << Math.min(Math.max(attempts - 1, 0), 20));
         return Duration.ofMillis(Math.min(base, properties.maxBackoff().toMillis()));
+    }
+
+    private record Claim(UUID id, int attempt) {
     }
 }
