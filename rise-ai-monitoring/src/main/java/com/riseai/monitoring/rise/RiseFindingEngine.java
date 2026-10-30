@@ -3,6 +3,9 @@ package com.riseai.monitoring.rise;
 import com.riseai.monitoring.configuration.MonitoringProperties;
 import com.riseai.monitoring.core.event.MonitoringEvent;
 import com.riseai.monitoring.core.finding.Finding;
+import com.riseai.monitoring.exception.ApplicationException;
+import com.riseai.monitoring.exception.ErrorCode;
+import com.riseai.monitoring.observability.MonitoringMetrics;
 import com.riseai.monitoring.repository.RiseProjectionRepository;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
@@ -16,22 +19,27 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Locale;
 import java.util.Optional;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 @Slf4j
 @Service
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class RiseFindingEngine {
+    private static final int ROW_ID_LENGTH = 36;
+    private static final int DISPUTE_ID_LENGTH = 80;
+    private static final Pattern STORABLE_ID = Pattern.compile("^[A-Za-z0-9._:-]+$");
+
     RiseEnvelopeReader reader;
     RiseProjectionRepository projection;
     List<RiseFindingRule> rules;
     MonitoringProperties properties;
+    MonitoringMetrics metrics;
     Clock clock;
 
     public RiseFindingEngine(RiseEnvelopeReader reader, RiseProjectionRepository projection, List<RiseFindingRule> rules,
-                             MonitoringProperties properties, Clock clock) {
+                             MonitoringProperties properties, MonitoringMetrics metrics, Clock clock) {
         Set<String> identifiers = new HashSet<>();
         for (RiseFindingRule rule : rules) {
             if (rule.getId() == null || !identifiers.add(rule.getId())) {
@@ -42,6 +50,7 @@ public class RiseFindingEngine {
         this.projection = projection;
         this.rules = rules.stream().sorted(Comparator.comparing(RiseFindingRule::getId)).toList();
         this.properties = properties;
+        this.metrics = metrics;
         this.clock = clock;
     }
 
@@ -57,12 +66,18 @@ public class RiseFindingEngine {
         }
         RiseEnvelope envelope = read.get();
         List<Finding> findings = new ArrayList<>();
+        List<String> failedRules = new ArrayList<>();
         for (RiseFindingRule rule : rules) {
             try {
                 findings.addAll(rule.evaluate(envelope));
             } catch (RuntimeException ex) {
+                failedRules.add(rule.getId());
+                metrics.riseRuleFailed(rule.getId());
                 log.error("Rise finding rule {} failed for event {}", rule.getId(), envelope.eventId(), ex);
             }
+        }
+        if (!failedRules.isEmpty()) {
+            throw new ApplicationException(ErrorCode.RULE_EVALUATION_FAILED, String.join(",", failedRules));
         }
         record(envelope);
         return List.copyOf(findings);
@@ -77,6 +92,10 @@ public class RiseFindingEngine {
         }
     }
 
+    private static String storable(String value, int maxLength) {
+        return value != null && value.length() <= maxLength && STORABLE_ID.matcher(value).matches() ? value : null;
+    }
+
     private void record(RiseEnvelope envelope) {
         if (!projection.markProcessed(envelope)) {
             return;
@@ -84,18 +103,25 @@ public class RiseFindingEngine {
         switch (envelope.eventType()) {
             case RiseEventTypes.MILESTONE_EVIDENCE_SUBMITTED -> {
                 String hash = envelope.fileHash();
-                String evidenceId = envelope.text("evidenceId");
-                String milestoneId = envelope.text("milestoneId");
+                String evidenceId = storable(envelope.text("evidenceId"), ROW_ID_LENGTH);
+                String milestoneId = storable(envelope.text("milestoneId"), ROW_ID_LENGTH);
                 if (hash != null && evidenceId != null && milestoneId != null) {
-                    projection.recordEvidenceHash(envelope, evidenceId, hash.toLowerCase(Locale.ROOT), milestoneId, envelope.reference("campaignId"));
+                    projection.recordEvidenceHash(envelope, evidenceId, hash, milestoneId, storable(envelope.reference("campaignId"), ROW_ID_LENGTH));
                 }
             }
             case RiseEventTypes.DISBURSEMENT_REQUESTED, RiseEventTypes.DISBURSEMENT_APPROVED, RiseEventTypes.DISBURSEMENT_REJECTED,
                  RiseEventTypes.DISBURSEMENT_RELEASED -> {
-                String requestId = envelope.text("requestId");
-                String milestoneId = envelope.text("milestoneId");
+                String requestId = storable(envelope.text("requestId"), ROW_ID_LENGTH);
+                String milestoneId = storable(envelope.text("milestoneId"), ROW_ID_LENGTH);
                 if (requestId != null && milestoneId != null) {
-                    projection.recordDisbursementEvent(envelope, requestId, milestoneId, envelope.reference("campaignId"), envelope.decimal("amount"));
+                    projection.recordDisbursementEvent(envelope, requestId, milestoneId, storable(envelope.reference("campaignId"), ROW_ID_LENGTH), envelope.decimal("amount"));
+                }
+            }
+            case RiseEventTypes.DISPUTE_OPENED -> {
+                String disputeId = storable(envelope.text("disputeId"), DISPUTE_ID_LENGTH);
+                String milestoneId = storable(envelope.text("milestoneId"), DISPUTE_ID_LENGTH);
+                if ("MISUSE_OF_FUNDS".equals(envelope.text("disputeType")) && disputeId != null && milestoneId != null) {
+                    projection.recordDisputeEvent(envelope, disputeId, milestoneId, storable(envelope.reference("campaignId"), ROW_ID_LENGTH));
                 }
             }
             default -> {

@@ -18,6 +18,7 @@ import com.riseai.repository.FindingOccurrenceRepository;
 import com.riseai.repository.MonitoringFindingRepository;
 import com.riseai.repository.OutboxEventRepository;
 import com.riseai.security.AuthUser;
+import com.riseai.service.AlertDispatcher;
 import com.riseai.service.AuthService;
 import com.riseai.service.FindingService;
 import com.riseai.service.OutboxRelay;
@@ -92,12 +93,16 @@ class OutboxRelayIntegrationTest extends AbstractMySqlIntegrationTest {
         registry.add("rise.monitoring.base-url", () -> "http://127.0.0.1:" + MONITOR.getAddress().getPort());
         registry.add("rise.monitoring.service-key", () -> SERVICE_KEY);
         registry.add("rise.monitoring.max-attempts", () -> "3");
+        registry.add("rise.monitoring.alert-dispatch-interval", () -> "PT1H");
+        registry.add("rise.monitoring.alert-dispatch-initial-delay", () -> "PT1H");
         registry.add("rise.monitoring.alert-webhook-token", () -> ALERT_TOKEN);
         registry.add("rise.monitoring.alert-webhook-url", () -> "http://127.0.0.1:" + ALERTS.getAddress().getPort() + "/alerts");
     }
 
     @Autowired
     OutboxRelay outboxRelay;
+    @Autowired
+    AlertDispatcher alertDispatcher;
     @Autowired
     OutboxEventRepository outboxEventRepository;
     @Autowired
@@ -119,6 +124,7 @@ class OutboxRelayIntegrationTest extends AbstractMySqlIntegrationTest {
     @BeforeEach
     void setUp() {
         jdbcTemplate.update("update outbox_events set status = 'PUBLISHED', published_at = utc_timestamp(6), lease_until = null where status <> 'PUBLISHED'");
+        jdbcTemplate.update("delete from alert_notifications");
         REQUESTS.clear();
         ALERT_BODIES.clear();
         ALERT_AUTHORIZATIONS.clear();
@@ -205,6 +211,7 @@ class OutboxRelayIntegrationTest extends AbstractMySqlIntegrationTest {
                 .filter(event -> event.getEventType().equals(RiseEvents.CAMPAIGN_APPROVED)).findFirst().orElseThrow();
         jdbcTemplate.update("update outbox_events set status = 'PENDING', next_attempt_at = utc_timestamp(6) where id = ?", approved.getId().toString());
         outboxRelay.relayOnce();
+        alertDispatcher.dispatchDue();
         assertThat(ALERT_BODIES).hasSize(1);
         assertThat(ALERT_AUTHORIZATIONS).allMatch(value -> value.equals("Bearer " + ALERT_TOKEN));
     }
@@ -381,7 +388,8 @@ class OutboxRelayIntegrationTest extends AbstractMySqlIntegrationTest {
         mvc.perform(get("/api/v1/admin/monitoring/findings/precision").header("Authorization", bearer(creator))).andExpect(status().isForbidden());
     }
 
-    private static void awaitAlerts(int expected) {
+    private void awaitAlerts(int expected) {
+        alertDispatcher.dispatchDue();
         org.awaitility.Awaitility.await().atMost(java.time.Duration.ofSeconds(10)).until(() -> ALERT_BODIES.size() >= expected);
     }
 

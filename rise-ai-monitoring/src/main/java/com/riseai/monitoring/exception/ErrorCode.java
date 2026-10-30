@@ -19,6 +19,7 @@ public enum ErrorCode {
     EVENT_IN_PROGRESS(2002, "Event is already being processed: %s", HttpStatus.CONFLICT),
     DEDUPLICATION_CAPACITY_EXHAUSTED(2003, "Too many events are being processed concurrently, please retry later", HttpStatus.SERVICE_UNAVAILABLE),
 
+    RULE_EVALUATION_FAILED(9001, "Rule evaluation failed, the event was not recorded and can be redelivered: %s", HttpStatus.INTERNAL_SERVER_ERROR),
     MONITORING_FAILED(9000, "Event monitoring failed", HttpStatus.INTERNAL_SERVER_ERROR),
     INTERNAL_ERROR(9999, "An unexpected error occurred, please try again later", HttpStatus.INTERNAL_SERVER_ERROR);
 

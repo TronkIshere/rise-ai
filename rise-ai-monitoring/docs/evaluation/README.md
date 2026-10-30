@@ -46,6 +46,6 @@ An earlier run the same day, before the hardening, produced one failing note: fo
 ## What this does not show
 
 - It is **21 scenarios, not the 200 of the acceptance gate (M8.5)**. At about 68 s per event with findings the 200-scenario gate would take roughly three hours of model time on this machine (`--repeat 10` gives 210 events). It was not run.
-- The grounding measure (does the note only restate facts) is not computed; the checks are lexical.
+- The recorded run predates the grounding and gate computation. `ai_note_eval.py` now also reports `groundingRate` (every number in a note must appear in the finding's explanation or facts), `noteRate`, p95 latency and a `gate` block (`--gate-timeout`, default 90 s) that can only be `met` with at least 200 events. This addition was syntax-checked but not run; no measured grounding exists yet.
 - One model, one machine, one run. Notes are non-deterministic in wording. The maximum of 76.5 s is under the backend relay's 90 s read timeout by 13.5 s, which is a thin margin on a slower host.
 - No production model has been chosen or approved. Notes stay off by default.

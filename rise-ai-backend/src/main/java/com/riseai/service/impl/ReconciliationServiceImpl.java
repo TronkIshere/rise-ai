@@ -8,6 +8,7 @@ import com.riseai.enums.ReconciliationTrigger;
 import com.riseai.exception.ApplicationException;
 import com.riseai.mapper.RiseEvents;
 import com.riseai.repository.ReconciliationRunRepository;
+import com.riseai.service.AlertNotifier;
 import com.riseai.service.AuditService;
 import com.riseai.service.DomainEventPublisher;
 import com.riseai.service.EscrowQueryService;
@@ -23,6 +24,7 @@ import org.springframework.transaction.support.TransactionTemplate;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @Slf4j
@@ -35,14 +37,16 @@ public class ReconciliationServiceImpl implements ReconciliationService {
     private final ReconciliationRunRepository runRepository;
     private final AuditService auditService;
     private final DomainEventPublisher domainEvents;
+    private final AlertNotifier alertNotifier;
     private final TransactionTemplate transactionTemplate;
 
     public ReconciliationServiceImpl(EscrowQueryService escrowQueryService, ReconciliationRunRepository runRepository, AuditService auditService,
-                                     DomainEventPublisher domainEvents, PlatformTransactionManager transactionManager) {
+                                     DomainEventPublisher domainEvents, AlertNotifier alertNotifier, PlatformTransactionManager transactionManager) {
         this.escrowQueryService = escrowQueryService;
         this.runRepository = runRepository;
         this.auditService = auditService;
         this.domainEvents = domainEvents;
+        this.alertNotifier = alertNotifier;
         this.transactionTemplate = new TransactionTemplate(transactionManager);
     }
 
@@ -96,6 +100,10 @@ public class ReconciliationServiceImpl implements ReconciliationService {
     private void save(ReconciliationRun run) {
         transactionTemplate.executeWithoutResult(status -> {
             runRepository.save(run);
+            if (run.getRunStatus() != ReconciliationRunStatus.CONSISTENT) {
+                alertNotifier.alert("RECONCILIATION_" + run.getRunStatus(), Map.of("runCode", run.getRunCode(),
+                        "inconsistentAccounts", String.valueOf(run.getInconsistentAccounts())));
+            }
             auditService.record(run.getTriggeredBy(), "RECONCILIATION_RUN_COMPLETED", ENTITY, run.getId(), null, run.getRunStatus().name(),
                     AuditService.meta("runCode", run.getRunCode(), "trigger", run.getTriggerType(), "accountsChecked", run.getAccountsChecked(),
                             "inconsistentAccounts", run.getInconsistentAccounts()));

@@ -26,6 +26,10 @@ URL_RE = re.compile(r"https?://|www\.", re.I)
 EMAIL_RE = re.compile(r"\S+@\S+\.\S+")
 INJECTION_ECHO = re.compile(r"ignore (all|previous)|system prompt|as an ai", re.I)
 MAX_NOTE = 400
+NUMBER_RE = re.compile(r"\d[\d,]*(?:\.\d+)?")
+GATE_MIN_EVENTS = 200
+GATE_MIN_NOTE_RATE = 0.99
+GATE_MIN_GROUNDING = 0.95
 
 
 def uid():
@@ -144,6 +148,22 @@ def check_note(note):
     return problems
 
 
+def source_text(finding):
+    values = json.dumps([fact.get("value") for fact in finding.get("facts") or []])
+    return ((finding.get("explanation") or "") + " " + values).replace(",", "")
+
+
+def ungrounded_numbers(note, finding):
+    source = source_text(finding)
+    return [token for token in NUMBER_RE.findall(note.replace(",", "")) if token not in source]
+
+
+def percentile95(values):
+    if len(values) < 2:
+        return values[0] if values else None
+    return statistics.quantiles(values, n=20)[18]
+
+
 def run(args):
     results = []
     scenarios = [(name if args.repeat == 1 else "%s #%d" % (name, round_no), expect, event)
@@ -153,7 +173,7 @@ def run(args):
         status, payload, seconds = post(args.url, args.key, event, args.timeout)
         data = payload.get("data", {}) if isinstance(payload, dict) else {}
         findings = [{"ruleId": f.get("detector", {}).get("id"), "severity": f.get("severity"), "facts": f.get("facts"),
-                     "note": f.get("aiNote")} for f in data.get("findings", [])]
+                     "explanation": f.get("explanation"), "note": f.get("aiNote")} for f in data.get("findings", [])]
         results.append({"name": name, "expectFinding": expect_finding, "http": status, "seconds": round(seconds, 2),
                         "monitoringStatus": data.get("monitoringStatus"), "findings": findings})
         print("%-45s http=%s %6.1fs findings=%d notes=%d" % (name, status, seconds, len(findings), sum(1 for f in findings if f["note"])), flush=True)
@@ -171,15 +191,32 @@ def stable_facts(facts):
     return json.dumps(sorted(kept))
 
 
-def summarize(results, baseline):
+def gate(summary, timeout_seconds):
+    checks = {
+        "events>=%d" % GATE_MIN_EVENTS: summary["events"] >= GATE_MIN_EVENTS,
+        "noteRate>=%.2f" % GATE_MIN_NOTE_RATE: (summary["noteRate"] or 0) >= GATE_MIN_NOTE_RATE,
+        "groundingRate>=%.2f" % GATE_MIN_GROUNDING: (summary["groundingRate"] or 0) >= GATE_MIN_GROUNDING,
+        "forbiddenTerms==0": summary["notesWithForbiddenTerms"] == 0 and summary["notesFailingChecks"] == 0,
+        "p95<%ss" % timeout_seconds: summary["latencySecondsP95ForEventsWithFindings"] is not None and summary["latencySecondsP95ForEventsWithFindings"] < timeout_seconds,
+        "httpFailures==0": summary["httpFailures"] == 0,
+    }
+    return {"checks": checks, "met": all(checks.values())}
+
+
+def summarize(results, baseline, gate_timeout):
     scored = [(r, f) for r in results for f in r["findings"] if r["expectFinding"]]
     noted = [(r, f) for r, f in scored if f["note"]]
     problems = {}
+    ungrounded = {}
     for r, f in noted:
         issues = check_note(f["note"])
         if issues:
             problems[r["name"]] = issues
+        extra = ungrounded_numbers(f["note"], f)
+        if extra:
+            ungrounded[r["name"]] = extra
     latencies = [r["seconds"] for r in results if r["findings"]]
+    forbidden = sum(1 for r, f in noted if FORBIDDEN.search(f["note"]))
     summary = {
         "events": len(results),
         "eventsExpectingFindings": sum(1 for r in results if r["expectFinding"]),
@@ -187,10 +224,17 @@ def summarize(results, baseline):
         "notesProduced": len(noted),
         "notesFailingChecks": len(problems),
         "problemDetail": problems,
+        "notesWithUngroundedNumbers": len(ungrounded),
+        "ungroundedDetail": ungrounded,
+        "notesWithForbiddenTerms": forbidden,
+        "noteRate": round(len(noted) / len(scored), 4) if scored else None,
+        "groundingRate": round((len(noted) - len(ungrounded)) / len(noted), 4) if noted else None,
         "httpFailures": sum(1 for r in results if r["http"] != 200),
         "latencySecondsMedianForEventsWithFindings": round(statistics.median(latencies), 1) if latencies else None,
+        "latencySecondsP95ForEventsWithFindings": round(percentile95(latencies), 1) if latencies else None,
         "latencySecondsMax": max(r["seconds"] for r in results),
     }
+    summary["gate"] = gate(summary, gate_timeout)
     if baseline:
         base = {r["name"]: [(f["ruleId"], f["severity"], stable_facts(f["facts"])) for f in r["findings"]] for r in baseline["results"]}
         now = {r["name"]: [(f["ruleId"], f["severity"], stable_facts(f["facts"])) for f in r["findings"]] for r in results}
@@ -208,11 +252,12 @@ def main():
     parser.add_argument("--timeout", type=float, default=150.0)
     parser.add_argument("--approval-amount", default="50000000.00")
     parser.add_argument("--max-requests", type=int, default=3)
+    parser.add_argument("--gate-timeout", type=float, default=90.0, help="request timeout in seconds that the p95 latency must stay under (the backend relay read timeout)")
     parser.add_argument("--repeat", type=int, default=1, help="run the fixed dataset this many times with fresh identifiers")
     args = parser.parse_args()
     baseline = json.load(open(args.baseline)) if args.baseline else None
     results = run(args)
-    summary = summarize(results, baseline)
+    summary = summarize(results, baseline, args.gate_timeout)
     print(json.dumps(summary, indent=2))
     if args.out:
         json.dump({"label": args.label, "summary": summary, "results": results}, open(args.out, "w"), indent=2)

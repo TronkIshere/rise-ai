@@ -75,6 +75,8 @@ rise:
     initial-backoff: PT5S
     max-backoff: PT15M
     published-retention: P30D
+    alert-dispatch-interval: PT10S
+    alert-dispatch-initial-delay: PT10S
     alert-webhook-url: ${RISE_ALERT_WEBHOOK_URL:}
     alert-webhook-token: ${RISE_ALERT_WEBHOOK_TOKEN:}
 

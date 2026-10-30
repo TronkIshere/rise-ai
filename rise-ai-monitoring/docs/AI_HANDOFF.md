@@ -14,7 +14,7 @@
 A Spring Boot 3.5.15 / Java 21 / Maven module.
 
 - **Input:** events over `POST /api/v1/events/monitor`, including Rise AI backend envelopes (`source = rise-ai-backend`).
-- **Processing:** validate, normalize and deduplicate in memory; apply six deterministic rules; for Rise events, apply eight charity rules against a minimized projection; when rules require it, ask a local Ollama model for an advisory assessment.
+- **Processing:** validate, normalize and deduplicate (persistent ledger by default); apply six deterministic rules; for Rise events, apply eight charity rules against a minimized projection; when rules require it, ask a local Ollama model for an advisory assessment.
 - **Output:** status, rule findings, `finding.v1` charity findings, AI analysis, a **rule-derived** risk level, and a review flag.
 
 It takes no actions and uses no cloud AI. Its only database is its own projection store (H2), never the backend's. Details: [PROJECT_OVERVIEW.md](PROJECT_OVERVIEW.md). Cross-module plan and status: `docs/ai-monitoring/` at the repository root.
@@ -27,7 +27,7 @@ Package root: `src/main/java/com/riseai/monitoring`.
 |---|---|
 | Orchestration | `service/impl/EventMonitoringServiceImpl.java` |
 | Rules | `rule/RuleEngine.java` and the `*Rule.java` classes |
-| Deduplication | `deduplication/InMemoryEventDeduplicator.java` |
+| Deduplication | `deduplication/JdbcEventDeduplicator.java` (default), `deduplication/InMemoryEventDeduplicator.java` |
 | Status, risk, review | `result/MonitoringResultAssembler.java` |
 | AI prompt and validation | `analysis/AnalysisPromptBuilder.java`, `analysis/AiOutputParser.java` |
 | Ollama HTTP | `ollama/OllamaClient.java`, `ollama/OllamaEventAnalyzer.java` |

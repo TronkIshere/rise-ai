@@ -316,7 +316,7 @@ Written to `reports/<yyyyMMdd-HHmmss>-seed<seed>/`. Per-scenario CSVs are append
 **Reproducing a scenario.**
 
 - These are identical for the same seed, scenario count and distribution: category, template, values and expectations.
-- These differ between runs: event IDs contain a run tag, so the Core's in-memory deduplication cannot replay results from an earlier run; and timestamps are relative to the run's reference time.
+- These differ between runs: event IDs contain a run tag, so the Core's deduplication ledger cannot replay results from an earlier run; and timestamps are relative to the run's reference time.
 
 The Core version is not exposed by its API, so it is recorded as such.
 

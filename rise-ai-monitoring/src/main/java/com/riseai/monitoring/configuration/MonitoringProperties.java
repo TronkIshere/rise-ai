@@ -209,6 +209,9 @@ public class MonitoringProperties {
         @NotNull
         Duration retention = Duration.ofHours(24);
 
+        @NotNull
+        Duration inProgressTimeout = Duration.ofMinutes(5);
+
         @Min(1)
         int maxTrackedEvents = 10000;
     }

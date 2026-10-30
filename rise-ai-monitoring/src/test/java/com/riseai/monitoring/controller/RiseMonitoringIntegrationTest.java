@@ -240,6 +240,33 @@ class RiseMonitoringIntegrationTest {
     }
 
     @Test
+    void misuseDisputeDeliveredBeforeItsReleaseIsFlaggedWhenTheReleaseArrivesAndReplaysAddNothing() throws Exception {
+        String campaign = id();
+        String milestone = id();
+        Map<String, Object> release = disbursement("DISBURSEMENT_RELEASED", campaign, milestone, id(), "3000000.00", Map.of());
+        Map<String, Object> dispute = dispute(campaign, milestone, "MISUSE_OF_FUNDS");
+
+        assertThat(rules(monitor(dispute))).isEmpty();
+        JsonNode afterRelease = monitor(release);
+        JsonNode finding = finding(afterRelease, MisuseDisputeAfterReleaseRule.ID);
+
+        assertThat(finding.path("severity").asText()).isEqualTo("HIGH");
+        assertThat(finding.path("subject").path("type").asText()).isEqualTo("DISPUTE");
+        JsonNode replay = monitor(release);
+        assertThat(replay.path("duplicate").asBoolean()).isTrue();
+        assertThat(finding(replay, MisuseDisputeAfterReleaseRule.ID).path("findingId").asText()).isEqualTo(finding.path("findingId").asText());
+    }
+
+    @Test
+    void identifiersTooLongForTheProjectionAreNotRecordedAndDoNotFailTheEvent() throws Exception {
+        String longId = "m".repeat(100);
+
+        monitor(disbursement("DISBURSEMENT_REQUESTED", id(), longId, id(), "1.00", Map.of()));
+
+        assertThat(jdbcClient.sql("select count(*) from rise_disbursement_events where milestone_id = ?").param(longId).query(Long.class).single()).isZero();
+    }
+
+    @Test
     void malformedRiseEnvelopesAreRejectedWithInvalidEvent() throws Exception {
         Map<String, Object> wrongVersion = request("CAMPAIGN_CREATED", "CAMPAIGN", Map.of(), Map.of("campaignId", id()));
         castPayload(wrongVersion).put("schemaVersion", 2);

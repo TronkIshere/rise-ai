@@ -130,7 +130,7 @@ The same event with Ollama unreachable (only the `data` fields that differ are s
 | `aiAnalysisEnabled`, `aiTrigger`, `aiFailureMode` | `monitoring.ai.enabled`, `.trigger`, `.on-failure` |
 | `eventPersistence` | Constant `"NONE"`: raw events are never stored |
 | `riseProjection` | `"MINIMIZED_PROJECTION"` when `monitoring.rise.enabled` is true, otherwise `"DISABLED"`. The projection stores only identifiers, enum values, amounts, timestamps and evidence file hashes of Rise events (see [ARCHITECTURE.md](ARCHITECTURE.md#rise-ai-charity-monitoring)) |
-| `deduplicationEnabled`, `deduplicationStore`, `deduplicationScope`, `deduplicationRetention`, `maxTrackedEvents`, `trackedEventCount` | Store `"IN_MEMORY"`; scope `"source+eventId, single application instance"`; retention as an ISO-8601 duration, for example `"PT24H"` |
+| `deduplicationEnabled`, `deduplicationStore`, `deduplicationScope`, `deduplicationRetention`, `maxTrackedEvents`, `trackedEventCount` | Store `"JDBC"` (default) or `"IN_MEMORY"`; scope `"source+eventId, shared by every instance using the monitoring database, survives restarts"` for JDBC; retention as an ISO-8601 duration, for example `"PT24H"` |
 | `aiRuntime` | `{runtime: "ollama", state, modelName, detail}`. `state` is one of `AVAILABLE`, `MODEL_NOT_INSTALLED`, `NOT_CONFIGURED`, `UNREACHABLE`, `DISABLED`. |
 
 When AI is enabled, every call to this endpoint makes an **uncached** `GET /api/tags` request to Ollama, bounded by `ollama.status-timeout`. When AI is disabled, Ollama is not contacted. The Ollama base URL is never included.

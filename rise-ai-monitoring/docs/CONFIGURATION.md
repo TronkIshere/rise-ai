@@ -76,8 +76,11 @@ These are illustrative defaults, not validated thresholds.
 | Property | Env | Default |
 |---|---|---|
 | `deduplication.enabled` | `MONITORING_DEDUPLICATION_ENABLED` | `true` |
+| `deduplication.store` | `MONITORING_DEDUPLICATION_STORE` | `jdbc` (`memory` selects the in-memory store) |
 | `deduplication.retention` | `MONITORING_DEDUPLICATION_RETENTION` | `24h` |
-| `deduplication.max-tracked-events` | (none) | `10000` |
+| `deduplication.in-progress-timeout` | `MONITORING_DEDUPLICATION_IN_PROGRESS_TIMEOUT` | `5m` (an unfinished ledger row older than this is taken over by the next delivery) |
+| `deduplication.purge-cron` | (none) | `0 45 4 * * *` |
+| `deduplication.max-tracked-events` | (none) | `10000` (JDBC store: limit on unfinished events only) |
 | `delivery.log-results` | (none) | `true` |
 
 ## monitoring.security.*

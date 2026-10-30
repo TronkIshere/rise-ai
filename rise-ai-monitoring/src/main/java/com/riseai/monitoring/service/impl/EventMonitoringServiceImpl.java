@@ -88,7 +88,7 @@ public class EventMonitoringServiceImpl implements EventMonitoringService {
             case NEW -> process(event, startedAt);
             case DUPLICATE -> {
                 monitoringMetrics.duplicateEvent("replayed");
-                yield monitoringResultMapper.toResponse(outcome.getPreviousResult(), true);
+                yield outcome.getPreviousResponse().toBuilder().duplicate(true).build();
             }
             case CONFLICT -> {
                 monitoringMetrics.duplicateEvent("conflict");
@@ -104,14 +104,15 @@ public class EventMonitoringServiceImpl implements EventMonitoringService {
 
     private MonitoringResultResponse process(MonitoringEvent event, long startedAt) {
         MonitoringResult result = evaluate(event, startedAt);
+        MonitoringResultResponse response = monitoringResultMapper.toResponse(result, false);
         if (result.getMonitoringStatus() == MonitoringStatus.INCONCLUSIVE) {
             eventDeduplicator.release(event);
         } else {
-            eventDeduplicator.complete(event, result);
+            eventDeduplicator.complete(event, response);
         }
         monitoringMetrics.resultProduced(result);
         publish(result);
-        return monitoringResultMapper.toResponse(result, false);
+        return response;
     }
 
     private MonitoringResult evaluate(MonitoringEvent event, long startedAt) {

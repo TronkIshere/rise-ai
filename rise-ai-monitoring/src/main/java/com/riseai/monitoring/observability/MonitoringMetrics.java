@@ -29,6 +29,7 @@ public class MonitoringMetrics {
     public static final String AI_FINISHED = "riseai.monitoring.ai.analyses";
     public static final String PROCESSING = "riseai.monitoring.processing";
     public static final String FINDINGS = "riseai.monitoring.findings";
+    public static final String RISE_RULE_FAILURES = "riseai.monitoring.rise.rule.failures";
 
     MeterRegistry meterRegistry;
 
@@ -37,6 +38,11 @@ public class MonitoringMetrics {
                 .tag("rule", finding.getRuleId())
                 .tag("severity", finding.getSeverity().name().toLowerCase(Locale.ROOT))
                 .register(meterRegistry).increment();
+    }
+
+    public void riseRuleFailed(String ruleId) {
+        Counter.builder(RISE_RULE_FAILURES).description("Rise finding rules that threw while evaluating an event")
+                .tag("rule", ruleId).register(meterRegistry).increment();
     }
 
     public void eventReceived() {

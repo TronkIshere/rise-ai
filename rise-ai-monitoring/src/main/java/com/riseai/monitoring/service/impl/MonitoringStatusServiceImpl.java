@@ -31,7 +31,6 @@ public class MonitoringStatusServiceImpl implements MonitoringStatusService {
     private static final String EVENT_PERSISTENCE_NONE = "NONE";
     private static final String RISE_PROJECTION_ENABLED = "MINIMIZED_PROJECTION";
     private static final String RISE_PROJECTION_DISABLED = "DISABLED";
-    private static final String DEDUPLICATION_SCOPE = "source+eventId, single application instance";
 
     AiEventAnalyzer aiEventAnalyzer;
     RuleEngine ruleEngine;
@@ -51,7 +50,7 @@ public class MonitoringStatusServiceImpl implements MonitoringStatusService {
                 .riseProjection(properties.getRise().isEnabled() ? RISE_PROJECTION_ENABLED : RISE_PROJECTION_DISABLED)
                 .deduplicationEnabled(properties.getDeduplication().isEnabled())
                 .deduplicationStore(eventDeduplicator.getStoreType())
-                .deduplicationScope(DEDUPLICATION_SCOPE)
+                .deduplicationScope(eventDeduplicator.getScope())
                 .deduplicationRetention(properties.getDeduplication().getRetention().toString())
                 .maxTrackedEvents(properties.getDeduplication().getMaxTrackedEvents())
                 .trackedEventCount(eventDeduplicator.getTrackedEventCount())

@@ -206,7 +206,7 @@ class EventMonitoringApiIntegrationTest {
                 .andExpect(jsonPath("$.data.aiRuntime.baseUrl").doesNotExist())
                 .andExpect(jsonPath("$.data.eventPersistence").value("NONE"))
                 .andExpect(jsonPath("$.data.riseProjection").value("MINIMIZED_PROJECTION"))
-                .andExpect(jsonPath("$.data.deduplicationStore").value("IN_MEMORY"))
+                .andExpect(jsonPath("$.data.deduplicationStore").value("JDBC"))
                 .andExpect(jsonPath("$.data.deduplicationRetention").value("PT24H"));
     }
 

@@ -45,12 +45,12 @@ flowchart LR
 | M1 | DONE | Rename verified (01 §6) |
 | M2 | DONE, partial | Contract finalized in `rise-ai-backend/docs/event-contracts.md`; no shared `contracts/` folder or JSON Schemas (D14 not applied) |
 | M3 | DONE | Outbox, 20 events, relay; integration tests |
-| M4 | DONE, with deviation | Service key, `riseai` profile, envelope reader, H2 projection, retention. Durable deduplication **not** built (in-memory kept; re-evaluation is idempotent) |
+| M4 | DONE, with deviation | Service key, `riseai` profile, envelope reader, H2 projection, retention. Durable deduplication implemented 2026-10-30 (`JdbcEventDeduplicator`, migration V2; tests written, not executed) |
 | M5 | DONE | Eight rules, `findings[]`, metrics, tests. Simulator Rise scenarios **not** added (rules are covered by `RiseMonitoringIntegrationTest`) |
 | M6 | DONE | Findings store, admin read API, OpenAPI snapshot, boundary test (now `LayeredArchitectureTest`) |
 | M7 | DONE | Review, conflict of interest, escalation reopen, audit. Precision query **not** built |
 | M8 | PARTIAL (2026-10-29; timing review in progress report 12.2) | Allowlisted prompt, output filter, `aiNote` on findings, default off; pilot run on `qwen3.5:9b`. Evaluation gate (200 scenarios), latency fit and owner sign-off open; backend does not store `aiNote` |
-| M9 | ★ items MOSTLY DONE | Done: outbox stats (★), requeue (★), `ALERT` log lines, key rotation (2026-10-29), monitor-side log-capture test (★, backend side not tested), runbook written (`07-operations-runbook.md`, not drilled). Not done: alert delivery |
+| M9 | ★ items MOSTLY DONE | Done: outbox stats (★), requeue (★), `ALERT` log lines, key rotation (2026-10-29), monitor-side log-capture test (★, backend side not tested), runbook written (`07-operations-runbook.md`, not drilled). Alert persistence and dispatch implemented 2026-10-30 (`alert_notifications`, V10; tests written, not executed); the alert destination is still an owner decision |
 | M10 | MVP E2E DONE (manual) | Scripted live run, not an automated test. 2026-10-29: Dockerfiles and root Compose verified (images built, stack started, 65 events PUBLISHED); CI workflow written but never run on a runner. Remaining production items belong to backend Phase 4 |
 
 Evidence for each item: [05-acceptance-checklist.md](05-acceptance-checklist.md) and [06-progress-report.md](06-progress-report.md).
@@ -176,8 +176,8 @@ DoD: tests green; `phase-2-ai-monitoring.md` progress updated.
 | Field | Content |
 |---|---|
 | Business objective | The monitor accepts only authenticated Rise events, survives restarts without re-analysing, and keeps the minimal history that cross-event rules need |
-| Current-state evidence | No auth (`docs/DECISIONS.md` P1 open); in-memory dedup only (`InMemoryEventDeduplicator`); no persistence (monitor decision D2); `EventDeduplicator` interface allows a replacement |
-| Scope | Service-key filter; localhost binding; Rise envelope reader; optional JDBC persistence (enabled in the `riseai` profile, in-memory stays the default for tests and the simulator); durable dedup; projection tables; retention purge; `application-riseai.yml` |
+| Current-state evidence | No auth (`docs/DECISIONS.md` P1 open); at the time: in-memory dedup only (`InMemoryEventDeduplicator`); no persistence (monitor decision D2); `EventDeduplicator` interface allows a replacement. Superseded 2026-10-30 by `JdbcEventDeduplicator` |
+| Scope | Service-key filter; localhost binding; Rise envelope reader; JDBC persistence (file database in the `riseai` profile; the default is in-memory H2, which is not durable); durable dedup (`JdbcEventDeduplicator`, durable only on a file or server database); projection tables; retention purge; `application-riseai.yml` |
 | Existing files affected | `pom.xml` (**new dependencies**: `spring-boot-starter-jdbc`, `flyway-core`, `flyway-mysql`, `mysql-connector-j`; test: Testcontainers MySQL); `configuration/MonitoringProperties.java` (security, persistence, deduplication store); `filter/` (new filter); `docs/DECISIONS.md` (supersede D2, close P1); `docs/CONFIGURATION.md`; `MonitoringStatusServiceImpl` (`deduplicationStore` reports `JDBC`) |
 | New files | `filter/ServiceKeyAuthenticationFilter`; `deduplication/JdbcEventDeduplicator`; package `rise/`: `RiseEnvelope`, `RiseEnvelopeReader`, `RiseProjectionRepository`; `src/main/resources/db/migration/V1__processed_events.sql`, `V2__rise_projection.sql` (tables: `processed_events(source, event_id, fingerprint, result_json, registered_at)`, `evidence_hashes(file_hash, evidence_id, milestone_id, campaign_id, event_id, occurred_at)`, `disbursement_history(milestone_id, request_id, event_type, amount, occurred_at, event_id)`, `milestone_releases(milestone_id, released_total, last_event_id)`); `application-riseai.yml`; retention job |
 | Contracts / config | `MONITORING_SERVICE_KEY`, `MONITORING_DB_URL` / user / password, `monitoring.deduplication.store`, `monitoring.retention` (D9) |

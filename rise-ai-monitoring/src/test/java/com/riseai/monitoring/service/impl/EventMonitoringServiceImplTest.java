@@ -311,7 +311,7 @@ class EventMonitoringServiceImplTest {
                 properties,
                 new EventNormalizer(new ObjectMapper(), properties, clock),
                 ruleEngine,
-                new RiseFindingEngine(new RiseEnvelopeReader(properties), null, List.of(), properties, clock),
+                new RiseFindingEngine(new RiseEnvelopeReader(properties), null, List.of(), properties, new MonitoringMetrics(new SimpleMeterRegistry()), clock),
                 new FindingNoteService(properties, new OllamaProperties(), null, new ObjectMapper()),
                 clock);
     }

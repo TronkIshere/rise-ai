@@ -393,3 +393,63 @@ Technical: first GitHub Actions run; 200-scenario evaluation; DP-01 reverse-orde
 | Whitespace | `git diff --check` | 0 | no whitespace errors; only the `LF will be replaced by CRLF` autocrlf notices on modified files, which were left alone |
 
 DB-02: a rejection delivered after the request it covers now flags that request once (same `findingId` as in order); covered by `RiseRuleAuditTest` and the integration test. DP-01 reverse order is not fixed: it needs a new projection table and migration, and the exact impact is in `09-rule-audit.md`. The AI evaluation was run on a scratch build made before the DB-02 change; the change does not touch notes or the prompt, but the evaluation was not repeated.
+
+## 16. Seventh session: remaining blockchain-independent work (2026-10-30, after commit `0994bcd`)
+
+Scope: implementation and cleanup only. **No test, build, Docker command or evaluation was executed in this session**, so nothing below is verified by execution. The only command run on a source artifact was a Python syntax check of `ai_note_eval.py`.
+
+### 16.1 Implemented (unverified)
+
+| Item | Change | Test source written (not run) |
+|---|---|---|
+| M4.4 persistent deduplication | `JdbcEventDeduplicator` (default store) and `monitoring_event_ledger` (monitor migration V2); `EventDeduplicator` now stores a `MonitoringResultResponse` and has `getScope()`; stale in-progress rows are taken over after `in-progress-timeout`; in-memory store kept behind `monitoring.deduplication.store=memory` | `JdbcEventDeduplicatorTest`; `InMemoryEventDeduplicatorTest` and `EventMonitoringApiIntegrationTest` adapted |
+| M5.4 DP-01 reverse order | `rise_dispute_events` (V2), `RiseProjectionRepository.recordDisputeEvent/disputeEvents`, `MisuseDisputeAfterReleaseRule` flags the dispute when the release arrives later, once, same `findingId`; purge covers the new table | `RiseRuleAuditTest.dp01FlagsADisputeExactlyOnceInEitherDeliveryOrder`, `dp01LateReleaseIgnores...` |
+| M9 rule failures | `RiseFindingEngine` runs every rule, counts failures, then throws `RULE_EVALUATION_FAILED` (9001); the transaction rolls back, the dedup entry is released, the relay retries and finally marks the row `FAILED` with an alert | `RiseFindingEngineFailureTest` |
+| M9 alert reliability | Backend `alert_notifications` (V10), `AlertNotifierImpl` stores, `AlertDispatcherImpl` + `AlertDispatchScheduler` deliver; `AlertWebhookClient` extracted from the old in-memory notifier; reconciliation raises alerts | `AlertWebhookClientTest`, `AlertDeliveryIntegrationTest`; `OutboxRelayIntegrationTest` adapted; old `AlertNotifierImplTest` removed (it tested the deleted in-memory queue) |
+| M8.5 evaluation tooling | `ai_note_eval.py` reports grounding, note rate, p95 and a gate verdict | none (syntax-checked only) |
+
+### 16.2 Cleanup
+- Redundant catch-and-log removed from `OutboxRelayScheduler.relay()` (the scheduler already logs and keeps running).
+- A scan found no unused imports and no unused private members or classes in either module (Spring components excluded).
+- Source files carry no new comments.
+
+### 16.3 Still open
+- Owner decisions: D12 thresholds, alert destination and ownership, AI model, notes in the admin UI (M8.7), validator dependency sign-off, accept M1.9 / M1.11.
+- M8.5 (200 scenarios) and M9.5 (deployed drill) need execution that was out of scope here.
+- Everything in 16.1 needs a full test run before its checklist rows can be ticked.
+
+### 16.4 Limitations introduced
+- A poison event (a rule that always throws) now blocks the findings of the healthy rules for that event until the row is fixed and requeued, instead of silently losing only the failing rule. Healthy-rule findings are regenerated, with the same `findingId`s, on retry.
+- (Superseded by section 17) Alerts are now persisted independently of the webhook URL. `FAILED` alert rows are not retried automatically and there is no admin endpoint for them.
+- The in-flight capacity limit of the JDBC deduplicator counts unfinished rows only; completed rows are bounded by retention, not by `max-tracked-events`.
+- Multi-instance use of the shared ledger needs a database server and has not been tried.
+
+## 17. Eighth session: review of the section 16 implementation (2026-10-30)
+
+Again **no test, build, Docker command or evaluation was executed**; the changes below are source and documentation only.
+
+### 17.1 Issues found in the section 16 implementation
+| Area | Issue | Fix |
+|---|---|---|
+| Alerts | Alerts were stored only when a webhook URL was configured, so creating an alert depended on delivery configuration; the dispatcher scheduler was also conditional on the URL | `AlertNotifierImpl` always stores; the scheduler always runs and `AlertDispatcherImpl` skips delivery while no URL is set |
+| Alerts | One undifferentiated pending state, every failure retried, constant failure text | States `PENDING`, `RETRYING`, `SENT`, `FAILED` (V10 edited in place; it had never been committed or applied); `AlertWebhookClient.Delivery` classifies HTTP 5xx, 408, 429, timeouts and I/O errors as transient and other 4xx and redirects as permanent; `last_error` keeps the reason (`HTTP 503`) and `failed_at` is set |
+| Alerts | A row whose attempts ran out while it was claimed (crash during delivery) would have been re-claimed forever or sent once more | `claim()` fails such rows without another delivery; `record()` ignores rows already `SENT` or `FAILED` |
+| Deduplication | `register` recursed when the conflicting row vanished between insert and read | bounded retry loop, then `IN_PROGRESS` |
+| Deduplication | The status endpoint claimed "survives restarts" even for `jdbc:h2:mem:` | the store derives durability from `spring.datasource.url`, logs a warning at startup for an in-memory URL and reports an in-memory scope |
+| Projection | Identifiers longer than the projection columns (36 for evidence and disbursements) were inserted unchecked, so a hostile or malformed id would have made the insert fail and turned the event into a poison event | `RiseFindingEngine.record` stores only identifiers that match the safe pattern and fit the column; rules already ignored them |
+| Docs | Several documents (module README, ARCHITECTURE, EVENT_LIFECYCLE, DECISIONS, runbook, roadmap, simulator README) still described in-memory deduplication or the earlier alert behaviour | updated; see 17.3 |
+
+### 17.2 Reviewed and left unchanged
+- DP-01: both delivery orders produce the same `findingId` (dispute id); a replayed release or dispute produces the same finding for the same source event, which the backend stores once (`uk_finding_occurrences_event`); with several releases or disputes a dispute is flagged once, by whichever release first covers it, and later releases see an earlier release at or before the dispute and stay quiet. V2 only creates new tables, so it applies to an existing file database that already has V1.
+- Rule failure: the exception is thrown before any projection write, so nothing is partially written; the dedup entry is released; the backend retries up to `max-attempts` (12) with backoff and then marks the outbox row `FAILED` and alerts. The original envelope stays in the outbox row and the existing requeue endpoint is the recovery path, so no admin API was added.
+- No unused imports, unused private members or catch-and-rethrow blocks were found in either module (scripted scan); no further code was removed.
+
+### 17.3 Documentation updated
+Runbook (alert lifecycle, rule-failure recovery, monitor database section), module README, ARCHITECTURE, EVENT_LIFECYCLE, DECISIONS D3, PROJECT_OVERVIEW, AI_HANDOFF, simulator README, roadmap, architecture overview 02, checklist M9.6, this report. M4.4, M5.4 and M9.6 stay unticked/partial; M8.5 stays NOT MET; owner decisions stay open.
+
+### 17.4 Remaining limitations
+- `PENDING`, `RETRYING` and `FAILED` alert rows are never purged automatically, so a deployment that never configures a webhook accumulates `PENDING` rows; configuring a webhook later delivers the whole backlog at once. There is no admin endpoint or metric for alert rows.
+- Alert delivery is at-least-once: a crash between the HTTP call and the status update repeats one delivery.
+- If a slow first processor outlives `in-progress-timeout`, a taker can evaluate the same event concurrently (outcome identical because writes and finding ids are idempotent). The timeout is not validated against the AI timeouts.
+- The ledger's in-flight capacity check is a soft limit under concurrency (count then insert).
+- All new tests remain unexecuted: `AlertWithoutWebhookIntegrationTest`, the added cases in `AlertDeliveryIntegrationTest`, `AlertWebhookClientTest` and `JdbcEventDeduplicatorTest`, and two new `RiseMonitoringIntegrationTest` cases.

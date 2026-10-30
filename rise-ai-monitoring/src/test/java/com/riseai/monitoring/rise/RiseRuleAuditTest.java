@@ -91,10 +91,17 @@ class RiseRuleAuditTest {
         return envelope(type, at, Map.of("campaignId", "c"), payload);
     }
 
+    private RiseEnvelope misuseDispute(String milestone, Instant at) {
+        return envelope(RiseEventTypes.DISPUTE_OPENED, at, Map.of("campaignId", "c"),
+                map("disputeId", id(), "milestoneId", milestone, "campaignId", "c", "disputeType", "MISUSE_OF_FUNDS"));
+    }
+
     private void record(RiseEnvelope e) {
         projection.markProcessed(e);
         if (RiseEventTypes.MILESTONE_EVIDENCE_SUBMITTED.equals(e.eventType()) && e.text("fileHash") != null) {
             projection.recordEvidenceHash(e, e.text("evidenceId"), e.text("fileHash").toLowerCase(), e.text("milestoneId"), e.reference("campaignId"));
+        } else if (RiseEventTypes.DISPUTE_OPENED.equals(e.eventType()) && "MISUSE_OF_FUNDS".equals(e.text("disputeType"))) {
+            projection.recordDisputeEvent(e, e.text("disputeId"), e.text("milestoneId"), e.reference("campaignId"));
         } else if (e.text("requestId") != null) {
             projection.recordDisbursementEvent(e, e.text("requestId"), e.text("milestoneId"), e.reference("campaignId"), e.decimal("amount"));
         }
@@ -312,6 +319,47 @@ class RiseRuleAuditTest {
         assertThat(dp01.evaluate(envelope(RiseEventTypes.DISPUTE_OPENED, releaseAt.plusSeconds(1), Map.of(), elsewhere))).isEmpty();
         Map<String, Object> noDispute = map("milestoneId", milestone, "disputeType", "MISUSE_OF_FUNDS");
         assertThat(dp01.evaluate(envelope(RiseEventTypes.DISPUTE_OPENED, releaseAt.plusSeconds(1), Map.of(), noDispute))).isEmpty();
+    }
+
+    @Test
+    void dp01FlagsADisputeExactlyOnceInEitherDeliveryOrder() {
+        for (boolean releaseFirst : new boolean[]{true, false}) {
+            String milestone = id();
+            RiseEnvelope release = disbursement(RiseEventTypes.DISBURSEMENT_RELEASED, milestone, "3000000", base, map());
+            RiseEnvelope dispute = misuseDispute(milestone, base.plusSeconds(60));
+            RiseEnvelope first = releaseFirst ? release : dispute;
+            RiseEnvelope second = releaseFirst ? dispute : release;
+            List<Finding> early = dp01.evaluate(first);
+            record(first);
+            List<Finding> late = dp01.evaluate(second);
+            record(second);
+            assertThat(early.size() + late.size()).as("release first: " + releaseFirst).isEqualTo(1);
+            Finding flagged = (early.isEmpty() ? late : early).get(0);
+            assertThat(flagged.getSeverity()).isEqualTo(Severity.HIGH);
+            assertThat(flagged.getSubjectId()).isEqualTo(dispute.text("disputeId"));
+            assertThat(flagged.getFindingId()).isEqualTo(Finding.idFor(MisuseDisputeAfterReleaseRule.ID, "DISPUTE", dispute.text("disputeId"), null));
+            assertThat(flagged.getFacts()).anySatisfy(fact -> {
+                assertThat(fact.name()).isEqualTo("releasedAmount");
+                assertThat(fact.value()).isEqualTo("3000000");
+            });
+        }
+    }
+
+    @Test
+    void dp01LateReleaseIgnoresDisputesBeforeItAndDisputesAlreadyCoveredByAnEarlierRelease() {
+        String milestone = id();
+        recorded(misuseDispute(milestone, base.minusSeconds(60)));
+        assertThat(dp01.evaluate(disbursement(RiseEventTypes.DISBURSEMENT_RELEASED, milestone, "1", base, map()))).isEmpty();
+
+        String covered = id();
+        recorded(disbursement(RiseEventTypes.DISBURSEMENT_RELEASED, covered, "1", base.minusSeconds(120), map()));
+        recorded(misuseDispute(covered, base.plusSeconds(60)));
+        assertThat(dp01.evaluate(disbursement(RiseEventTypes.DISBURSEMENT_RELEASED, covered, "1", base, map()))).isEmpty();
+
+        String quality = id();
+        Map<String, Object> notMisuse = map("disputeId", id(), "milestoneId", quality, "campaignId", "c", "disputeType", "QUALITY");
+        recorded(envelope(RiseEventTypes.DISPUTE_OPENED, base.plusSeconds(60), Map.of("campaignId", "c"), notMisuse));
+        assertThat(dp01.evaluate(disbursement(RiseEventTypes.DISBURSEMENT_RELEASED, quality, "1", base, map()))).isEmpty();
     }
 
     @Test

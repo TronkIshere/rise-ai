@@ -32,9 +32,11 @@ These records reflect the code and project documentation as of 2026-10-24. There
   - There is no history or audit trail.
   - Persistence can be added behind `MonitoringResultPublisher` and `EventDeduplicator` without changing the pipeline.
 
-### D3. In-memory, bounded, per-instance deduplication
+### D3. Bounded deduplication (superseded in part: JDBC store added 2026-10-30)
 
-- **Decision:** `InMemoryEventDeduplicator` keyed by `source`+`eventId`, with a content fingerprint, bounded retention and capacity, and synchronized operations.
+- **Update 2026-10-30:** `JdbcEventDeduplicator` is now the default and persists results in `monitoring_event_ledger`; `InMemoryEventDeduplicator` is selected with `monitoring.deduplication.store=memory`. The text below describes the in-memory semantics, which the JDBC store reproduces (NEW, DUPLICATE, CONFLICT, IN_PROGRESS, capacity), plus stale in-progress recovery.
+
+- **Decision (original):** `InMemoryEventDeduplicator` keyed by `source`+`eventId`, with a content fingerprint, bounded retention and capacity, and synchronized operations. `JdbcEventDeduplicator` applies the same keys and outcomes on top of a unique primary key instead of synchronized methods.
   - Same content with a stored result → replay.
   - Same content still in progress → 409.
   - Different content → 409 conflict.
@@ -42,7 +44,7 @@ These records reflect the code and project documentation as of 2026-10-24. There
 - **Status:** Implemented.
 - **Context:** Retries from sources must not produce duplicate processing or contradictory results within a single instance, and a different payload must never be silently accepted under a reused ID.
 - **Consequences:**
-  - The guarantee is lost on restart and does not hold across instances; there is no exactly-once processing.
+  - In-memory store: the guarantee is lost on restart and does not hold across instances. JDBC store: it survives restarts only when the configured database is a file or server database (not `jdbc:h2:mem:`), and holds across instances that share that database. Neither gives exactly-once processing.
   - `INCONCLUSIVE` results are released so retries can obtain an AI analysis.
   - `REJECTED` results are stored and replayed.
   - Any exception or `java.lang.Error` during evaluation releases the in-progress entry (`EventMonitoringServiceImpl.evaluate`).
@@ -142,7 +144,7 @@ These records reflect the code and project documentation as of 2026-10-24. There
 - **Context:** Charity patterns such as reused receipts across milestones need history; the backend owns business data and must not be read directly (backend ADR-004).
 - **Consequences:**
   - The module now depends on `spring-boot-starter-jdbc`, `flyway-core` and H2.
-  - Deduplication remains in memory (D3); re-evaluation after a restart is harmless because rules are deterministic and projection writes are idempotent.
+  - Deduplication is persistent by default since 2026-10-30 (D3 update); re-evaluation after a lost ledger stays harmless because rules are deterministic and projection writes are idempotent.
   - Time-based rules (overdue milestones) need a push path and are not implemented.
 
 ### P1. Authentication for API and actuator

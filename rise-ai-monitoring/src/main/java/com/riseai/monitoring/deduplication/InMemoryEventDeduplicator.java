@@ -2,10 +2,11 @@ package com.riseai.monitoring.deduplication;
 
 import com.riseai.monitoring.configuration.MonitoringProperties;
 import com.riseai.monitoring.core.event.MonitoringEvent;
-import com.riseai.monitoring.core.result.MonitoringResult;
+import com.riseai.monitoring.dto.response.monitoring.MonitoringResultResponse;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
 import java.time.Clock;
@@ -15,6 +16,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 @Component
+@ConditionalOnProperty(prefix = "monitoring.deduplication", name = "store", havingValue = "memory")
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class InMemoryEventDeduplicator implements EventDeduplicator {
@@ -38,12 +40,12 @@ public class InMemoryEventDeduplicator implements EventDeduplicator {
             if (!tracked.fingerprint.equals(event.getFingerprint())) {
                 return DeduplicationOutcome.of(DeduplicationStatus.CONFLICT);
             }
-            if (tracked.result == null) {
+            if (tracked.response == null) {
                 return DeduplicationOutcome.of(DeduplicationStatus.IN_PROGRESS);
             }
             return DeduplicationOutcome.builder()
                     .status(DeduplicationStatus.DUPLICATE)
-                    .previousResult(tracked.result)
+                    .previousResponse(tracked.response)
                     .build();
         }
 
@@ -58,17 +60,17 @@ public class InMemoryEventDeduplicator implements EventDeduplicator {
     }
 
     @Override
-    public synchronized void complete(MonitoringEvent event, MonitoringResult result) {
+    public synchronized void complete(MonitoringEvent event, MonitoringResultResponse response) {
         TrackedEvent tracked = trackedEvents.get(key(event));
-        if (tracked != null && tracked.fingerprint.equals(event.getFingerprint()) && tracked.result == null) {
-            tracked.result = result;
+        if (tracked != null && tracked.fingerprint.equals(event.getFingerprint()) && tracked.response == null) {
+            tracked.response = response;
         }
     }
 
     @Override
     public synchronized void release(MonitoringEvent event) {
         TrackedEvent tracked = trackedEvents.get(key(event));
-        if (tracked != null && tracked.fingerprint.equals(event.getFingerprint()) && tracked.result == null) {
+        if (tracked != null && tracked.fingerprint.equals(event.getFingerprint()) && tracked.response == null) {
             trackedEvents.remove(key(event));
         }
     }
@@ -84,10 +86,15 @@ public class InMemoryEventDeduplicator implements EventDeduplicator {
         return STORE_TYPE;
     }
 
+    @Override
+    public String getScope() {
+        return "source+eventId, single application instance, lost on restart";
+    }
+
     private boolean evictOldestCompleted() {
         Iterator<TrackedEvent> iterator = trackedEvents.values().iterator();
         while (iterator.hasNext()) {
-            if (iterator.next().result != null) {
+            if (iterator.next().response != null) {
                 iterator.remove();
                 return true;
             }
@@ -113,7 +120,7 @@ public class InMemoryEventDeduplicator implements EventDeduplicator {
     private static final class TrackedEvent {
         private final String fingerprint;
         private final Instant registeredAt;
-        private MonitoringResult result;
+        private MonitoringResultResponse response;
 
         private TrackedEvent(String fingerprint, Instant registeredAt) {
             this.fingerprint = fingerprint;

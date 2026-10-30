@@ -103,3 +103,7 @@ These tests do not exist; they are not planned work unless prioritized in [ROADM
 `test-simulator/` contains 6 test classes: `ScenarioGeneratorTest`, `ScenarioEvaluatorTest`, `RunMetricsTest`, `ReportWriterTest`, `CoreClientTest` and `SimulationRunTest`. `StubCoreServer` is its HTTP stand-in for the Core.
 
 These tests cover generation, scoring, metrics and reports. They do **not** test the Core itself; the simulator does that only when run against a live Core, which has not happened yet. See [TEST_SIMULATOR.md](TEST_SIMULATOR.md).
+
+## Tests written but not executed (2026-10-30, after the 202/202 run)
+
+`JdbcEventDeduplicatorTest`, `RiseFindingEngineFailureTest`, two DP-01 tests in `RiseRuleAuditTest` (monitor); `AlertWebhookClientTest`, `AlertDeliveryIntegrationTest` and `AlertWithoutWebhookIntegrationTest` (backend; the last two need Docker for MySQL), plus two cases in `RiseMonitoringIntegrationTest` (DP-01 dispute-before-release over the API, over-long identifiers). `InMemoryEventDeduplicatorTest`, `EventMonitoringServiceImplTest` and `EventMonitoringApiIntegrationTest` (store type now `JDBC`) and the backend `OutboxRelayIntegrationTest` were adapted to the changed APIs. The 202/202 and 138/138 totals above do not include these changes.

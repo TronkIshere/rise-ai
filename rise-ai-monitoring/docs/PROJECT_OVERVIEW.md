@@ -8,7 +8,7 @@ Applications often need to ask *"does this event look wrong?"*. The generic pipe
 
 1. receives an event from another system over REST, or in-process via `EventMonitoringService`;
 2. validates and normalizes the event;
-3. detects duplicate event IDs within a bounded, in-memory scope;
+3. detects duplicate event IDs within a bounded scope, persisted in the monitoring database by default;
 4. applies deterministic rules;
 5. when rules call for it, asks a **locally hosted Ollama model** for a constrained, advisory interpretation;
 6. returns a structured result: status, rule findings, AI analysis, a rule-derived risk level, and a human-review flag.
@@ -21,7 +21,7 @@ It produces **findings only**. It never acts on them.
 
 - event ingestion and validation, with size limits;
 - normalization;
-- in-memory duplicate detection;
+- duplicate detection (persistent JDBC ledger by default, in-memory optional);
 - six deterministic rules;
 - eight Rise AI charity rules with a minimized, durable cross-event projection (H2), producing `finding.v1` findings;
 - service-key authentication (Bearer) for API and metrics;
@@ -67,6 +67,7 @@ Verified from `pom.xml` and the source:
 | REST API (3 endpoints) and actuator | Implemented. Compiled; not run in a Spring container. |
 | Validation, normalization, request size limit | Implemented and unit-tested |
 | In-memory deduplication (conflict, in-progress, replay, capacity) | Implemented and unit-tested, including concurrency |
+| JDBC deduplication ledger (restart replay on a durable database, stale in-progress takeover, retention, capacity, concurrent registration) | Implemented 2026-10-30; test source written (`JdbcEventDeduplicatorTest`), not executed |
 | Rule engine and six rules | Implemented and unit-tested |
 | Ollama adapter and analyzer | Implemented. Tested against a local stub HTTP server, **not** against a real Ollama or model. |
 | AI output contract `monitoring-assessment.v1` | Implemented and unit-tested |

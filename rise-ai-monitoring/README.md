@@ -70,9 +70,9 @@ The same pipeline is available in-process through the `EventMonitoringService` b
 
 | Concern | Default behaviour |
 |---|---|
-| Event persistence | **None.** Events are processed in memory and discarded. No event history is written anywhere. |
+| Event persistence | **None for events.** Event payloads are processed in memory and discarded. The Rise projection and the deduplication ledger (`monitoring_event_ledger`, which keeps each completed response for the retention period) are written to the monitoring database. |
 | Monitoring result persistence | **None.** Results are returned to the caller and passed to `MonitoringResultPublisher` beans. The bundled publisher only writes a one-line log summary without payload data. |
-| Idempotency store | **In-memory**, per application instance (`InMemoryEventDeduplicator`). |
+| Idempotency store | **JDBC ledger** by default (`JdbcEventDeduplicator`, shared by instances using the same database); `InMemoryEventDeduplicator` with `MONITORING_DEDUPLICATION_STORE=memory`. Durable only on a file or server database; the default `jdbc:h2:mem:` URL is lost on restart. |
 | External storage dependencies | **None.** |
 
 `GET /api/v1/monitoring/status` reports this explicitly:
@@ -80,7 +80,7 @@ The same pipeline is available in-process through the `EventMonitoringService` b
 ```json
 "eventPersistence": "NONE",
 "deduplicationStore": "IN_MEMORY",
-"deduplicationScope": "source+eventId, single application instance",
+"deduplicationScope": "source+eventId, in-memory database, lost when the process stops",
 "deduplicationRetention": "PT24H",
 "maxTrackedEvents": 10000
 ```
@@ -106,7 +106,7 @@ Concurrency safety comes from synchronized registration: exactly one of N simult
 
 ### What this is not
 
-- **Not durable.** All deduplication state is lost on restart.
+- **Durability depends on the database.** With the default in-memory H2 URL (`jdbc:h2:mem:`) or the in-memory store, all deduplication state is lost on restart; use the `riseai` profile (file database) or `MONITORING_DB_URL` for durability.
 - **Not distributed.** Two instances behind a load balancer do not share state and can each process the same event.
 - **Not exactly-once.** Processing is at-most-once per instance within the retention window and capacity, and nothing more.
 - **Numbers are compared by JSON form.** `1` and `1.0` are treated as different content.
@@ -767,7 +767,7 @@ These measures reduce but cannot eliminate a model being influenced by event con
 
 ## 21. Current limitations
 
-- **Storage:** in-memory, per-instance deduplication; no event or result history (see [section 3](#3-storage-and-idempotency-policy)).
+- **Storage:** deduplication ledger in the monitoring database (durable only on a file or server database); no event history (see [section 3](#3-storage-and-idempotency-policy)).
 - **Processing:** synchronous; the HTTP call waits up to `request-timeout` for the model.
 - **Model:** one model at a time, with no per-event-type model selection and no model fallback.
 - **Packaging:** a runnable application, not a library jar.

@@ -2,8 +2,8 @@ package com.riseai.monitoring.deduplication;
 
 import com.riseai.monitoring.configuration.MonitoringProperties;
 import com.riseai.monitoring.core.event.MonitoringEvent;
-import com.riseai.monitoring.core.result.MonitoringResult;
 import com.riseai.monitoring.core.result.MonitoringStatus;
+import com.riseai.monitoring.dto.response.monitoring.MonitoringResultResponse;
 import com.riseai.monitoring.testsupport.MutableClock;
 import com.riseai.monitoring.testsupport.TestEvents;
 import org.junit.jupiter.api.BeforeEach;
@@ -36,7 +36,7 @@ class InMemoryEventDeduplicatorTest {
     @Test
     void replaysTheStoredResultForAnIdenticalEvent() {
         MonitoringEvent event = TestEvents.event().build();
-        MonitoringResult result = MonitoringResult.builder().eventId("evt-1").monitoringStatus(MonitoringStatus.COMPLETED).build();
+        MonitoringResultResponse result = MonitoringResultResponse.builder().eventId("evt-1").monitoringStatus(MonitoringStatus.COMPLETED).build();
 
         assertThat(deduplicator.register(event).getStatus()).isEqualTo(DeduplicationStatus.NEW);
         assertThat(deduplicator.register(event).getStatus()).isEqualTo(DeduplicationStatus.IN_PROGRESS);
@@ -44,7 +44,7 @@ class InMemoryEventDeduplicatorTest {
 
         DeduplicationOutcome outcome = deduplicator.register(event);
         assertThat(outcome.getStatus()).isEqualTo(DeduplicationStatus.DUPLICATE);
-        assertThat(outcome.getPreviousResult()).isSameAs(result);
+        assertThat(outcome.getPreviousResponse()).isSameAs(result);
     }
 
     @Test
@@ -78,7 +78,7 @@ class InMemoryEventDeduplicatorTest {
     void forgetsEventsAfterTheRetentionWindow() {
         MonitoringEvent event = TestEvents.event().build();
         deduplicator.register(event);
-        deduplicator.complete(event, MonitoringResult.builder().build());
+        deduplicator.complete(event, MonitoringResultResponse.builder().build());
 
         clock.advance(properties.getDeduplication().getRetention().plus(Duration.ofSeconds(1)));
 
@@ -92,7 +92,7 @@ class InMemoryEventDeduplicatorTest {
         MonitoringEvent first = TestEvents.event().eventId("a").build();
         MonitoringEvent inFlight = TestEvents.event().eventId("b").build();
         deduplicator.register(first);
-        deduplicator.complete(first, MonitoringResult.builder().build());
+        deduplicator.complete(first, MonitoringResultResponse.builder().build());
         deduplicator.register(inFlight);
 
         assertThat(deduplicator.register(TestEvents.event().eventId("c").build()).getStatus()).isEqualTo(DeduplicationStatus.NEW);

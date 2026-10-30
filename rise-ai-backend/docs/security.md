@@ -41,4 +41,4 @@ CORS allow-list from `rise.security.cors-allowed-origins`. CSRF disabled (statel
 - **Data minimization.** Event payloads follow per-type allowlists (`mapper/RiseEvents`); identifiers and file hashes are kept out of the monitor's AI-visible attributes by `MonitoringClient`. The monitor stores only a minimized projection in its own database.
 - **No AI authority.** Findings are advisory (business rules 61–65). AI output, if enabled on the monitor, cannot create, change or remove findings, and the backend never acts on findings automatically.
 - **Logging.** Envelopes are not logged; relay logs carry event IDs, types and error summaries only.
-- **Not yet implemented:** service-key rotation (two keys), mTLS, network policy beyond loopback binding, alerting on FAILED outbox rows (logged with an `ALERT` prefix only).
+- **Not yet implemented:** service-key rotation (two keys), mTLS, network policy beyond loopback binding, a selected alert destination (alerts are logged with an `ALERT` prefix and, when `RISE_ALERT_WEBHOOK_URL` is set, persisted in `alert_notifications` and delivered by a scheduled dispatcher).

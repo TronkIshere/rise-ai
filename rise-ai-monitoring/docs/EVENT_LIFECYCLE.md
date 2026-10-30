@@ -69,7 +69,7 @@ The two values are never derived from each other.
 
 ## Duplicate detection
 
-Implemented by `InMemoryEventDeduplicator`. Every method is `synchronized`.
+Implemented by `JdbcEventDeduplicator` (default) or `InMemoryEventDeduplicator` (`monitoring.deduplication.store=memory`). The in-memory store uses synchronized methods; the JDBC store relies on the primary key `(source, event_id)` of `monitoring_event_ledger`, so concurrent inserts for one key produce exactly one `NEW`, and each statement commits on its own (the ledger is never part of the projection transaction).
 
 - **Key:** `source` + `'\u0000'` + `eventId`, using normalized (trimmed) values.
 - **Fingerprint:** SHA-256 of a canonical JSON object containing `eventType`, `source`, `occurredAt`, `severity`, the attributes (sorted) and the payload (object keys sorted recursively). `receivedAt` and `correlationId` are excluded. Numbers are compared by their JSON representation, so `1` and `1.0` differ.
@@ -88,9 +88,11 @@ Implemented by `InMemoryEventDeduplicator`. Every method is `synchronized`.
 
 **Guarantees and limits**
 
-- At most one concurrent processor per key in **one JVM**. This is tested with 16 threads.
-- There is **no** cross-instance, durable or exactly-once guarantee. State is lost on restart.
-- **Release on failure:** any exception or `java.lang.Error` thrown while evaluating releases the in-progress entry, so a retry is processed as new. The `Error` path has no dedicated test. A JVM crash loses all state anyway, because the store is in memory.
+- At most one concurrent processor per key: in-memory, within one JVM (tested with 16 threads); JDBC, across every instance sharing the database (insert race and takeover race covered by `JdbcEventDeduplicatorTest`, not yet executed).
+- A completed response is stored (JDBC: as JSON in `monitoring_event_ledger.result_json`) and replayed with `duplicate: true` until `monitoring.deduplication.retention` (24 h) has passed; expired rows are removed per key on registration and by a daily purge.
+- An in-progress row older than `monitoring.deduplication.in-progress-timeout` (5 minutes) is taken over by the next delivery; exactly one taker wins. The timeout must stay above the longest legitimate processing time (AI timeouts included), otherwise a slow first processor and the taker can both evaluate the event (the projection writes and finding ids are idempotent, so the outcome is the same).
+- Durability depends on the database: with `jdbc:h2:mem:` (the default URL) the ledger is lost on restart and the monitor logs a warning at startup; the status endpoint then reports an in-memory scope. There is no exactly-once guarantee in either store.
+- **Release on failure:** any exception or `java.lang.Error` thrown while evaluating releases the in-progress entry, so a retry is processed as new. The `Error` path has no dedicated test. With the JDBC store a JVM crash leaves the in-progress row in `monitoring_event_ledger`; it is taken over once `monitoring.deduplication.in-progress-timeout` has passed. A Rise rule that throws fails the event with error 9001 after every rule has run; the projection transaction is rolled back so the redelivery is evaluated as new.
 
 ## Deterministic rules
 

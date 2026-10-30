@@ -58,9 +58,25 @@ public class RiseProjectionRepository {
                 .list();
     }
 
+    public void recordDisputeEvent(RiseEnvelope envelope, String disputeId, String milestoneId, String campaignId) {
+        insert("insert into rise_dispute_events (event_id, dispute_id, milestone_id, campaign_id, occurred_at) values (?, ?, ?, ?, ?)",
+                envelope.eventId(), disputeId, milestoneId, campaignId, timestamp(envelope.occurredAt()));
+    }
+
+    public List<DisputeEventRow> disputeEvents(String milestoneId, String excludeEventId) {
+        return jdbcClient.sql("""
+                        select event_id, dispute_id, occurred_at from rise_dispute_events
+                        where milestone_id = ? and event_id <> ? order by occurred_at, event_id
+                        """)
+                .params(milestoneId, excludeEventId)
+                .query((rs, row) -> new DisputeEventRow(rs.getString("event_id"), rs.getString("dispute_id"), rs.getTimestamp("occurred_at").toInstant()))
+                .list();
+    }
+
     public int purgeOlderThan(Instant before) {
         Timestamp cutoff = timestamp(before);
         return jdbcClient.sql("delete from rise_evidence_hashes where occurred_at < ?").param(cutoff).update()
+                + jdbcClient.sql("delete from rise_dispute_events where occurred_at < ?").param(cutoff).update()
                 + jdbcClient.sql("delete from rise_disbursement_events where occurred_at < ?").param(cutoff).update()
                 + jdbcClient.sql("delete from rise_processed_events where processed_at < ?").param(cutoff).update();
     }
@@ -78,6 +94,9 @@ public class RiseProjectionRepository {
     }
 
     public record EvidenceHashRow(String eventId, String evidenceId, String milestoneId, String campaignId, Instant occurredAt) {
+    }
+
+    public record DisputeEventRow(String eventId, String disputeId, Instant occurredAt) {
     }
 
     public record DisbursementEventRow(String eventId, String requestId, BigDecimal amount, Instant occurredAt) {

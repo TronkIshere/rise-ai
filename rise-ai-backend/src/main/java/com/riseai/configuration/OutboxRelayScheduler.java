@@ -18,11 +18,7 @@ public class OutboxRelayScheduler {
 
     @Scheduled(fixedDelayString = "${rise.monitoring.relay-interval:PT5S}", initialDelayString = "${rise.monitoring.relay-initial-delay:PT10S}")
     public void relay() {
-        try {
-            outboxRelay.relayOnce();
-        } catch (RuntimeException ex) {
-            log.error("Outbox relay run failed", ex);
-        }
+        outboxRelay.relayOnce();
     }
 
     @Scheduled(cron = "${rise.monitoring.purge-cron:0 30 3 * * *}")
