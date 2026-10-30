@@ -46,6 +46,7 @@ import java.util.function.Function;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @AutoConfigureMockMvc
@@ -232,6 +233,46 @@ class OutboxRelayIntegrationTest extends AbstractMySqlIntegrationTest {
         findingService.review(reviewer, stored.getId(), FindingReviewStatus.CONCERN_CONFIRMED, "Confirmed");
 
         assertThat(businessChecksums()).isEqualTo(before);
+    }
+
+    @Test
+    void aiNoteIsStoredPerOccurrenceSanitizedAndNeverChangesTheFinding() throws Exception {
+        ActiveCampaign campaign = activeCampaign(creator, admin, 5_000_000);
+        String key = "e".repeat(64);
+        Map<String, Object> withNote = new java.util.HashMap<>(finding(key, "HIGH", campaign.id()));
+        withNote.put("aiNote", "Advisory\u0007 note\nwith control characters");
+        responder = request -> StubResponse.ok(request, List.of(withNote));
+        outboxRelay.relayOnce();
+
+        MonitoringFinding stored = findingRepository.findAll().stream().filter(f -> f.getFindingKey().equals(key)).findFirst().orElseThrow();
+        assertThat(stored.getSeverity()).isEqualTo(FindingSeverity.HIGH);
+        assertThat(stored.getExplanation()).isEqualTo("Test pattern requires review");
+        assertThat(occurrenceRepository.findByFindingIdOrderByObservedAtAsc(stored.getId()))
+                .isNotEmpty()
+                .allSatisfy(occurrence -> assertThat(occurrence.getAiNote()).isEqualTo("Advisory note with control characters"));
+
+        mvc.perform(get("/api/v1/admin/monitoring/findings/" + stored.getId()).header("Authorization", bearer(admin)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.occurrences[0].aiNote").value("Advisory note with control characters"));
+        mvc.perform(get("/api/v1/admin/monitoring/findings/" + stored.getId()).header("Authorization", bearer(donor)))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void findingWithoutAiNoteStoresNoNoteAndAnOversizedNoteIsTruncated() {
+        ActiveCampaign campaign = activeCampaign(creator, admin, 5_100_000);
+        String plain = "f".repeat(64);
+        String long64 = "0".repeat(64);
+        Map<String, Object> oversized = new java.util.HashMap<>(findingUnchecked(long64, "LOW", campaign.id()));
+        oversized.put("aiNote", "x".repeat(900));
+        responder = request -> StubResponse.ok(request, List.of(finding(plain, "LOW", campaign.id()), oversized));
+        outboxRelay.relayOnce();
+
+        MonitoringFinding noNote = findingRepository.findAll().stream().filter(f -> f.getFindingKey().equals(plain)).findFirst().orElseThrow();
+        MonitoringFinding longNote = findingRepository.findAll().stream().filter(f -> f.getFindingKey().equals(long64)).findFirst().orElseThrow();
+        assertThat(occurrenceRepository.findByFindingIdOrderByObservedAtAsc(noNote.getId())).allSatisfy(o -> assertThat(o.getAiNote()).isNull());
+        assertThat(occurrenceRepository.findByFindingIdOrderByObservedAtAsc(longNote.getId()))
+                .allSatisfy(o -> assertThat(o.getAiNote()).hasSize(400));
     }
 
     private Map<String, Long> businessChecksums() {

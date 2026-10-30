@@ -1,0 +1,7 @@
+server:
+  ssl:
+    enabled: true
+    key-store: ${RISE_TLS_KEYSTORE}
+    key-store-password: ${RISE_TLS_KEYSTORE_PASSWORD}
+    key-store-type: ${RISE_TLS_KEYSTORE_TYPE:PKCS12}
+    enabled-protocols: TLSv1.3,TLSv1.2

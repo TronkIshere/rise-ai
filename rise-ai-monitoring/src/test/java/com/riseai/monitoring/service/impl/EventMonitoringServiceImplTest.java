@@ -15,6 +15,8 @@ import com.riseai.monitoring.core.analysis.RiskLevel;
 import com.riseai.monitoring.core.result.MonitoringResultPublisher;
 import com.riseai.monitoring.core.result.MonitoringStatus;
 import com.riseai.monitoring.core.rule.RuleDecision;
+import com.riseai.monitoring.core.event.MonitoringEvent;
+import com.riseai.monitoring.deduplication.EventDeduplicator;
 import com.riseai.monitoring.deduplication.InMemoryEventDeduplicator;
 import com.riseai.monitoring.dto.request.event.MonitoringEventRequest;
 import com.riseai.monitoring.dto.response.monitoring.MonitoringResultResponse;
@@ -54,9 +56,15 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 class EventMonitoringServiceImplTest {
 
@@ -283,6 +291,68 @@ class EventMonitoringServiceImplTest {
         assertThat(publisher.getResults()).hasSize(1);
     }
 
+    @Test
+    void aFailureWhileStoringTheResultReleasesTheRegistrationSoRedeliveryIsProcessedAgain() {
+        AtomicBoolean failCompletion = new AtomicBoolean(true);
+        InMemoryEventDeduplicator failingStore = new InMemoryEventDeduplicator(properties, clock) {
+            @Override
+            public synchronized void complete(MonitoringEvent event, MonitoringResultResponse response) {
+                if (failCompletion.get()) {
+                    throw new IllegalStateException("ledger unavailable");
+                }
+                super.complete(event, response);
+            }
+        };
+        EventMonitoringServiceImpl service = service(failingStore, new RiseFindingEngine(new RiseEnvelopeReader(properties), null, List.of(),
+                properties, new MonitoringMetrics(new SimpleMeterRegistry()), clock));
+
+        assertThatThrownBy(() -> service.monitor(TestEvents.request("evt-1")))
+                .isInstanceOf(IllegalStateException.class);
+        assertThat(failingStore.getTrackedEventCount()).isZero();
+        assertThat(publisher.getResults()).isEmpty();
+
+        failCompletion.set(false);
+        MonitoringResultResponse retry = service.monitor(TestEvents.request("evt-1"));
+
+        assertThat(retry.isDuplicate()).isFalse();
+        assertThat(retry.getMonitoringStatus()).isEqualTo(MonitoringStatus.COMPLETED);
+        assertThat(service.monitor(TestEvents.request("evt-1")).isDuplicate()).isTrue();
+    }
+
+    @Test
+    void anExceptionDuringEvaluationReleasesTheRegistrationSoRedeliveryIsProcessedAgain() {
+        RiseFindingEngine riseEngine = mock(RiseFindingEngine.class);
+        when(riseEngine.evaluate(any()))
+                .thenThrow(new ApplicationException(ErrorCode.RULE_EVALUATION_FAILED, "rise.test.broken"))
+                .thenReturn(List.of());
+        EventMonitoringServiceImpl service = service(deduplicator, riseEngine);
+
+        assertThatThrownBy(() -> service.monitor(TestEvents.request("evt-1")))
+                .isInstanceOf(ApplicationException.class)
+                .extracting(ex -> ((ApplicationException) ex).getErrorCode())
+                .isEqualTo(ErrorCode.RULE_EVALUATION_FAILED);
+        assertThat(deduplicator.getTrackedEventCount()).isZero();
+        assertThat(publisher.getResults()).isEmpty();
+
+        MonitoringResultResponse retry = service.monitor(TestEvents.request("evt-1"));
+
+        assertThat(retry.isDuplicate()).isFalse();
+        assertThat(retry.getMonitoringStatus()).isEqualTo(MonitoringStatus.COMPLETED);
+        verify(riseEngine, times(2)).evaluate(any());
+    }
+
+    @Test
+    void anErrorDuringEvaluationAlsoReleasesTheRegistration() {
+        RiseFindingEngine riseEngine = mock(RiseFindingEngine.class);
+        when(riseEngine.evaluate(any())).thenThrow(new AssertionError("fatal")).thenReturn(List.of());
+        EventMonitoringServiceImpl service = service(deduplicator, riseEngine);
+
+        assertThatThrownBy(() -> service.monitor(TestEvents.request("evt-1"))).isInstanceOf(AssertionError.class);
+
+        assertThat(deduplicator.getTrackedEventCount()).isZero();
+        assertThat(service.monitor(TestEvents.request("evt-1")).getMonitoringStatus()).isEqualTo(MonitoringStatus.COMPLETED);
+    }
+
     private MonitoringEventRequest flaggedRequest(String eventId) {
         MonitoringEventRequest request = TestEvents.request(eventId);
         request.getAttributes().put("latencyMs", 5000);
@@ -298,6 +368,16 @@ class EventMonitoringServiceImplTest {
     }
 
     private EventMonitoringServiceImpl service(List<MonitoringResultPublisher> publishers, AiEventAnalyzer aiEventAnalyzer) {
+        return service(publishers, aiEventAnalyzer, deduplicator, new RiseFindingEngine(new RiseEnvelopeReader(properties), null, List.of(), properties,
+                new MonitoringMetrics(new SimpleMeterRegistry()), clock));
+    }
+
+    private EventMonitoringServiceImpl service(EventDeduplicator eventDeduplicator, RiseFindingEngine riseEngine) {
+        return service(List.of(publisher), analyzer, eventDeduplicator, riseEngine);
+    }
+
+    private EventMonitoringServiceImpl service(List<MonitoringResultPublisher> publishers, AiEventAnalyzer aiEventAnalyzer,
+                                               EventDeduplicator eventDeduplicator, RiseFindingEngine riseEngine) {
         RuleEngine ruleEngine = new RuleEngine(List.of(new RequiredFieldsRule(properties), new TimestampRule(properties, clock),
                 new EventTypeRule(properties), new PayloadLimitsRule(properties), new AttributeThresholdRule(properties),
                 new ReportedSeverityRule(properties)), properties);
@@ -305,13 +385,13 @@ class EventMonitoringServiceImplTest {
                 publishers,
                 new MonitoringResultAssembler(properties, new RiskLevelNormalizer()),
                 new MonitoringResultMapper(),
-                deduplicator,
+                eventDeduplicator,
                 new MonitoringMetrics(new SimpleMeterRegistry()),
                 aiEventAnalyzer,
                 properties,
                 new EventNormalizer(new ObjectMapper(), properties, clock),
                 ruleEngine,
-                new RiseFindingEngine(new RiseEnvelopeReader(properties), null, List.of(), properties, new MonitoringMetrics(new SimpleMeterRegistry()), clock),
+                riseEngine,
                 new FindingNoteService(properties, new OllamaProperties(), null, new ObjectMapper()),
                 clock);
     }

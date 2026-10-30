@@ -31,4 +31,6 @@ public class FindingOccurrence extends CreatedEntity {
     private FindingSeverity severity;
     @Column(nullable = false)
     private Instant observedAt;
+    @Column(length = 400)
+    private String aiNote;
 }

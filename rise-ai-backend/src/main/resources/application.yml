@@ -4,6 +4,7 @@ server:
   error:
     include-stacktrace: never
     include-message: never
+  max-http-request-header-size: 16KB
 
 spring:
   application:
@@ -62,6 +63,12 @@ rise:
     enabled: true
     reconciliation-cron: "0 0 * * * *"
     fundraising-close-cron: "0 */5 * * * *"
+  hardening:
+    rate-limit-enabled: true
+    auth-requests-per-window: 20
+    mutation-requests-per-window: 300
+    rate-limit-window: PT1M
+    max-request-body: 1MB
   monitoring:
     enabled: ${RISE_MONITORING_ENABLED:false}
     base-url: ${RISE_MONITORING_BASE_URL:http://localhost:8081}
@@ -84,10 +91,17 @@ management:
   endpoints:
     web:
       exposure:
-        include: health,info
+        include: health,info,metrics
   endpoint:
     health:
       show-details: never
+      probes:
+        enabled: true
+  health:
+    livenessstate:
+      enabled: true
+    readinessstate:
+      enabled: true
 
 springdoc:
   api-docs:

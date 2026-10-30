@@ -36,6 +36,8 @@ public class FindingIngestionServiceImpl implements FindingIngestionService {
     private static final Set<String> DETECTOR_TYPES = Set.of("RULE", "AI");
     private static final int MAX_FACTS = 20;
     private static final int MAX_TEXT = 2000;
+    private static final int MAX_AI_NOTE = 400;
+    private static final Pattern CONTROL_CHARACTERS = Pattern.compile("[\\p{Cntrl}\\s]+");
 
     private final MonitoringFindingRepository findingRepository;
     private final FindingOccurrenceRepository occurrenceRepository;
@@ -97,6 +99,7 @@ public class FindingIngestionServiceImpl implements FindingIngestionService {
         occurrence.setActorId(source.getActorId());
         occurrence.setSeverity(incoming.severity());
         occurrence.setObservedAt(incoming.observedAt());
+        occurrence.setAiNote(incoming.aiNote());
         occurrenceRepository.save(occurrence);
 
         if (newCritical) {
@@ -159,7 +162,18 @@ public class FindingIngestionServiceImpl implements FindingIngestionService {
                 severity(text(node, "severity")), token(subject, "type"), token(subject, "id"),
                 uuid(references, "campaignId"), uuid(references, "milestoneId"), uuid(references, "disbursementRequestId"),
                 limited(requiredText(node, "explanation")), token(node, "recommendedAction"), facts(node.path("facts")),
-                instant(text(node, "observedAt")));
+                instant(text(node, "observedAt")), note(text(node, "aiNote")));
+    }
+
+    private static String note(String value) {
+        if (value == null) {
+            return null;
+        }
+        String cleaned = CONTROL_CHARACTERS.matcher(value).replaceAll(" ").strip();
+        if (cleaned.isEmpty()) {
+            return null;
+        }
+        return cleaned.length() > MAX_AI_NOTE ? cleaned.substring(0, MAX_AI_NOTE) : cleaned;
     }
 
     private List<Map<String, Object>> facts(JsonNode node) {
@@ -230,6 +244,6 @@ public class FindingIngestionServiceImpl implements FindingIngestionService {
     private record IncomingFinding(String findingKey, String detectorType, String ruleId, String ruleVersion, String category,
                                    FindingSeverity severity, String subjectType, String subjectId, UUID campaignId, UUID milestoneId,
                                    UUID disbursementRequestId, String explanation, String recommendedAction,
-                                   List<Map<String, Object>> facts, Instant observedAt) {
+                                   List<Map<String, Object>> facts, Instant observedAt, String aiNote) {
     }
 }

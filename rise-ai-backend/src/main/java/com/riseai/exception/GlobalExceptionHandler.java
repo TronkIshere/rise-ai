@@ -56,6 +56,11 @@ public class GlobalExceptionHandler {
             MissingServletRequestParameterException.class, MissingRequestHeaderException.class,
             PropertyReferenceException.class, InvalidDataAccessApiUsageException.class})
     public ResponseEntity<ApiError> handleBadRequest(Exception ex, HttpServletRequest request) {
+        for (Throwable cause = ex.getCause(); cause != null && cause != cause.getCause(); cause = cause.getCause()) {
+            if (cause instanceof ApplicationException application && application.getErrorCode() == ErrorCode.REQUEST_TOO_LARGE) {
+                return handleApplication(application, request);
+            }
+        }
         log.debug("Bad request: {}", ex.getMessage());
         return respond(ErrorCode.INVALID_REQUEST, ErrorCode.INVALID_REQUEST.getMessage(), request, null);
     }

@@ -1,6 +1,8 @@
 package com.riseai.service.impl;
 
 import com.riseai.configuration.MonitoringRelayProperties;
+import com.riseai.dto.response.AlertResponse;
+import com.riseai.dto.response.AlertStatsResponse;
 import com.riseai.dto.response.FindingDetailResponse;
 import com.riseai.dto.response.FindingResponse;
 import com.riseai.dto.response.OccurrenceResponse;
@@ -8,14 +10,17 @@ import com.riseai.dto.response.OutboxEventResponse;
 import com.riseai.dto.response.OutboxStatsResponse;
 import com.riseai.dto.response.RulePrecisionResponse;
 import com.riseai.dto.response.StatusHistoryResponse;
+import com.riseai.entity.AlertNotification;
 import com.riseai.entity.MonitoringFinding;
 import com.riseai.entity.OutboxEvent;
+import com.riseai.enums.AlertStatus;
 import com.riseai.enums.FindingReviewStatus;
 import com.riseai.enums.FindingSeverity;
 import com.riseai.enums.OutboxStatus;
 import com.riseai.enums.Role;
 import com.riseai.exception.ApplicationException;
 import com.riseai.exception.ErrorCode;
+import com.riseai.repository.AlertNotificationRepository;
 import com.riseai.repository.CampaignRepository;
 import com.riseai.repository.FindingOccurrenceRepository;
 import com.riseai.repository.MonitoringFindingRepository;
@@ -44,13 +49,16 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class FindingServiceImpl implements FindingService {
     private static final String OUTBOX_ENTITY = "OUTBOX_EVENT";
+    private static final String ALERT_ENTITY = "ALERT_NOTIFICATION";
 
     private final MonitoringFindingRepository findingRepository;
     private final FindingOccurrenceRepository occurrenceRepository;
     private final CampaignRepository campaignRepository;
     private final OutboxEventRepository outboxEventRepository;
+    private final AlertNotificationRepository alertRepository;
     private final AuditService auditService;
     private final MonitoringRelayProperties relayProperties;
+    private final AlertWebhookClient alertWebhookClient;
 
     @Transactional(readOnly = true)
     @Override
@@ -149,6 +157,40 @@ public class FindingServiceImpl implements FindingService {
         event.setLastError(null);
         auditService.transition(actor.id(), "OUTBOX_EVENT_REQUEUED", OUTBOX_ENTITY, event.getId(), OutboxStatus.FAILED, OutboxStatus.PENDING, reason);
         return OutboxEventResponse.from(event);
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public AlertStatsResponse alertStats() {
+        Instant oldest = alertRepository.oldestUndeliveredCreatedAt().orElse(null);
+        Long age = oldest == null ? null : Duration.between(oldest, Instant.now()).toSeconds();
+        return new AlertStatsResponse(alertWebhookClient.configured(), alertRepository.countByStatus(AlertStatus.PENDING),
+                alertRepository.countByStatus(AlertStatus.RETRYING), alertRepository.countByStatus(AlertStatus.SENT),
+                alertRepository.countByStatus(AlertStatus.FAILED), oldest, age);
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public Page<AlertResponse> alerts(AlertStatus status, Pageable pageable) {
+        Page<AlertNotification> page = status == null ? alertRepository.findAll(pageable) : alertRepository.findByStatus(status, pageable);
+        return page.map(AlertResponse::from);
+    }
+
+    @Transactional
+    @Override
+    public AlertResponse requeueAlert(AuthUser actor, UUID id, String reason) {
+        AuthUser.require(actor).requireRole(Role.ADMIN);
+        AlertNotification alert = alertRepository.lockById(id).orElseThrow(() -> ApplicationException.notFound("Alert notification"));
+        if (alert.getStatus() != AlertStatus.FAILED) {
+            throw new ApplicationException(ErrorCode.INVALID_STATE_TRANSITION, "Only FAILED alerts can be requeued");
+        }
+        alert.setStatus(AlertStatus.PENDING);
+        alert.setAttempts(0);
+        alert.setNextAttemptAt(Instant.now());
+        alert.setFailedAt(null);
+        alert.setLastError(null);
+        auditService.transition(actor.id(), "ALERT_NOTIFICATION_REQUEUED", ALERT_ENTITY, alert.getId(), AlertStatus.FAILED, AlertStatus.PENDING, reason);
+        return AlertResponse.from(alert);
     }
 
     private void requireIndependentReviewer(AuthUser actor, MonitoringFinding finding) {

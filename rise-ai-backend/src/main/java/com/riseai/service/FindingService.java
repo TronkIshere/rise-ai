@@ -1,11 +1,14 @@
 package com.riseai.service;
 
+import com.riseai.dto.response.AlertResponse;
+import com.riseai.dto.response.AlertStatsResponse;
 import com.riseai.dto.response.FindingDetailResponse;
 import com.riseai.dto.response.FindingResponse;
 import com.riseai.dto.response.OutboxEventResponse;
 import com.riseai.dto.response.OutboxStatsResponse;
 import com.riseai.dto.response.RulePrecisionResponse;
 import com.riseai.dto.response.StatusHistoryResponse;
+import com.riseai.enums.AlertStatus;
 import com.riseai.enums.FindingReviewStatus;
 import com.riseai.enums.FindingSeverity;
 import com.riseai.enums.OutboxStatus;
@@ -32,4 +35,10 @@ public interface FindingService {
     Page<OutboxEventResponse> outboxEvents(OutboxStatus status, Pageable pageable);
 
     OutboxEventResponse requeue(AuthUser actor, UUID id, String reason);
+
+    AlertStatsResponse alertStats();
+
+    Page<AlertResponse> alerts(AlertStatus status, Pageable pageable);
+
+    AlertResponse requeueAlert(AuthUser actor, UUID id, String reason);
 }

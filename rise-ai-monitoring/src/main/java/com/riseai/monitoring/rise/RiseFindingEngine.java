@@ -73,7 +73,7 @@ public class RiseFindingEngine {
             } catch (RuntimeException ex) {
                 failedRules.add(rule.getId());
                 metrics.riseRuleFailed(rule.getId());
-                log.error("Rise finding rule {} failed for event {}", rule.getId(), envelope.eventId(), ex);
+                log.error("Rise finding rule {} failed for event {} with {}", rule.getId(), envelope.eventId(), ex.getClass().getName());
             }
         }
         if (!failedRules.isEmpty()) {

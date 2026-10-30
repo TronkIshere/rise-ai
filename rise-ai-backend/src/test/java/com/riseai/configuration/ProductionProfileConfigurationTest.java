@@ -32,11 +32,21 @@ class ProductionProfileConfigurationTest {
     }
 
     @Test
+    void productionConnectionPoolTimingsAreNumericMilliseconds() throws IOException {
+        PropertySource<?> prod = load("application-prod.yml");
+
+        assertThat(prod.getProperty("spring.datasource.hikari.max-lifetime")).isEqualTo(1500000);
+        assertThat(prod.getProperty("spring.datasource.hikari.connection-timeout")).isEqualTo(10000);
+        assertThat(prod.getProperty("spring.datasource.hikari.leak-detection-threshold")).isEqualTo(30000);
+        assertThat(String.valueOf(prod.getProperty("spring.config.import"))).isEqualTo("optional:configtree:/run/secrets/");
+    }
+
+    @Test
     void defaultProfileStaysDevelopmentFriendlyAndShutsDownGracefully() throws IOException {
         PropertySource<?> defaults = load("application.yml");
 
         assertThat(defaults.getProperty("server.shutdown")).isEqualTo("graceful");
-        assertThat(defaults.getProperty("management.endpoints.web.exposure.include")).isEqualTo("health,info");
+        assertThat(defaults.getProperty("management.endpoints.web.exposure.include")).isEqualTo("health,info,metrics");
         assertThat(defaults.getProperty("server.error.include-stacktrace")).isEqualTo("never");
     }
 }

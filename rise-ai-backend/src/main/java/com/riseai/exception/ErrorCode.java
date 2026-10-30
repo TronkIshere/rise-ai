@@ -10,6 +10,8 @@ public enum ErrorCode {
     REFRESH_TOKEN_INVALID(HttpStatus.UNAUTHORIZED, "Refresh token is invalid or expired"),
     ACCOUNT_SUSPENDED(HttpStatus.FORBIDDEN, "Account is suspended"),
     ACCESS_DENIED(HttpStatus.FORBIDDEN, "Access is denied"),
+    RATE_LIMITED(HttpStatus.TOO_MANY_REQUESTS, "Too many requests; retry later"),
+    REQUEST_TOO_LARGE(HttpStatus.PAYLOAD_TOO_LARGE, "Request body is too large"),
     SELF_APPROVAL_NOT_ALLOWED(HttpStatus.FORBIDDEN, "You cannot review or approve a request you are a party to"),
     CONFLICT_OF_INTEREST(HttpStatus.FORBIDDEN, "This action conflicts with your role in the resource"),
     SELF_ROLE_CHANGE_NOT_ALLOWED(HttpStatus.FORBIDDEN, "You cannot change your own roles or account status"),

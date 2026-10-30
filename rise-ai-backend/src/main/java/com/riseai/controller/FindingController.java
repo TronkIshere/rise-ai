@@ -2,6 +2,8 @@ package com.riseai.controller;
 
 import com.riseai.dto.request.ReasonRequest;
 import com.riseai.dto.request.ReviewFindingRequest;
+import com.riseai.dto.response.AlertResponse;
+import com.riseai.dto.response.AlertStatsResponse;
 import com.riseai.dto.response.FindingDetailResponse;
 import com.riseai.dto.response.FindingResponse;
 import com.riseai.dto.response.OutboxEventResponse;
@@ -10,6 +12,7 @@ import com.riseai.dto.response.RulePrecisionResponse;
 import com.riseai.dto.response.PageResponse;
 import com.riseai.dto.response.ResponseAPI;
 import com.riseai.dto.response.StatusHistoryResponse;
+import com.riseai.enums.AlertStatus;
 import com.riseai.enums.FindingReviewStatus;
 import com.riseai.enums.FindingSeverity;
 import com.riseai.enums.OutboxStatus;
@@ -87,5 +90,22 @@ public class FindingController {
     public ResponseAPI<OutboxEventResponse> requeue(@AuthenticationPrincipal AuthUser actor, @PathVariable UUID id,
                                                     @Valid @RequestBody(required = false) ReasonRequest body) {
         return ResponseAPI.ok(findingService.requeue(actor, id, ReasonRequest.of(body)));
+    }
+
+    @GetMapping("/alerts/stats")
+    public ResponseAPI<AlertStatsResponse> alertStats() {
+        return ResponseAPI.ok(findingService.alertStats());
+    }
+
+    @GetMapping("/alerts")
+    public ResponseAPI<PageResponse<AlertResponse>> alerts(@RequestParam(required = false) AlertStatus status,
+                                                           @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+        return ResponseAPI.ok(PageResponse.of(findingService.alerts(status, pageable)));
+    }
+
+    @PostMapping("/alerts/{id}/requeue")
+    public ResponseAPI<AlertResponse> requeueAlert(@AuthenticationPrincipal AuthUser actor, @PathVariable UUID id,
+                                                   @Valid @RequestBody(required = false) ReasonRequest body) {
+        return ResponseAPI.ok(findingService.requeueAlert(actor, id, ReasonRequest.of(body)));
     }
 }

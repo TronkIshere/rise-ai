@@ -3,6 +3,8 @@ package com.riseai.repository;
 import com.riseai.entity.AlertNotification;
 import com.riseai.enums.AlertStatus;
 import jakarta.persistence.LockModeType;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Modifying;
@@ -28,6 +30,11 @@ public interface AlertNotificationRepository extends JpaRepository<AlertNotifica
     Optional<AlertNotification> lockById(UUID id);
 
     long countByStatus(AlertStatus status);
+
+    Page<AlertNotification> findByStatus(AlertStatus status, Pageable pageable);
+
+    @Query("select min(a.createdAt) from AlertNotification a where a.status in (com.riseai.enums.AlertStatus.PENDING, com.riseai.enums.AlertStatus.RETRYING)")
+    Optional<Instant> oldestUndeliveredCreatedAt();
 
     @Modifying
     @Query("delete from AlertNotification a where a.status = com.riseai.enums.AlertStatus.SENT and a.deliveredAt < :before")

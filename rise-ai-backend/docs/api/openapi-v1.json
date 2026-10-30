@@ -53,6 +53,83 @@
         },
         "type" : "object"
       },
+      "AlertResponse" : {
+        "properties" : {
+          "attempts" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "createdAt" : {
+            "format" : "date-time",
+            "type" : "string"
+          },
+          "deliveredAt" : {
+            "format" : "date-time",
+            "type" : "string"
+          },
+          "details" : {
+            "additionalProperties" : {
+              "type" : "string"
+            },
+            "type" : "object"
+          },
+          "failedAt" : {
+            "format" : "date-time",
+            "type" : "string"
+          },
+          "id" : {
+            "format" : "uuid",
+            "type" : "string"
+          },
+          "kind" : {
+            "type" : "string"
+          },
+          "lastError" : {
+            "type" : "string"
+          },
+          "nextAttemptAt" : {
+            "format" : "date-time",
+            "type" : "string"
+          },
+          "status" : {
+            "enum" : [ "PENDING", "RETRYING", "SENT", "FAILED" ],
+            "type" : "string"
+          }
+        },
+        "type" : "object"
+      },
+      "AlertStatsResponse" : {
+        "properties" : {
+          "failed" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "oldestUndeliveredAgeSeconds" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "oldestUndeliveredCreatedAt" : {
+            "format" : "date-time",
+            "type" : "string"
+          },
+          "pending" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "retrying" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "sent" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "webhookConfigured" : {
+            "type" : "boolean"
+          }
+        },
+        "type" : "object"
+      },
       "AssignDisputeRequest" : {
         "properties" : {
           "reviewerId" : {
@@ -1250,6 +1327,9 @@
             "format" : "uuid",
             "type" : "string"
           },
+          "aiNote" : {
+            "type" : "string"
+          },
           "observedAt" : {
             "format" : "date-time",
             "type" : "string"
@@ -1495,6 +1575,33 @@
           "data" : {
             "items" : {
               "$ref" : "#/components/schemas/AdjustmentResponse"
+            },
+            "type" : "array"
+          },
+          "pageSize" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "totalElements" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "totalPages" : {
+            "format" : "int32",
+            "type" : "integer"
+          }
+        },
+        "type" : "object"
+      },
+      "PageResponseAlertResponse" : {
+        "properties" : {
+          "currentPage" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "data" : {
+            "items" : {
+              "$ref" : "#/components/schemas/AlertResponse"
             },
             "type" : "array"
           },
@@ -2189,6 +2296,36 @@
         },
         "type" : "object"
       },
+      "ResponseAPIAlertResponse" : {
+        "properties" : {
+          "code" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "data" : {
+            "$ref" : "#/components/schemas/AlertResponse"
+          },
+          "message" : {
+            "type" : "string"
+          }
+        },
+        "type" : "object"
+      },
+      "ResponseAPIAlertStatsResponse" : {
+        "properties" : {
+          "code" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "data" : {
+            "$ref" : "#/components/schemas/AlertStatsResponse"
+          },
+          "message" : {
+            "type" : "string"
+          }
+        },
+        "type" : "object"
+      },
       "ResponseAPICampaignResponse" : {
         "properties" : {
           "code" : {
@@ -2479,6 +2616,21 @@
           },
           "data" : {
             "$ref" : "#/components/schemas/PageResponseAdjustmentResponse"
+          },
+          "message" : {
+            "type" : "string"
+          }
+        },
+        "type" : "object"
+      },
+      "ResponseAPIPageResponseAlertResponse" : {
+        "properties" : {
+          "code" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "data" : {
+            "$ref" : "#/components/schemas/PageResponseAlertResponse"
           },
           "message" : {
             "type" : "string"
@@ -3896,6 +4048,94 @@
           }
         },
         "tags" : [ "Escrow (simulated)" ]
+      }
+    },
+    "/api/v1/admin/monitoring/alerts" : {
+      "get" : {
+        "operationId" : "alerts",
+        "parameters" : [ {
+          "in" : "query",
+          "name" : "status",
+          "required" : false,
+          "schema" : {
+            "enum" : [ "PENDING", "RETRYING", "SENT", "FAILED" ],
+            "type" : "string"
+          }
+        }, {
+          "in" : "query",
+          "name" : "pageable",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/components/schemas/Pageable"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ResponseAPIPageResponseAlertResponse"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "Admin - AI monitoring findings (advisory)" ]
+      }
+    },
+    "/api/v1/admin/monitoring/alerts/stats" : {
+      "get" : {
+        "operationId" : "alertStats",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ResponseAPIAlertStatsResponse"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "Admin - AI monitoring findings (advisory)" ]
+      }
+    },
+    "/api/v1/admin/monitoring/alerts/{id}/requeue" : {
+      "post" : {
+        "operationId" : "requeueAlert",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "id",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        } ],
+        "requestBody" : {
+          "content" : {
+            "application/json" : {
+              "schema" : {
+                "$ref" : "#/components/schemas/ReasonRequest"
+              }
+            }
+          }
+        },
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ResponseAPIAlertResponse"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "tags" : [ "Admin - AI monitoring findings (advisory)" ]
       }
     },
     "/api/v1/admin/monitoring/findings" : {

@@ -2,6 +2,7 @@ services:
   mysql:
     image: mysql:8.4
     container_name: rise-ai-mysql
+    restart: unless-stopped
     command:
       - --log-bin-trust-function-creators=1
       - --character-set-server=utf8mb4
@@ -22,6 +23,10 @@ services:
   rise-ai-monitoring:
     build: ./rise-ai-monitoring
     container_name: rise-ai-monitoring
+    restart: unless-stopped
+    stop_grace_period: 40s
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
     environment:
       SPRING_PROFILES_ACTIVE: riseai
       MONITORING_SERVICE_KEY: ${RISE_MONITORING_SERVICE_KEY:?set RISE_MONITORING_SERVICE_KEY}
@@ -39,6 +44,10 @@ services:
   rise-ai-backend:
     build: ./rise-ai-backend
     container_name: rise-ai-backend
+    restart: unless-stopped
+    stop_grace_period: 40s
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
     depends_on:
       mysql:
         condition: service_healthy
@@ -55,9 +64,16 @@ services:
       RISE_MONITORING_BASE_URL: http://rise-ai-monitoring:8081
       RISE_MONITORING_SERVICE_KEY: ${RISE_BACKEND_MONITORING_KEY:-${RISE_MONITORING_SERVICE_KEY:?set RISE_MONITORING_SERVICE_KEY}}
       RISE_SEED_ENABLED: ${RISE_SEED_ENABLED:-false}
+      RISE_DEMO_PASSWORD: ${RISE_DEMO_PASSWORD:-Demo@12345}
       RISE_SIMULATION_DONATION_CONFIRMATION_ENABLED: ${RISE_SIMULATION_ENABLED:-false}
     ports:
       - "8080:8080"
+    healthcheck:
+      test: ["CMD-SHELL", "bash -c 'exec 3<>/dev/tcp/localhost/8080 && printf \"GET /actuator/health/readiness HTTP/1.0\r\n\r\n\" >&3 && grep -q UP <&3'"]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+      start_period: 60s
 
 volumes:
   rise_mysql_data:
