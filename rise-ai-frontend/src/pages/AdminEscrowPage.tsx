@@ -28,9 +28,9 @@ const balanceFields: {key:keyof EscrowBalances;label:string}[]=[
   {key:'available',label:'Khả dụng'},
 ];
 function ReconciliationBalances({report}:{report:ReconciliationReport}){
-  return <div className="mt-4">
+  return <div className="mt-4 w-full min-w-0 max-w-full">
     <p className="mb-3 text-xs font-semibold text-brand-ink">Đối chiếu đầy đủ 8 cấu phần · {report.consistent===true?'Nhất quán':report.consistent===false?'Có sai lệch':'Chưa xác định'}</p>
-    <div className="overflow-x-auto">
+    <div className="w-full min-w-0 max-w-full overflow-x-auto">
       <table className="w-full min-w-[370px] border-collapse text-left text-xs">
         <thead><tr className="border-b border-border text-muted"><th scope="col" className="py-2 pr-3">Cấu phần</th><th scope="col" className="py-2 pr-3">Lưu trong hệ thống</th><th scope="col" className="py-2 pr-3">Tính từ ledger</th><th scope="col" className="py-2">Kết quả</th></tr></thead>
         <tbody>{balanceFields.map(field=>{
@@ -112,7 +112,7 @@ export function AdminEscrowPage(){
       {reports.isError?<div className="mt-5"><StatusMessage error title="Không thể đối chiếu" detail={reports.error.message}/></div>:null}
       {reports.isSuccess&&!reports.data.length?<div className="mt-5"><StatusMessage title="Chưa có tài khoản escrow để đối chiếu"/></div>:null}
       {reports.isSuccess?<div className="mt-5 grid gap-4 md:grid-cols-2">
-        {reports.data.map((report,index)=><article key={report.campaignId??index} className="rounded-card border border-border bg-surface p-5">
+        {reports.data.map((report,index)=><article key={report.campaignId??index} className="min-w-0 max-w-full rounded-card border border-border bg-surface p-5">
           <div className="flex flex-wrap items-center justify-between gap-2"><p className="text-sm font-bold text-brand-ink">Chiến dịch {shortId(report.campaignId)}</p><span className={'rounded-full px-3 py-1 text-xs font-bold '+(report.consistent?'bg-soft-mint text-brand':'bg-soft-sand text-warning')}>{report.consistent?'Nhất quán':'Không nhất quán'}</span></div>
           <ReconciliationBalances report={report}/>
           <p className="mt-1 text-xs text-muted">{report.ledgerEntryCount??0} bút toán đã ghi nhận</p>
@@ -139,7 +139,7 @@ export function AdminEscrowPage(){
         {selectedRun.isError?<p role="alert" className="mt-3 text-sm text-danger">{selectedRun.error.message}</p>:null}
         {selectedRun.isSuccess?<><p className="mt-3 text-sm font-semibold">{selectedRun.data.runStatus} · {selectedRun.data.accountsChecked??0} tài khoản · {selectedRun.data.inconsistentAccounts??0} sai lệch</p>
           {selectedRun.data.errorMessage?<p className="mt-2 text-sm text-danger">{selectedRun.data.errorMessage}</p>:null}
-          {selectedRun.data.findings?.map((f,index)=><div key={f.escrowAccountId??index} className="mt-5 rounded-xl border border-border p-4">
+          {selectedRun.data.findings?.map((f,index)=><div key={f.escrowAccountId??index} className="mt-5 min-w-0 max-w-full rounded-xl border border-border p-4">
             <p className="font-bold text-brand-ink">Chiến dịch {shortId(f.campaignId)}</p>
             <ReconciliationBalances report={f}/>
           </div>)}
@@ -167,7 +167,7 @@ export function AdminEscrowPage(){
         </div>:null}
         {reconciliation.isPending?<p className="mt-4 text-xs text-muted">Đang đối chiếu tài khoản…</p>:null}
         {reconciliation.isError?<p role="alert" className="mt-4 text-sm text-danger">{reconciliation.error.message}</p>:null}
-        {reconciliation.isSuccess?<div className="mt-4 rounded-xl border border-border bg-surface p-5">
+        {reconciliation.isSuccess?<div className="mt-4 min-w-0 max-w-full rounded-xl border border-border bg-surface p-5">
           <p className={'text-sm font-semibold '+(reconciliation.data.consistent?'text-brand':'text-warning')}>Đối soát: {reconciliation.data.consistent?'Nhất quán':'Không nhất quán'} · {reconciliation.data.ledgerEntryCount??0} bút toán</p>
           <ReconciliationBalances report={reconciliation.data}/>
         </div>:null}
