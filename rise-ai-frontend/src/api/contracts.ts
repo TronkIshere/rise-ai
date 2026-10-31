@@ -55,11 +55,6 @@ export interface CampaignResponse {
   beneficiaryCount?: number;
   beneficiaryDescription?: string;
   startAt?: string;
-  location?: string;
-  problemStatement?: string;
-  solutionDescription?: string;
-  impactGoals?: string;
-  fullDescription?: string;
   budgetBreakdown?: BudgetItem[];
   galleryImageUrls?: string[];
   reviewStatus?: string;
