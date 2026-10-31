@@ -20,6 +20,7 @@ type ApiPath =
   | '/api/v1/auth/login'
   | '/api/v1/auth/logout'
   | '/api/v1/auth/me'
+  | '/api/v1/campaigns'
   | `/api/v1/campaigns?${string}`
   | `/api/v1/campaigns/slug/${string}`
   | `/api/v1/campaigns/${string}/milestones`
@@ -35,7 +36,19 @@ type ApiPath =
   | `/api/v1/disputes/me?${string}`
   | `/api/v1/disputes/${string}/messages?${string}`
   | `/api/v1/disputes/${string}/messages`
-  | `/api/v1/disputes/${string}/withdraw`;
+  | `/api/v1/disputes/${string}/withdraw`
+  | `/api/v1/organizations${string}`
+  | `/api/v1/campaigns/mine?${string}`
+  | `/api/v1/campaigns/${string}/submit`
+  | `/api/v1/campaigns/${string}/publish`
+  | `/api/v1/campaigns/${string}/disbursements?${string}`
+  | `/api/v1/milestones/${string}`
+  | `/api/v1/milestones/${string}/start`
+  | `/api/v1/milestones/${string}/evidence${string}`
+  | `/api/v1/milestones/${string}/disbursements`
+  | `/api/v1/disbursements/${string}/evidence`
+  | `/api/v1/disbursements/${string}/resubmit`
+  | `/api/v1/disbursements/${string}/cancel`;
 
 const baseUrl = (import.meta.env.VITE_API_BASE_URL ?? '').replace(/\/$/, '');
 

@@ -42,3 +42,10 @@ Never copy hotel-specific components, MUI, session storage or business workflows
 - Auth remains memory-only; logout and login clear the TanStack Query cache to prevent personal records leaking between accounts.
 - Backend enforces ownership and permissions on every request. The UI does **not** confirm, approve, or transfer funds.
 - [FE-02 acceptance checklist](docs/FE02_ACCEPTANCE.md) documents real backend/browser checks that must pass before merge.
+
+## FE-03 — Creator Experience (frontend-only)
+- `/creator`: private Creator organizations (create/edit, submit verification) and owned campaign listings.
+- `/creator/campaigns/new`, `/creator/campaigns/:id/edit`: complete OpenAPI-defined campaign draft form. Existing budgets are preserved on edit; all amounts are simulated VND.
+- `/creator/campaigns/:id`: owner-only management; milestone budget and deadline editing, submit for Admin review, publish only after APPROVED. Evidence is **reference metadata** (description, real HTTPS/sim URL, optional actual SHA-256) — **no file upload**, no fabricated hash.
+- Disbursement requests are created with idempotency keys only when Backend state allows. Admin solely reviews, accepts evidence and records simulated disbursement.
+- [FE-03 acceptance](docs/FE03_ACCEPTANCE.md) explains the prerequisites and browser verification. FE-00 memory-only auth and FE-02 donor routes remain unchanged.
