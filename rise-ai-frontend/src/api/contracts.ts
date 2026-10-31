@@ -151,7 +151,7 @@ export interface EvidenceRequest {
 export interface EvidenceResponse {
   id?: string; title?: string; evidenceType?: EvidenceType; evidenceStatus?: 'SUBMITTED'|'ACCEPTED'|'REJECTED';
   milestoneId?: string; disbursementRequestId?: string; description?: string; fileUrl?: string;
-  fileHash?: string; externalReference?: string; reviewNote?: string; submittedAt?: string;
+  fileHash?: string; externalReference?: string; reviewNote?: string; submittedBy?: string; submittedAt?: string;
 }
 export type DisbursementStatus = 'SUBMITTED'|'UNDER_REVIEW'|'NEEDS_MORE_EVIDENCE'|'APPROVED'|'REJECTED'|'RELEASED'|'CANCELLED'|'DISPUTED';
 export interface CreateDisbursementRequest { amount: number; reason: string }
