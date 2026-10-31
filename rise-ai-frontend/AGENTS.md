@@ -23,3 +23,12 @@
 - Use only public Backend responses. Never expose admin findings, disputes or creator-only private data on public pages.
 - Never invent customer testimonials, fundraising statistics, named beneficiaries, evidence verification, or paid contributions.
 - Leave the donation transaction and refund flows for FE-02. No dead payment buttons.
+
+## FE-02 donor data and simulated money
+- A donor's newly created donation is PENDING, **never** show a real payment success or assert it is confirmed. Admin alone confirms or fails a simulated donation.
+- Only `DONOR` users can access donor screens, via RequireAuth + RequireRole; backend authorization is always authoritative.
+- No real-money checkout, card inputs, bank instructions, automatic refunds, self-approval or AI-triggered transactions.
+- Refund requests can be submitted for eligible confirmed donations; only Admin approves/records. A recorded refund is simulated ledger data, not a real transfer.
+- Disputes require a confirmed donor contribution per Backend business checks. Admin resolves; donor may send messages/withdraw when allowed.
+- Private query-cache records must be account-scoped and cleared at login/logout.
+- Use `Idempotency-Key` to prevent duplicated donation/refund submissions on retry.

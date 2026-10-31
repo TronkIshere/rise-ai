@@ -1,10 +1,12 @@
 import { useEffect, useMemo, useState, type ReactNode } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { getMe, login as requestLogin, logout as requestLogout } from '@/api/auth';
 import { setAccessToken } from '@/api/client';
 import type { UserResponse } from '@/api/contracts';
 import { AuthContext, type AuthValue } from './auth-context';
 
 export function AuthProvider({ children }: { children: ReactNode }) {
+  const queryClient = useQueryClient();
   const [user, setUser] = useState<UserResponse | null>(null);
   const [refreshToken, setRefreshToken] = useState<string | null>(null);
 
@@ -15,6 +17,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     async login(credentials) {
       const tokens = await requestLogin(credentials);
       if (!tokens.accessToken) throw new Error('Backend không trả access token.');
+      queryClient.clear();
       setAccessToken(tokens.accessToken);
       try {
         const currentUser = tokens.user ?? await getMe();
@@ -23,6 +26,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setRefreshToken(tokens.refreshToken ?? null);
       } catch (error) {
         setAccessToken(null);
+        queryClient.clear();
         setUser(null);
         setRefreshToken(null);
         throw error;
@@ -32,11 +36,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       try { if (refreshToken) await requestLogout(refreshToken); }
       finally {
         setAccessToken(null);
+        queryClient.clear();
         setRefreshToken(null);
         setUser(null);
       }
     },
-  }), [user, refreshToken]);
+  }), [user, refreshToken, queryClient]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

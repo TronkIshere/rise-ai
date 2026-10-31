@@ -9,6 +9,19 @@ const endpoints = [
   ['/api/v1/campaigns','get'],
   ['/api/v1/campaigns/slug/{slug}','get'],
   ['/api/v1/campaigns/{campaignId}/milestones','get'],
+  ['/api/v1/campaigns/{id}','get'],
+  ['/api/v1/campaigns/{campaignId}/donations','post'],
+  ['/api/v1/donations/me','get'],
+  ['/api/v1/donations/{id}/cancel','post'],
+  ['/api/v1/donations/{donationId}/refunds','post'],
+  ['/api/v1/refunds/me','get'],
+  ['/api/v1/refunds/{id}/cancel','post'],
+  ['/api/v1/campaigns/{campaignId}/disputes','post'],
+  ['/api/v1/disputes/me','get'],
+  ['/api/v1/disputes/{id}','get'],
+  ['/api/v1/disputes/{id}/messages','get'],
+  ['/api/v1/disputes/{id}/messages','post'],
+  ['/api/v1/disputes/{id}/withdraw','post'],
 ];
 for (const [path, method] of endpoints) {
   if (!spec.paths?.[path]?.[method]) errors.push(method + ' ' + path + ' missing');
@@ -21,6 +34,14 @@ for (const [schema, fields] of Object.entries({
   FundingSummary: ['netRaised','totalDisbursed','progressPercent'],
   MilestoneResponse: ['id','sequenceNumber','milestoneStatus','plannedAmount','releasedAmount'],
   PageResponseCampaignResponse: ['data','currentPage','totalPages'],
+  CreateDonationRequest: ['amount','anonymous','currency','donorMessage','paymentMethod'],
+  DonationResponse: ['id','donationStatus','campaignId','amount','refundedAmount'],
+  CreateRefundRequest: ['amount','reason'],
+  RefundResponse: ['refundStatus','donationId','externalPaymentStatus'],
+  OpenDisputeRequest: ['title','description','disputeType'],
+  DisputeResponse: ['id','disputeStatus','openedBy','campaignId'],
+  DisputeMessageRequest: ['message'],
+  DisputeMessageResponse: ['authorId','message'],
 })) {
   const props = spec.components?.schemas?.[schema]?.properties;
   for (const field of fields) if (!props?.[field]) errors.push(schema + '.' + field + ' missing');

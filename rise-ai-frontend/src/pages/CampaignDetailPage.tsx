@@ -102,11 +102,14 @@ export function CampaignDetailPage() {
                 <div><p className="text-xs text-muted">Người thụ hưởng dự kiến</p><p className="mt-2 font-bold text-brand-ink">{campaign.data.beneficiaryCount == null ? 'Chưa cập nhật' : new Intl.NumberFormat('vi-VN').format(campaign.data.beneficiaryCount)}</p></div>
               </div>
               <div className="mt-6 rounded-xl bg-soft-sand p-4 text-xs leading-6 text-warning">
-                Giao dịch và dòng tiền trong Rise AI hiện chỉ là mô phỏng. FE-01 chưa cung cấp thao tác quyên góp.
+                Giao dịch và dòng tiền trong Rise AI hiện chỉ là mô phỏng. FE-02 chỉ ghi nhận yêu cầu đóng góp mô phỏng, không thanh toán tiền thật.
               </div>
-              <Link to="/campaigns" className="mt-6 inline-flex min-h-11 w-full items-center justify-center rounded-xl bg-brand px-5 py-3 text-sm font-bold text-white hover:bg-brand-hover">
-                Khám phá chiến dịch khác
-              </Link>
+              {campaign.data.campaignStatus === 'ACTIVE' && campaign.data.acceptingDonations
+                ? <Link to={'/campaigns/' + encodeURIComponent(slug) + '/contribute'} className="mt-6 inline-flex min-h-11 w-full items-center justify-center rounded-xl bg-brand px-5 py-3 text-center text-sm font-bold text-white hover:bg-brand-hover">
+                    Ghi nhận đóng góp mô phỏng
+                  </Link>
+                : <p className="mt-5 text-xs text-muted">Chiến dịch hiện chưa tiếp nhận đóng góp.</p>}
+              <Link to="/campaigns" className="mt-4 inline-flex min-h-11 w-full items-center justify-center rounded-xl border border-border px-5 py-3 text-sm font-bold text-brand hover:bg-soft-mint">Khám phá chiến dịch khác</Link>
             </div>
             {campaign.data.organization?.name ? <div className="rounded-card border border-border bg-surface p-6">
               <p className="text-xs font-bold uppercase tracking-wide text-muted">Đơn vị triển khai</p>

@@ -1,4 +1,4 @@
-import { HeartHandshake, LogOut, Menu } from 'lucide-react';
+import { HandHeart, HeartHandshake, LogOut, Menu } from 'lucide-react';
 import { useState } from 'react';
 import { Link, NavLink, Outlet } from 'react-router';
 import { useAuth } from '@/auth/auth-context';
@@ -25,6 +25,7 @@ export function SiteShell() {
           <nav id="site-menu" className={(menuOpen ? 'flex ' : 'hidden ') + 'absolute left-0 right-0 top-full flex-col gap-3 border-b border-border bg-surface p-4 shadow-lg lg:static lg:flex lg:flex-row lg:items-center lg:gap-7 lg:border-0 lg:p-0 lg:shadow-none'} aria-label="Điều hướng chính">
             <NavLink to="/" end onClick={() => setMenuOpen(false)} className={({isActive}) => 'inline-flex min-h-11 items-center text-sm font-semibold hover:text-brand ' + (isActive ? 'text-brand' : 'text-copy')}>Trang chủ</NavLink>
             <NavLink to="/campaigns" onClick={() => setMenuOpen(false)} className={({isActive}) => 'inline-flex min-h-11 items-center text-sm font-semibold hover:text-brand ' + (isActive ? 'text-brand' : 'text-copy')}>Chiến dịch</NavLink>
+            {user?.roles?.includes('DONOR') ? <NavLink to="/donor" onClick={() => setMenuOpen(false)} className={({isActive}) => 'inline-flex min-h-11 items-center gap-2 text-sm font-semibold hover:text-brand ' + (isActive ? 'text-brand' : 'text-copy')}><HandHeart size={16} aria-hidden="true" />Đóng góp của tôi</NavLink> : null}
             {user ? <NavLink to="/workspace" onClick={() => setMenuOpen(false)} className={({isActive}) => 'inline-flex min-h-11 items-center text-sm font-semibold hover:text-brand ' + (isActive ? 'text-brand' : 'text-copy')}>Cá nhân</NavLink> : <Link to="/login" onClick={() => setMenuOpen(false)} className="inline-flex min-h-11 items-center rounded-xl bg-brand px-5 text-sm font-bold text-white hover:bg-brand-hover">Đăng nhập</Link>}
             {user ? <Button variant="outline" onClick={() => { setMenuOpen(false); void logout().catch(() => setWarning('Đã kết thúc phiên trên máy nhưng chưa xác minh thu hồi phiên ở Backend.')); }}>
               <LogOut size={16} aria-hidden="true"/> Đăng xuất

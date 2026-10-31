@@ -1,5 +1,7 @@
 import { useAuth } from '@/auth/auth-context';
 import { Container } from '@/components/layout/Container';
+import { Link } from 'react-router';
+import { HandHeart } from 'lucide-react';
 import { StatusMessage } from '@/components/ui/StatusMessage';
 
 export function WorkspacePage() {
@@ -8,7 +10,8 @@ export function WorkspacePage() {
     <h1 className="text-3xl font-bold">Không gian cá nhân</h1>
     <p className="mt-3 text-muted">Xin chào {user?.fullName ?? user?.email ?? 'thành viên'}.</p>
     <div className="mt-8">
-      <StatusMessage title="Module đang được phát triển" detail="FE-00 chỉ xác nhận luồng đăng nhập và route bảo vệ. Dashboard Donor, Creator và Admin chưa triển khai." />
+      {user?.roles?.includes('DONOR') ? <Link to="/donor" className="inline-flex min-h-12 items-center gap-2 rounded-xl bg-brand px-6 text-sm font-bold text-white"><HandHeart size={18} aria-hidden="true"/> Quản lý đóng góp của tôi</Link> : null}
+      {!user?.roles?.includes('DONOR') ? <StatusMessage title="Không gian dành cho vai trò khác đang phát triển" detail="FE-03–FE-05 sẽ triển khai Creator và Admin; FE-02 chỉ phục vụ DONOR." /> : null}
     </div>
   </Container>;
 }
