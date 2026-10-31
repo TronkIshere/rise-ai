@@ -160,3 +160,49 @@ export interface DisbursementResponse {
   requestedAmount?: number; currency?: string; requestReason?: string; requestStatus?: DisbursementStatus;
   decisionReason?: string; createdAt?: string; submittedAt?: string; simulated?: boolean;
 }
+
+/** FE-04 administration contracts; only fields exposed by backend OpenAPI. */
+export interface SystemStatistics {
+  simulated?: boolean; currency?: string; totalUsers?: number; activeUsers?: number;
+  totalConfirmedContributions?: number; totalDisbursed?: number; totalRefunded?: number;
+  totalAvailable?: number; totalReserved?: number; pendingDonations?: number;
+  openRefundRequests?: number; openDisbursementRequests?: number; openDisputes?: number;
+  campaignsByStatus?: Record<string,number>;
+}
+export interface EscrowSummary {
+  campaignId?: string; escrowAccountId?: string; currency?: string; escrowStatus?: string;
+  simulated?: boolean; disclaimer?: string; availableBalance?: number; heldBalance?: number;
+  totalConfirmedContributions?: number; totalReserved?: number; totalRefundReserved?: number;
+  totalDisbursed?: number; totalRefunded?: number; totalAdjustmentCredits?: number; totalAdjustmentDebits?: number;
+}
+export interface EscrowBalances {
+  available?: number; confirmed?: number; disbursed?: number; refunded?: number;
+  reserved?: number; refundReserved?: number; adjustmentCredits?: number; adjustmentDebits?: number;
+}
+export interface ReconciliationReport {
+  campaignId?: string; escrowAccountId?: string; currency?: string;
+  consistent?: boolean; ledgerEntryCount?: number; stored?: EscrowBalances; computedFromLedger?: EscrowBalances;
+}
+export interface ReconciliationRunResponse {
+  id?: string; runCode?: string; runStatus?: 'CONSISTENT'|'INCONSISTENT'|'FAILED';
+  triggerType?: 'SCHEDULED'|'MANUAL'; accountsChecked?: number;
+  inconsistentAccounts?: number; errorMessage?: string; startedAt?: string; finishedAt?: string;
+  findings?: ReconciliationReport[];
+}
+export interface AdjustmentResponse {
+  id?: string; adjustmentCode?: string; campaignId?: string; currency?: string; amount?: number;
+  direction?: 'CREDIT'|'DEBIT'|'NEUTRAL'; adjustmentStatus?: 'REQUESTED'|'APPLIED'|'REJECTED'|'CANCELLED';
+  reason?: string; decisionReason?: string; requestedBy?: string; createdAt?: string;
+}
+export interface SettlementResponse {
+  id?: string; settlementCode?: string; campaignId?: string; currency?: string; amount?: number;
+  settlementType?: 'PRO_RATA_DONOR_REFUND'; settlementStatus?: 'PROPOSED'|'EXECUTED'|'REJECTED'|'CANCELLED';
+  reason?: string; decisionReason?: string; disclaimer?: string; proposedBy?: string;
+  createdAt?: string; executedAt?: string; donationCount?: number;
+}
+
+export interface LedgerEntryResponse {
+  id?: string; transactionCode?: string; transactionType?: string; status?: 'COMPLETED';
+  createdAt?: string; direction?: 'CREDIT'|'DEBIT'|'NEUTRAL'; amount?: number; currency?: string;
+  description?: string; referenceType?: string; referenceId?: string;
+}

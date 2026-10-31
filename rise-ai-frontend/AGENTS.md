@@ -32,3 +32,10 @@
 - Disputes require a confirmed donor contribution per Backend business checks. Admin resolves; donor may send messages/withdraw when allowed.
 - Private query-cache records must be account-scoped and cleared at login/logout.
 - Use `Idempotency-Key` to prevent duplicated donation/refund submissions on retry.
+
+## FE-04 Admin safety
+- Admin routes need RequireAuth + RequireRole ADMIN; Backend performs actual authority, conflict-of-interest and state checks.
+- Do not claim a request/confirmation has transferred money; settlement, refund and disbursement are ledger-only simulations.
+- Never auto-confirm, auto-approve, auto-apply adjustments or run reconciliation in background; require a deliberate admin interaction.
+- Show and preserve inconsistent reconciliation findings, missing evidence and authoritative Backend errors.
+- No FE-05 monitoring findings, review automation, or audit-log UI in FE-04; no Backend/Monitoring changes.
