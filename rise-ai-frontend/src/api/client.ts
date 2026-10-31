@@ -22,7 +22,20 @@ type ApiPath =
   | '/api/v1/auth/me'
   | `/api/v1/campaigns?${string}`
   | `/api/v1/campaigns/slug/${string}`
-  | `/api/v1/campaigns/${string}/milestones`;
+  | `/api/v1/campaigns/${string}/milestones`
+  | `/api/v1/campaigns/${string}/donations`
+  | `/api/v1/campaigns/${string}/disputes`
+  | `/api/v1/campaigns/${string}`
+  | `/api/v1/donations/me?${string}`
+  | `/api/v1/donations/${string}/cancel`
+  | `/api/v1/donations/${string}/refunds`
+  | `/api/v1/refunds/me?${string}`
+  | `/api/v1/refunds/${string}/cancel`
+  | `/api/v1/disputes/${string}`
+  | `/api/v1/disputes/me?${string}`
+  | `/api/v1/disputes/${string}/messages?${string}`
+  | `/api/v1/disputes/${string}/messages`
+  | `/api/v1/disputes/${string}/withdraw`;
 
 const baseUrl = (import.meta.env.VITE_API_BASE_URL ?? '').replace(/\/$/, '');
 

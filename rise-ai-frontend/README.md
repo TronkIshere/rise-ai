@@ -34,3 +34,11 @@ Never copy hotel-specific components, MUI, session storage or business workflows
 - **No donation form in FE-01**: that requires separate FE-02 business acceptance. The current app does not transfer money.
 - See [FE-01 acceptance checklist](docs/FE01_ACCEPTANCE.md) for real browser testing.
 - When running Backend at 8082 (8080 is used by another local app), put `VITE_API_BASE_URL=http://localhost:8082` in untracked `.env.local`, then restart Vite. The normal development proxy still points to 8080.
+
+## FE-02 — Donor Experience (simulation only)
+- `/campaigns/:slug/contribute`: restricted to logged-in `DONOR` role; create a **PENDING** simulated donation with an idempotency key. No real payments or automatic confirmation.
+- `/donor`: private paginated donation/refund/dispute history; cancel `PENDING` donations, request refunds for `CONFIRMED` / `PARTIALLY_REFUNDED` donations, cancel only `REQUESTED` refunds; open an eligible dispute.
+- `/donor/disputes/:id`: private dispute thread and supplementary messages / withdraw while eligible.
+- Auth remains memory-only; logout and login clear the TanStack Query cache to prevent personal records leaking between accounts.
+- Backend enforces ownership and permissions on every request. The UI does **not** confirm, approve, or transfer funds.
+- [FE-02 acceptance checklist](docs/FE02_ACCEPTANCE.md) documents real backend/browser checks that must pass before merge.

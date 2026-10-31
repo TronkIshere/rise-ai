@@ -47,6 +47,7 @@ export interface CampaignResponse {
   category?: CampaignCategory;
   campaignStatus?: string;
   targetAmount?: number;
+  minimumDonationAmount?: number;
   currency?: string;
   acceptingDonations?: boolean;
   coverImageUrl?: string;
@@ -82,3 +83,30 @@ export interface ApiErrorBody {
   message?: string;
   correlationId?: string;
 }
+
+export type DonationStatus = 'PENDING' | 'CONFIRMED' | 'FAILED' | 'CANCELLED' | 'REFUND_PENDING' | 'PARTIALLY_REFUNDED' | 'REFUNDED';
+export type PaymentMethod = 'SIMULATED_BANK_TRANSFER' | 'SIMULATED_CARD' | 'SIMULATED_E_WALLET';
+export interface CreateDonationRequest { amount: number; anonymous: boolean; currency: string; donorMessage?: string; paymentMethod: PaymentMethod }
+export interface DonationResponse {
+  id?: string; donationCode?: string; campaignId?: string; donorId?: string;
+  amount?: number; currency?: string; donationStatus?: DonationStatus;
+  donorMessage?: string; paymentMethod?: PaymentMethod; anonymous?: boolean;
+  refundedAmount?: number; createdAt?: string; confirmedAt?: string; simulatedReference?: string;
+}
+export type RefundStatus = 'REQUESTED' | 'APPROVED' | 'REJECTED' | 'CANCELLED' | 'RECORDED';
+export interface CreateRefundRequest { amount: number; reason: string }
+export interface RefundResponse {
+  id?: string; refundCode?: string; donationId?: string; campaignId?: string;
+  amount?: number; currency?: string; refundStatus?: RefundStatus; reason?: string;
+  decisionReason?: string; createdAt?: string; recordedAt?: string;
+  externalPaymentStatus?: 'NOT_EXECUTED_SIMULATION';
+}
+export type DisputeType = 'MISUSE_OF_FUNDS' | 'MISSING_EVIDENCE' | 'MISLEADING_INFORMATION' | 'DELIVERY_NOT_RECEIVED' | 'OTHER';
+export type DisputeStatus = 'OPEN' | 'UNDER_REVIEW' | 'RESOLVED_UPHELD' | 'RESOLVED_DISMISSED' | 'WITHDRAWN';
+export interface OpenDisputeRequest { disputeType: DisputeType; title: string; description: string; supportingReferences?: string[] }
+export interface DisputeResponse {
+  id?: string; disputeCode?: string; campaignId?: string; openedBy?: string;
+  disputeType?: DisputeType; disputeStatus?: DisputeStatus; title?: string;
+  description?: string; resolution?: string; createdAt?: string; updatedAt?: string;
+}
+export interface DisputeMessageResponse { id?: string; disputeId?: string; authorId?: string; message?: string; createdAt?: string }
