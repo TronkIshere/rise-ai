@@ -117,7 +117,8 @@ export interface OpenDisputeRequest { disputeType: DisputeType; title: string; d
 export interface DisputeResponse {
   id?: string; disputeCode?: string; campaignId?: string; openedBy?: string;
   disputeType?: DisputeType; disputeStatus?: DisputeStatus; title?: string;
-  description?: string; resolution?: string; createdAt?: string; updatedAt?: string;
+  description?: string; supportingReferences?: string[]; assignedTo?: string;
+  resolution?: string; createdAt?: string; updatedAt?: string;
 }
 export interface DisputeMessageResponse { id?: string; disputeId?: string; authorId?: string; message?: string; createdAt?: string }
 

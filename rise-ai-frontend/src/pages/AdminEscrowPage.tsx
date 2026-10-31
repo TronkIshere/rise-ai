@@ -14,6 +14,41 @@ import { RecordPagination } from '@/components/ui/RecordPagination';
 import { StatusMessage } from '@/components/ui/StatusMessage';
 import { amountLabel, dateLabel } from '@/lib/campaign-display';
 import { shortId } from '@/lib/admin-display';
+import type { ReconciliationReport, EscrowBalances } from '@/api/contracts';
+
+
+const balanceFields: {key:keyof EscrowBalances;label:string}[]=[
+  {key:'confirmed',label:'Đã xác nhận'},
+  {key:'reserved',label:'Đang dự trữ'},
+  {key:'refundReserved',label:'Dự trữ hoàn tiền'},
+  {key:'disbursed',label:'Đã giải ngân'},
+  {key:'refunded',label:'Đã hoàn tiền'},
+  {key:'adjustmentCredits',label:'Điều chỉnh tăng'},
+  {key:'adjustmentDebits',label:'Điều chỉnh giảm'},
+  {key:'available',label:'Khả dụng'},
+];
+function ReconciliationBalances({report}:{report:ReconciliationReport}){
+  return <div className="mt-4">
+    <p className="mb-3 text-xs font-semibold text-brand-ink">Đối chiếu đầy đủ 8 cấu phần · {report.consistent===true?'Nhất quán':report.consistent===false?'Có sai lệch':'Chưa xác định'}</p>
+    <div className="overflow-x-auto">
+      <table className="w-full min-w-[370px] border-collapse text-left text-xs">
+        <thead><tr className="border-b border-border text-muted"><th scope="col" className="py-2 pr-3">Cấu phần</th><th scope="col" className="py-2 pr-3">Lưu trong hệ thống</th><th scope="col" className="py-2 pr-3">Tính từ ledger</th><th scope="col" className="py-2">Kết quả</th></tr></thead>
+        <tbody>{balanceFields.map(field=>{
+          const stored=report.stored?.[field.key];
+          const computed=report.computedFromLedger?.[field.key];
+          const known=typeof stored==='number'&&Number.isFinite(stored)&&typeof computed==='number'&&Number.isFinite(computed);
+          const matched=known&&stored===computed;
+          return <tr key={field.key} className={matched?'border-b border-border':'border-b border-border bg-soft-sand'}>
+            <th scope="row" className="py-2 pr-3 font-semibold text-brand-ink">{field.label}</th>
+            <td className="py-2 pr-3 tabular-nums">{amountLabel(stored,report.currency)}</td>
+            <td className="py-2 pr-3 tabular-nums">{amountLabel(computed,report.currency)}</td>
+            <td className={'py-2 font-semibold '+(matched?'text-brand':'text-warning')}>{!known?'Thiếu dữ liệu':matched?'Khớp':'Sai lệch'}</td>
+          </tr>;
+        })}</tbody>
+      </table>
+    </div>
+  </div>;
+}
 
 const uuid=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 export function AdminEscrowPage(){
@@ -79,7 +114,7 @@ export function AdminEscrowPage(){
       {reports.isSuccess?<div className="mt-5 grid gap-4 md:grid-cols-2">
         {reports.data.map((report,index)=><article key={report.campaignId??index} className="rounded-card border border-border bg-surface p-5">
           <div className="flex flex-wrap items-center justify-between gap-2"><p className="text-sm font-bold text-brand-ink">Chiến dịch {shortId(report.campaignId)}</p><span className={'rounded-full px-3 py-1 text-xs font-bold '+(report.consistent?'bg-soft-mint text-brand':'bg-soft-sand text-warning')}>{report.consistent?'Nhất quán':'Không nhất quán'}</span></div>
-          <p className="mt-3 text-xs text-muted">Sổ ghi: {amountLabel(report.stored?.available,report.currency)} · Tính từ ledger: {amountLabel(report.computedFromLedger?.available,report.currency)}</p>
+          <ReconciliationBalances report={report}/>
           <p className="mt-1 text-xs text-muted">{report.ledgerEntryCount??0} bút toán đã ghi nhận</p>
           {report.campaignId?<Button variant="outline" className="mt-4" onClick={()=>chooseCampaign(report.campaignId!)}>Kiểm tra chi tiết</Button>:null}
         </article>)}
@@ -104,7 +139,10 @@ export function AdminEscrowPage(){
         {selectedRun.isError?<p role="alert" className="mt-3 text-sm text-danger">{selectedRun.error.message}</p>:null}
         {selectedRun.isSuccess?<><p className="mt-3 text-sm font-semibold">{selectedRun.data.runStatus} · {selectedRun.data.accountsChecked??0} tài khoản · {selectedRun.data.inconsistentAccounts??0} sai lệch</p>
           {selectedRun.data.errorMessage?<p className="mt-2 text-sm text-danger">{selectedRun.data.errorMessage}</p>:null}
-          {selectedRun.data.findings?.map((f,index)=><p key={f.escrowAccountId??index} className="mt-2 text-xs text-muted">Chiến dịch {shortId(f.campaignId)} — {f.consistent?'Nhất quán':'Không nhất quán'}</p>)}
+          {selectedRun.data.findings?.map((f,index)=><div key={f.escrowAccountId??index} className="mt-5 rounded-xl border border-border p-4">
+            <p className="font-bold text-brand-ink">Chiến dịch {shortId(f.campaignId)}</p>
+            <ReconciliationBalances report={f}/>
+          </div>)}
         </>:null}
       </div>:null}
     </section>
@@ -129,7 +167,10 @@ export function AdminEscrowPage(){
         </div>:null}
         {reconciliation.isPending?<p className="mt-4 text-xs text-muted">Đang đối chiếu tài khoản…</p>:null}
         {reconciliation.isError?<p role="alert" className="mt-4 text-sm text-danger">{reconciliation.error.message}</p>:null}
-        {reconciliation.isSuccess?<p className={'mt-4 rounded-xl p-4 text-sm font-semibold '+(reconciliation.data.consistent?'bg-soft-mint text-brand':'bg-soft-sand text-warning')}>Đối soát: {reconciliation.data.consistent?'Nhất quán':'Không nhất quán'} · {reconciliation.data.ledgerEntryCount??0} bút toán</p>:null}
+        {reconciliation.isSuccess?<div className="mt-4 rounded-xl border border-border bg-surface p-5">
+          <p className={'text-sm font-semibold '+(reconciliation.data.consistent?'text-brand':'text-warning')}>Đối soát: {reconciliation.data.consistent?'Nhất quán':'Không nhất quán'} · {reconciliation.data.ledgerEntryCount??0} bút toán</p>
+          <ReconciliationBalances report={reconciliation.data}/>
+        </div>:null}
         <h3 className="mt-8 text-lg font-bold text-brand-ink">Bút toán sổ cái</h3>
         {ledger.isPending?<div className="mt-4"><StatusMessage title="Đang tải bút toán…"/></div>:null}
         {ledger.isError?<div className="mt-4"><StatusMessage error title="Không tải được bút toán" detail={ledger.error.message}/></div>:null}

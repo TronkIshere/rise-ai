@@ -9,9 +9,9 @@ Status: **DRAFT, not accepted or merged**. Scope: only `rise-ai-frontend/` and e
 - Donation: Admin simulation confirmation/failure on PENDING only, separate from Donor's creation. Never label real payment completed.
 - Refund: REQUESTED -> APPROVED/REJECTED -> RECORDED; backend prohibits reviewer conflict and ledger inconsistencies. RECORD is simulated ledger-only.
 - Disbursement: SUBMITTED -> UNDER_REVIEW -> APPROVED/NEEDS_MORE_EVIDENCE/REJECTED -> RELEASED (if approved). Review evidence from associated milestone, submit metadata approvals; Backend enforces accepted evidence and prohibits self-approval.
-- Dispute: OPEN -> assigned to active authorized Admin -> UNDER_REVIEW -> RESOLVED_UPHELD or RESOLVED_DISMISSED by assigned reviewer only. Backend guards conflicts and audit.
-- Adjustments/settlements: proposals are not immediate ledger entries. Require independent legitimate approval; all funds are simulated and no bank transaction occurs.
-- Reconciliation: display global/per-campaign stored-vs-ledger balances, INCONSISTENT vs CONSISTENT, run history; do not mask deviations. Manual POST run only by deliberate user action.
+- Dispute: OPEN -> assigned to active authorized Admin -> UNDER_REVIEW -> RESOLVED_UPHELD or RESOLVED_DISMISSED by assigned reviewer only. Reviewer must see `supportingReferences` **and** paginated Backend message history before resolving. When messages cannot be retrieved, resolution actions must be unavailable. Backend guards conflicts and audit.
+- Adjustments: clearly show Backend `direction` (CREDIT adds, DEBIT subtracts, NEUTRAL changes neither) next to amount **before independent approval**; missing/invalid direction blocks approval in the UI. Settlements/adjustments: proposals are not immediate ledger entries. Require independent legitimate approval; all funds are simulated and no bank transaction occurs.
+- Reconciliation: display global/per-campaign **all eight** stored-vs-ledger balances (confirmed, reserved, refundReserved, disbursed, refunded, adjustmentCredits, adjustmentDebits, available), INCONSISTENT vs CONSISTENT, and the **same eight** within historical run findings. A mismatch in a dimension other than available must be visible, not masked. Manual POST run only by deliberate user action.
 - FE-05 monitoring findings and audit-log UI are **not** included in FE-04.
 
 ## CI and source checks
@@ -31,9 +31,9 @@ Run local MySQL and Backend 8082 with `RISE_MONITORING_ENABLED=false`; Frontend 
 - [ ] PENDING simulated donation confirm/fail; no claim of real payment. No approval of own donor contribution.
 - [ ] REQUESTED refund approve or reject and separately record APPROVED refund; verify `externalPaymentStatus=NOT_EXECUTED_SIMULATION`.
 - [ ] SUBMITTED disbursement start review, inspect associated milestone evidence, approve/reject SUBMITTED evidence with notes, request more evidence, approve, and release approved **simulated** amount only when Backend allows.
-- [ ] Dispute OPEN can be assigned to current active Admin and then resolved by assigned reviewer; distinct conflict-of-interest accounts and invalid state must be rejected by Backend.
-- [ ] Escrow: global reconciliation loads; select campaign UUID; see account balances and ledger entries; create manual reconciliation run; inspect status and mismatch findings.
-- [ ] Propose simulated ledger adjustment and settlement only on eligible state; queue and review using independent Admin, respecting self-approval prohibition. No real transaction.
+- [ ] Dispute OPEN can be assigned to current active Admin and then resolved by assigned reviewer; test references and message history with 2+ pages, verify all pages accessible. Force message API error and ensure resolution is blocked. Distinct conflict-of-interest accounts and invalid state must be rejected by Backend.
+- [ ] Escrow: global reconciliation loads; select campaign UUID; see all eight balance dimensions side-by-side, including a fixture where `available` matches but `refundReserved` or `adjustmentDebits` differs. Create a manual reconciliation run; inspect **all eight** dimensions of historical findings and mismatches.
+- [ ] In independent adjustment review, compare CREDIT and DEBIT proposals of the same amount; both show direction and whether escrow increases/decreases **before confirmation**. Missing direction blocks approval. Propose simulated ledger adjustment and settlement only on eligible state; queue and review using independent Admin, respecting self-approval prohibition. No real transaction.
 - [ ] Keyboard accessibility, 375px/1440px layouts, error/loading states, no user-entered HTML interpolation, FE-01/02/03 regression smoke.
 - [ ] FE-05 AI findings or audit not mistakenly presented as implemented.
 

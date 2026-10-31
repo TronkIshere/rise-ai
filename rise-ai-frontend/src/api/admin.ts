@@ -1,6 +1,6 @@
 import { apiRequest } from './client';
 import type {
-  AdjustmentResponse, CampaignResponse, DisbursementResponse, DisputeResponse, DonationResponse,
+  AdjustmentResponse, CampaignResponse, DisbursementResponse, DisputeMessageResponse, DisputeResponse, DonationResponse,
   EscrowSummary, EvidenceResponse, OrganizationResponse, PageResponse, ReconciliationReport,
   ReconciliationRunResponse, RefundResponse, SettlementResponse, SystemStatistics,
 } from './contracts';
@@ -46,6 +46,9 @@ export function getAdminItem(kind:AdminQueue,recordId:string):Promise<AdminItem>
     kind==='disputes'?'/api/v1/disputes/'+id(recordId):
     '/api/v1/admin/'+kind+'/'+id(recordId);
   return apiRequest<AdminItem>(path as `/api/v1/admin/${string}`);
+}
+export function getAdminDisputeMessages(disputeId:string,page:number){
+  return apiRequest<PageResponse<DisputeMessageResponse>>(`/api/v1/disputes/${id(disputeId)}/messages?${paging(page)}`);
 }
 export function getDisbursementEvidence(recordId:string,page:number){
   return apiRequest<PageResponse<EvidenceResponse>>(`/api/v1/disbursements/${id(recordId)}/evidence?${paging(page)}`);
