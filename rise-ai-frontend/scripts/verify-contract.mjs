@@ -22,6 +22,24 @@ const endpoints = [
   ['/api/v1/disputes/{id}/messages','get'],
   ['/api/v1/disputes/{id}/messages','post'],
   ['/api/v1/disputes/{id}/withdraw','post'],
+  ['/api/v1/organizations/mine','get'],
+  ['/api/v1/organizations','post'],
+  ['/api/v1/organizations/{id}','put'],
+  ['/api/v1/organizations/{id}/submit-verification','post'],
+  ['/api/v1/campaigns/mine','get'],
+  ['/api/v1/campaigns','post'],
+  ['/api/v1/campaigns/{id}','put'],
+  ['/api/v1/campaigns/{id}/submit','post'],
+  ['/api/v1/campaigns/{id}/publish','post'],
+  ['/api/v1/campaigns/{campaignId}/milestones','post'],
+  ['/api/v1/milestones/{id}','put'],
+  ['/api/v1/milestones/{id}/start','post'],
+  ['/api/v1/milestones/{milestoneId}/evidence','get'],
+  ['/api/v1/milestones/{milestoneId}/evidence','post'],
+  ['/api/v1/campaigns/{campaignId}/disbursements','get'],
+  ['/api/v1/milestones/{milestoneId}/disbursements','post'],
+  ['/api/v1/disbursements/{id}/resubmit','post'],
+  ['/api/v1/disbursements/{id}/cancel','post'],
 ];
 for (const [path, method] of endpoints) {
   if (!spec.paths?.[path]?.[method]) errors.push(method + ' ' + path + ' missing');
@@ -42,6 +60,14 @@ for (const [schema, fields] of Object.entries({
   DisputeResponse: ['id','disputeStatus','openedBy','campaignId'],
   DisputeMessageRequest: ['message'],
   DisputeMessageResponse: ['authorId','message'],
+  OrganizationRequest: ['name','organizationType','contactEmail'],
+  OrganizationResponse: ['id','createdBy','verificationStatus','verificationNotes'],
+  CampaignRequest: ['organizationId','title','targetAmount','startAt','endAt','beneficiaryCount','budgetBreakdown'],
+  MilestoneRequest: ['plannedAmount','startAt','dueAt','releaseConditions','expectedDeliverables'],
+  EvidenceRequest: ['evidenceType','fileUrl','fileHash','externalReference'],
+  EvidenceResponse: ['evidenceStatus','reviewNote'],
+  CreateDisbursementRequest: ['amount','reason'],
+  DisbursementResponse: ['requestStatus','simulated','requestReason'],
 })) {
   const props = spec.components?.schemas?.[schema]?.properties;
   for (const field of fields) if (!props?.[field]) errors.push(schema + '.' + field + ' missing');

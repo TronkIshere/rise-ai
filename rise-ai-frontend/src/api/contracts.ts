@@ -36,6 +36,7 @@ export interface OrganizationSummary {
 }
 export interface CampaignResponse {
   id?: string;
+  creatorId?: string;
   title?: string;
   slug?: string;
   shortDescription?: string;
@@ -53,6 +54,11 @@ export interface CampaignResponse {
   coverImageUrl?: string;
   beneficiaryCount?: number;
   beneficiaryDescription?: string;
+  startAt?: string;
+  budgetBreakdown?: BudgetItem[];
+  galleryImageUrls?: string[];
+  reviewStatus?: string;
+  reviewNote?: string;
   publishedAt?: string;
   endAt?: string;
   funding?: FundingSummary;
@@ -64,9 +70,13 @@ export interface MilestoneResponse {
   description?: string;
   milestoneStatus?: string;
   sequenceNumber?: number;
+  evidenceCount?: number;
   plannedAmount?: number;
   releasedAmount?: number;
   dueAt?: string;
+  startAt?: string;
+  releaseConditions?: string;
+  remainingAmount?: number;
   expectedDeliverables?: string;
 }
 export interface PageResponse<T> {
@@ -110,3 +120,43 @@ export interface DisputeResponse {
   description?: string; resolution?: string; createdAt?: string; updatedAt?: string;
 }
 export interface DisputeMessageResponse { id?: string; disputeId?: string; authorId?: string; message?: string; createdAt?: string }
+
+export type OrganizationType = 'NGO' | 'CHARITY_FUND' | 'COMMUNITY_GROUP' | 'SOCIAL_ENTERPRISE' | 'EDUCATIONAL_INSTITUTION' | 'OTHER';
+export type VerificationStatus = 'UNVERIFIED' | 'PENDING_REVIEW' | 'VERIFIED' | 'REJECTED';
+export interface OrganizationRequest {
+  name: string; organizationType: OrganizationType; contactEmail: string;
+  contactPhone?: string; address?: string; description?: string;
+}
+export interface OrganizationResponse extends OrganizationRequest {
+  id?: string; createdBy?: string; slug?: string; verificationStatus?: VerificationStatus;
+  verificationNotes?: string; verificationDisclaimer?: string; createdAt?: string;
+}
+export interface BudgetItem { item: string; amount: number; note?: string }
+export interface CampaignRequest {
+  organizationId: string; title: string; shortDescription: string; fullDescription: string;
+  category: CampaignCategory; beneficiaryDescription: string; beneficiaryCount: number;
+  targetAmount: number; minimumDonationAmount: number; startAt: string; endAt: string;
+  location: string; problemStatement: string; solutionDescription: string; impactGoals: string;
+  currency?: string; coverImageUrl?: string; galleryImageUrls?: string[]; budgetBreakdown?: BudgetItem[];
+}
+export interface MilestoneRequest {
+  title: string; description?: string; startAt: string; dueAt: string;
+  plannedAmount: number; expectedDeliverables: string; releaseConditions: string;
+}
+export type EvidenceType = 'RECEIPT' | 'INVOICE' | 'DELIVERY_RECORD' | 'PHOTO' | 'PROGRESS_REPORT' | 'ACTIVITY_DESCRIPTION' | 'EXTERNAL_REFERENCE';
+export interface EvidenceRequest {
+  title: string; evidenceType: EvidenceType; description?: string; fileUrl?: string;
+  fileHash?: string; externalReference?: string;
+}
+export interface EvidenceResponse {
+  id?: string; title?: string; evidenceType?: EvidenceType; evidenceStatus?: 'SUBMITTED'|'ACCEPTED'|'REJECTED';
+  milestoneId?: string; disbursementRequestId?: string; description?: string; fileUrl?: string;
+  fileHash?: string; externalReference?: string; reviewNote?: string; submittedAt?: string;
+}
+export type DisbursementStatus = 'SUBMITTED'|'UNDER_REVIEW'|'NEEDS_MORE_EVIDENCE'|'APPROVED'|'REJECTED'|'RELEASED'|'CANCELLED'|'DISPUTED';
+export interface CreateDisbursementRequest { amount: number; reason: string }
+export interface DisbursementResponse {
+  id?: string; requestCode?: string; milestoneId?: string; campaignId?: string;
+  requestedAmount?: number; currency?: string; requestReason?: string; requestStatus?: DisbursementStatus;
+  decisionReason?: string; createdAt?: string; submittedAt?: string; simulated?: boolean;
+}
