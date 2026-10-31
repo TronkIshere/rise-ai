@@ -49,3 +49,11 @@ Never copy hotel-specific components, MUI, session storage or business workflows
 - `/creator/campaigns/:id`: owner-only management; milestone budget and deadline editing, submit for Admin review, publish only after APPROVED. Evidence is **reference metadata** (description, real HTTPS/sim URL, optional actual SHA-256) — **no file upload**, no fabricated hash.
 - Disbursement requests are created with idempotency keys only when Backend state allows. Admin solely reviews, accepts evidence and records simulated disbursement.
 - [FE-03 acceptance](docs/FE03_ACCEPTANCE.md) explains the prerequisites and browser verification. FE-00 memory-only auth and FE-02 donor routes remain unchanged.
+
+## FE-04 — Admin Experience (simulation only)
+- `/admin`: Admin-only statistics and paginated, status-filtered review queues for organization verification, campaigns, donations, refunds, disbursements, disputes and ledger adjustment/settlement proposals.
+- `/admin/review/:kind/:id`: Backend-sourced detail plus state-aware actions. Explicit confirmation + reason when required. Disputes must be assigned to a legitimate active Admin before resolution; ownership and conflict checks are authoritative on Backend.
+- Disbursement evidence is reviewed against the related milestone; approve or reject evidence metadata. **Never treat URL/hash as independent verification**.
+- `/admin/escrow`: ledger account summary, global/per-campaign reconciliation and run history, view ledger entries and request simulated adjustment/settlement. Approving and recording stay separate Backend-controlled operations.
+- No actual money transfer, no auto-approve, no source edits to Backend/Monitoring. AI findings/audit remain FE-05.
+- Manual and CI gates: [FE-04 acceptance](docs/FE04_ACCEPTANCE.md). Keep PR Draft until browser verification.

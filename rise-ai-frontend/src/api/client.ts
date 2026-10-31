@@ -48,7 +48,24 @@ type ApiPath =
   | `/api/v1/milestones/${string}/disbursements`
   | `/api/v1/disbursements/${string}/evidence`
   | `/api/v1/disbursements/${string}/resubmit`
-  | `/api/v1/disbursements/${string}/cancel`;
+  | `/api/v1/disbursements/${string}`
+  | `/api/v1/evidence/${string}`
+  | `/api/v1/disbursements/${string}/cancel`
+  | `/api/v1/admin/${string}`
+  | `/api/v1/escrow/${string}`
+  | `/api/v1/campaigns/${string}/escrow`
+  | `/api/v1/disbursements/${string}/start-review`
+  | `/api/v1/disbursements/${string}/request-evidence`
+  | `/api/v1/disbursements/${string}/approve`
+  | `/api/v1/disbursements/${string}/reject`
+  | `/api/v1/disbursements/${string}/release`
+  | `/api/v1/evidence/${string}/accept`
+  | `/api/v1/evidence/${string}/reject`
+  | `/api/v1/campaigns/${string}/approve`
+  | `/api/v1/campaigns/${string}/reject`
+  | `/api/v1/campaigns/${string}/pause`
+  | `/api/v1/campaigns/${string}/resume`
+  | `/api/v1/campaigns/${string}/complete`;
 
 const baseUrl = (import.meta.env.VITE_API_BASE_URL ?? '').replace(/\/$/, '');
 
