@@ -42,7 +42,7 @@ test('FE-04 narrow viewport: reconciliation scroll is contained inside a shrinka
   assert.ok(escrow.includes(globalCard),'Global grid cards must shrink below the 370px table minimum width');
   assert.match(escrow,/return <div className="mt-4 w-full min-w-0 max-w-full">/);
   assert.match(escrow,/className="w-full min-w-0 max-w-full overflow-x-auto"/);
-  assert.match(escrow,/className="w-full min-w-\[370px\]"/);
+  assert.match(escrow,/className="w-full min-w-\[370px\] border-collapse/);
   assert.match(escrow,/key=\{f\.escrowAccountId\?\?index\} className="mt-5 min-w-0 max-w-full/);
   assert.match(escrow,/reconciliation\.isSuccess\?<div className="mt-4 min-w-0 max-w-full/);
 });
