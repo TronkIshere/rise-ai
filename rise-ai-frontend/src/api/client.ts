@@ -21,7 +21,8 @@ type ApiPath =
   | '/api/v1/auth/logout'
   | '/api/v1/auth/me'
   | `/api/v1/campaigns?${string}`
-  | `/api/v1/campaigns/slug/${string}`;
+  | `/api/v1/campaigns/slug/${string}`
+  | `/api/v1/campaigns/${string}/milestones`;
 
 const baseUrl = (import.meta.env.VITE_API_BASE_URL ?? '').replace(/\/$/, '');
 

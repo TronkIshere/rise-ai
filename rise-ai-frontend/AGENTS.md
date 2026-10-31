@@ -16,3 +16,10 @@
 - Accumulate related changes, run checks, then commit together; squash merge PRs into `master` after review.
 - Never force-push, rewrite collaborators' commits, or commit directly to `master`.
 - Progress entries must reflect actual evidence; keep commit history concise without sacrificing traceability.
+
+## FE-01 public website rules
+- Campaign discovery must query Backend with `status=ACTIVE`; search `q`, `category` and page are server-side.
+- Rendering `funding.netRaised` and milestone released amounts must always label data as **simulation**.
+- Use only public Backend responses. Never expose admin findings, disputes or creator-only private data on public pages.
+- Never invent customer testimonials, fundraising statistics, named beneficiaries, evidence verification, or paid contributions.
+- Leave the donation transaction and refund flows for FE-02. No dead payment buttons.
