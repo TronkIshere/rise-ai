@@ -10,7 +10,7 @@ import { Container } from '@/components/layout/Container';
 import { AdminDecisionForm } from '@/components/ui/AdminDecisionForm';
 import { RecordPagination } from '@/components/ui/RecordPagination';
 import { StatusMessage } from '@/components/ui/StatusMessage';
-import { amountLabel,dateLabel } from '@/lib/campaign-display';
+import { amountLabel } from '@/lib/campaign-display';
 import { reviewChoices,shortId } from '@/lib/admin-display';
 
 const kinds=new Set<string>(['organizations','campaigns','donations','refunds','disbursements','disputes','adjustments','settlements']);
