@@ -11,6 +11,10 @@ import { CreatorCampaignPage } from '@/pages/CreatorCampaignPage';
 import { AdminDashboardPage } from '@/pages/AdminDashboardPage';
 import { AdminReviewPage } from '@/pages/AdminReviewPage';
 import { AdminEscrowPage } from '@/pages/AdminEscrowPage';
+import { AdminMonitoringPage } from '@/pages/AdminMonitoringPage';
+import { AdminFindingPage } from '@/pages/AdminFindingPage';
+import { AdminDeliveryPage } from '@/pages/AdminDeliveryPage';
+import { AdminAuditPage } from '@/pages/AdminAuditPage';
 import { HomePage } from '@/pages/HomePage';
 import { CampaignsPage } from '@/pages/CampaignsPage';
 import { CampaignDetailPage } from '@/pages/CampaignDetailPage';
@@ -36,6 +40,10 @@ export const router = createBrowserRouter([
       { path: '/admin', element: <RequireAuth><RequireRole role="ADMIN"><AdminDashboardPage /></RequireRole></RequireAuth> },
       { path: '/admin/review/:kind/:id', element: <RequireAuth><RequireRole role="ADMIN"><AdminReviewPage /></RequireRole></RequireAuth> },
       { path: '/admin/escrow', element: <RequireAuth><RequireRole role="ADMIN"><AdminEscrowPage /></RequireRole></RequireAuth> },
+      { path: '/admin/monitoring', element: <RequireAuth><RequireRole role="ADMIN"><AdminMonitoringPage /></RequireRole></RequireAuth> },
+      { path: '/admin/monitoring/findings/:id', element: <RequireAuth><RequireRole role="ADMIN"><AdminFindingPage /></RequireRole></RequireAuth> },
+      { path: '/admin/monitoring/delivery', element: <RequireAuth><RequireRole role="ADMIN"><AdminDeliveryPage /></RequireRole></RequireAuth> },
+      { path: '/admin/audit', element: <RequireAuth><RequireRole role="ADMIN"><AdminAuditPage /></RequireRole></RequireAuth> },
       { path: '/workspace', element: <RequireAuth><WorkspacePage /></RequireAuth> },
       { path: '*', element: <NotFoundPage /> },
     ],

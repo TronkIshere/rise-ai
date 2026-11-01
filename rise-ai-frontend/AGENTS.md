@@ -39,3 +39,10 @@
 - Never auto-confirm, auto-approve, auto-apply adjustments or run reconciliation in background; require a deliberate admin interaction.
 - Show and preserve inconsistent reconciliation findings, missing evidence and authoritative Backend errors.
 - No FE-05 monitoring findings, review automation, or audit-log UI in FE-04; no Backend/Monitoring changes.
+
+## FE-05 monitoring and audit guardrails
+- Route-level ADMIN guards and Backend-authoritative role/ownership/transition checks. Finding labels and detector notes are advisory; never equate detection with proven wrongdoing or take automatic financial action.
+- Show full facts, occurrences and audit history without injecting HTML. Never call the monitoring microservice from the browser or invent AI inference.
+- Only OPEN/ACKNOWLEDGED findings can be reviewed, with a nonblank note and explicit human confirmation. FAILED outbox/alert retries require a manual reason and do not imply delivered.
+- All new APIs come from `rise-ai-backend/docs/api/openapi-v1.json`. Do not modify Backend/Monitoring.
+- Do not undertake visual/SaaS-style redesign in FE-05. The owner explicitly scheduled an audit, comparison of multiple visually distinct concepts, choice, redesign and acceptance **after FE-06**.
