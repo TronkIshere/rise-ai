@@ -10,6 +10,8 @@ test('FE-06 Docker staging is explicitly local-only and requires Backend upstrea
   assert.match(compose,/127\.0\.0\.1:/);
   assert.match(compose,/RISE_FRONTEND_BACKEND_UPSTREAM:\?/);
   assert.match(docker,/ENV VITE_API_BASE_URL=""/);
+  assert.match(docker,/COPY --from=backend_contract openapi-v1.json \/rise-ai-backend\/docs\/api\/openapi-v1.json/);
+  assert.match(compose,/backend_contract: \.\.\/rise-ai-backend\/docs\/api/);
   assert.match(nginx,/location \/api\//);
   assert.match(nginx,/proxy_pass \$\{BACKEND_UPSTREAM\};/);
   assert.match(nginx,/location = \/healthz/);

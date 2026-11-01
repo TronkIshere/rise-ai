@@ -34,6 +34,8 @@ Use a **disposable** MySQL 8.4 database, Java 21 Backend, real Monitoring when a
 - [ ] 375×900 and 1440×900: public and authenticated pages, admin Escrow, monitoring detail, audit and delivery. `document.documentElement.scrollWidth <= innerWidth`; wide escrow tables scroll internally.
 - [ ] Keyboard labels, long/error text escaped, no runtime console errors, loading/empty/network errors; no direct browser calls to Monitoring service or credential exfiltration.
 - [ ] Production bundle/preview: browser connected through **same-origin proxy**, deep-linked page refresh returns SPA, all asset requests load; unauthenticated /api/v1/admin monitoring is denied.
+- [ ] The Docker build's separate named `backend_contract` build context supplies the authoritative Backend OpenAPI to `npm run verify`; do not duplicate contract snapshots. Test Docker build against the actual monorepo checkout.
+- [ ] Backend CORS allowlist explicitly includes the local staging origin (e.g. `http://127.0.0.1:5174`) through its documented Spring configuration, without wildcard origins or disabling security. Confirm an OPTIONS preflight for login succeeds, and actual Chromium login+mutations work through Nginx.
 - [ ] Execute `npm run deploy:smoke` against an actual running release with `RISE_FE06_BASE_URL`, `RISE_FE06_TARGET=docker`. Include screenshot, request log and http/DOM evidence.
 - [ ] Ensure no existing FreelaX, shared MySQL or Redis Docker resources were stopped, deleted or modified.
 

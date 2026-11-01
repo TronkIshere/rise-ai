@@ -13,9 +13,9 @@ try{
 }catch(e){console.error('Invalid RISE_FE06_BASE_URL:',e.message);process.exit(2);}
 const base=root.origin;
 let failures=0;
-async function check(name,path,expected,validate){
+async function check(name,path,expected,validate,options={}){
   try{
-    const response=await fetch(base+path,{redirect:'manual',signal:AbortSignal.timeout(10000),headers:{Accept:'application/json, text/html'}});
+    const response=await fetch(base+path,{redirect:'manual',signal:AbortSignal.timeout(10000),headers:{Accept:'application/json, text/html',...options.headers},method:options.method||'GET'});
     const body=await response.text();
     const pass=expected.includes(response.status)&&(!validate||validate(response,body));
     console.log((pass?'PASS':'FAIL')+' '+name+' ('+response.status+')');
@@ -27,6 +27,11 @@ for(const route of ['/','/campaigns','/login','/admin/monitoring','/admin/audit'
   await check('SPA deep link '+route,route,[200],(r,body)=>
     (r.headers.get('content-type')||'').includes('text/html')&&body.includes('id="root"'));
 }
+// Browser POSTs send Origin even on a same-origin page. Test the Backend's CORS
+// configuration without a mutation, using an explicit preflight OPTIONS request.
+await check('Backend accepts staging origin for login POST','/api/v1/auth/login',[200,204],
+  (r)=>r.headers.get('access-control-allow-origin')===base,
+  {method:'OPTIONS',headers:{Origin:base,'Access-Control-Request-Method':'POST','Access-Control-Request-Headers':'content-type'}});
 await check('Public Backend campaign API','/api/v1/campaigns?status=ACTIVE&page=0&size=1',[200],(r,body)=>{
   try{const value=JSON.parse(body);return value&&typeof value==='object'&&Object.hasOwn(value,'data');}
   catch{return false;}

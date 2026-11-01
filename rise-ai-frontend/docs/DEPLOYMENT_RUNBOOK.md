@@ -29,6 +29,15 @@ $env:RISE_FE06_TARGET = "docker"
 npm run deploy:smoke
 ```
 
+**Required Backend CORS setup BEFORE starting Spring Boot for this staging origin:** The unchanged Backend application sets `rise.security.cors-allowed-origins` to `http://localhost:3000,http://localhost:5173` by default. The container UI is served at **`http://127.0.0.1:5174`**, so the Backend must explicitly allow that origin for browser POSTs. With Spring Boot relaxed environment binding, set the following on the Backend process (not in the frontend client):
+
+```powershell
+$env:RISE_SECURITY_CORS_ALLOWED_ORIGINS = "http://localhost:3000,http://localhost:5173,http://127.0.0.1:5174"
+# Start the unchanged Backend here with its existing DB/JWT and SERVER_PORT configuration.
+```
+
+Keep the list exact, never use `*`. If the configured port/origin differs, update this allowlist accordingly and restart Backend. `npm run deploy:smoke` sends a **read-only OPTIONS preflight** with that Origin and checks `Access-Control-Allow-Origin`; a simple anonymous GET smoke alone cannot validate authenticated browser mutations. This preflight is a configuration check, not a replacement for real login and review E2E.
+
 The example Backend port is **illustrative**, not assumed available. Verify Backend health/port first and adjust the upstream accordingly. Docker Desktop uses `host.docker.internal` to reach a locally running Backend; Linux uses the configured `host-gateway` extra host. A healthy Nginx `/healthz` alone does **not** prove Backend connectivity. `deploy:smoke` must verify both SPA and API.
 
 The Compose file publishes only `127.0.0.1:5174`; it does not provision Backend, MySQL, Monitoring or TLS. A standalone frontend without a reachable Backend is an **incomplete** deployment.

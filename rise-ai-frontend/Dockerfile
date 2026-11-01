@@ -1,9 +1,13 @@
+# syntax=docker/dockerfile:1.7
 # FE-06: reproducible SPA build; Backend/Monitoring are separate services.
 FROM node:24-alpine AS build
 WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm ci --no-audit --no-fund
 COPY . .
+# Read ONLY the authoritative OpenAPI file from the isolated Backend contract build context.
+# Its sibling path matches scripts/verify-contract.mjs; no duplicated frontend snapshot.
+COPY --from=backend_contract openapi-v1.json /rise-ai-backend/docs/api/openapi-v1.json
 # Same-origin /api proxy in the runtime container; no localhost API URL baked into assets.
 ENV VITE_API_BASE_URL=""
 RUN npm run verify

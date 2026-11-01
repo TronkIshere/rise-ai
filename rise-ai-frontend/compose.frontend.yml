@@ -5,6 +5,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      additional_contexts:
+        backend_contract: ../rise-ai-backend/docs/api
     image: rise-ai-frontend:fe06
     environment:
       BACKEND_UPSTREAM: "${RISE_FRONTEND_BACKEND_UPSTREAM:?Set RISE_FRONTEND_BACKEND_UPSTREAM to a trusted Backend origin}"
