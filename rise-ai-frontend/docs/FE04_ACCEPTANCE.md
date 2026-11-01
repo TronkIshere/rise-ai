@@ -1,6 +1,6 @@
 # FE-04 — Admin Experience acceptance checklist
 
-Status: **DRAFT, not accepted or merged**. Scope: only `rise-ai-frontend/` and existing Spring Boot API. No real-money operations.
+Status: **ACCEPTED and MERGED** — PR [#5](https://github.com/TronkIshere/rise-ai/pull/5), squash commit `7baba935cd4a05999b4451011436b9b06c176a15`. Browser retest 12/12 PASS including responsive 375px; post-merge Frontend, Backend, Monitoring and Images CI PASS. The checklist below is retained as the original acceptance test plan; its unchecked boxes are not new open bugs. Scope: only `rise-ai-frontend/` and existing Spring Boot API. No real-money operations.
 
 ## Permission and state invariants
 - All `/admin`, `/admin/review/:kind/:id`, `/admin/escrow` routes require an authenticated `ADMIN`. Anonymous, Donor and Creator must not access them. Backend checks permission even if UI is bypassed.

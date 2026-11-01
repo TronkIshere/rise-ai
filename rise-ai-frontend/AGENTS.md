@@ -46,3 +46,10 @@
 - Only OPEN/ACKNOWLEDGED findings can be reviewed, with a nonblank note and explicit human confirmation. FAILED outbox/alert retries require a manual reason and do not imply delivered.
 - All new APIs come from `rise-ai-backend/docs/api/openapi-v1.json`. Do not modify Backend/Monitoring.
 - Do not undertake visual/SaaS-style redesign in FE-05. The owner explicitly scheduled an audit, comparison of multiple visually distinct concepts, choice, redesign and acceptance **after FE-06**.
+
+## FE-06 packaging, deployment & handoff
+- FE-06 changes must stay within `rise-ai-frontend/**`, and must not modify FE-00–FE-05 business workflows or Backend/Monitoring.
+- `npm run verify` must include a frontend production-build release gate. A Docker staging preview requires an explicit trusted Backend upstream, localhost binding, SPA deep-link routing and a read-only HTTP smoke.
+- Never claim public deployment or fully accepted FE-06 without a confirmed target, real-browser evidence and post-merge `master` CI. Keep Draft until independent acceptance.
+- Do not remove Docker resources unrelated to Rise AI; no `down -v` or broad Docker prune.
+- The community-first non-SaaS redesign is explicitly deferred until after FE-06, with multiple concepts and user choice before coding.

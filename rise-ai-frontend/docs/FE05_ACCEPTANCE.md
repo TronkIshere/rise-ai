@@ -1,6 +1,6 @@
 # FE-05 — AI Monitoring & Audit Experience acceptance
 
-**Status: DRAFT / NOT ACCEPTED until CI + independent Chromium E2E.** Branch: `feat/fe05-ai-monitoring-audit`. Scope: **`rise-ai-frontend/**` only**. Do not modify Backend, Monitoring, FE-04 logic or redesign UI; a separate UI/UX redesign is scheduled **after FE-06**.
+**Status: ACCEPTED and MERGED** — PR [#6](https://github.com/TronkIshere/rise-ai/pull/6), squash commit `2480b598efbba95cafd6c53de60147f9b0bae7ad`. Codex browser 40/40 final PASS (36 real integration, 4 explicitly mocked negatives); post-merge Frontend/Backend/Monitoring/Images CI PASS. Checklist retained as historical test plan, not a fresh list of missing fixes. Scope: **`rise-ai-frontend/**` only**. Do not modify Backend, Monitoring, FE-04 logic or redesign UI; a separate UI/UX redesign is scheduled **after FE-06**.
 
 ## Scope and safety invariants
 

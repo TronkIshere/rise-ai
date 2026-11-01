@@ -1,4 +1,4 @@
-# Rise AI — Frontend (FE-00)
+# Rise AI — Frontend (FE-00 through FE-05 accepted; FE-06 release candidate)
 
 A lean, **non-SaaS**, charity transparency web application. React + TypeScript + Vite + Tailwind CSS 4.
 This UI only calls the Spring Boot **Backend** (`/api/v1`); it never calls AI Monitoring directly.
@@ -15,7 +15,7 @@ Start Backend on port 8080 first. Frontend runs on http://localhost:5173. If Bac
 The committed `package-lock.json` makes installs reproducible via `npm ci` in local development and GitHub Actions. The release gate is `npm run verify` and GitHub CI, plus separate manual browser smoke with a running Backend.
 
 ## What exists
-Home (featured ACTIVE campaigns), public campaign discovery with query/category filters and pagination, public campaign detail with milestone timeline and simulated funding figures, login and an authenticated **placeholder** workspace. No donor payment, evidence upload, admin approval or AI-action screens are claimed as finished. Donations/escrow are simulated.
+Implemented through FE-05: public campaign discovery and timeline, authenticated Donor/Creator experiences, Admin review and simulated escrow, independent human review of Monitoring findings, read-only Audit, Outbox/Alert delivery diagnostics. Financial values and transactions remain **simulation only**; no real payment gateway, evidence binary upload or autonomous AI decision is implemented. FE-06 adds release packaging, smoke and handoff, not a new product module.
 
 ## Contracts
 Backend is the sole contract source: `../rise-ai-backend/docs/api/openapi-v1.json`.
@@ -55,8 +55,8 @@ Never copy hotel-specific components, MUI, session storage or business workflows
 - `/admin/review/:kind/:id`: Backend-sourced detail plus state-aware actions. Explicit confirmation + reason when required. Disputes must be assigned to a legitimate active Admin before resolution; ownership and conflict checks are authoritative on Backend.
 - Disbursement evidence is reviewed against the related milestone; approve or reject evidence metadata. **Never treat URL/hash as independent verification**.
 - `/admin/escrow`: ledger account summary, global/per-campaign reconciliation and run history, view ledger entries and request simulated adjustment/settlement. Approving and recording stay separate Backend-controlled operations.
-- No actual money transfer, no auto-approve, no source edits to Backend/Monitoring. AI findings/audit remain FE-05.
-- Manual and CI gates: [FE-04 acceptance](docs/FE04_ACCEPTANCE.md). Keep PR Draft until browser verification.
+- No actual money transfer, no auto-approve, no source edits to Backend/Monitoring. AI findings/audit were added in the separately accepted FE-05.
+- FE-04 was accepted and squash-merged through PR #5; see [historical FE-04 acceptance evidence](docs/FE04_ACCEPTANCE.md).
 
 ## FE-05 — AI Monitoring & Audit Experience (Admin-only)
 - `/admin/monitoring`: paginated, filterable findings, severity, category, campaign and review-status filters; rule precision from Backend. **Advisory only:** no automatic accusation, campaign block or financial action.
@@ -65,3 +65,12 @@ Never copy hotel-specific components, MUI, session storage or business workflows
 - `/admin/monitoring/delivery`: outbox/alert delivery stats and statuses, with deliberate FAILED-only requeue. Requeue is **not** delivery success.
 - Browser calls the **Backend only**, never direct Monitoring endpoints. [FE-05 acceptance](docs/FE05_ACCEPTANCE.md) is the merge gate.
 - No new SaaS dashboard design; distinct UI/UX refinement and multiple concept proposals are scheduled **after FE-06**.
+
+## FE-06 — Final E2E, staging deployment & handoff (Draft)
+
+- Release-quality SPA build: `npm run verify` (now includes `npm run release:check`), Backend OpenAPI checks and 375px regression expectations.
+- Local-only Docker/Nginx staging with **same-origin** `/api/v1` reverse proxy, health endpoint and deep-link fallback; no direct Monitoring calls or real payments.
+- Read-only deployed-instance smoke: `npm run deploy:smoke` with an explicit `RISE_FE06_BASE_URL` and (for container) `RISE_FE06_TARGET=docker`.
+- See [FE-06 acceptance](docs/FE06_ACCEPTANCE.md), [deployment and rollback](docs/DEPLOYMENT_RUNBOOK.md), [developer/operator handoff](docs/FINAL_HANDOFF.md).
+- **Production release is not automatic**: an actual approved hosting target, reachable Backend, TLS and verification are required. Do not treat a localhost container or CI build as a public deployment.
+- The user-approved non-SaaS UI/UX audit, multiple concept comparison and visual rework starts **after FE-06**, not inside it.

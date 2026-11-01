@@ -17,6 +17,7 @@ import { RecordPagination } from '@/components/ui/RecordPagination';
 import { StatusMessage } from '@/components/ui/StatusMessage';
 import { amountLabel, dateLabel, milestoneLabel } from '@/lib/campaign-display';
 import { campaignState, disbursementState, editableCampaign, evidenceState, evidenceTypes, localInput, toInstant } from '@/lib/creator-display';
+import { creatorEvidenceSummary } from '@/lib/creator-evidence';
 
 type MilestoneDraft = Omit<MilestoneRequest,'startAt'|'dueAt'> & {startAt:string;dueAt:string};
 function milestoneDraft(item?:MilestoneResponse):MilestoneDraft {return {
@@ -45,10 +46,11 @@ export function CreatorCampaignPage() {
   const milestones=useQuery({queryKey:[...key,'milestones',id],queryFn:()=>listCampaignMilestones(id!),enabled:Boolean(id&&owned)});
   const disbursements=useQuery({queryKey:[...key,'disbursements',id,disbursementPage],queryFn:()=>creatorDisbursements(id!,disbursementPage),enabled:Boolean(id&&owned)});
   const evidence=useQuery({queryKey:[...key,'evidence',selected,evidencePage],queryFn:()=>creatorEvidence(selected!,evidencePage),enabled:Boolean(selected&&owned)});
+  const evidenceSummary=creatorEvidenceSummary(evidence);
   const activeMilestone=milestones.data?.find(item=>item.id===selected);
   const editable=editableCampaign(campaign.data?.campaignStatus);
   const plannedTotal=milestones.data?.reduce((sum,item)=>sum+(item.plannedAmount??0),0)??0;
-  const invalidate=()=>{void client.invalidateQueries({queryKey:key});void client.invalidateQueries({queryKey:['campaign',campaign.data?.slug]});};
+  const invalidate=()=>Promise.all([client.invalidateQueries({queryKey:key}),client.invalidateQueries({queryKey:['campaign',campaign.data?.slug]})]);
   const action=useMutation({
     mutationFn:(operation:'submit'|'publish')=>operation==='submit'?submitCreatorCampaign(id!):publishCreatorCampaign(id!),
     onSuccess(_,operation){setNotice(operation==='submit'?'Chiến dịch đang chờ Admin duyệt.':'Chiến dịch đã được công bố.');setError('');invalidate();},
@@ -59,12 +61,12 @@ export function CreatorCampaignPage() {
   });
   const start=useMutation({mutationFn:startCreatorMilestone,onSuccess(){setNotice('Đã bắt đầu cột mốc.');invalidate();}});
   const saveEvidence=useMutation({
-    mutationFn:(data:EvidenceRequest)=>createCreatorEvidence(selected!,data),
-    onSuccess(){setEvidenceForm(evidenceBlank);setNotice('Đã gửi thông tin minh chứng chờ Admin xem xét.');invalidate();},
+    mutationFn:({milestoneId,data}:{milestoneId:string;data:EvidenceRequest})=>createCreatorEvidence(milestoneId,data),
+    async onSuccess(){setEvidencePage(0);setEvidenceForm(evidenceBlank);setNotice('Đã gửi thông tin minh chứng chờ Admin xem xét.');await invalidate();},
   });
   const requestFunds=useMutation({
     mutationFn:(params:{amount:number;reason:string;key:string})=>createCreatorDisbursement(selected!,{amount:params.amount,reason:params.reason},params.key),
-    onSuccess(){setAmount('');setReason('');requestAttempt.current=null;setNotice('Đã gửi đề nghị giải ngân mô phỏng. Không có tiền thật được chuyển.');invalidate();},
+    async onSuccess(){setDisbursementPage(0);setAmount('');setReason('');requestAttempt.current=null;setNotice('Đã gửi đề nghị giải ngân mô phỏng. Không có tiền thật được chuyển.');await invalidate();},
   });
   const fixFunds=useMutation({mutationFn:resubmitCreatorDisbursement,onSuccess(){setNotice('Đã gửi lại đề nghị để Admin xem xét.');invalidate();}});
   const cancelFunds=useMutation({
@@ -90,10 +92,11 @@ export function CreatorCampaignPage() {
     if(evidenceForm.fileHash&&!/^[a-fA-F0-9]{64}$/.test(evidenceForm.fileHash)){setError('SHA-256 phải gồm 64 ký tự hexadecimal.');return;}
     if(evidenceForm.fileUrl&&!/^(https|sim):\/\/\S+$/.test(evidenceForm.fileUrl)){setError('URL minh chứng chỉ hỗ trợ https:// hoặc sim://.');return;}
     setError('');
-    try{await saveEvidence.mutateAsync({...evidenceForm,title:evidenceForm.title.trim(),fileUrl:evidenceForm.fileUrl?.trim()||'',externalReference:evidenceForm.externalReference?.trim()||''});}catch{/* Backend error below */}
+    try{await saveEvidence.mutateAsync({milestoneId:selected,data:{...evidenceForm,title:evidenceForm.title.trim(),fileUrl:evidenceForm.fileUrl?.trim()||'',externalReference:evidenceForm.externalReference?.trim()||''}});}catch{/* Backend error below */}
   }
   async function submitFunds(event:FormEvent<HTMLFormElement>){
     event.preventDefault();if(!selected||requestFunds.isPending)return;
+    if(!evidenceSummary.hasEvidence){setError('Cần tải minh chứng thành công trước khi gửi đề nghị.');return;}
     const n=Number(amount);
     if(!Number.isSafeInteger(n)||n<=0||n>(activeMilestone?.remainingAmount??0)||!reason.trim()){setError('Nhập số tiền hợp lệ, không vượt ngân sách còn lại, và lý do.');return;}
     setError('');
@@ -138,7 +141,7 @@ export function CreatorCampaignPage() {
             <div className="flex flex-wrap items-start justify-between gap-4">
               <div><p className="text-xs font-semibold text-brand">Cột mốc {m.sequenceNumber} · {milestoneLabel(m.milestoneStatus)}</p><h3 className="mt-2 text-lg font-bold text-brand-ink">{m.title}</h3>
                 <p className="mt-2 text-sm text-muted">Ngân sách {amountLabel(m.plannedAmount,campaign.data.currency)} · Đã giải ngân (mô phỏng) {amountLabel(m.releasedAmount,campaign.data.currency)}</p>
-                <p className="mt-1 text-xs text-muted">Hạn: {dateLabel(m.dueAt)} · Minh chứng: {m.evidenceCount??0}</p>
+                <p className="mt-1 text-xs text-muted">Hạn: {dateLabel(m.dueAt)} · Minh chứng: {m.id===selected?(evidenceSummary.count??({loading:'Đang tải…',error:'Không tải được',unknown:'Chưa xác định',ready:'Có minh chứng (chưa có tổng số)',empty:'0'}[evidenceSummary.status])):(Number.isSafeInteger(m.evidenceCount)&&m.evidenceCount!>=0?m.evidenceCount:'Chưa tải')}</p>
               </div>
               <div className="flex flex-wrap gap-2">
                 {m.id?<Button variant="outline" onClick={()=>{setSelected(m.id!);setEvidencePage(0);setNotice('');setError('');}}>Minh chứng & giải ngân</Button>:null}
@@ -164,17 +167,19 @@ export function CreatorCampaignPage() {
         <div className="flex items-center gap-2"><FileText size={23} className="text-brand" aria-hidden="true"/><h2 className="text-2xl font-extrabold text-brand-ink">Minh chứng: {activeMilestone.title}</h2></div>
         <p className="mt-3 text-sm leading-7 text-muted">FE-03 chỉ gửi mô tả, URL và tham chiếu đã có. Không có API upload file nhị phân trong phạm vi này; không tự tạo file hay giả mạo SHA-256.</p>
         <div className="mt-5 space-y-3">
-          {evidence.isPending?<StatusMessage title="Đang tải minh chứng…"/>:null}
-          {evidence.isError?<StatusMessage error title="Không tải được minh chứng" detail={evidence.error.message}/>:null}
-          {evidence.isSuccess&&!evidence.data.data?.length?<StatusMessage title="Chưa có minh chứng"/>:null}
-          {evidence.data?.data?.map(ev=><article key={ev.id} className="rounded-xl border border-border bg-surface p-5">
+          {evidenceSummary.status==='loading'?<StatusMessage title="Đang tải minh chứng…"/>:null}
+          {evidenceSummary.status==='error'?<StatusMessage error title="Không tải được minh chứng" detail={evidence.error?.message}/>:null}
+          {evidenceSummary.status==='unknown'?<StatusMessage error title="Chưa xác định được minh chứng" detail="Backend chưa cung cấp đủ dữ liệu minh chứng. Vui lòng tải lại."/>:null}
+          {['error','unknown'].includes(evidenceSummary.status)?<Button variant="outline" onClick={()=>void evidence.refetch()}>Tải lại minh chứng</Button>:null}
+          {evidenceSummary.status==='empty'?<StatusMessage title="Chưa có minh chứng"/>:null}
+          {evidenceSummary.status==='ready'?evidence.data?.data?.map(ev=><article key={ev.id} className="rounded-xl border border-border bg-surface p-5">
             <div className="flex flex-wrap items-center justify-between gap-3"><h3 className="font-bold text-brand-ink">{ev.title}</h3><span className="text-xs font-semibold text-warning">{evidenceState(ev.evidenceStatus)}</span></div>
             {ev.description?<p className="mt-2 whitespace-pre-line text-sm text-muted">{ev.description}</p>:null}
             {ev.externalReference?<p className="mt-2 break-words text-xs text-muted">Tham chiếu: {ev.externalReference}</p>:null}
             {ev.reviewNote?<p className="mt-2 text-xs text-muted">Ghi chú Admin: {ev.reviewNote}</p>:null}
-          </article>)}
+          </article>):null}
         </div>
-        {evidence.isSuccess?<RecordPagination page={evidencePage} pages={evidence.data.totalPages??0} onChange={setEvidencePage}/>:null}
+        {evidenceSummary.status==='ready'||evidenceSummary.status==='empty'?<RecordPagination page={evidencePage} pages={evidence.data?.totalPages??0} onChange={setEvidencePage}/>:null}
         {['ACTIVE','PAUSED','COMPLETED'].includes(campaign.data.campaignStatus??'')&&['IN_PROGRESS','EVIDENCE_SUBMITTED','PARTIALLY_DISBURSED'].includes(activeMilestone.milestoneStatus??'')?<form onSubmit={e=>void submitEvidence(e)} className="mt-7 grid max-w-3xl gap-4 rounded-card border border-border bg-surface p-6">
           <h3 className="text-lg font-bold text-brand-ink">Gửi minh chứng tham chiếu</h3>
           <Input id="evidence-title" label="Tên minh chứng" required maxLength={200} value={evidenceForm.title} onChange={e=>setEvidenceForm({...evidenceForm,title:e.target.value})}/>
@@ -185,7 +190,7 @@ export function CreatorCampaignPage() {
           <Input id="evidence-hash" label="SHA-256 thực tế của tệp (nếu có)" maxLength={64} value={evidenceForm.fileHash} onChange={e=>setEvidenceForm({...evidenceForm,fileHash:e.target.value})}/>
           <Button type="submit" loading={saveEvidence.isPending}>Gửi minh chứng</Button>
         </form>:null}
-        {campaign.data.campaignStatus==='ACTIVE'&&['IN_PROGRESS','EVIDENCE_SUBMITTED','PARTIALLY_DISBURSED'].includes(activeMilestone.milestoneStatus??'')&&(activeMilestone.evidenceCount??0)>0?<form onSubmit={e=>void submitFunds(e)} className="mt-8 grid max-w-3xl gap-4 rounded-card border border-border bg-soft-mint p-6">
+        {campaign.data.campaignStatus==='ACTIVE'&&['IN_PROGRESS','EVIDENCE_SUBMITTED','PARTIALLY_DISBURSED'].includes(activeMilestone.milestoneStatus??'')&&evidenceSummary.hasEvidence?<form onSubmit={e=>void submitFunds(e)} className="mt-8 grid max-w-3xl gap-4 rounded-card border border-border bg-soft-mint p-6">
           <h3 className="flex items-center gap-2 text-lg font-bold text-brand-ink"><Landmark size={21} className="text-brand" aria-hidden="true"/> Đề nghị giải ngân mô phỏng</h3>
           <p className="text-xs leading-6 text-muted">Số tiền còn lại theo Backend: {amountLabel(activeMilestone.remainingAmount,campaign.data.currency)}. Admin độc lập xem xét, phê duyệt và ghi nhận giải ngân; Creator không chuyển tiền.</p>
           <Input id="disbursement-amount" label="Số tiền đề nghị (VND)" type="number" step="1" min="1" required value={amount} onChange={e=>setAmount(e.target.value)}/>
