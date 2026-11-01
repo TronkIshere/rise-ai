@@ -1,4 +1,6 @@
-import type { FindingReviewStatus, FindingSeverity } from '@/api/monitoring';
+/** Local display-only strings; lib must not import API layer types. */
+type FindingReviewStatus='OPEN'|'ACKNOWLEDGED'|'CONCERN_CONFIRMED'|'DISMISSED';
+type FindingSeverity='INFO'|'LOW'|'MEDIUM'|'HIGH'|'CRITICAL';
 
 export const reviewStates:FindingReviewStatus[]=['OPEN','ACKNOWLEDGED','CONCERN_CONFIRMED','DISMISSED'];
 export const severityStates:FindingSeverity[]=['INFO','LOW','MEDIUM','HIGH','CRITICAL'];
