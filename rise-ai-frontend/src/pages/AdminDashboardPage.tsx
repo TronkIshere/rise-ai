@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { ArrowUpRight, ClipboardCheck, Landmark, RefreshCcw, ShieldCheck } from 'lucide-react';
+import { ArrowUpRight, ClipboardCheck, Landmark, RefreshCcw, ShieldCheck, ScanSearch, BookOpenText } from 'lucide-react';
 import { Link } from 'react-router';
 import { useAuth } from '@/auth/auth-context';
 import { adminQueues, adminStatistics, listAdminQueue, type AdminItem, type AdminQueue } from '@/api/admin';
@@ -44,7 +44,11 @@ export function AdminDashboardPage(){
         <h1 className="mt-3 text-3xl font-extrabold text-brand-ink sm:text-4xl">Trung tâm xét duyệt</h1>
         <p className="mt-3 max-w-3xl text-sm leading-7 text-muted">Trạng thái và số liệu lấy từ Backend. Không có giao dịch tiền thật. Hệ thống kiểm soát quyền Admin và ngăn tự phê duyệt ở phía máy chủ.</p>
       </div>
-      <Link to="/admin/escrow" className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-brand px-5 text-sm font-bold text-white"><Landmark size={18} aria-hidden="true"/> Escrow & đối soát</Link>
+      <div className="flex flex-wrap gap-2">
+        <Link to="/admin/escrow" className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-brand px-5 text-sm font-bold text-white"><Landmark size={18} aria-hidden="true"/> Escrow & đối soát</Link>
+        <Link to="/admin/monitoring" className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-border bg-surface px-5 text-sm font-bold text-brand"><ScanSearch size={18} aria-hidden="true"/> Cảnh báo AI</Link>
+        <Link to="/admin/audit" className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-border bg-surface px-5 text-sm font-bold text-brand"><BookOpenText size={18} aria-hidden="true"/> Audit</Link>
+      </div>
     </div>
     <section className="mt-9" aria-label="Thống kê hoạt động">
       {stats.isPending?<StatusMessage title="Đang tải thống kê…"/>:null}
@@ -93,6 +97,6 @@ export function AdminDashboardPage(){
       </div>
       {records.isSuccess?<RecordPagination page={page} pages={records.data.totalPages??0} onChange={setPage}/>:null}
     </section>
-    <div className="mt-9 flex items-start gap-3 rounded-xl bg-soft-mint p-5 text-sm text-brand-ink"><ShieldCheck className="shrink-0 text-brand" size={20} aria-hidden="true"/> Quyết định chỉ có hiệu lực sau khi Backend chấp nhận. FE-05 sẽ triển khai AI findings và audit chuyên sâu riêng.</div>
+    <div className="mt-9 flex items-start gap-3 rounded-xl bg-soft-mint p-5 text-sm text-brand-ink"><ShieldCheck className="shrink-0 text-brand" size={20} aria-hidden="true"/> Quyết định chỉ có hiệu lực sau khi Backend chấp nhận. Cảnh báo AI và Audit có khu vực độc lập để kiểm tra dữ kiện; AI chỉ khuyến nghị, Admin đưa ra quyết định.</div>
   </Container>;
 }

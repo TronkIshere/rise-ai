@@ -83,6 +83,18 @@ const endpoints = [
   ['/api/v1/admin/settlements','get'],
   ['/api/v1/admin/settlements/{id}/approve','post'],
   ['/api/v1/admin/settlements/{id}/reject','post'],
+  ['/api/v1/admin/monitoring/findings','get'],
+  ['/api/v1/admin/monitoring/findings/{id}','get'],
+  ['/api/v1/admin/monitoring/findings/{id}/history','get'],
+  ['/api/v1/admin/monitoring/findings/{id}/review','post'],
+  ['/api/v1/admin/monitoring/findings/precision','get'],
+  ['/api/v1/admin/audit-logs','get'],
+  ['/api/v1/admin/monitoring/outbox/stats','get'],
+  ['/api/v1/admin/monitoring/outbox','get'],
+  ['/api/v1/admin/monitoring/outbox/{id}/requeue','post'],
+  ['/api/v1/admin/monitoring/alerts/stats','get'],
+  ['/api/v1/admin/monitoring/alerts','get'],
+  ['/api/v1/admin/monitoring/alerts/{id}/requeue','post'],
 ];
 for (const [path, method] of endpoints) {
   if (!spec.paths?.[path]?.[method]) errors.push(method + ' ' + path + ' missing');
@@ -121,6 +133,17 @@ for (const [schema, fields] of Object.entries({
   VerificationDecisionRequest: ['notes'],
   RequiredReasonRequest: ['reason'],
   ResolveDisputeRequest: ['outcome','resolution'],
+  FindingResponse: ['id','ruleId','severity','reviewStatus','advisoryOnly','facts','reviewedBy'],
+  FindingDetailResponse: ['finding','occurrences'],
+  OccurrenceResponse: ['sourceEventId','observedAt','aiNote'],
+  ReviewFindingRequest: ['status','note'],
+  StatusHistoryResponse: ['fromStatus','toStatus','reason','changedBy'],
+  RulePrecisionResponse: ['ruleId','total','precision'],
+  AuditLogResponse: ['actorUserId','entityId','action','metadata','correlationId'],
+  OutboxEventResponse: ['status','attempts','lastError'],
+  OutboxStatsResponse: ['relayEnabled','pending','failed'],
+  AlertResponse: ['status','attempts','lastError'],
+  AlertStatsResponse: ['webhookConfigured','failed'],
 })) {
   const props = spec.components?.schemas?.[schema]?.properties;
   for (const field of fields) if (!props?.[field]) errors.push(schema + '.' + field + ' missing');

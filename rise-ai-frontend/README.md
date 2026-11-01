@@ -57,3 +57,11 @@ Never copy hotel-specific components, MUI, session storage or business workflows
 - `/admin/escrow`: ledger account summary, global/per-campaign reconciliation and run history, view ledger entries and request simulated adjustment/settlement. Approving and recording stay separate Backend-controlled operations.
 - No actual money transfer, no auto-approve, no source edits to Backend/Monitoring. AI findings/audit remain FE-05.
 - Manual and CI gates: [FE-04 acceptance](docs/FE04_ACCEPTANCE.md). Keep PR Draft until browser verification.
+
+## FE-05 — AI Monitoring & Audit Experience (Admin-only)
+- `/admin/monitoring`: paginated, filterable findings, severity, category, campaign and review-status filters; rule precision from Backend. **Advisory only:** no automatic accusation, campaign block or financial action.
+- `/admin/monitoring/findings/:id`: detail, facts, occurrences, source IDs, AI notes, review history and human decisions. Backend enforces independent Admin reviewer; note and confirmation required.
+- `/admin/audit`: read-only Backend audit history with actor/entity/action filters, pagination and text-only metadata.
+- `/admin/monitoring/delivery`: outbox/alert delivery stats and statuses, with deliberate FAILED-only requeue. Requeue is **not** delivery success.
+- Browser calls the **Backend only**, never direct Monitoring endpoints. [FE-05 acceptance](docs/FE05_ACCEPTANCE.md) is the merge gate.
+- No new SaaS dashboard design; distinct UI/UX refinement and multiple concept proposals are scheduled **after FE-06**.
