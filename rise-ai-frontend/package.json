@@ -3,7 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "engines": { "node": ">=22.12.0" },
+  "engines": {
+    "node": ">=22.12.0"
+  },
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
@@ -16,7 +18,9 @@
     "contract:check": "node scripts/verify-contract.mjs",
     "contract:generate": "openapi-typescript ../rise-ai-backend/docs/api/openapi-v1.json -o src/api/generated.d.ts",
     "test": "node --test scripts/*.test.mjs",
-    "verify": "npm run arch:check && npm run contract:check && npm run lint && npm run typecheck && npm run test && npm run build"
+    "verify": "npm run arch:check && npm run contract:check && npm run lint && npm run typecheck && npm run test && npm run build && npm run release:check",
+    "release:check": "node scripts/check-release.mjs",
+    "deploy:smoke": "node scripts/smoke-deployment.mjs"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.80.0",

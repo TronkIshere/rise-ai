@@ -65,3 +65,12 @@ Never copy hotel-specific components, MUI, session storage or business workflows
 - `/admin/monitoring/delivery`: outbox/alert delivery stats and statuses, with deliberate FAILED-only requeue. Requeue is **not** delivery success.
 - Browser calls the **Backend only**, never direct Monitoring endpoints. [FE-05 acceptance](docs/FE05_ACCEPTANCE.md) is the merge gate.
 - No new SaaS dashboard design; distinct UI/UX refinement and multiple concept proposals are scheduled **after FE-06**.
+
+## FE-06 — Final E2E, staging deployment & handoff (Draft)
+
+- Release-quality SPA build: `npm run verify` (now includes `npm run release:check`), Backend OpenAPI checks and 375px regression expectations.
+- Local-only Docker/Nginx staging with **same-origin** `/api/v1` reverse proxy, health endpoint and deep-link fallback; no direct Monitoring calls or real payments.
+- Read-only deployed-instance smoke: `npm run deploy:smoke` with an explicit `RISE_FE06_BASE_URL` and (for container) `RISE_FE06_TARGET=docker`.
+- See [FE-06 acceptance](docs/FE06_ACCEPTANCE.md), [deployment and rollback](docs/DEPLOYMENT_RUNBOOK.md), [developer/operator handoff](docs/FINAL_HANDOFF.md).
+- **Production release is not automatic**: an actual approved hosting target, reachable Backend, TLS and verification are required. Do not treat a localhost container or CI build as a public deployment.
+- The user-approved non-SaaS UI/UX audit, multiple concept comparison and visual rework starts **after FE-06**, not inside it.

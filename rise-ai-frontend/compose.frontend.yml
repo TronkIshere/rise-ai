@@ -1,0 +1,22 @@
+# Standalone FE-06 local/staging frontend (not a production publication).
+# RISE_FRONTEND_BACKEND_UPSTREAM must be a trusted reachable Spring Boot Backend.
+services:
+  rise-ai-frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: rise-ai-frontend:fe06
+    environment:
+      BACKEND_UPSTREAM: "${RISE_FRONTEND_BACKEND_UPSTREAM:?Set RISE_FRONTEND_BACKEND_UPSTREAM to a trusted Backend origin}"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    ports:
+      - "127.0.0.1:${RISE_FRONTEND_HTTP_PORT:-5174}:80"
+    restart: "no"
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1/healthz"]
+      interval: 10s
+      timeout: 3s
+      retries: 6
+    security_opt:
+      - no-new-privileges:true
