@@ -18,7 +18,7 @@ function RetryForm({id,type,onDone}:{id:string;type:'outbox'|'alert';onDone:()=>
   const [reason,setReason]=useState('');
   const [confirm,setConfirm]=useState(false);
   const mutation=useMutation({
-    mutationFn:()=>type==='outbox'?requeueOutbox(id,reason.trim()):requeueAlert(id,reason.trim()),
+    mutationFn:async()=>{ if(type==='outbox') await requeueOutbox(id,reason.trim()); else await requeueAlert(id,reason.trim()); },
     onSuccess(){setExpanded(false);setReason('');setConfirm(false);onDone();},
   });
   async function submit(e:FormEvent<HTMLFormElement>){
