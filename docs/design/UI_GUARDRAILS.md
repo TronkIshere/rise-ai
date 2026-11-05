@@ -42,6 +42,6 @@ Current design review targets Desktop 1440px. Do not expand into Mobile research
 
 Do not start React implementation, deployment, merge or high-fidelity conversion without separate explicit instruction.
 
-Locked sequence: Hero → 01–02–03 → 8 Categories → Campaign Discovery → Featured Story → Milestones → Transparency → Footer. Do not add/remove sections or replace approved cards. Master v0.7.0 remains **ASSEMBLED — PENDING VISUAL APPROVAL**.
+Locked sequence: Hero → 01–02–03 → 8 Categories → Campaign Discovery → Featured Story → Milestones → Transparency → Footer. Do not add/remove sections or replace approved cards. Historical Master v0.7.0 remains **ASSEMBLED — PENDING VISUAL APPROVAL**. **Homepage v0.7.1b is the owner-approved LOW-FIDELITY Desktop 1440px composition baseline**, not a production visual theme or React authorization. See [composition lock](./COMPOSITION_BASELINE_V071B.md).
 
 Change record template: original version; section; requested reason/authorization; token before/after and approval; effect on approved structures; evidence; resulting review status. Preserve first, document second, implement only after explicit approval.

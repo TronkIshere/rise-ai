@@ -7,7 +7,7 @@
     "APPROVED_WIREFRAME",
     "PENDING_APPROVAL"
   ],
-  "masterStatus": "ASSEMBLED — PENDING VISUAL APPROVAL",
+  "masterStatus": "APPROVED_LOW_FIDELITY_COMPOSITION_DESKTOP_1440_V071B",
   "sectionOrder": [
     "Hero",
     "01–02–03",
@@ -181,5 +181,18 @@
       "scope": "Future high-fidelity; no value authorized",
       "source": "DESIGN_DECISION_LOG.md"
     }
-  ]
+  ],
+  "archivedMasterV070Status": "ASSEMBLED — PENDING VISUAL APPROVAL",
+  "compositionBaseline": {
+    "version": "v0.7.1b",
+    "status": "APPROVED_LOW_FIDELITY_COMPOSITION",
+    "approvalDate": "2026-11-06",
+    "scope": "Homepage Desktop 1440px composition and content hierarchy only",
+    "source": "reviews/v0.7.1/homepage-visual-rhythm-v0.7.1b-semantics.html",
+    "review": "reviews/v0.7.1/SEMANTICS_V071B_REVIEW.md",
+    "runtimeImportAllowed": false,
+    "highFidelityApproved": false,
+    "reactImplementationApproved": false,
+    "visualTokensApproved": false
+  }
 }
