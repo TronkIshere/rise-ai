@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Riser AI — Campaign Discovery Blueprint v0.3.2</title>
+<style>
+:root{--paper:#fff;--ink:#202a25;--muted:#48534d;--line:#b7bdb7;--soft:#f4f5f1;--cover:#e4e7e2}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:#e5e7e4;color:var(--ink);font-family:Arial,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}
+a,button,input{font:inherit}a{color:inherit;text-decoration:none}button{cursor:pointer}
+.toolbar{padding:14px max(24px,calc((100vw - 1440px)/2 + 55px));min-height:61px;display:flex;justify-content:space-between;align-items:center;gap:18px;background:#232a25;color:#fff}
+.toolbar h1{font-size:15px;line-height:1.1;margin:0 0 5px;letter-spacing:.018em}.toolbar p{font-size:12px;color:#d2d9d3;margin:0}.toolbar-actions{display:flex;align-items:center;gap:12px}.toolbar button{border:1px solid #adb3ad;background:transparent;color:#fff;font-size:12px;padding:9px 14px;border-radius:4px;font-weight:bold}.toolbar button[aria-pressed="true"]{background:#f3f4f1;color:#202a25}
+.sheet{max-width:1440px;margin:0 auto;background:var(--paper);min-height:1600px;position:relative;overflow:hidden;box-shadow:0 12px 50px #18201916}
+.context{background:#29362f;color:white;padding:24px 90px;display:flex;justify-content:space-between;align-items:center;gap:25px}.context strong{font-size:15px}.context span{font-size:12px;color:#d7dfd8}
+.content{width:1248px;margin:0 auto;padding:50px 0 82px;position:relative}
+.intro-label{font-size:12px;font-weight:800;letter-spacing:.11em;text-transform:uppercase;color:#434d45;margin:0 0 10px}.category-heading{display:flex;align-items:end;justify-content:space-between;gap:40px;margin-bottom:23px}.category-heading h2{font-size:32px;line-height:1.12;margin:0;font-weight:850;letter-spacing:-.012em}.category-heading p{margin:0;max-width:440px;font-size:14px;color:#46514a;line-height:1.5}
+.category-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:15px 22px}.category-tile{text-align:left;min-height:112px;display:grid;grid-template-rows:16px 30px 20px 5px;gap:4px;border:0;border-bottom:1px solid #d2d7d1;background:transparent;padding:14px 7px 12px;color:#243028;transition:background .18s ease,outline .18s ease;position:relative}
+.category-tile:hover{background:#f4f5f3}.category-tile[aria-pressed="true"]{outline:2px solid var(--accent);outline-offset:-2px;background:#f8faf8}.category-number{font-size:12px;font-weight:800;color:#536056}.category-name{font-size:18px;font-weight:800;line-height:1.2}.category-sub{font-size:12px;color:#505a53}.category-line{height:4px;width:100%;background:var(--accent);align-self:end}
+.category-note{margin-top:15px;font-size:12px;color:#4b554e;line-height:1.5}.category-note b{font-weight:800}
+.discovery-rule{height:1px;background:#b4bdb5;margin:42px 0 28px}
+.discovery-controls{display:grid;grid-template-columns:minmax(0,1fr) 240px;gap:28px;align-items:end;margin-bottom:24px}.discovery-controls h2{font-size:31px;line-height:1.15;margin:6px 0 8px;letter-spacing:-.013em}.discovery-controls p{font-size:14px;color:#49544c;margin:0;line-height:1.5}.searchbox label{font-size:12px;display:block;font-weight:bold;margin-bottom:8px;color:#39463d}.searchbox input{border:1px solid #9da69e;padding:13px;width:100%;font-size:14px;background:white;color:#15231b;outline-offset:2px}
+.results-summary{display:flex;align-items:center;gap:18px;justify-content:space-between;margin:0 0 19px;font-size:13px;font-weight:800}.active-filter{display:flex;align-items:center;gap:10px}.chip{font-size:12px;font-weight:700;padding:7px 12px;border:1px solid #a0a9a0;background:#f5f6f3}.reset{font-weight:700;font-size:12px;color:#27362c;text-decoration:underline;background:none;border:0;padding:8px;display:none}.reset.show{display:block}
+.layout{display:grid;grid-template-columns:420px minmax(0,1fr);gap:24px;align-items:start}.lead-block{padding:22px 10px 10px 0;min-height:580px;display:flex;flex-direction:column}.lead-number{font-size:13px;font-weight:800;margin:0 0 22px}.lead-block h2{font-size:43px;line-height:1.1;letter-spacing:-.014em;margin:0 0 20px;max-width:370px;font-weight:900}.lead-block p{max-width:365px;font-size:17px;line-height:1.55;color:#333e36;margin:0 0 20px}.lead-block .lead-summary{font-size:14px;color:#48564c;line-height:1.6;margin-top:auto;border-top:1px solid #c0c8c0;padding-top:17px}.lead-block strong{font-weight:800}
+.campaign-card[hidden]{display:none!important}.campaign-card{border:1px solid #949e96;background:white;min-width:0;display:flex;flex-direction:column;position:relative;overflow:hidden}.campaign-card:before{content:'';height:5px;background:var(--accent);display:block;position:absolute;top:0;left:0;right:0;z-index:2}
+.campaign-card.main-card{grid-column:2;grid-row:1}.cover{position:relative;height:184px;background:var(--cover);overflow:hidden;display:flex;align-items:center;justify-content:center;border-bottom:1px solid #c2cac3}.main-card .cover{height:208px}.cover-diagonals:before,.cover-diagonals:after{content:'';position:absolute;height:1px;background:#b0b9b0;width:135%;left:-20%;top:52%}.cover-diagonals:before{transform:rotate(-12deg)}.cover-diagonals:after{transform:rotate(12deg)}.cover-placeholder{position:relative;text-align:center;background:#f5f6f4;border:1px solid #9fa89e;padding:14px 17px;line-height:1.4;font-weight:800;font-size:12px}.cover-placeholder span{font-size:11px;font-weight:400;display:block;margin-top:5px}.cover-category{position:absolute;top:19px;left:20px;background:white;border:1px solid #919b91;padding:9px 12px 7px;font-size:12px;font-weight:bold}.cover-line{display:block;width:100%;height:4px;background:var(--accent);margin-top:7px}
+.card-content{padding:23px 24px 22px;display:flex;flex:1;flex-direction:column}.card-head{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:11px}.topic-label{font-weight:800;font-size:13px}.status{font-size:11px;white-space:nowrap;background:#eef0ec;border:1px solid #c0c8c0;padding:6px 10px;color:#344037;font-weight:700}.campaign-card h3{font-size:25px;line-height:1.16;margin:0 0 12px;font-weight:900;letter-spacing:-.006em}.description{font-size:14px;line-height:1.5;color:#354238;margin:0 0 16px}.facts{display:flex;gap:15px;border-top:1px solid #c4ccc4;padding-top:12px;margin-bottom:15px;flex-wrap:wrap}.facts span{flex:1;min-width:150px;font-size:12px;color:#39453c;line-height:1.4}.facts b{display:block;font-size:11px;color:#647067;margin-bottom:5px;text-transform:uppercase;letter-spacing:.03em}
+.funding{margin-top:auto;border-top:1px solid #b9c4b9;padding-top:15px}.funding-header{display:flex;justify-content:space-between;gap:12px}.funding-header>div{display:flex;flex-direction:column;gap:5px}.funding-header>div:last-child{text-align:right}.funding-header span{font-size:12px;color:#445044}.funding-header strong{font-size:18px;white-space:nowrap}.funding-header>div:last-child strong{font-size:16px}.track{height:11px;background:#e0e5df;border:1px solid #c3cdc3;margin:13px 0 7px;overflow:hidden}.fill{height:100%;background:var(--accent)}.funding-footer{display:flex;justify-content:space-between;gap:10px;color:#4b574e;font-size:11px;line-height:1.45}.funding-footer b{font-size:12px}.funding-footer span:last-child{text-align:right}.card-bottom{display:flex;justify-content:space-between;align-items:center;gap:15px;margin-top:16px}.location{font-size:12px;color:#505b52}.card-link{font-size:14px;font-weight:800;text-decoration:underline;text-underline-offset:5px;white-space:nowrap}.card-link:hover{color:#0c5039}
+.compact-card{grid-row:2}.compact-card[data-item="library"]{grid-column:1}.compact-card[data-item="learning"]{grid-column:2}.compact-card h3{font-size:23px}.compact-card .card-content{padding:20px 20px 19px}.compact-card .cover{height:164px}.compact-card .description{min-height:42px}.compact-card .funding-header strong{font-size:17px}.compact-card .funding-header>div:last-child strong{font-size:15px}.compact-card .funding-footer span:last-child{max-width:180px}.compact-card .facts{font-size:12px}
+.empty{display:none;border:1px solid #a8b1a9;padding:55px 30px;text-align:center;grid-column:1/-1;background:#f6f7f4}.empty h3{font-size:24px;margin:0 0 12px}.empty p{font-size:14px;color:#49554b;margin:0 0 18px}.empty button{border:1px solid #4e5b50;background:#fff;padding:11px 18px;font-size:14px;font-weight:bold}.layout.filtering{grid-template-columns:repeat(2,minmax(0,1fr))}.layout.filtering .lead-block{display:none}.layout.filtering .campaign-card:not([hidden]){grid-column:auto;grid-row:auto}.layout.empty-mode .lead-block{display:none}.layout.empty-mode .empty{display:block}
+.bottom{margin-top:38px;border-top:1px solid #b4bdb4;padding-top:17px;font-size:12px;line-height:1.5;display:flex;gap:28px;justify-content:space-between;color:#48544b}.bottom span{max-width:580px}
+.guide-grid{display:none;pointer-events:none;position:absolute;inset:51px 0 0;z-index:20;grid-template-columns:repeat(12,1fr);gap:24px;opacity:.15}.show-grid .guide-grid{display:grid}.guide-grid i{background:#4d7260}
+.notes{display:none;position:absolute;z-index:12;background:#1e2d22;color:#fff;font-weight:600;padding:8px 11px;font-size:12px;line-height:1.4;max-width:220px}.show-notes .notes{display:block}.note1{top:18px;right:0}.note2{top:415px;right:0}.note3{top:1050px;left:50px}
+.foot{max-width:1248px;margin:0 auto;padding-bottom:28px;color:#525f53;font-size:12px}
+@media(max-width:1300px){.sheet{width:100%}.content,.foot{width:calc(100% - 90px)}.context{padding:24px 45px}.layout{grid-template-columns:36% 1fr}.lead-block h2{font-size:36px}}
+@media(max-width:900px){.toolbar{flex-wrap:wrap}.content,.foot{width:calc(100% - 36px)}.context{padding:22px 18px}.category-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.category-heading{display:block}.category-heading p{margin-top:10px}.discovery-controls{grid-template-columns:1fr}.layout{grid-template-columns:1fr}.lead-block{min-height:auto}.lead-block h2{font-size:38px}.lead-block .lead-summary{margin-top:10px}.campaign-card.main-card,.compact-card[data-item="library"],.compact-card[data-item="learning"]{grid-column:1;grid-row:auto}.funding-footer{flex-wrap:wrap}.bottom{display:block}.bottom span{display:block;margin-bottom:10px}}
+@media print{.toolbar{display:none}.sheet{box-shadow:none}.notes,.guide-grid{display:none}}
+</style>
+</head>
+<body>
+<div class="toolbar"><div><h1>RISER AI / CAMPAIGN DISCOVERY BLUEPRINT v0.3.2</h1><p>Bản thô: danh mục → tìm kiếm → chiến dịch → tiến độ mô phỏng</p></div><div class="toolbar-actions"><button id="grid-toggle" type="button" aria-pressed="false">Lưới 12 cột</button><button id="note-toggle" type="button" aria-pressed="false">Ghi chú UX</button></div></div>
+<div class="sheet"><div class="context"><strong>VỊ TRÍ: NGAY DƯỚI DẢI 01–02–03</strong><span>Hero và dải hành trình vẫn dùng bản v0.2.1 · Không thiết kế lại</span></div>
+<main class="content" id="main-content">
+<div class="guide-grid" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+<p class="intro-label">PHẦN 01 / CHỌN LĨNH VỰC QUAN TÂM</p>
+<div class="category-heading"><h2>Khám phá theo lĩnh vực</h2><p>8 nhóm phân loại chính thức trong Backend. Màu line giúp nhận biết từng lĩnh vực, không có nghĩa chiến dịch được xác minh.</p></div>
+<div class="category-grid" role="group" aria-label="Lọc chiến dịch theo lĩnh vực"><button class="category-tile" type="button" data-category="EDUCATION" style="--accent:#386AB0" aria-pressed="false"><span class="category-number">01</span><span class="category-name">Giáo dục</span><span class="category-sub">Học tập và trường lớp</span><span class="category-line" aria-hidden="true"></span></button>
+<button class="category-tile" type="button" data-category="COMMUNITY" style="--accent:#2C8064" aria-pressed="false"><span class="category-number">02</span><span class="category-name">Cộng đồng</span><span class="category-sub">Sáng kiến địa phương</span><span class="category-line" aria-hidden="true"></span></button>
+<button class="category-tile" type="button" data-category="FOOD_SECURITY" style="--accent:#BE692E" aria-pressed="false"><span class="category-number">03</span><span class="category-name">Lương thực</span><span class="category-sub">Bữa ăn và nhu yếu phẩm</span><span class="category-line" aria-hidden="true"></span></button>
+<button class="category-tile" type="button" data-category="WATER_SANITATION" style="--accent:#22849A" aria-pressed="false"><span class="category-number">04</span><span class="category-name">Nước sạch</span><span class="category-sub">Nước và vệ sinh</span><span class="category-line" aria-hidden="true"></span></button>
+<button class="category-tile" type="button" data-category="SCHOLARSHIP" style="--accent:#8063AB" aria-pressed="false"><span class="category-number">05</span><span class="category-name">Học bổng</span><span class="category-sub">Hỗ trợ học tập</span><span class="category-line" aria-hidden="true"></span></button>
+<button class="category-tile" type="button" data-category="INFRASTRUCTURE" style="--accent:#78634C" aria-pressed="false"><span class="category-number">06</span><span class="category-name">Cơ sở vật chất</span><span class="category-sub">Không gian và công trình</span><span class="category-line" aria-hidden="true"></span></button>
+<button class="category-tile" type="button" data-category="HEALTH" style="--accent:#AE505A" aria-pressed="false"><span class="category-number">07</span><span class="category-name">Y tế</span><span class="category-sub">Chăm sóc sức khỏe</span><span class="category-line" aria-hidden="true"></span></button>
+<button class="category-tile" type="button" data-category="OTHER" style="--accent:#69716B" aria-pressed="false"><span class="category-number">08</span><span class="category-name">Khác</span><span class="category-sub">Sáng kiến khác</span><span class="category-line" aria-hidden="true"></span></button></div>
+<div class="category-note"><b>Nguyên tắc:</b> Chọn một lĩnh vực để lọc. Tên chủ đề chi tiết (như “Thư viện cộng đồng”) nằm trong nội dung chiến dịch, không phải phân loại Backend cấp hai.</div>
+<div class="discovery-rule"></div>
+<div class="discovery-controls"><div><p class="intro-label">PHẦN 02 / DANH SÁCH CHIẾN DỊCH</p><h2>Các chiến dịch để khám phá</h2><p>Ảnh, mục tiêu và tiến độ của mỗi dự án được đặt cạnh nhau để dễ đối chiếu trước khi mở hồ sơ.</p></div><div class="searchbox"><label for="search">Tìm theo tên / nội dung</label><input id="search" type="search" placeholder="Ví dụ: thư viện, bữa ăn..." autocomplete="off" maxlength="120"></div></div>
+<div class="results-summary"><span class="active-filter"><span id="result-count">03 chiến dịch bản mẫu</span><span class="chip" id="selected-category">Tất cả lĩnh vực</span></span><button type="button" id="reset" class="reset">Xóa bộ lọc</button></div>
+<section class="layout" aria-label="Danh sách chiến dịch demo"><div class="lead-block"><p class="lead-number">CHỌN CHIẾN DỊCH PHÙ HỢP</p><h2>Nhìn rõ mục tiêu, xem rõ tiến độ.</h2><p>Xem ngay đơn vị thực hiện, đối tượng thụ hưởng, số đã đóng góp và mục tiêu để so sánh trước khi mở hồ sơ.</p><div class="lead-summary"><strong>Với bản thô này:</strong> một chiến dịch trình bày lớn để kiểm tra phân cấp thông tin, hai chiến dịch bên dưới giữ cùng các thông tin cốt lõi.<br><br><strong>Không phải xếp hạng:</strong> vị trí lớn không chứng minh chiến dịch đáng tin hơn.</div></div>
+<article class="campaign-card main-card" data-item="hope" data-category="FOOD_SECURITY" style="--accent:#BE692E" id="campaign-hope">
+   <div class="cover" role="img" aria-label="Khung giữ chỗ cho ảnh bìa chiến dịch">
+      <div class="cover-diagonals" aria-hidden="true"></div>
+      <div class="cover-placeholder">ẢNH BÌA CHIẾN DỊCH<span>Ảnh Creator nếu có · chưa dùng ảnh minh chứng</span></div>
+      <div class="cover-category">LƯƠNG THỰC <span class="cover-line"></span></div>
+   </div>
+   <div class="card-content">
+       <div class="card-head"><span class="topic-label">Lương thực</span><span class="status">Đang kêu gọi · DEMO</span></div>
+       <h3>Hope Kitchen Weekly Meals (Demo)</h3>
+       <p class="description">Hỗ trợ bữa ăn và túi lương thực định kỳ cho người cao tuổi sống một mình.</p>
+       <div class="facts"><span><b>Đơn vị</b>Hope Kitchen Network (Demo)</span><span><b>Đối tượng</b>150 người (mô phỏng)</span></div>
+       <div class="funding" aria-label="Thông tin gây quỹ mô phỏng từ dữ liệu seed">
+         <div class="funding-header"><div><span>Đã ghi nhận · MÔ PHỎNG</span><strong>22.000.000 ₫</strong></div><div><span>Mục tiêu</span><strong>60.000.000 ₫</strong></div></div>
+         <div class="track"><div class="fill" style="width:36.67%"></div></div>
+         <div class="funding-footer"><span>Đạt <b>36.7%</b> mục tiêu</span><span>Tiến độ huy động, không phải tiến độ thực hiện</span></div>
+       </div>
+       <div class="card-bottom"><span class="location">Hà Nội — địa điểm giả lập</span><a href="#card-action" class="card-link" data-open="hope">Xem chi tiết chiến dịch ↗</a></div>
+   </div>
+ </article><article class="campaign-card compact-card" data-item="library" data-category="COMMUNITY" style="--accent:#2C8064" id="campaign-library">
+   <div class="cover" role="img" aria-label="Khung giữ chỗ cho ảnh bìa chiến dịch">
+      <div class="cover-diagonals" aria-hidden="true"></div>
+      <div class="cover-placeholder">ẢNH BÌA CHIẾN DỊCH<span>Ảnh Creator nếu có · chưa dùng ảnh minh chứng</span></div>
+      <div class="cover-category">CỘNG ĐỒNG <span class="cover-line"></span></div>
+   </div>
+   <div class="card-content">
+       <div class="card-head"><span class="topic-label">Cộng đồng</span><span class="status">Đang kêu gọi · DEMO</span></div>
+       <h3>Riverside Community Library (Demo)</h3>
+       <p class="description">Cải tạo không gian chung thành thư viện và nơi đọc sách miễn phí cho cộng đồng.</p>
+       <div class="facts"><span><b>Đơn vị</b>Green Village Community Group (Demo)</span><span><b>Đối tượng</b>1.200 người (mô phỏng)</span></div>
+       <div class="funding" aria-label="Thông tin gây quỹ mô phỏng từ dữ liệu seed">
+         <div class="funding-header"><div><span>Đã ghi nhận · MÔ PHỎNG</span><strong>45.000.000 ₫</strong></div><div><span>Mục tiêu</span><strong>80.000.000 ₫</strong></div></div>
+         <div class="track"><div class="fill" style="width:56.25%"></div></div>
+         <div class="funding-footer"><span>Đạt <b>56.2%</b> mục tiêu</span><span>Tiến độ huy động, không phải tiến độ thực hiện</span></div>
+       </div>
+       <div class="card-bottom"><span class="location">TP.HCM — địa điểm giả lập</span><a href="#card-action" class="card-link" data-open="library">Xem chi tiết chiến dịch ↗</a></div>
+   </div>
+ </article><article class="campaign-card compact-card" data-item="learning" data-category="EDUCATION" style="--accent:#386AB0" id="campaign-learning">
+   <div class="cover" role="img" aria-label="Khung giữ chỗ cho ảnh bìa chiến dịch">
+      <div class="cover-diagonals" aria-hidden="true"></div>
+      <div class="cover-placeholder">ẢNH BÌA CHIẾN DỊCH<span>Ảnh Creator nếu có · chưa dùng ảnh minh chứng</span></div>
+      <div class="cover-category">GIÁO DỤC <span class="cover-line"></span></div>
+   </div>
+   <div class="card-content">
+       <div class="card-head"><span class="topic-label">Giáo dục</span><span class="status">Đang kêu gọi · DEMO</span></div>
+       <h3>Laptops and Learning Kits for Highland Pupils (Demo)</h3>
+       <p class="description">Bổ sung thiết bị học tập, không gian học và kỹ năng sử dụng công nghệ cho học sinh.</p>
+       <div class="facts"><span><b>Đơn vị</b>Sunrise Learning Fund (Demo)</span><span><b>Đối tượng</b>180 học sinh (mô phỏng)</span></div>
+       <div class="funding" aria-label="Thông tin gây quỹ mô phỏng từ dữ liệu seed">
+         <div class="funding-header"><div><span>Đã ghi nhận · MÔ PHỎNG</span><strong>75.000.000 ₫</strong></div><div><span>Mục tiêu</span><strong>120.000.000 ₫</strong></div></div>
+         <div class="track"><div class="fill" style="width:62.50%"></div></div>
+         <div class="funding-footer"><span>Đạt <b>62.5%</b> mục tiêu</span><span>Tiến độ huy động, không phải tiến độ thực hiện</span></div>
+       </div>
+       <div class="card-bottom"><span class="location">Lào Cai — địa điểm giả lập</span><a href="#card-action" class="card-link" data-open="learning">Xem chi tiết chiến dịch ↗</a></div>
+   </div>
+ </article>
+<div class="empty"><h3>Chưa có chiến dịch phù hợp</h3><p>Trong ba chiến dịch mẫu đang dùng để kiểm tra bố cục, chưa có chiến dịch thỏa bộ lọc này.</p><button type="button" id="empty-reset">Xem lại tất cả</button></div>
+</section>
+<div class="bottom"><span><b>DỮ LIỆU MÔ PHỎNG:</b> số tiền và trạng thái minh họa theo kịch bản trong <code>DemoDataSeeder.java</code>, không lấy từ API đang chạy và có thể khác dữ liệu hiện tại.</span><span><b>Frontend thực tế:</b> dùng <code>category</code>, <code>q</code>, <code>funding.netRaised</code>, <code>targetAmount</code>; thiếu dữ liệu thì không tự điền số.</span></div>
+<div class="notes note1">A — Danh mục thật: 8 mã backend, 2 × 4, line nhận diện riêng</div><div class="notes note2">B — Bộ lọc: chọn danh mục hoặc tìm từ khóa, không tạo danh mục giả</div><div class="notes note3">C — Card: ảnh, nội dung, đơn vị và tiến độ cùng một khối</div>
+</main><footer class="foot">RISER AI / LOW-FIDELITY BLUEPRINT · DESKTOP 1440 · Chưa áp dụng ảnh, UI style hay React.</footer></div>
+<script>
+const categories = [{"key": "EDUCATION", "name": "Giáo dục"}, {"key": "COMMUNITY", "name": "Cộng đồng"}, {"key": "FOOD_SECURITY", "name": "Lương thực"}, {"key": "WATER_SANITATION", "name": "Nước sạch"}, {"key": "SCHOLARSHIP", "name": "Học bổng"}, {"key": "INFRASTRUCTURE", "name": "Cơ sở vật chất"}, {"key": "HEALTH", "name": "Y tế"}, {"key": "OTHER", "name": "Khác"}];
+const campaignSearch = {"hope": {"category": "FOOD_SECURITY", "title": "Hope Kitchen Weekly Meals (Demo)", "text": "Hope Kitchen Weekly Meals (Demo) Hỗ trợ bữa ăn và túi lương thực định kỳ cho người cao tuổi sống một mình. Hope Kitchen Network (Demo) Lương thực"}, "library": {"category": "COMMUNITY", "title": "Riverside Community Library (Demo)", "text": "Riverside Community Library (Demo) Cải tạo không gian chung thành thư viện và nơi đọc sách miễn phí cho cộng đồng. Green Village Community Group (Demo) Cộng đồng"}, "learning": {"category": "EDUCATION", "title": "Laptops and Learning Kits for Highland Pupils (Demo)", "text": "Laptops and Learning Kits for Highland Pupils (Demo) Bổ sung thiết bị học tập, không gian học và kỹ năng sử dụng công nghệ cho học sinh. Sunrise Learning Fund (Demo) Giáo dục"}};
+const categoryNodes=[...document.querySelectorAll('[data-category].category-tile')];
+let currentCategory='';
+const search=document.querySelector('#search');
+function update(){
+ const q=search.value.toLocaleLowerCase('vi').trim();
+ let visible=0;
+ document.querySelectorAll('[data-item].campaign-card').forEach(node=>{
+    const item=campaignSearch[node.dataset.item];
+    const matchCat=!currentCategory||item.category===currentCategory;
+    const matchText=!q||item.text.toLocaleLowerCase('vi').includes(q);
+    const show=matchCat&&matchText; node.hidden=!show;
+    if(show)visible++;
+ });
+ const lead=document.querySelector('.lead-block');
+ const layout=document.querySelector('.layout');
+ layout.classList.toggle('empty-mode',visible===0);
+ layout.classList.toggle('filtering',!!currentCategory||!!q);
+ if(visible===0)lead.hidden=true;else lead.hidden=false;
+ const label=categories.find(c=>c.key===currentCategory)?.name||'Tất cả lĩnh vực';
+ document.querySelector('#selected-category').textContent=label;
+ document.querySelector('#result-count').textContent=String(visible).padStart(2,'0')+' chiến dịch bản mẫu';
+ document.querySelector('#reset').classList.toggle('show',!!currentCategory||!!q);
+ categoryNodes.forEach(node=>node.setAttribute('aria-pressed',String(node.dataset.category===currentCategory)));
+}
+categoryNodes.forEach(node=>node.addEventListener('click',()=>{currentCategory=currentCategory===node.dataset.category?'':node.dataset.category;update();}));
+search.addEventListener('input',update);
+function reset(){currentCategory='';search.value='';update();}
+document.querySelector('#reset').addEventListener('click',reset);
+document.querySelector('#empty-reset').addEventListener('click',reset);
+document.querySelector('#grid-toggle').addEventListener('click',e=>{const b=e.currentTarget;const v=b.getAttribute('aria-pressed')!=='true';b.setAttribute('aria-pressed',String(v));document.querySelector('.sheet').classList.toggle('show-grid',v);});
+document.querySelector('#note-toggle').addEventListener('click',e=>{const b=e.currentTarget;const v=b.getAttribute('aria-pressed')!=='true';b.setAttribute('aria-pressed',String(v));document.querySelector('.sheet').classList.toggle('show-notes',v);});
+document.querySelectorAll('[data-open]').forEach(a=>a.addEventListener('click',e=>{e.preventDefault();const card=campaignSearch[a.dataset.open];alert('WIREFRAME — '+card.title+'\nKhi triển khai thật, điều hướng đến /campaigns/{slug} theo dữ liệu API.');}));
+update();
+</script>
+</body></html>
