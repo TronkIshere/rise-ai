@@ -13,6 +13,7 @@
 5. [Owner selection scorecard](./DECISION_SCORECARD.md) — B selected, detailed visual gates remain open.
 6. [Community Signature v0.8.1 refinement brief](./COMMUNITY_SIGNATURE_V081_BRIEF.md) — next scoped exploration before any High-Fidelity.
 7. [Chromium preview QA](./QA_RENDER.json) — rendered only as an exploratory board.
+8. [B v0.8.1 detailed visual specification](./COMMUNITY_SIGNATURE_V081_SPEC.md) — authoritative written handoff for the next exploration; **not** approved runtime values.
 
 ## Scope lock
 
