@@ -122,3 +122,19 @@ The historical v0.7.0 Master stays archived as **ASSEMBLED — PENDING VISUAL AP
 
 **Next stage:** research Art Direction & prepare High-Fidelity concepts per [research brief](./ART_DIRECTION_RESEARCH_BRIEF_V080.md); **no chosen visual concept and no implementation authorization yet**. Any modification to the approved composition requires a separate owner-scoped change request and a versioned decision log entry.
 
+
+---
+
+## Owner Art Direction selection — B / Community Signature (2026-11-06)
+
+**Owner decision:** **SELECTED DIRECTION B — COMMUNITY SIGNATURE / DẤU ẤN KẾT NỐI** for the next identity exploration stage. A (Field Notes) and C (Evidence with Empathy) remain archived exploratory alternatives and are **not** chosen as the main direction.
+
+**Decision scope:** visual identity *direction only* (community-first, distinctive, confident typography, semantic connections between real steps/milestones). This is **not** a final visual token, moodboard-asset, High-Fidelity or React approval.
+
+**Research source:** [three v0.8.0 style tiles](./art-direction/v0.8.0/STYLE_TILES_V080.html) and [owner selection log](./art-direction/v0.8.0/DECISION_SCORECARD.md). The earlier tiles proved insufficiently differentiated in final form; **do not treat their candidate palette or fallback-font rendering as approved artwork**.
+
+**Next gate:** [B-specific Art Direction refinement brief v0.8.1](./art-direction/v0.8.0/COMMUNITY_SIGNATURE_V081_BRIEF.md). Develop B's signature motif, actual Vietnamese font tests, photo/illustration provenance, purposeful category accents and contrast, then submit desktop style studies for explicit visual approval before creating High-Fidelity.
+
+**Non-negotiable:** the [Homepage Composition Baseline v0.7.1b](./COMPOSITION_BASELINE_V071B.md) stays locked. Preserve 8 first-level categories, A+C card proportions, Story→Transparency transition, keyboard disclosure and page landmark semantics; do not change application runtime CSS, Backend or deployed UI.
+
+**Still pending owner approval:** final brand palette, category HEX values, font choice and scales, images/artwork, icon design, shape, visual textures, radii, shadows, motion, High-Fidelity, React, mobile design and deployment. The token registry's pending values are unchanged.
