@@ -1,0 +1,25 @@
+{
+  "stage": "Art Direction v0.8.0 research tile preview",
+  "browser": "Chromium 144.0.7559.96",
+  "viewport": {
+    "width": 1440,
+    "height": 900,
+    "dpr": 1
+  },
+  "document": {
+    "scrollWidth": 1440,
+    "scrollHeight": 4506
+  },
+  "directionCount": 3,
+  "mainCount": 1,
+  "h1Count": 1,
+  "pageJavaScriptErrors": 0,
+  "httpRequests": 0,
+  "fontsLoaded": [
+    "Noto Serif fallback",
+    "Noto Sans fallback"
+  ],
+  "fontCandidatesActuallyLoaded": false,
+  "highFidelity": false,
+  "htmlSha256": "9a054514c65529d5260409f09347be694257167894d7943b0030712a0e69fdc4"
+}
