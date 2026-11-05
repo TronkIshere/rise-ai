@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Riser AI — Transparency Wireframe v0.5.0</title>
+<style>
+:root{--ink:#202020;--copy:#363636;--mute:#525252;--line:#a6a6a6;--soft:#d6d6d6;--paper:#fff;--sub:#f1f1f1;}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:#eaeaea;color:var(--ink);font-family:Arial,'DejaVu Sans','Segoe UI',sans-serif;-webkit-font-smoothing:antialiased}
+button,a{font:inherit;color:inherit}button{cursor:pointer}
+.sheet{max-width:1440px;margin:0 auto;background:var(--paper);padding:0 96px 60px;min-height:100vh}
+.toolbar{display:flex;justify-content:space-between;align-items:center;gap:20px;min-height:73px;border-bottom:1px solid #ddd}
+.toolbar-name{font-size:13px;font-weight:800;letter-spacing:.015em}.toolbar-name span{font-size:12px;font-weight:500;color:var(--mute);margin-left:14px}
+.tools{display:flex;gap:8px;flex-wrap:wrap}.tools button{border:1px solid #888;padding:9px 12px;border-radius:0;background:#fff;font-weight:700;font-size:12px;min-height:39px}.tools button[aria-pressed=true]{background:#292929;color:#fff}
+.breadcrumb{display:flex;justify-content:space-between;flex-wrap:wrap;gap:14px;padding:22px 0;border-bottom:1px solid #e1e1e1;font-size:12px;font-weight:700;color:#4c4c4c;letter-spacing:.055em}
+.intro{padding:80px 0 80px;display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,.8fr);gap:86px;align-items:end}
+.eyebrow{display:flex;align-items:center;gap:13px;font-size:13px;font-weight:800;letter-spacing:.065em;margin:0 0 22px}.eyebrow:before{content:'';width:25px;height:2px;background:#333}
+h1{font-size:53px;line-height:1.17;letter-spacing:-.018em;font-weight:800;max-width:760px;margin:0;text-wrap:pretty}
+.lead{font-size:18px;line-height:1.67;color:#303030;margin:0 0 22px;max-width:470px}.intro-explain{font-size:15px;line-height:1.68;color:#474747;max-width:470px;margin:0}.lead strong{color:#111}
+.note{display:none;border-left:3px solid #777;background:#f5f5f5;color:#363636;padding:12px 16px;line-height:1.6;font-size:13px;margin-top:18px}.show-notes .note{display:block}
+.flow{padding:0 0 68px}
+.h2row{display:flex;align-items:baseline;justify-content:space-between;gap:35px;border-bottom:1px solid var(--line);padding-bottom:17px;margin-bottom:34px}
+.h2row h2{font-size:27px;line-height:1.3;margin:0;font-weight:800}.h2row p{font-size:14px;line-height:1.5;color:#484848;max-width:450px;margin:0}
+.flow-items{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:37px;align-items:start}
+.flow-item{position:relative;border-top:3px solid #3d3d3d;padding-top:21px;min-width:0}
+.flow-item:not(:last-child):after{content:'→';position:absolute;right:-29px;top:20px;font-size:22px;color:#777}
+.tag{display:inline-block;font-size:12px;font-weight:800;letter-spacing:.06em;color:#555;margin-bottom:15px}
+.flow-item h3{font-size:22px;line-height:1.32;margin:0 0 12px;overflow-wrap:break-word}
+.flow-item p{font-size:16px;line-height:1.65;margin:0;max-width:360px;color:#424242}
+.case{border-top:1px solid #aaa;border-bottom:1px solid #aaa;padding:58px 0 60px;display:grid;grid-template-columns:minmax(0,.82fr) minmax(0,1.18fr);gap:76px;align-items:start}
+.case-meta{font-size:12px;letter-spacing:.065em;font-weight:800;color:#555;margin:0 0 20px}
+.case h2{font-size:39px;line-height:1.2;max-width:410px;margin:0 0 21px;letter-spacing:-.009em;text-wrap:pretty}
+.case .case-copy{font-size:17px;line-height:1.72;margin:0;max-width:440px;color:#3d3d3d}
+.case-question{margin-top:27px;padding-top:18px;border-top:1px solid #aaa;font-size:15px;line-height:1.6;font-weight:700;max-width:440px}
+.case-steps{border-left:2px solid #888;padding-left:32px;list-style:none;margin:0}
+.case-step{padding:0 0 27px;position:relative}
+.case-step:last-child{padding-bottom:0}
+.case-step:before{content:'';position:absolute;left:-42px;top:2px;width:18px;height:18px;border:2px solid #444;background:#fff;border-radius:50%}
+.case-step:nth-child(2):before{background:#333}
+.case-step .state-row{display:flex;align-items:flex-start;gap:20px;justify-content:space-between;flex-wrap:wrap}
+.case-step h3{font-size:20px;line-height:1.35;margin:0;max-width:450px}
+.status{border:1px solid #555;padding:7px 10px;white-space:nowrap;font-size:12px;line-height:1.35;font-weight:800}
+.case-step:nth-child(2) .status{background:#282828;color:#fff}
+.case-step p{font-size:15px;line-height:1.68;margin:11px 0 0;max-width:620px;color:#383838}
+.case-caption{border-top:1px solid #bbb;padding-top:17px;font-size:14px;line-height:1.66;margin-top:21px;font-weight:600}
+.boundaries{padding:67px 0 38px;display:grid;grid-template-columns:280px 1fr;gap:66px;align-items:start}
+.boundaries h2{font-size:30px;line-height:1.25;margin:0;max-width:300px}
+.boundary-lines{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 29px}
+.boundary-line{border-top:1px solid #a7a7a7;padding:18px 0 22px}
+.boundary-line strong{display:block;font-size:17px;line-height:1.4;margin-bottom:8px}
+.boundary-line p{font-size:15px;line-height:1.7;color:#414141;margin:0}
+.inline-toggle{display:flex;align-items:center;justify-content:space-between;gap:18px;border-top:2px solid #383838;padding:23px 0 24px;margin-top:20px}
+.inline-toggle>div{max-width:780px}.inline-toggle strong{font-size:19px;line-height:1.4}.inline-toggle p{font-size:14px;color:#444;line-height:1.6;margin:6px 0 0}
+.inline-toggle button{font-weight:800;font-size:14px;padding:12px 17px;border:1px solid #333;background:white;white-space:nowrap;min-height:46px}
+.details{display:none;border-top:1px solid #aaa;padding:24px 0 15px}
+.details.open{display:block}
+.details dl{display:grid;grid-template-columns:repeat(3,1fr);gap:25px;margin:0}.details dt{font-size:15px;font-weight:800;margin:0 0 8px}.details dd{font-size:14px;line-height:1.65;margin:0;color:#424242}
+.outro{border-top:1px solid #ccc;margin-top:44px;padding-top:24px;display:flex;align-items:start;justify-content:space-between;gap:28px;color:#555;font-size:13px;line-height:1.65}
+.outro strong{color:#333}.outro p{margin:0;max-width:660px}
+.show-grid .sheet{background-image:repeating-linear-gradient(to right,transparent 0,transparent calc((100% - 192px)/12 - 1px),rgba(0,0,0,.025) calc((100% - 192px)/12 - 1px),rgba(0,0,0,.025) calc((100% - 192px)/12));}
+@media(max-width:1150px){.sheet{padding:0 54px 50px}.intro{gap:42px}h1{font-size:46px}.case{gap:38px}.boundaries{gap:36px}.show-grid .sheet{background-image:none}}
+@media(max-width:780px){.sheet{padding:0 22px 35px}.toolbar{align-items:flex-start;flex-direction:column;padding:17px 0;gap:13px}.toolbar-name span{display:block;margin:5px 0 0}.intro{padding:49px 0 52px;grid-template-columns:1fr;gap:19px}h1{font-size:37px}.lead{font-size:17px}.h2row{display:block}.h2row p{margin-top:11px}.flow-items{grid-template-columns:1fr;gap:26px}.flow-item:not(:last-child):after{content:'↓';position:absolute;right:5px;top:52px}.flow-item h3{font-size:20px}.flow-item p{font-size:16px}.flow{padding-bottom:38px}.case{padding:40px 0;grid-template-columns:1fr;gap:35px}.case h2{font-size:31px}.case-steps{padding-left:26px}.case-step:before{left:-36px}.boundaries{padding:46px 0 22px;grid-template-columns:1fr;gap:25px}.boundaries h2{font-size:27px}.boundary-lines{grid-template-columns:1fr}.inline-toggle{display:block}.inline-toggle button{margin-top:18px;width:100%}.details dl{grid-template-columns:1fr;gap:18px}.outro{display:block}.outro p{margin-bottom:11px}.case-step .state-row{display:block}.status{display:inline-block;margin-top:10px}.tools button{font-size:12px}}
+</style>
+</head>
+<body>
+<main class="sheet">
+<header class="toolbar" aria-label="Công cụ kiểm tra bản thô">
+  <div class="toolbar-name">RISER AI / WIREFRAME <span>v0.5.0 · Transparency · 1440px</span></div>
+  <div class="tools"><button id="lengthBtn" type="button" aria-pressed="false">Thử nội dung dài</button><button id="notesBtn" type="button" aria-pressed="false">Ghi chú UX</button><button id="gridBtn" type="button" aria-pressed="false">Lưới bố cục</button></div>
+</header>
+<div class="breadcrumb"><span>TIẾP NỐI FEATURED STORY + MILESTONES v0.4.2</span><span>LOW-FIDELITY · DỮ LIỆU DEMO MÔ PHỎNG · CHƯA DUYỆT</span></div>
+<section class="intro" aria-labelledby="transparency-title">
+ <div>
+  <p class="eyebrow">MINH BẠCH CÓ THỂ KIỂM TRA</p>
+  <h1 id="transparency-title">Điều gì đã được ghi nhận, điều gì còn chờ xác nhận?</h1>
+ </div>
+ <div>
+  <p class="lead" id="lead">Mỗi chiến dịch cần cho thấy <strong>kế hoạch, minh chứng và kết quả xét duyệt</strong> — không chỉ là một con số tiến độ.</p>
+  <p class="intro-explain" id="explain">Riser AI hiện mô phỏng quy trình đóng góp và giải ngân. Các trạng thái trong hệ thống không phải chứng nhận cho hoạt động ngoài đời thực.</p>
+ </div>
+</section>
+<section class="flow" aria-labelledby="flow-heading">
+ <div class="h2row"><h2 id="flow-heading">Người xem có thể đối chiếu những gì?</h2><p>Ba lớp thông tin nối tiếp nhau, không phải ba cam kết tuyệt đối.</p></div>
+ <div class="flow-items">
+  <article class="flow-item"><span class="tag">KẾ HOẠCH</span><h3>Điều đã cam kết thực hiện</h3><p id="flow1">Mục tiêu, hạng mục ngân sách và các cột mốc dự kiến của chiến dịch.</p></article>
+  <article class="flow-item"><span class="tag">GHI NHẬN</span><h3>Thông tin và minh chứng đã nộp</h3><p id="flow2">Báo cáo, hóa đơn và tệp hoặc tham chiếu do người thực hiện khai báo, kèm trạng thái.</p></article>
+  <article class="flow-item"><span class="tag">XÉT DUYỆT</span><h3>Kết luận trong hệ thống</h3><p id="flow3">Phân biệt đã nộp, đã chấp nhận, bị từ chối và yêu cầu đang chờ quyết định.</p></article>
+ </div>
+ <p class="note">UX 01 · Sử dụng ba lớp thông tin, không tái hiện một dải 01–02–03 nền màu như phần Hero. Các nhãn này là khái niệm đọc hiểu, không phải các trạng thái API mới.</p>
+</section>
+<section class="case" aria-labelledby="case-title">
+ <div>
+  <p class="case-meta">VÍ DỤ TỪ KỊCH BẢN SEED / KHÔNG PHẢI GIAO DỊCH THẬT</p>
+  <h2 id="case-title">Một hồ sơ được chấp nhận có nghĩa gì?</h2>
+  <p class="case-copy" id="case-copy">Trong chiến dịch thiết bị học tập vùng cao giả định, Backend ghi nhận một hóa đơn của cột mốc mua thiết bị được Admin chấp thuận. Điều đó mô tả quyết định xét duyệt <strong>trong hệ thống demo</strong>.</p>
+  <p class="case-question">Người xem cần phân biệt hồ sơ được chấp nhận, tiến độ cột mốc và giao dịch tiền thật.</p>
+  <p class="note">UX 02 · Chọn một ví dụ có thật trong mã seeder. Không đưa hình ảnh trẻ em, hóa đơn giả định hoặc số liệu thành tích ngoài hệ thống vào bản phác. Khoản 40 triệu là release mô phỏng trong nghiệp vụ seed.</p>
+ </div>
+ <div>
+  <ol class="case-steps">
+   <li class="case-step"><div class="state-row"><h3>Hóa đơn nhà cung cấp được gửi</h3><span class="status">ĐÃ GỬI · DEMO</span></div><p id="case1">Hệ thống lưu metadata của minh chứng gắn với cột mốc mua thiết bị.</p></li>
+   <li class="case-step"><div class="state-row"><h3>Admin chấp thuận minh chứng</h3><span class="status">CHẤP NHẬN · DEMO</span></div><p id="case2">Quyết định duyệt thuộc người quản trị; không đồng nghĩa tệp đã được xác minh độc lập ngoài đời.</p></li>
+   <li class="case-step"><div class="state-row"><h3>Giải ngân mô phỏng được ghi nhận</h3><span class="status">40 TRIỆU ₫ · DEMO</span></div><p id="case3">Kịch bản seed đã ghi nhận release 40 triệu đồng mô phỏng và hoàn thành cột mốc thứ nhất. Không có chuyển tiền thật.</p></li>
+  </ol>
+  <p class="case-caption">Đây là một ví dụ về đường đi của dữ liệu và quyết định xét duyệt, <u>không phải bằng chứng dự án đã triển khai ngoài thực tế.</u></p>
+ </div>
+</section>
+<section class="boundaries" aria-labelledby="boundaries-heading">
+ <div><p class="eyebrow">ĐỌC ĐÚNG TRẠNG THÁI</p><h2 id="boundaries-heading">Minh bạch cả những giới hạn.</h2></div>
+ <div class="boundary-lines">
+  <div class="boundary-line"><strong>Đã nộp ≠ đã chấp thuận</strong><p>Minh chứng có thể còn đang chờ xét duyệt hoặc bị từ chối.</p></div>
+  <div class="boundary-line"><strong>Đã chấp thuận ≠ đã xác minh ngoài đời</strong><p>Trạng thái nội bộ không thay thế kiểm chứng độc lập với hồ sơ và kết quả thực địa.</p></div>
+  <div class="boundary-line"><strong>Đã giải ngân mô phỏng ≠ chuyển tiền thật</strong><p>Riser AI hiện sử dụng quy trình đóng góp và giải ngân giả lập.</p></div>
+  <div class="boundary-line"><strong>AI cảnh báo ≠ phê duyệt</strong><p>AI hỗ trợ phát hiện dấu hiệu cần xem xét; quyết định thuộc người quản trị.</p></div>
+ </div>
+</section>
+<section class="inline-toggle" aria-labelledby="detail-heading"><div><strong id="detail-heading">Xem cách phân biệt các trạng thái</strong><p>Giải thích thêm về ba loại thông tin trước khi đi vào trang chi tiết chiến dịch.</p></div><button id="detailsBtn" type="button" aria-expanded="false" aria-controls="details">Mở giải thích ↓</button></section>
+<div class="details" id="details" aria-hidden="true"><dl>
+<div><dt>Trạng thái minh chứng</dt><dd>SUBMITTED, ACCEPTED, REJECTED — trạng thái dữ liệu, không phải mức độ xác minh pháp lý.</dd></div>
+<div><dt>Trạng thái yêu cầu giải ngân</dt><dd>UNDER_REVIEW, APPROVED, RELEASED... phản ánh quy trình trong Backend mô phỏng.</dd></div>
+<div><dt>Trạng thái cột mốc</dt><dd>PLANNED, IN_PROGRESS, COMPLETED... mô tả tiến trình thực hiện theo mô hình của hệ thống.</dd></div>
+</dl></div>
+<div class="outro"><p><strong>Nguồn cấu trúc:</strong> Riser AI Frontend contracts và Backend DemoDataSeeder. Đây là bản thô để duyệt thứ tự thông tin, chưa phải giao diện sản phẩm hay dữ liệu cập nhật trực tiếp.</p><p>STORY v0.4.2 → TRANSPARENCY v0.5.0 → FOOTER (CHƯA THIẾT KẾ)</p></div>
+</main>
+<script>
+(function(){
+ const root=document.body;
+ const notes=document.getElementById('notesBtn'),grid=document.getElementById('gridBtn'),long=document.getElementById('lengthBtn'),open=document.getElementById('detailsBtn'),details=document.getElementById('details');
+ notes.addEventListener('click',()=>{const on=root.classList.toggle('show-notes');notes.setAttribute('aria-pressed',String(on));notes.textContent=on?'Ẩn ghi chú UX':'Ghi chú UX'});
+ grid.addEventListener('click',()=>{const on=root.classList.toggle('show-grid');grid.setAttribute('aria-pressed',String(on));grid.textContent=on?'Ẩn lưới bố cục':'Lưới bố cục'});
+ const source={lead:document.getElementById('lead').innerHTML,explain:document.getElementById('explain').textContent,flow2:document.getElementById('flow2').textContent,case:document.getElementById('case-copy').innerHTML,case2:document.getElementById('case2').textContent};
+ const stress={lead:'Mỗi chiến dịch có thể có nhiều loại nội dung, từ mục tiêu kêu gọi đến các hạng mục ngân sách, báo cáo tiến độ, tài liệu hoặc tham chiếu do người thực hiện khai báo và các quyết định liên quan tới những yêu cầu giải ngân. Người xem cần được dẫn dắt theo thứ tự dễ hiểu, đồng thời có thể nhận ra những bước nào còn thiếu dữ liệu.',explain:'Đây vẫn là một kịch bản mô phỏng, nên tất cả kết quả chỉ phản ánh các trạng thái đã được lưu và thay đổi trong hệ thống. Người dùng không được hiểu các trạng thái đó thành chứng nhận hoạt động thiện nguyện ngoài đời, xác minh tài liệu độc lập hoặc bằng chứng về việc chuyển khoản ngân hàng thực tế.',flow2:'Các hồ sơ minh chứng có thể có tên dài, nhiều loại tài liệu, mô tả bổ sung, thời điểm gửi và phản hồi của người xem xét. Nội dung phải xuống dòng tự nhiên khi đầy đủ thông tin, không tự động biến thành ba dòng chữ xám khó đọc.',case:'Trong chiến dịch thiết bị học tập vùng cao giả định, một hóa đơn mua sắm thiết bị được khai báo và Admin chấp thuận trên Backend. Kịch bản mô phỏng sau đó ghi nhận yêu cầu giải ngân theo cột mốc và trạng thái hoàn thành. Tuy nhiên bản ghi dữ liệu, kết luận xét duyệt trong hệ thống, tình trạng công việc và bằng chứng về hoạt động ngoài đời là những lớp thông tin khác nhau, không nên đánh đồng khi trình bày.',case2:'Kết quả chấp thuận của Admin trong kịch bản mô phỏng xác nhận một hành động xét duyệt đã diễn ra trong hệ thống, nhưng không phải kết luận rằng file hóa đơn có thật, hàng hóa đã được giao hoặc đã có kiểm chứng độc lập tại hiện trường.'};
+ long.addEventListener('click',()=>{const on=long.getAttribute('aria-pressed')!=='true';long.setAttribute('aria-pressed',String(on));long.textContent=on?'Quay về nội dung gốc':'Thử nội dung dài';for(const k of ['lead','explain','flow2','case','case2']){const id=k==='case'?'case-copy':k;const el=document.getElementById(id);if(!el)continue;if(on){el.textContent=stress[k]}else if(k==='lead'||k==='case'){el.innerHTML=source[k]}else{el.textContent=source[k]}}});
+ open.addEventListener('click',()=>{const on=open.getAttribute('aria-expanded')!=='true';open.setAttribute('aria-expanded',String(on));details.setAttribute('aria-hidden',String(!on));details.classList.toggle('open',on);open.textContent=on?'Đóng giải thích ↑':'Mở giải thích ↓';});
+})();
+</script>
+</body>
+</html>

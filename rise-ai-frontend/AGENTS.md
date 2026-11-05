@@ -53,3 +53,8 @@
 - Never claim public deployment or fully accepted FE-06 without a confirmed target, real-browser evidence and post-merge `master` CI. Keep Draft until independent acceptance.
 - Do not remove Docker resources unrelated to Rise AI; no `down -v` or broad Docker prune.
 - The community-first non-SaaS redesign is explicitly deferred until after FE-06, with multiple concepts and user choice before coding.
+
+
+## Design Baseline Lock — 2026-11-05
+
+Before any Frontend redesign task, Codex/Antigravity/Gemini must read the repository-root [docs/design/DESIGN_DECISION_LOG.md](../docs/design/DESIGN_DECISION_LOG.md), [docs/design/UI_GUARDRAILS.md](../docs/design/UI_GUARDRAILS.md), [docs/design/UI_TOKEN_REGISTRY.md](../docs/design/UI_TOKEN_REGISTRY.md) and [docs/design/WIREFRAME_LAYOUT_TOKENS.json](../docs/design/WIREFRAME_LAYOUT_TOKENS.json). Preserve approved section structures and restrict changes to the requested section. Master v0.7.0 is assembled, pending visual approval; provisional sources and wireframe values are not final high-fidelity/runtime tokens. Runtime tokens remain in src/styles/tokens.css. No React implementation, mobile redesign, merge or deployment without separate explicit instruction. Existing FE-00–FE-06, architecture, security and business rules remain in force.

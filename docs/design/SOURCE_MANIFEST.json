@@ -1,0 +1,46 @@
+{
+  "recordedAt": "2026-11-05",
+  "baselineCommit": "3c8c4b605979a75cd8f5dd1b4076996fb2aeaf37",
+  "masterEquivalentInputs": [
+    "riser-homepage-v070.html",
+    "riser-homepage-v070.zip!riser-homepage-v070.html"
+  ],
+  "imports": [
+    {
+      "path": "wireframes/homepage-master-v0.7.0.html",
+      "sourceArchive": "RISER_AI_HOMEPAGE_MASTER_V070_PACKAGE.zip",
+      "sourceEntry": "RISER_AI_HOMEPAGE_MASTER_WIREFRAME_V070.html",
+      "sourceVersion": "v0.7.0",
+      "approvalStatus": "ASSEMBLED — PENDING VISUAL APPROVAL",
+      "bytes": 105979,
+      "sha256": "9add4bcff3daf8fa322efbb30d367ceb6a3827bd604635c6b58250581af43ea7"
+    },
+    {
+      "path": "wireframes/story-milestones-v0.4.2.html",
+      "sourceArchive": "RISER_AI_HOMEPAGE_MASTER_V070_PACKAGE.zip",
+      "sourceEntry": "approved-source-previews/RISER_AI_STORY_MILESTONES_WIREFRAME_V042.html",
+      "sourceVersion": "v0.4.2",
+      "approvalStatus": "PROVISIONALLY_APPROVED",
+      "bytes": 32205,
+      "sha256": "c4800fba94e160d144b0f29c3c4af25958a303559749137d48ee0bc641ebd87f"
+    },
+    {
+      "path": "wireframes/transparency-v0.5.0.html",
+      "sourceArchive": "RISER_AI_HOMEPAGE_MASTER_V070_PACKAGE.zip",
+      "sourceEntry": "approved-source-previews/RISER_AI_TRANSPARENCY_WIREFRAME_V050.html",
+      "sourceVersion": "v0.5.0",
+      "approvalStatus": "PROVISIONALLY_APPROVED",
+      "bytes": 18443,
+      "sha256": "caaa2367efca3873250cd88468507a1a3443285ffd0fdeed586cd38315c76303"
+    },
+    {
+      "path": "wireframes/footer-desktop-v0.6.3.html",
+      "sourceArchive": "RISER_AI_HOMEPAGE_MASTER_V070_PACKAGE.zip",
+      "sourceEntry": "approved-source-previews/RISER_AI_FOOTER_WIREFRAME_V063_DESKTOP.html",
+      "sourceVersion": "v0.6.3",
+      "approvalStatus": "PROVISIONALLY_APPROVED",
+      "bytes": 17085,
+      "sha256": "3587c4727092cddd98ef0e0beae8d46d29d1104b51293a2dd04ffd5e19a7bdd1"
+    }
+  ]
+}
