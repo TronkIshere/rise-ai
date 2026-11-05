@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Riser AI — Card A+C, Wireframe v0.3.4</title>
+<style>
+  :root { --ink:#242424; --mute:#555; --line:#989898; --gray:#e5e5e5; --soft:#f3f3f3; --paper:#fff; }
+  * {box-sizing:border-box}
+  body {margin:0; background:#fafafa; color:var(--ink); font-family:Arial,'Segoe UI',sans-serif}
+  .frame {width:1440px; min-height:645px; padding:32px 120px 50px; margin:0 auto}
+  .top {display:flex;align-items:center;justify-content:space-between;margin-bottom:22px}
+  .kicker{font-size:12px; font-weight:700; letter-spacing:1.6px;color:#4f4f4f}
+  .version{font-size:12px;color:var(--mute)}
+  h1{font-size:26px;line-height:1.16;margin:0 0 8px}
+  .lead{font-size:14px;line-height:1.55;margin:0 0 23px;color:#555;max-width:1050px}
+  .card{height:392px;display:grid;grid-template-columns:450px 1fr;background:#fff;border:1.5px solid #6c6c6c}
+  .picture{background:#e7e7e7;position:relative;display:flex;align-items:center;justify-content:center;border-right:1px solid #b5b5b5;overflow:hidden}
+  .picture:before,.picture:after{content:'';position:absolute;left:-25%;top:50%;width:150%;height:1px;background:#b7b7b7;transform:rotate(39deg)}
+  .picture:after{transform:rotate(-39deg)}
+  .image-label{position:relative;z-index:2;display:flex;flex-direction:column;gap:8px;text-align:center;background:#e7e7e7;padding:12px 24px}
+  .image-label strong{font-size:18px;letter-spacing:1.4px}
+  .image-label span{font-size:12px;color:#555}
+  .detail {display:flex;flex-direction:column;min-width:0;padding:18px 24px 17px}
+  .meta{display:flex;align-items:center;gap:10px;font-size:12px;letter-spacing:.4px;font-weight:700;margin-bottom:10px}
+  .pill{padding:6px 9px;border:1px solid #888;background:#fafafa}
+  .status{color:#555;font-weight:500}
+  .detail h2{font-size:24px;line-height:1.17;margin:0 0 8px;letter-spacing:-.3px}
+  .summary{font-size:14px;line-height:1.45;color:#3e3e3e;margin:0 0 14px;max-width:640px}
+  .facts{display:grid;grid-template-columns:1.1fr 1fr;gap:12px;padding:12px 0;border-top:1px solid #d2d2d2}
+  .fact span{display:block;font-size:12px;color:#595959;margin-bottom:5px}
+  .fact strong{font-size:13px;line-height:1.4}
+  .location{font-size:12px;color:#5a5a5a;margin-top:8px}
+  .funding{border-top:2px solid #555;margin-top:auto;padding-top:11px}
+  .funding-title{font-size:11px;letter-spacing:1.2px;font-weight:700;color:#565656;margin-bottom:8px}
+  .amounts{display:flex;align-items:flex-end;justify-content:space-between;gap:24px}
+  .amounts .left span,.amounts .right span{display:block;font-size:12px;color:#555;margin-bottom:4px}
+  .amounts .left strong{font-size:25px;line-height:1.1;white-space:nowrap}
+  .amounts .right{text-align:right}.amounts .right strong{font-size:17px}
+  .track{margin-top:11px;height:9px;background:#ddd;width:100%;overflow:hidden}
+  .fill{height:100%;width:36.6667%;background:#666}
+  .bottom{display:flex;align-items:center;justify-content:space-between;margin-top:9px;gap:20px}
+  .bottom .note{font-size:12px;color:#555}
+  .bottom .cta{font-size:14px;font-weight:700;white-space:nowrap;border-bottom:1px solid #333;padding-bottom:3px}
+  .foot{margin-top:16px;padding:11px 14px;background:#ededed;color:#444;font-size:12px;line-height:1.4}
+  @media(max-width:1440px){.frame{transform-origin:top left; transform:scale(calc(100vw / 1440));}}
+</style>
+</head>
+<body>
+<main class="frame">
+  <div class="top"><span class="kicker">RISER AI / CAMPAIGN CARD STRUCTURE STUDY</span><span class="version">v0.3.4 · A + C · LOW-FIDELITY · 1200 × 392</span></div>
+  <h1>Phương án A+C — Ảnh dẫn dắt, tiến độ đủ nổi bật</h1>
+  <p class="lead">Giữ hình ảnh và nội dung như A. Tiến độ đóng góp được nhấn rõ như C nhưng nằm trong dòng đọc tự nhiên của card, không tách thành một bảng điều khiển thứ ba.</p>
+  <article class="card" aria-label="Wireframe Hope Kitchen Weekly Meals">
+    <div class="picture"><div class="image-label"><strong>ẢNH BÌA</strong><span>Ảnh Creator / trạng thái thiếu ảnh</span><span>Khung giữ chỗ — không phải hình minh chứng</span></div></div>
+    <div class="detail">
+      <div class="meta"><span class="pill">LƯƠNG THỰC</span><span class="status">ĐANG KÊU GỌI · DEMO</span></div>
+      <h2>Hope Kitchen Weekly Meals (Demo)</h2>
+      <p class="summary">Bữa ăn và túi lương thực định kỳ hỗ trợ người cao tuổi sống một mình.</p>
+      <div class="facts">
+        <div class="fact"><span>Đơn vị thực hiện</span><strong>Hope Kitchen Network (Demo)</strong></div>
+        <div class="fact"><span>Đối tượng thụ hưởng</span><strong>150 người cao tuổi (demo)</strong></div>
+      </div>
+      <div class="location">Khu vực: Hai Bà Trưng, Hà Nội (địa điểm giả lập)</div>
+      <div class="funding">
+        <div class="funding-title">TIẾN ĐỘ ĐÓNG GÓP MÔ PHỎNG</div>
+        <div class="amounts">
+          <div class="left"><span>Đã ghi nhận ròng</span><strong>22.000.000 ₫</strong></div>
+          <div class="right"><span>Mục tiêu</span><strong>60.000.000 ₫</strong></div>
+        </div>
+        <div class="track" aria-label="Đã đạt 36,7% mục tiêu"><div class="fill"></div></div>
+        <div class="bottom"><span class="note"><b>36,7%</b> mục tiêu · Không phải tiến độ triển khai</span><span class="cta">Xem hồ sơ chiến dịch ↗</span></div>
+      </div>
+    </div>
+  </article>
+  <div class="foot">GIỚI HẠN BẢN THÔ: Số liệu từ kịch bản seed mô phỏng, không phải API live. Chưa quyết định màu chủ đề, bo góc, hình ảnh, font thương hiệu hoặc shadow. Bố cục này chỉ thiết kế card chính.</div>
+</main>
+</body>
+</html>
