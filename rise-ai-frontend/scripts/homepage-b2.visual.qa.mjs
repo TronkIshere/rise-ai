@@ -121,7 +121,7 @@ for (const [state, code] of [['error',503],['empty',200]]) {
   const expected=state==='error'?'Chưa tải được chiến dịch':'Chưa có chiến dịch đang kêu gọi';
   const msg=p.locator('.b2-api-message');
   await p.getByText(expected, { exact: false }).first().waitFor({ timeout: 25000 });
-  check(`${state} API state`,(await msg.innerText()).includes(expected) && (await p.locator('#campaigns .campaign-card').count())===0);
+  check(`${state} API state`, (await msg.innerText()).includes(expected) && (await p.locator('#campaigns .campaign-card').count())===0 && (state !== 'empty' || (await msg.locator('a[href="/campaigns"]').count()) === 1));
   await c.close();
 }
 await browser.close();
