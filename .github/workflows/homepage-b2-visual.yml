@@ -38,3 +38,74 @@ jobs:
           path: rise-ai-frontend/visual-qa/b2-v132/
           retention-days: 14
           if-no-files-found: warn
+
+  live-backend-http:
+    # Unlike desktop-1440, this job hits real Spring HTTP + MySQL, no API fixtures.
+    runs-on: ubuntu-24.04
+    services:
+      mysql:
+        image: mysql:8.4
+        env:
+          MYSQL_DATABASE: rise_ai
+          MYSQL_USER: rise_dev
+          MYSQL_PASSWORD: rise_dev_password
+          MYSQL_ROOT_PASSWORD: ci-only-root-password
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -uroot -pci-only-root-password"
+          --health-interval=10s --health-timeout=5s --health-retries=15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: rise-ai-frontend/package-lock.json
+      - name: Build genuine Spring Boot Backend
+        working-directory: rise-ai-backend
+        run: mvn -B -DskipTests package
+      - name: Boot Backend and seed ephemeral MySQL database
+        env:
+          RISE_MONITORING_ENABLED: 'false'
+          RISE_JOBS_ENABLED: 'false'
+          RISE_SEED_ENABLED: 'true'
+          RISE_JWT_SECRET: ci-only-rise-b2-smoke-jwt-secret-32-bytes
+        run: |
+          jar_path=$(find rise-ai-backend/target -maxdepth 1 -type f -name '*.jar' ! -name '*.original' ! -name '*-sources.jar' | head -1)
+          test -n "$jar_path"
+          nohup java -jar "$jar_path" > /tmp/b2-real-backend.log 2>&1 &
+          ready=0
+          for i in $(seq 1 100); do
+            if curl -fsS http://127.0.0.1:8080/actuator/health | grep -q '"status":"UP"'; then ready=1; break; fi
+            sleep 2
+          done
+          if [ "$ready" -ne 1 ]; then tail -130 /tmp/b2-real-backend.log; exit 1; fi
+          echo "Real Spring Boot API healthy; ephemeral MySQL seed initialized."
+      - name: Install Frontend dependencies
+        working-directory: rise-ai-frontend
+        run: npm ci --no-audit --no-fund
+      - name: Start Vite proxy, then exercise real Backend HTTP endpoints
+        working-directory: rise-ai-frontend
+        run: |
+          npm run dev -- --host 127.0.0.1 --port 5173 > /tmp/b2-real-vite.log 2>&1 &
+          ready=0
+          for i in $(seq 1 30); do
+            if curl -fsS http://127.0.0.1:5173/ > /dev/null; then ready=1; break; fi
+            sleep 2
+          done
+          if [ "$ready" -ne 1 ]; then cat /tmp/b2-real-vite.log; exit 1; fi
+          python3 scripts/homepage-b2.live-api-smoke.py
+      - name: Upload real HTTP QA evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: homepage-b2-real-backend-http-qa
+          path: rise-ai-frontend/visual-qa/b2-v132/live-api-results.json
+          retention-days: 14
+          if-no-files-found: warn
