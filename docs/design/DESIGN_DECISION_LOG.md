@@ -1,5 +1,7 @@
 # RISER AI — DESIGN DECISION LOG / MASTER WIREFRAME BASELINE
 
+> **CURRENT AUTHORITY (2026-11-06): Homepage v0.7.1b — APPROVED low-fidelity composition, Desktop 1440px.** Earlier v0.7.0 status tables are historical; final visual tokens and High-Fidelity remain pending. See [Owner approval](#owner-approval--homepage-composition-baseline-v071b-2026-11-06).
+
 **Ngày chốt ghi nhận:** 05/11/2026  
 **Phạm vi:** Homepage Desktop 1440px; trạng thái được xác định riêng từng section.
 **Trạng thái:** Hero/Discovery được duyệt về cấu trúc bản thô theo bảng dưới; Story/Transparency/Footer chỉ provisionally approved. Master v0.7.0: **ASSEMBLED — PENDING VISUAL APPROVAL**. High-fidelity và React chưa được duyệt.
@@ -93,3 +95,30 @@ The footer's 56px upper corners and full-width, non-floating placement are prese
 All four newly archived HTML files are byte-identical to the supplied/found originals; [manifest](./SOURCE_MANIFEST.json) records provenance. The exact Master filename was found inside RISER_AI_HOMEPAGE_MASTER_V070_PACKAGE.zip and matches both supplied v070 artifacts. The package also contains the original v0.4.2/v0.5.0/v0.6.3 HTML, so none of those sources is missing. The older “File trong gói” list above describes historical package filenames, not repository paths; use the canonical linked table here. No v0.3.6 HTML has been invented and no historical PNG is claimed as newly verified visual evidence.
 
 Runtime inspection confirmed CampaignCategory's eight enum values match the frontend union. CampaignCard/FundingProgress consume campaign API fields; SiteShell retains public and role-aware routes. This records the current implementation, not approval to redesign it. Existing source styles and API contracts are unchanged.
+
+---
+
+## Owner approval — Homepage Composition Baseline v0.7.1b (2026-11-06)
+
+**Decision:** **APPROVED — LOW-FIDELITY HOMEPAGE COMPOSITION / DESKTOP 1440px ONLY**. The owner explicitly approved locking v0.7.1b after the Chromium 148 semantic/accessibility and pixel-regression PASS. This decision **supersedes the v0.7.0 assembled-only status for current composition work**, without overwriting its historical record.
+
+**Canonical source:** [Homepage v0.7.1b HTML](./reviews/v0.7.1/homepage-visual-rhythm-v0.7.1b-semantics.html) on PR #10, tested commit `72b55fa19646af0b43913e454951cb0f01734a1e`.  
+**Gate evidence:** [Codex v0.7.1b semantic review](./reviews/v0.7.1/SEMANTICS_V071B_REVIEW.md); Chromium 148.0.7778.96 at 1440×900 DPR1, offline. Report: a11y disclosure state PASS; 1 main and 1 h1; pixel-diff v0.7.1a→v0.7.1b = 0 in closed and expanded states; 15 copy stress cases PASS. These are **recorded test results**, not a claim that this documentation commit reran Chromium.
+
+### Accepted composition constraints
+
+- Keep sequence **Hero → 01–02–03 → 8 Categories (4×2) → Campaign Discovery → Featured Story → Milestones → Transparency → Footer**.
+- Preserve 37.5%/62.5% primary Campaign Card, approximately 38%/62% compact upper row, full-width compact funding row, and three-card discovery assembly.
+- Preserve v0.7.1b's visual rhythm and content hierarchy, including Story→Transparency narrative transition, keyboard-accessible expanded explanations, and heading/landmark fixes. Do **not** regenerate v0.7.1b from a screenshot.
+- Owner accepted the current homepage-level composition density as a **wireframe trade-off**: Story + Transparency occupy approximately 2,936px (47.6% of the 6,166px page in the Chromium 148 report). This does not forbid separate, explicitly scoped content optimization in a future approved task.
+- Preserve Desktop Footer v0.6.3's full-width upper-rounded structure as used in the approved composition. Its 56px corners remain a **provisional design parameter**, not a global production radius or final high-fidelity style token.
+- Keep the existing finance simulation labels and distinctions among funding, milestone execution, evidence submissions and human review decisions.
+
+### Not approved by this decision
+
+**Final color palette, eight category line HEX colors, typography/font combination/scale, illustration and photo style, backgrounds, shadows, card skin/radii beyond the wireframe, animation, mobile redesign, production React, Backend, deployment, and High-Fidelity artwork.** Those remain PENDING_APPROVAL in the UI Token Registry; the existing runtime `src/styles/tokens.css` is unchanged.
+
+The historical v0.7.0 Master stays archived as **ASSEMBLED — PENDING VISUAL APPROVAL**. The historical v0.4.2 Story / v0.5.0 Transparency / v0.6.3 Footer standalone sources retain their provisional *individual styling* status; only their composition as incorporated into v0.7.1b is now approved.
+
+**Next stage:** research Art Direction & prepare High-Fidelity concepts per [research brief](./ART_DIRECTION_RESEARCH_BRIEF_V080.md); **no chosen visual concept and no implementation authorization yet**. Any modification to the approved composition requires a separate owner-scoped change request and a versioned decision log entry.
+

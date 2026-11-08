@@ -1,8 +1,10 @@
 # Riser AI — Design Baseline Governance
 
+> **Current composition baseline:** [Homepage v0.7.1b](./reviews/v0.7.1/homepage-visual-rhythm-v0.7.1b-semantics.html) — **OWNER APPROVED (LOW-FIDELITY, DESKTOP 1440px)** on 2026-11-06. [Approval scope](./COMPOSITION_BASELINE_V071B.md) · [Art Direction research brief](./ART_DIRECTION_RESEARCH_BRIEF_V080.md). Archived Master v0.7.0 remains an assembled reference, not current baseline.
+
 **Recorded:** 2026-11-05  
 **Scope:** Desktop 1440px, public homepage baseline and assembled Master
-**Status:** Per-section approvals below. Master v0.7.0 is **ASSEMBLED — PENDING VISUAL APPROVAL**; no high-fidelity or React approval.
+**Status:** Current v0.7.1b composition approved for low-fidelity Desktop 1440px only. Historical v0.7.0 Master is **ASSEMBLED — PENDING VISUAL APPROVAL**; no high-fidelity styling or React approval.
 
 This directory is the canonical record of design decisions agreed in the conversation.
 
