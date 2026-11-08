@@ -87,6 +87,19 @@ const refPage = await ctx.newPage();
 await refPage.goto(pathToFileURL(ref).href, { waitUntil:'load', timeout:45000 });
 await refPage.screenshot({ path: resolve(out,'approved-master-1440.png'), fullPage:true });
 result.geometry.approvedStatic = await metrics(refPage);
+// Visual-fidelity regression: section geometry alone misses a wrapped Hero title
+// and CTAs drifting into the decorative Journey wave.
+const heroVisual = async p => p.evaluate(() => {
+  const title = document.querySelector('#top .hero-copy h1')?.getBoundingClientRect();
+  const buttons = document.querySelector('#top .hero-buttons')?.getBoundingClientRect();
+  const journey = document.querySelector('#journey')?.getBoundingClientRect();
+  return { titleHeight: title?.height ?? 0, titleY: title?.top ?? 0, buttonsBottom: buttons?.bottom ?? 0, journeyY: journey?.top ?? 0 };
+});
+const reactHeroVisual = await heroVisual(page);
+const approvedHeroVisual = await heroVisual(refPage);
+result.geometry.heroVisual = { react: reactHeroVisual, approved: approvedHeroVisual };
+check('Hero heading wraps as approved 3-line master', Math.abs(reactHeroVisual.titleHeight - approvedHeroVisual.titleHeight) <= 3 && reactHeroVisual.titleHeight < 215, JSON.stringify(result.geometry.heroVisual));
+check('Hero CTAs stay above Journey wave and align with master', reactHeroVisual.buttonsBottom < reactHeroVisual.journeyY - 65 && Math.abs(reactHeroVisual.buttonsBottom - approvedHeroVisual.buttonsBottom) <= 5, JSON.stringify(result.geometry.heroVisual));
 await refPage.close();
 await page.close();
 await ctx.close();
