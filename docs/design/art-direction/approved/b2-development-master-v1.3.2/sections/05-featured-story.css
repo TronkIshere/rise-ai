@@ -1,0 +1,31 @@
+/* 05 — FEATURED STORY: one emotional human photograph + 3 supporting illustrated scenes.
+   Imagery is for concept review only; the campaign story/data remains the baseline demo. */
+.story-section{isolation:isolate;overflow:hidden;background-color:#f7e5ce;background-image:radial-gradient(ellipse at 4% 32%,#f8b8843b,transparent 45%),radial-gradient(ellipse at 90% 48%,#fbcda533,transparent 37%),radial-gradient(#85604412 .7px,transparent 1px);background-size:auto,auto,9px 9px}
+.story-section:before{content:"";position:absolute;z-index:0;inset:0;pointer-events:none;background:linear-gradient(90deg,#edba9350,transparent 35%,#f8eddb8a 65%,#e4b88e35)}
+.story-section .content{z-index:1}
+.story-photo{border-radius:48% 0 9% 4%/20% 0 10% 14%;box-shadow:inset 0 0 20px #df9369;mask-image:radial-gradient(ellipse 100% 94% at 27% 47%,#000 58%,#000e 70%,transparent 100%);-webkit-mask-image:radial-gradient(ellipse 100% 94% at 27% 47%,#000 58%,#000e 70%,transparent 100%)}
+.story-photo img{filter:saturate(1.12) contrast(1.07)}
+.story-stamp{border:1px solid #f3dca6;background:#b95537dd;color:#fff2d7;box-shadow:0 8px 18px #64362133}
+.story-body h2{color:#173727;letter-spacing:-.058em}
+.story-body h2 em{color:#bd5937;font-style:normal}
+.story-lead{color:#3e5141}
+.story-ref{border-left-color:#c57646}
+.story-gallery{filter:drop-shadow(0 6px 11px #83694d20)}
+.story-gallery-item{transition:transform .2s ease}
+.story-gallery-item:hover{transform:translateX(-3px)}
+.story-gallery-thread{border-left-color:#bf6946}
+.story-bottom-wave{filter:drop-shadow(0 -5px 5px #582f1a11)}
+@media(min-width:1101px){
+ .story-section{padding:54px 0 63px}
+ .story-layout{grid-template-columns:41% 42% 17%;align-items:center}
+ .story-visual{height:345px}
+ .story-photo{left:-49px;top:7px;width:calc(100% + 80px);height:319px}
+ .story-body{padding:0 12px 0 2px}
+ .story-body h2{font-size:37px;line-height:1.15;margin:9px 0 9px}
+ .story-lead{font-size:12px;line-height:1.58}
+ .story-gallery{height:323px;gap:9px;padding-left:27px}
+ .story-gallery-item{height:83px}
+ .story-gallery-item:before{background:#ce7347}
+ .photo-note{bottom:-6px;left:-2px;max-width:85%;font-size:7px}
+ .story-bottom-wave{height:43px}
+}

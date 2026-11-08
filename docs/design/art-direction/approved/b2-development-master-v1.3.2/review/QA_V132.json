@@ -1,0 +1,869 @@
+{
+  "source_file_sha256": "09e5e143f9bf1bf378b081999d79b6794581895f9517466285cc7812f3bbb572",
+  "integrated_file_sha256": "c0b60823d2991f4f2a478af2ec496ecd1309e1ab366bdaf428a3f62c0f9d9c19",
+  "tests": {
+    "1440": {
+      "before": {
+        "pageWidth": 1440,
+        "viewportWidth": 1440,
+        "pageHeight": 5231,
+        "sections": {
+          "#top": {
+            "top": 22,
+            "height": 758,
+            "left": 0,
+            "width": 1440
+          },
+          "#categories": {
+            "top": 780,
+            "height": 750,
+            "left": 0,
+            "width": 1440
+          },
+          "#campaigns": {
+            "top": 1530,
+            "height": 761,
+            "left": 0,
+            "width": 1440
+          },
+          "#story": {
+            "top": 2291,
+            "height": 462,
+            "left": 0,
+            "width": 1440
+          },
+          "#milestones": {
+            "top": 2753,
+            "height": 972,
+            "left": 0,
+            "width": 1440
+          },
+          "#transparency": {
+            "top": 3725,
+            "height": 1115,
+            "left": 0,
+            "width": 1440
+          },
+          "#footer": {
+            "top": 4840,
+            "height": 366,
+            "left": 0,
+            "width": 1440
+          }
+        },
+        "categories": 8,
+        "campaigns": 3,
+        "milestones": 3,
+        "transparencyCards": 3,
+        "images": [
+          {
+            "ok": true,
+            "alt": "Ảnh minh họa người chăm cây trong concept, không phải ảnh chiến dịch"
+          },
+          {
+            "ok": true,
+            "alt": "Ảnh minh họa lớp học trong visual reference, không phải ảnh chiến dịch"
+          },
+          {
+            "ok": true,
+            "alt": "Ảnh minh họa nhân vật trong concept, không phải minh chứng trường học"
+          },
+          {
+            "ok": true,
+            "alt": "Ảnh người lớn tuổi và em nhỏ chỉ dùng minh họa cảm xúc, không phải người thật trong chiến dịch demo"
+          },
+          {
+            "ok": true,
+            "alt": "Minh họa bối cảnh cầu đường, không phải minh chứng"
+          },
+          {
+            "ok": true,
+            "alt": "Minh họa cộng đồng trong visual concept"
+          },
+          {
+            "ok": true,
+            "alt": "Minh họa khung cảnh thiên nhiên"
+          },
+          {
+            "ok": true,
+            "alt": "Phong cảnh minh họa, không phải bằng chứng chiến dịch"
+          },
+          {
+            "ok": true,
+            "alt": "Cây non minh họa, không phải minh chứng chiến dịch"
+          }
+        ],
+        "typography": {
+          "brand": {
+            "size": "27px",
+            "weight": "700",
+            "color": "rgb(255, 255, 255)",
+            "lineHeight": "27px"
+          },
+          "heading": {
+            "size": "17px",
+            "weight": "850",
+            "color": "rgb(255, 227, 175)",
+            "lineHeight": "23.8px"
+          },
+          "link": {
+            "size": "15px",
+            "weight": "580",
+            "color": "rgb(241, 246, 236)",
+            "lineHeight": "23.25px"
+          },
+          "body": {
+            "size": "14.5px",
+            "weight": "550",
+            "color": "rgb(240, 247, 238)",
+            "lineHeight": "24.65px"
+          },
+          "legal": {
+            "size": "12.5px",
+            "weight": "550",
+            "color": "rgb(224, 237, 229)",
+            "lineHeight": "19.375px"
+          }
+        },
+        "overflow": [
+          {
+            "tag": "SECTION",
+            "className": "story-section paper",
+            "scrollWidth": 1580,
+            "clientWidth": 1440
+          },
+          {
+            "tag": "SECTION",
+            "className": "",
+            "scrollWidth": 1520,
+            "clientWidth": 1440
+          }
+        ],
+        "errors": []
+      },
+      "after": {
+        "pageWidth": 1440,
+        "viewportWidth": 1440,
+        "pageHeight": 5298,
+        "sections": {
+          "#top": {
+            "top": 22,
+            "height": 758,
+            "left": 0,
+            "width": 1440
+          },
+          "#categories": {
+            "top": 780,
+            "height": 750,
+            "left": 0,
+            "width": 1440
+          },
+          "#campaigns": {
+            "top": 1530,
+            "height": 761,
+            "left": 0,
+            "width": 1440
+          },
+          "#story": {
+            "top": 2291,
+            "height": 462,
+            "left": 0,
+            "width": 1440
+          },
+          "#milestones": {
+            "top": 2753,
+            "height": 972,
+            "left": 0,
+            "width": 1440
+          },
+          "#transparency": {
+            "top": 3725,
+            "height": 1115,
+            "left": 0,
+            "width": 1440
+          },
+          "#footer": {
+            "top": 4840,
+            "height": 433,
+            "left": 0,
+            "width": 1440
+          }
+        },
+        "categories": 8,
+        "campaigns": 3,
+        "milestones": 3,
+        "transparencyCards": 3,
+        "images": [
+          {
+            "ok": true,
+            "alt": "Ảnh minh họa người chăm cây trong concept, không phải ảnh chiến dịch"
+          },
+          {
+            "ok": true,
+            "alt": "Ảnh minh họa lớp học trong visual reference, không phải ảnh chiến dịch"
+          },
+          {
+            "ok": true,
+            "alt": "Ảnh minh họa nhân vật trong concept, không phải minh chứng trường học"
+          },
+          {
+            "ok": true,
+            "alt": "Ảnh người lớn tuổi và em nhỏ chỉ dùng minh họa cảm xúc, không phải người thật trong chiến dịch demo"
+          },
+          {
+            "ok": true,
+            "alt": "Minh họa bối cảnh cầu đường, không phải minh chứng"
+          },
+          {
+            "ok": true,
+            "alt": "Minh họa cộng đồng trong visual concept"
+          },
+          {
+            "ok": true,
+            "alt": "Minh họa khung cảnh thiên nhiên"
+          },
+          {
+            "ok": true,
+            "alt": "Phong cảnh minh họa, không phải bằng chứng chiến dịch"
+          },
+          {
+            "ok": true,
+            "alt": "Cây non minh họa, không phải minh chứng chiến dịch"
+          }
+        ],
+        "typography": {
+          "brand": {
+            "size": "34px",
+            "weight": "900",
+            "color": "rgb(255, 255, 255)",
+            "lineHeight": "34px"
+          },
+          "heading": {
+            "size": "20px",
+            "weight": "900",
+            "color": "rgb(255, 248, 231)",
+            "lineHeight": "25.6px"
+          },
+          "link": {
+            "size": "17px",
+            "weight": "690",
+            "color": "rgb(249, 252, 244)",
+            "lineHeight": "25.5px"
+          },
+          "body": {
+            "size": "16.2px",
+            "weight": "600",
+            "color": "rgb(255, 248, 237)",
+            "lineHeight": "26.73px"
+          },
+          "legal": {
+            "size": "13px",
+            "weight": "620",
+            "color": "rgb(240, 245, 234)",
+            "lineHeight": "20.8px"
+          }
+        },
+        "overflow": [
+          {
+            "tag": "SECTION",
+            "className": "story-section paper",
+            "scrollWidth": 1580,
+            "clientWidth": 1440
+          },
+          {
+            "tag": "SECTION",
+            "className": "",
+            "scrollWidth": 1520,
+            "clientWidth": 1440
+          }
+        ],
+        "errors": []
+      },
+      "before_footer_pixel_identical": false,
+      "before_footer_difference_bounds": [
+        95,
+        22,
+        1345,
+        524
+      ],
+      "before_footer_changed_pixels": 26812,
+      "before_footer_change_ratio": 0.003847,
+      "selected_category_aria_pressed": "true",
+      "selected_category_text": "Giáo dục",
+      "reset_category_text": "Tất cả lĩnh vực",
+      "disclosure_keyboard": [
+        "false",
+        "true",
+        "false"
+      ]
+    },
+    "768": {
+      "before": {
+        "pageWidth": 768,
+        "viewportWidth": 768,
+        "pageHeight": 7346,
+        "sections": {
+          "#top": {
+            "top": 22,
+            "height": 818,
+            "left": 0,
+            "width": 768
+          },
+          "#categories": {
+            "top": 840,
+            "height": 1096,
+            "left": 0,
+            "width": 768
+          },
+          "#campaigns": {
+            "top": 1936,
+            "height": 1030,
+            "left": 0,
+            "width": 768
+          },
+          "#story": {
+            "top": 2966,
+            "height": 548,
+            "left": 0,
+            "width": 768
+          },
+          "#milestones": {
+            "top": 3514,
+            "height": 1594,
+            "left": 0,
+            "width": 768
+          },
+          "#transparency": {
+            "top": 5109,
+            "height": 1737,
+            "left": 0,
+            "width": 768
+          },
+          "#footer": {
+            "top": 6845,
+            "height": 476,
+            "left": 0,
+            "width": 768
+          }
+        },
+        "categories": 8,
+        "campaigns": 3,
+        "milestones": 3,
+        "transparencyCards": 3,
+        "images": [
+          {
+            "ok": true,
+            "alt": "Ảnh minh họa người chăm cây trong concept, không phải ảnh chiến dịch"
+          },
+          {
+            "ok": true,
+            "alt": "Ảnh minh họa lớp học trong visual reference, không phải ảnh chiến dịch"
+          },
+          {
+            "ok": true,
+            "alt": "Ảnh minh họa nhân vật trong concept, không phải minh chứng trường học"
+          },
+          {
+            "ok": true,
+            "alt": "Ảnh người lớn tuổi và em nhỏ chỉ dùng minh họa cảm xúc, không phải người thật trong chiến dịch demo"
+          },
+          {
+            "ok": true,
+            "alt": "Minh họa bối cảnh cầu đường, không phải minh chứng"
+          },
+          {
+            "ok": true,
+            "alt": "Minh họa cộng đồng trong visual concept"
+          },
+          {
+            "ok": true,
+            "alt": "Minh họa khung cảnh thiên nhiên"
+          },
+          {
+            "ok": true,
+            "alt": "Phong cảnh minh họa, không phải bằng chứng chiến dịch"
+          },
+          {
+            "ok": true,
+            "alt": "Cây non minh họa, không phải minh chứng chiến dịch"
+          }
+        ],
+        "typography": {
+          "brand": {
+            "size": "27px",
+            "weight": "700",
+            "color": "rgb(255, 255, 255)",
+            "lineHeight": "27px"
+          },
+          "heading": {
+            "size": "17px",
+            "weight": "850",
+            "color": "rgb(255, 227, 175)",
+            "lineHeight": "23.8px"
+          },
+          "link": {
+            "size": "14px",
+            "weight": "580",
+            "color": "rgb(241, 246, 236)",
+            "lineHeight": "21.7px"
+          },
+          "body": {
+            "size": "14.5px",
+            "weight": "550",
+            "color": "rgb(240, 247, 238)",
+            "lineHeight": "24.65px"
+          },
+          "legal": {
+            "size": "12.5px",
+            "weight": "550",
+            "color": "rgb(224, 237, 229)",
+            "lineHeight": "19.375px"
+          }
+        },
+        "overflow": [
+          {
+            "tag": "SECTION",
+            "className": "story-section paper",
+            "scrollWidth": 908,
+            "clientWidth": 768
+          },
+          {
+            "tag": "SECTION",
+            "className": "",
+            "scrollWidth": 848,
+            "clientWidth": 768
+          }
+        ],
+        "errors": []
+      },
+      "after": {
+        "pageWidth": 768,
+        "viewportWidth": 768,
+        "pageHeight": 7559,
+        "sections": {
+          "#top": {
+            "top": 22,
+            "height": 818,
+            "left": 0,
+            "width": 768
+          },
+          "#categories": {
+            "top": 840,
+            "height": 1096,
+            "left": 0,
+            "width": 768
+          },
+          "#campaigns": {
+            "top": 1936,
+            "height": 1030,
+            "left": 0,
+            "width": 768
+          },
+          "#story": {
+            "top": 2966,
+            "height": 548,
+            "left": 0,
+            "width": 768
+          },
+          "#milestones": {
+            "top": 3514,
+            "height": 1594,
+            "left": 0,
+            "width": 768
+          },
+          "#transparency": {
+            "top": 5109,
+            "height": 1737,
+            "left": 0,
+            "width": 768
+          },
+          "#footer": {
+            "top": 6845,
+            "height": 689,
+            "left": 0,
+            "width": 768
+          }
+        },
+        "categories": 8,
+        "campaigns": 3,
+        "milestones": 3,
+        "transparencyCards": 3,
+        "images": [
+          {
+            "ok": true,
+            "alt": "Ảnh minh họa người chăm cây trong concept, không phải ảnh chiến dịch"
+          },
+          {
+            "ok": true,
+            "alt": "Ảnh minh họa lớp học trong visual reference, không phải ảnh chiến dịch"
+          },
+          {
+            "ok": true,
+            "alt": "Ảnh minh họa nhân vật trong concept, không phải minh chứng trường học"
+          },
+          {
+            "ok": true,
+            "alt": "Ảnh người lớn tuổi và em nhỏ chỉ dùng minh họa cảm xúc, không phải người thật trong chiến dịch demo"
+          },
+          {
+            "ok": true,
+            "alt": "Minh họa bối cảnh cầu đường, không phải minh chứng"
+          },
+          {
+            "ok": true,
+            "alt": "Minh họa cộng đồng trong visual concept"
+          },
+          {
+            "ok": true,
+            "alt": "Minh họa khung cảnh thiên nhiên"
+          },
+          {
+            "ok": true,
+            "alt": "Phong cảnh minh họa, không phải bằng chứng chiến dịch"
+          },
+          {
+            "ok": true,
+            "alt": "Cây non minh họa, không phải minh chứng chiến dịch"
+          }
+        ],
+        "typography": {
+          "brand": {
+            "size": "34px",
+            "weight": "900",
+            "color": "rgb(255, 255, 255)",
+            "lineHeight": "34px"
+          },
+          "heading": {
+            "size": "20px",
+            "weight": "900",
+            "color": "rgb(255, 248, 231)",
+            "lineHeight": "25.6px"
+          },
+          "link": {
+            "size": "16.5px",
+            "weight": "690",
+            "color": "rgb(249, 252, 244)",
+            "lineHeight": "24.75px"
+          },
+          "body": {
+            "size": "16.2px",
+            "weight": "600",
+            "color": "rgb(255, 248, 237)",
+            "lineHeight": "26.73px"
+          },
+          "legal": {
+            "size": "13px",
+            "weight": "620",
+            "color": "rgb(240, 245, 234)",
+            "lineHeight": "20.8px"
+          }
+        },
+        "overflow": [
+          {
+            "tag": "SECTION",
+            "className": "story-section paper",
+            "scrollWidth": 908,
+            "clientWidth": 768
+          },
+          {
+            "tag": "SECTION",
+            "className": "",
+            "scrollWidth": 848,
+            "clientWidth": 768
+          }
+        ],
+        "errors": []
+      }
+    },
+    "390": {
+      "before": {
+        "pageWidth": 390,
+        "viewportWidth": 390,
+        "pageHeight": 10202,
+        "sections": {
+          "#top": {
+            "top": 22,
+            "height": 1310,
+            "left": 0,
+            "width": 390
+          },
+          "#categories": {
+            "top": 1332,
+            "height": 1738,
+            "left": 0,
+            "width": 390
+          },
+          "#campaigns": {
+            "top": 3070,
+            "height": 1691,
+            "left": 0,
+            "width": 390
+          },
+          "#story": {
+            "top": 4761,
+            "height": 842,
+            "left": 0,
+            "width": 390
+          },
+          "#milestones": {
+            "top": 5603,
+            "height": 1803,
+            "left": 0,
+            "width": 390
+          },
+          "#transparency": {
+            "top": 7406,
+            "height": 1954,
+            "left": 0,
+            "width": 390
+          },
+          "#footer": {
+            "top": 9360,
+            "height": 817,
+            "left": 0,
+            "width": 390
+          }
+        },
+        "categories": 8,
+        "campaigns": 3,
+        "milestones": 3,
+        "transparencyCards": 3,
+        "images": [
+          {
+            "ok": true,
+            "alt": "Ảnh minh họa người chăm cây trong concept, không phải ảnh chiến dịch"
+          },
+          {
+            "ok": true,
+            "alt": "Ảnh minh họa lớp học trong visual reference, không phải ảnh chiến dịch"
+          },
+          {
+            "ok": true,
+            "alt": "Ảnh minh họa nhân vật trong concept, không phải minh chứng trường học"
+          },
+          {
+            "ok": true,
+            "alt": "Ảnh người lớn tuổi và em nhỏ chỉ dùng minh họa cảm xúc, không phải người thật trong chiến dịch demo"
+          },
+          {
+            "ok": true,
+            "alt": "Minh họa bối cảnh cầu đường, không phải minh chứng"
+          },
+          {
+            "ok": true,
+            "alt": "Minh họa cộng đồng trong visual concept"
+          },
+          {
+            "ok": true,
+            "alt": "Minh họa khung cảnh thiên nhiên"
+          },
+          {
+            "ok": true,
+            "alt": "Phong cảnh minh họa, không phải bằng chứng chiến dịch"
+          },
+          {
+            "ok": true,
+            "alt": "Cây non minh họa, không phải minh chứng chiến dịch"
+          }
+        ],
+        "typography": {
+          "brand": {
+            "size": "27px",
+            "weight": "700",
+            "color": "rgb(255, 255, 255)",
+            "lineHeight": "27px"
+          },
+          "heading": {
+            "size": "17px",
+            "weight": "850",
+            "color": "rgb(255, 227, 175)",
+            "lineHeight": "23.8px"
+          },
+          "link": {
+            "size": "14px",
+            "weight": "580",
+            "color": "rgb(241, 246, 236)",
+            "lineHeight": "21.7px"
+          },
+          "body": {
+            "size": "14.5px",
+            "weight": "550",
+            "color": "rgb(240, 247, 238)",
+            "lineHeight": "24.65px"
+          },
+          "legal": {
+            "size": "12.5px",
+            "weight": "550",
+            "color": "rgb(224, 237, 229)",
+            "lineHeight": "19.375px"
+          }
+        },
+        "overflow": [
+          {
+            "tag": "SECTION",
+            "className": "campaigns-section",
+            "scrollWidth": 570,
+            "clientWidth": 390
+          },
+          {
+            "tag": "SECTION",
+            "className": "story-section paper",
+            "scrollWidth": 530,
+            "clientWidth": 390
+          },
+          {
+            "tag": "SECTION",
+            "className": "",
+            "scrollWidth": 470,
+            "clientWidth": 390
+          }
+        ],
+        "errors": []
+      },
+      "after": {
+        "pageWidth": 390,
+        "viewportWidth": 390,
+        "pageHeight": 10350,
+        "sections": {
+          "#top": {
+            "top": 22,
+            "height": 1310,
+            "left": 0,
+            "width": 390
+          },
+          "#categories": {
+            "top": 1332,
+            "height": 1738,
+            "left": 0,
+            "width": 390
+          },
+          "#campaigns": {
+            "top": 3070,
+            "height": 1691,
+            "left": 0,
+            "width": 390
+          },
+          "#story": {
+            "top": 4761,
+            "height": 842,
+            "left": 0,
+            "width": 390
+          },
+          "#milestones": {
+            "top": 5603,
+            "height": 1803,
+            "left": 0,
+            "width": 390
+          },
+          "#transparency": {
+            "top": 7406,
+            "height": 1954,
+            "left": 0,
+            "width": 390
+          },
+          "#footer": {
+            "top": 9360,
+            "height": 965,
+            "left": 0,
+            "width": 390
+          }
+        },
+        "categories": 8,
+        "campaigns": 3,
+        "milestones": 3,
+        "transparencyCards": 3,
+        "images": [
+          {
+            "ok": true,
+            "alt": "Ảnh minh họa người chăm cây trong concept, không phải ảnh chiến dịch"
+          },
+          {
+            "ok": true,
+            "alt": "Ảnh minh họa lớp học trong visual reference, không phải ảnh chiến dịch"
+          },
+          {
+            "ok": true,
+            "alt": "Ảnh minh họa nhân vật trong concept, không phải minh chứng trường học"
+          },
+          {
+            "ok": true,
+            "alt": "Ảnh người lớn tuổi và em nhỏ chỉ dùng minh họa cảm xúc, không phải người thật trong chiến dịch demo"
+          },
+          {
+            "ok": true,
+            "alt": "Minh họa bối cảnh cầu đường, không phải minh chứng"
+          },
+          {
+            "ok": true,
+            "alt": "Minh họa cộng đồng trong visual concept"
+          },
+          {
+            "ok": true,
+            "alt": "Minh họa khung cảnh thiên nhiên"
+          },
+          {
+            "ok": true,
+            "alt": "Phong cảnh minh họa, không phải bằng chứng chiến dịch"
+          },
+          {
+            "ok": true,
+            "alt": "Cây non minh họa, không phải minh chứng chiến dịch"
+          }
+        ],
+        "typography": {
+          "brand": {
+            "size": "34px",
+            "weight": "900",
+            "color": "rgb(255, 255, 255)",
+            "lineHeight": "34px"
+          },
+          "heading": {
+            "size": "19px",
+            "weight": "900",
+            "color": "rgb(255, 248, 231)",
+            "lineHeight": "24.32px"
+          },
+          "link": {
+            "size": "16px",
+            "weight": "690",
+            "color": "rgb(249, 252, 244)",
+            "lineHeight": "24px"
+          },
+          "body": {
+            "size": "16.2px",
+            "weight": "600",
+            "color": "rgb(255, 248, 237)",
+            "lineHeight": "26.73px"
+          },
+          "legal": {
+            "size": "13px",
+            "weight": "620",
+            "color": "rgb(240, 245, 234)",
+            "lineHeight": "20.8px"
+          }
+        },
+        "overflow": [
+          {
+            "tag": "SECTION",
+            "className": "campaigns-section",
+            "scrollWidth": 570,
+            "clientWidth": 390
+          },
+          {
+            "tag": "SECTION",
+            "className": "story-section paper",
+            "scrollWidth": 530,
+            "clientWidth": 390
+          },
+          {
+            "tag": "SECTION",
+            "className": "",
+            "scrollWidth": 470,
+            "clientWidth": 390
+          }
+        ],
+        "errors": []
+      }
+    }
+  }
+}

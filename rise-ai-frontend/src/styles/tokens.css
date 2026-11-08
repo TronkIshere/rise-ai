@@ -16,3 +16,99 @@
   --radius-card: 1.25rem;
   --font-sans: 'Be Vietnam Pro', 'Segoe UI', system-ui, sans-serif;
 }
+
+/* Homepage B2 v1.3.2 — C3.1 approved eight color identities. */
+ .b2-homepage .cat[data-vibe="education"] {--accent:#176995;--paper:#E8F2F9;--ink-cat:#153B54;--accent-soft:#B2E0F3}
+ .b2-homepage .cat[data-vibe="community"] {--accent:#985238;--paper:#F8ECE4;--ink-cat:#563426;--accent-soft:#E5B69A}
+ .b2-homepage .cat[data-vibe="food"] {--accent:#956013;--paper:#FFF1D9;--ink-cat:#593C15;--accent-soft:#F3D18A}
+ .b2-homepage .cat[data-vibe="water"] {--accent:#087487;--paper:#E5F4F5;--ink-cat:#16434C;--accent-soft:#9CDDE2}
+ .b2-homepage .cat[data-vibe="scholarship"] {--accent:#6A4F9D;--paper:#F0EAF8;--ink-cat:#3D315E;--accent-soft:#D0B8F1}
+ .b2-homepage .cat[data-vibe="infrastructure"] {--accent:#2B795C;--paper:#E8F3E9;--ink-cat:#1F4E3E;--accent-soft:#B6D8B6}
+ .b2-homepage .cat[data-vibe="health"] {--accent:#A03F55;--paper:#FAE9EC;--ink-cat:#653043;--accent-soft:#EDB3BD}
+ .b2-homepage .cat[data-vibe="other"] {--accent:#80602C;--paper:#F4EDDB;--ink-cat:#574528;--accent-soft:#E9C98E}
+
+/* Preserved approved inline SVG palette, moved into runtime tokens. */
+.b2-homepage {--b2-art-001:#7f9871;}
+.b2-homepage {--b2-art-002:#a4b994;}
+.b2-homepage {--b2-art-003:#65896b;}
+.b2-homepage {--b2-art-004:#e6ead5;}
+.b2-homepage {--b2-art-005:#f0f0de;}
+.b2-homepage {--b2-art-006:#a9d9ef;}
+.b2-homepage {--b2-art-007:#fff8e8;}
+.b2-homepage {--b2-art-008:#1f6488;}
+.b2-homepage {--b2-art-009:#ffedae;}
+.b2-homepage {--b2-art-010:#fff6e3;}
+.b2-homepage {--b2-art-011:#ffe0b6;}
+.b2-homepage {--b2-art-012:#f5d4a7;}
+.b2-homepage {--b2-art-013:#ffe6ac;}
+.b2-homepage {--b2-art-014:#ffeeb5;}
+.b2-homepage {--b2-art-015:#ffe5a0;}
+.b2-homepage {--b2-art-016:#fff8e3;}
+.b2-homepage {--b2-art-017:#effff5;}
+.b2-homepage {--b2-art-018:#399baa;}
+.b2-homepage {--b2-art-019:#f7fff2;}
+.b2-homepage {--b2-art-020:#e6fff4;}
+.b2-homepage {--b2-art-021:#fffde8;}
+.b2-homepage {--b2-art-022:#fff5df;}
+.b2-homepage {--b2-art-023:#dac9f4;}
+.b2-homepage {--b2-art-024:#fff1d9;}
+.b2-homepage {--b2-art-025:#ffe3a4;}
+.b2-homepage {--b2-art-026:#fff4c9;}
+.b2-homepage {--b2-art-027:#d7c1ef;}
+.b2-homepage {--b2-art-028:#70518a;}
+.b2-homepage {--b2-art-029:#fff6df;}
+.b2-homepage {--b2-art-030:#cce4cb;}
+.b2-homepage {--b2-art-031:#3e7e64;}
+.b2-homepage {--b2-art-032:#31705a;}
+.b2-homepage {--b2-art-033:#fff3cf;}
+.b2-homepage {--b2-art-034:#fdf4dc;}
+.b2-homepage {--b2-art-035:#fff6e7;}
+.b2-homepage {--b2-art-036:#ab435b;}
+.b2-homepage {--b2-art-037:#ffd8dd;}
+.b2-homepage {--b2-art-038:#97324c;}
+.b2-homepage {--b2-art-039:#fff3d1;}
+.b2-homepage {--b2-art-040:#af8b45;}
+.b2-homepage {--b2-art-041:#ffefc6;}
+.b2-homepage {--b2-art-042:#ffeab5;}
+.b2-homepage {--b2-art-043:#134c37;}
+.b2-homepage {--b2-art-044:#0b3025;}
+.b2-homepage {--b2-art-045:#0a3b2d;}
+.b2-homepage {--b2-art-046:#8f9e65;}
+.b2-homepage {--b2-art-047:#e7c17e;}
+.b2-homepage {--b2-art-048:#f4d28d;}
+.b2-homepage {--b2-art-049:#fff9ed;}
+.b2-homepage {--b2-art-050:#f5e5bf;}
+.b2-homepage {--b2-art-051:#b3cfa8;}
+.b2-homepage {--b2-art-052:#92b48d;}
+.b2-homepage {--b2-art-053:#c4d29d;}
+.b2-homepage {--b2-art-054:#7a9f7a;}
+.b2-homepage {--b2-art-055:#719574;}
+.b2-homepage {--b2-art-056:#547d61;}
+.b2-homepage {--b2-art-057:#527c54;}
+.b2-homepage {--b2-art-058:#658f62;}
+.b2-homepage {--b2-art-059:#f1b77f;}
+.b2-homepage {--b2-art-060:#f8ce9c;}
+.b2-homepage {--b2-art-061:#e8e9c1;}
+.b2-homepage {--b2-art-062:#c8d8af;}
+.b2-homepage {--b2-art-063:#a8c79d;}
+.b2-homepage {--b2-art-064:#376c51;}
+.b2-homepage {--b2-art-065:#123b2d;}
+.b2-homepage {--b2-art-066:#fff7d9;}
+.b2-homepage {--b2-art-067:#173e2e;}
+.b2-homepage {--b2-art-068:#a6cfab;}
+.b2-homepage {--b2-art-069:#f7e3ae;}
+.b2-homepage {--b2-art-070:#f2b66b;}
+.b2-homepage {--b2-art-071:#37775d;}
+.b2-homepage {--b2-art-072:#ffefc5;}
+.b2-homepage {--b2-art-073:#8b3d24;}
+.b2-homepage {--b2-art-074:#f5c687;}
+.b2-homepage {--b2-art-075:#ffebc8;}
+.b2-homepage {--b2-art-076:#d27b42;}
+.b2-homepage {--b2-art-077:#a34b26;}
+.b2-homepage {--b2-art-078:#e9f7f1;}
+.b2-homepage {--b2-art-079:#143e2f;}
+.b2-homepage {--b2-art-080:#4b93a7;}
+.b2-homepage {--b2-art-081:#83c3d6;}
+.b2-homepage {--b2-art-082:#f1d7aa;}
+.b2-homepage {--b2-art-083:#0b3e30;}
+.b2-homepage {--b2-art-campaign-wave:#edf2e5;}

@@ -1,0 +1,15 @@
+/* Shared visual controls for subsequent section-by-section reviews.
+   Main desktop sign-off target: 1440px; leave existing mobile fallback and interaction states functional.
+*/
+:root{
+ --b2-forest:#07392c;
+ --b2-cream:#fff9ed;
+ --b2-clay:#cc6b42;
+ --b2-amber:#f0bc78;
+ --b2-ink:#163b2c;
+ --b2-content:1250px;
+}
+.content{max-width:var(--b2-content)}
+:focus-visible{outline:3px solid #e3ab54;outline-offset:4px}
+@media(min-width:1101px){.section-head h2{font-size:40px;line-height:1.12}.intro-copy p{font-size:13px;line-height:1.58}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;transition-duration:0.01ms!important;animation-duration:0.01ms!important}}

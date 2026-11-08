@@ -1,5 +1,6 @@
 @import 'tailwindcss';
 @import './tokens.css';
+@import './homepage-b2.css';
 
 @layer base {
   :root { font-family: var(--font-sans); color: var(--color-copy); background: var(--color-canvas); color-scheme: light; }

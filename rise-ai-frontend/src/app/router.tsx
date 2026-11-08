@@ -23,10 +23,11 @@ import { WorkspacePage } from '@/pages/WorkspacePage';
 import { NotFoundPage } from '@/pages/NotFoundPage';
 
 export const router = createBrowserRouter([
+  // B2 owns its approved header and footer. Other routes retain SiteShell.
+  { path: '/', element: <HomePage /> },
   {
     element: <SiteShell />,
     children: [
-      { path: '/', element: <HomePage /> },
       { path: '/campaigns', element: <CampaignsPage /> },
       { path: '/campaigns/:slug', element: <CampaignDetailPage /> },
       { path: '/login', element: <LoginPage /> },
