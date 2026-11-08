@@ -16,8 +16,12 @@
 - Transparency disclosure uses React state, keyboard-accessible native button, `aria-expanded`, `aria-hidden` and `hidden`.
 - Keep existing backend/auth/admin/donor flows unchanged; no direct Monitoring calls, money transfer, automatic approvals, additional dependencies or API endpoint inventions.
 
-## Verification & merge gate
+## Verification & merge gate — updated 2026-11-08
 
-- Locally validated source conversion and TSX parser (global TypeScript); used Chromium for approved original/scoped CSS at 1440px, with complete image loads and no horizontal overflow. Scope reference 5298px vs 5281px height on static harness (17px rendering difference; *not* proof of React visual parity).
-- **Full `npm run verify` and real React-browser screenshot remain required for PR acceptance.** In the isolated workspace the installed npm dependencies and complete repository are unavailable. Do not claim full React build, tests, screenshot parity, CI PASS or production readiness until those run from a complete checkout with `npm ci`.
-- Verify CI `Frontend checks` and do 1440px visual comparison against the approved `review/fullpage_1440.jpg` before any merge. Keep PR Draft while gates are open.
+**Owner visual sign-off: PASS** for Homepage B2 v1.3.2, React Desktop **1440×900 / DPR 1**, against the approved standalone HTML Master. This explicitly follows correction of the Hero font fallback and restoration of the approved 3-line headline / CTA layout. Scope includes all previously approved sections, including Milestones K1 + Journey Landscape and Footer v1.3.2. This is visual acceptance only; no new Mobile/Tablet development.
+
+- React visual baseline commit: `2750ed773b80a45abb068c408bdd9da1f2dc1f99` on Draft PR #12.
+- [Chromium actual React 1440px visual QA](https://github.com/TronkIshere/rise-ai/actions/runs/42458193873): **PASS**. [React screenshot, HTML screenshot and machine QA JSON](https://github.com/TronkIshere/rise-ai/actions/runs/42458193873/artifacts/13609055199) (time-limited artifact). Automated checks cover structure, 8 categories, campaign fixture cards, keyboard disclosure and category filter, image/resource loading, overflow, JS errors, API empty/error fixtures, Hero title height and CTA/Journey alignment.
+- [Frontend checks](https://github.com/TronkIshere/rise-ai/actions/runs/42458197440) and [whole-repository CI](https://github.com/TronkIshere/rise-ai/actions/runs/42458197415): **PASS** for the same implementation commit.
+- **Not yet accepted:** live Backend campaign data and full-stack integration. The React browser test intercepts the API with a test-only fixture; funding numbers in the fixture are not live balances. Technical and visual PASS are **not** production deployment permission.
+- **Merge gate:** PR #12 remains Draft pending separate code review and stacked dependencies PR #9–#11 (also Draft at this sign-off). No direct merge to `master` or deploy on the strength of visual approval alone.
