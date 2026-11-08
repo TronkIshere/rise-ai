@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Riser AI — Footer Wireframe v0.6.3 — Desktop Rounded Edge</title>
+<style>
+:root { --ink:#202020; --copy:#303030; --muted:#484848; --stroke:#aaa; --soft:#f0f0f0; --paper:#fff; }
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:#e8e8e8;color:var(--ink);font-family:Arial,'Segoe UI',sans-serif;-webkit-font-smoothing:antialiased}
+a,button{font:inherit;color:inherit}
+a:focus-visible,button:focus-visible{outline:3px solid #444;outline-offset:3px}
+button{cursor:pointer}
+.sheet{max-width:1440px;margin:0 auto;background:var(--paper);min-height:100vh}
+.toolbar{margin:0 96px;border-bottom:1px solid #ddd;display:flex;align-items:center;justify-content:space-between;gap:16px;min-height:77px}
+.toolbar-brand{font-size:13px;font-weight:800;letter-spacing:.04em}
+.toolbar-brand span{font-weight:500;color:var(--muted);font-size:12px;margin-left:12px;letter-spacing:0}
+.tools{display:flex;gap:9px;flex-wrap:wrap}
+.tools button{font-size:13px;font-weight:700;border:1px solid #888;background:white;padding:11px 13px;min-height:42px}
+.tools button[aria-pressed="true"]{background:#222;color:#fff}
+.context{padding:32px 96px 45px;display:flex;align-items:flex-start;justify-content:space-between;gap:24px;color:#424242}
+.context-label{font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;margin:0 0 10px;color:#555}
+.context h1{font-size:29px;line-height:1.3;letter-spacing:-.015em;margin:0;font-weight:800}
+.context p{font-size:15px;line-height:1.6;margin:0;max-width:350px}
+.context .context-right{max-width:360px}
+.separator{height:72px;background:linear-gradient(to bottom,#fff,#f9f9f9);display:flex;align-items:flex-end;justify-content:center;position:relative}
+.separator:after{content:'';display:block;width:100%;height:1px;background:#bdbdbd}
+.separator span{position:absolute;bottom:13px;font-size:12px;letter-spacing:.05em;color:#777;background:#fafafa;padding:0 12px}
+.footer{padding:58px 96px 0;border-top:2px solid #444;background:#fff;position:relative}
+.footer-grid{display:grid;grid-template-columns:minmax(0,1.65fr) minmax(180px,.60fr) minmax(210px,.72fr);column-gap:80px;align-items:start;min-height:229px}
+.identity{max-width:460px}
+.identity-link{color:#1a1a1a;font-size:40px;line-height:1;font-weight:800;text-decoration:none;letter-spacing:-.035em;display:inline-block;margin:0 0 21px}
+.identity-tagline{margin:0;font-size:17px;line-height:1.6;max-width:390px;color:#333}
+.nav-group h2{font-size:14px;line-height:1.4;font-weight:800;letter-spacing:.045em;color:#555;text-transform:uppercase;margin:4px 0 21px}
+.nav-group ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:15px}
+.nav-group a{font-size:16px;font-weight:650;line-height:1.45;text-underline-offset:4px;text-decoration:none;display:inline-block}
+.nav-group a:hover{text-decoration:underline}
+.nav-group .meta{font-size:13px;font-weight:500;color:#555;display:block;line-height:1.5;margin-top:4px}
+.nav-group .role-row{display:none}
+.logged-in .nav-group .role-row{display:list-item}
+.logged-in .nav-group .guest-row{display:none}
+.note{display:none;font-size:14px;line-height:1.62;margin:10px 0 0;padding-left:16px;border-left:2px solid #777;color:#404040;max-width:700px}
+.show-notes .note{display:block}
+.footer-notice{border-top:1px solid #aaa;border-bottom:1px solid #aaa;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,.95fr);gap:40px;align-items:center;padding:22px 0 23px}
+.footer-notice h2{margin:0;font-size:18px;line-height:1.45;font-weight:800}
+.footer-notice p{margin:0;font-size:15px;line-height:1.6;color:#3e3e3e;max-width:525px}
+.footer-bottom{padding:25px 0 29px;display:flex;justify-content:space-between;gap:24px;align-items:center}
+.footer-bottom p{margin:0;font-size:14px;line-height:1.5;color:#4c4c4c}
+.footer-bottom a{font-weight:800;font-size:15px;text-underline-offset:4px;text-decoration:underline}
+.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);max-width:calc(100% - 30px);padding:14px 20px;border:2px solid #333;background:#fff;box-shadow:0 8px 30px #0002;z-index:30;font-size:14px;line-height:1.5;display:none}
+.toast.show{display:block}
+.show-grid .sheet{background-image:linear-gradient(to right,rgba(0,0,0,.03) 1px, transparent 1px);background-size:calc((100% - 192px)/12) 100%;background-position:96px 0}
+.show-grid .footer{background:transparent}
+@media(max-width:1100px){.footer{padding-left:54px;padding-right:54px}.toolbar{margin-left:54px;margin-right:54px}.context{padding-left:54px;padding-right:54px}.footer-grid{column-gap:32px;grid-template-columns:minmax(0,1.25fr) minmax(145px,.62fr) minmax(190px,.75fr)}.show-grid .sheet{background-image:none}}
+@media(max-width:720px){.toolbar{margin:0 22px;padding:15px 0;display:block}.toolbar-brand span{display:block;margin:6px 0 0}.tools{margin-top:14px}.tools button{font-size:12px;padding:9px 10px}.context{padding:24px 22px 28px;display:block}.context h1{font-size:23px}.context p{margin-top:12px;font-size:14px}.separator{height:38px}.separator span{bottom:9px;font-size:11px}.footer{padding:36px 22px 0}.footer-grid{grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:35px 21px;min-height:0;padding-bottom:33px}.identity{grid-column:1/-1}.identity-link{font-size:35px;margin-bottom:15px}.identity-tagline{font-size:16px;max-width:340px}.nav-group h2{font-size:13px;margin:0 0 16px}.nav-group a{font-size:15px}.nav-group ul{gap:13px}.nav-group .meta{font-size:12px}.footer-notice{grid-template-columns:1fr;gap:9px;padding:19px 0}.footer-notice h2{font-size:16px}.footer-notice p{font-size:14px}.footer-bottom{align-items:flex-start;padding:20px 0 24px}.footer-bottom p{font-size:12px}.footer-bottom a{font-size:13px;white-space:nowrap}.toast{font-size:13px}}
+@media(max-width:370px){.footer-grid{grid-template-columns:1fr;gap:26px}.identity{grid-column:1}.nav-group ul{gap:9px}}
+
+/* v0.6.2 — Seamless footer: no floating panel, no nested background card. */
+:root { --ink:#202622; --copy:#29332d; --muted:#4c5650; --stroke:#d5dbd6; --paper:#fff; }
+body{background:#fff}
+.sheet{background:#fff}
+.separator{height:50px;background:#fff}
+.separator:after{background:#d7ddd8}
+.separator span{background:#fff;color:#68716b}
+.footer{
+  margin:0;
+  padding:57px 96px 0;
+  border:0;
+  background:#fff;
+  border-radius:0;
+  box-shadow:none;
+  overflow:visible;
+}
+.footer-grid{
+  min-height:0;
+  grid-template-columns:minmax(0,1.5fr) minmax(170px,.67fr) minmax(215px,.72fr);
+  gap:60px;
+  padding-bottom:55px;
+}
+.identity-link{font-size:42px;line-height:1.08;letter-spacing:-.045em;margin:0 0 19px;color:#142a21}
+.identity-link:focus-visible{border-radius:8px}
+.identity-tagline{font-size:17px;line-height:1.7;color:#414b44;max-width:365px}
+.nav-group h2{font-size:13px;letter-spacing:.1em;color:#58645c;margin:5px 0 20px}
+.nav-group ul{gap:18px}
+.nav-group a{font-size:16px;line-height:1.5;font-weight:680;color:#1c2b22;display:inline-block;padding:2px 0}
+.nav-group a:hover{text-underline-offset:6px;text-decoration:underline}
+.nav-group .meta{font-size:13px;color:#58665c;margin-top:5px;max-width:225px;line-height:1.6}
+.footer-notice{
+  position:relative;
+  margin:0;
+  padding:24px 0 24px 53px;
+  border:0;
+  border-top:1px solid #dbe0da;
+  border-bottom:1px solid #dbe0da;
+  border-radius:0;
+  background:transparent;
+  grid-template-columns:minmax(0,.91fr) minmax(0,1.09fr);
+  gap:38px;
+}
+.footer-notice::before{
+  content:'i';position:absolute;left:0;top:26px;width:28px;height:28px;
+  border:1px solid #83958a;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  font-size:16px;font-weight:700;color:#274b38;
+}
+.footer-notice h2{font-size:17px;line-height:1.5;color:#1f3026;font-weight:800;margin:0}
+.footer-notice p{font-size:15px;line-height:1.65;color:#455048;max-width:490px}
+.footer-notice .notice-label{display:block;font-size:11px;line-height:1.5;font-weight:850;letter-spacing:.1em;color:#617369;margin-bottom:7px}
+.footer-bottom{padding:24px 0 29px;gap:20px}
+.footer-bottom p{font-size:13px;color:#5d6961}
+.footer-bottom a{
+  display:inline-flex;align-items:center;justify-content:center;min-height:41px;
+  font-size:14px;font-weight:750;text-decoration:none;
+  padding:9px 17px;border:1px solid #bac8be;border-radius:999px;
+  color:#214333;background:transparent;
+}
+.footer-bottom a:hover{background:#f2f6f2;border-color:#759881}
+.show-grid .footer{background:transparent}
+@media(max-width:1100px){
+  .footer{padding:48px 54px 0}
+  .footer-grid{grid-template-columns:minmax(0,1.1fr) minmax(145px,.72fr) minmax(190px,.72fr);column-gap:34px}
+}
+@media(max-width:720px){
+  .footer{padding:36px 23px 0}
+  .footer-grid{grid-template-columns:1fr 1fr;gap:33px 18px;padding-bottom:33px}
+  .identity{grid-column:1/-1}
+  .identity-link{font-size:36px;margin-bottom:15px}
+  .identity-tagline{font-size:16px;max-width:355px}
+  .nav-group h2{font-size:12px;margin:0 0 15px}
+  .nav-group ul{gap:14px}
+  .nav-group a{font-size:15px}
+  .nav-group .meta{font-size:12px}
+  .footer-notice{display:block;padding:22px 0 24px 42px}
+  .footer-notice::before{top:22px;width:25px;height:25px}
+  .footer-notice h2{font-size:15px}
+  .footer-notice p{font-size:14px;line-height:1.65;margin-top:10px}
+  .footer-bottom{padding:20px 0 23px;align-items:center}
+  .footer-bottom p{font-size:12px}
+  .footer-bottom a{font-size:13px;white-space:nowrap;padding:8px 13px}
+}
+@media(max-width:370px){
+  .footer-grid{grid-template-columns:1fr;gap:24px}
+  .identity{grid-column:1}
+  .footer-bottom{flex-direction:column;align-items:flex-start;gap:14px}
+}
+@media(prefers-reduced-motion:reduce){.footer a{transition:none}}
+
+
+/* v0.6.3 — DESKTOP ROUNDED EDGE. This is the page footer itself, NOT a floating card. */
+@media (min-width:1101px) {
+  body {background:#15372c;}
+  .sheet {min-height:0;}
+  .separator { height:76px; background:#fff; }
+  .separator:after{ display:none; }
+  .separator span { bottom:17px; background:#fff; color:#637067; }
+  .footer{
+    position:relative;
+    width:100%;
+    margin:0;
+    padding:66px 96px 0;
+    background:#15372c;
+    color:#f8fbf7;
+    border:0;
+    border-radius:56px 56px 0 0;
+    box-shadow:none;
+    overflow:hidden;
+  }
+  .footer-grid {
+    grid-template-columns:minmax(0,1.5fr) minmax(155px,.65fr) minmax(205px,.75fr);
+    column-gap:72px;
+    padding-bottom:58px;
+  }
+  .identity-link { color:#fff; font-size:44px; font-weight:800; letter-spacing:-.035em; }
+  .identity-tagline { color:#d0ded5; font-size:17px; line-height:1.75; }
+  .nav-group h2 { color:#b5d0bf; font-size:13px; letter-spacing:.10em; }
+  .nav-group a { color:#f8fbf7; font-size:16px; font-weight:680; }
+  .nav-group .meta { color:#c5d5cc; font-size:14px; }
+  .footer-notice{
+    display:grid;
+    margin:0;
+    padding:28px 0 28px 54px;
+    background:none;
+    border:0;
+    border-top:1px solid rgba(237,247,240,.27);
+    border-bottom:1px solid rgba(237,247,240,.27);
+    border-radius:0;
+    gap:40px;
+  }
+  .footer-notice::before { left:0;top:30px;border:1px solid #a9d0b9;color:#e4f3e9; }
+  .footer-notice h2 { color:#fff; font-size:17px; }
+  .footer-notice .notice-label { color:#a7cdb7; }
+  .footer-notice p { color:#d1dfd5; font-size:15px; }
+  .footer-bottom{padding:25px 0 33px;}
+  .footer-bottom p { color:#bbd0c2; font-size:14px; }
+  .footer-bottom a {
+    border-color:rgba(238,249,241,.65);
+    background:rgba(255,255,255,.06);
+    color:#fff;
+    padding:10px 22px;
+    border-radius:999px;
+  }
+  .footer-bottom a:hover { background:rgba(255,255,255,.17);border-color:#fff; }
+  .footer a:focus-visible { outline:3px solid #e7f6dd; outline-offset:4px; }
+  .note { color:#d6e7dd; border-color:#9bcab0; }
+  .show-grid .footer {background:#15372c}
+  .toast{background:#fff;color:#1a3528;border-radius:12px}
+}
+</style>
+</head>
+<body id="top">
+<div class="sheet">
+  <header class="toolbar" aria-label="Công cụ kiểm tra bản thô">
+    <div class="toolbar-brand">RISER AI / FOOTER WIREFRAME <span>v0.6.3 · Desktop Rounded Edge · Chờ duyệt</span></div>
+    <div class="tools">
+      <button type="button" id="role" aria-pressed="false">Xem trạng thái đã đăng nhập</button>
+      <button type="button" id="notes" aria-pressed="false">Ghi chú UX</button>
+      <button type="button" id="grid" aria-pressed="false">Lưới 12 cột</button>
+    </div>
+  </header>
+  <section class="context" aria-label="Vị trí của Footer trong trang chủ">
+    <div><p class="context-label">Chuyển tiếp từ phần trước · Transparency v0.5.0</p><h1>Kết thúc nội dung trang chủ</h1></div>
+    <div class="context-right"><p>Đoạn này chỉ biểu diễn <strong>vị trí chuyển tiếp</strong> trong bản thô, không phải section mới của sản phẩm.</p></div>
+  </section>
+  <div class="separator"><span>Khoảng nghỉ giữa nội dung và footer · kiểm tra nhịp bố cục</span></div>
+  <footer class="footer" aria-label="Footer Rise AI">
+    <div class="footer-grid">
+      <div class="identity">
+        <a class="identity-link preview-link" href="/" data-preview-route="/">Rise AI</a>
+        <p class="identity-tagline">Khám phá chiến dịch cộng đồng và theo dõi tiến độ theo từng cột mốc.</p>
+        <p class="note">UX 01 · Nhận diện nằm trên bề mặt footer tràn chiều ngang, không đóng trong card. Brand block không lặp một Hero thứ hai. Chỉ một câu định vị, không thêm nút CTA lớn, không thêm số liệu chưa kiểm chứng.</p>
+      </div>
+      <nav class="nav-group" aria-label="Khám phá">
+        <h2>Khám phá</h2>
+        <ul>
+          <li><a class="preview-link" href="/" data-preview-route="/">Trang chủ</a></li>
+          <li><a class="preview-link" href="/campaigns" data-preview-route="/campaigns">Tất cả chiến dịch</a></li>
+          <li><a class="preview-link" href="/#how-it-works" data-preview-route="/#how-it-works">Cách hoạt động</a></li>
+        </ul>
+        <p class="note">UX 02 · Chỉ dùng route đã có trong router/HomePage, không tự vẽ trang 'Về chúng tôi', FAQ hay trang chính sách chưa tồn tại.</p>
+      </nav>
+      <nav class="nav-group" aria-label="Tài khoản">
+        <h2>Tài khoản</h2>
+        <ul>
+          <li class="guest-row"><a class="preview-link" href="/login" data-preview-route="/login">Đăng nhập</a><span class="meta">Để sử dụng các tính năng theo vai trò</span></li>
+          <li class="role-row"><a class="preview-link" href="/workspace" data-preview-route="/workspace">Khu vực cá nhân</a><span class="meta">Yêu cầu đăng nhập</span></li>
+        </ul>
+        <p class="note">UX 03 · Footer công khai không hiển thị liên kết Admin/Creator/Donor sai vai trò. Nút trên toolbar chỉ giả lập trạng thái đăng nhập để xem tính thích ứng.</p>
+      </nav>
+    </div>
+    <div class="footer-notice" role="note" aria-label="Lưu ý mô phỏng">
+      <h2><span class="notice-label">BẢN DEMO MÔ PHỎNG</span>Không nhận hoặc chuyển tiền thật.</h2>
+      <p>AI chỉ hỗ trợ đưa ra cảnh báo tham khảo. Việc xem xét và phê duyệt thuộc về người quản trị có thẩm quyền.</p>
+    </div>
+    <p class="note">UX 04 · Thông báo mô phỏng chỉ dùng line trên dưới, không có một card khác phủ lên footer.</p>
+    <div class="footer-bottom">
+      <p>© Rise AI · Bản trình diễn mô phỏng</p>
+      <a href="#top">Về đầu trang ↑</a>
+    </div>
+    <p class="note">UX 05 · Không có email, điện thoại, tài khoản mạng xã hội, điều khoản/chính sách hoặc logo đối tác do chưa có nguồn xác nhận.</p>
+  </footer>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<script>
+(function(){
+ const body=document.body,notes=document.getElementById('notes'),grid=document.getElementById('grid'),role=document.getElementById('role'),toast=document.getElementById('toast');
+ notes.addEventListener('click',function(){const x=body.classList.toggle('show-notes');notes.setAttribute('aria-pressed',String(x));notes.textContent=x?'Ẩn ghi chú UX':'Ghi chú UX'});
+ grid.addEventListener('click',function(){const x=body.classList.toggle('show-grid');grid.setAttribute('aria-pressed',String(x));grid.textContent=x?'Ẩn lưới 12 cột':'Lưới 12 cột'});
+ role.addEventListener('click',function(){const x=body.classList.toggle('logged-in');role.setAttribute('aria-pressed',String(x));role.textContent=x?'Xem trạng thái khách':'Xem trạng thái đã đăng nhập'});
+ let tm;document.querySelectorAll('.preview-link').forEach(function(a){a.addEventListener('click',function(event){event.preventDefault();toast.textContent='Route dự kiến: '+a.dataset.previewRoute+' · Wireframe chưa kết nối ứng dụng.';toast.classList.add('show');clearTimeout(tm);tm=setTimeout(function(){toast.classList.remove('show')},4000)})});
+})();
+</script>
+</body>
+</html>

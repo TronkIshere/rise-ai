@@ -1,0 +1,185 @@
+{
+  "schemaVersion": 1,
+  "documentType": "DESIGN_DOCUMENTATION_ONLY",
+  "runtimeImportAllowed": false,
+  "statusVocabulary": [
+    "EXISTING_CODE",
+    "APPROVED_WIREFRAME",
+    "PENDING_APPROVAL"
+  ],
+  "masterStatus": "ASSEMBLED — PENDING VISUAL APPROVAL",
+  "sectionOrder": [
+    "Hero",
+    "01–02–03",
+    "8 Categories",
+    "Campaign Discovery",
+    "Featured Story",
+    "Milestones",
+    "Transparency",
+    "Footer"
+  ],
+  "changePolicy": "Explicit owner instruction for the affected section, versioned decision log and impact review; never auto-promote to runtime tokens.",
+  "tokens": [
+    {
+      "name": "desktop.referenceWidth",
+      "value": 1440,
+      "unit": "px",
+      "sourceVersion": "v0.3.6",
+      "approvalStatus": "APPROVED_WIREFRAME",
+      "scope": "Homepage desktop reference",
+      "source": "DISCOVERY_COMPOSITION_V036.md"
+    },
+    {
+      "name": "categories.count",
+      "value": 8,
+      "unit": "count",
+      "sourceVersion": "v0.3.2",
+      "approvalStatus": "APPROVED_WIREFRAME",
+      "scope": "Eight first-level categories at desktop 1440px",
+      "source": "wireframes/categories-8-v0.3.2.html"
+    },
+    {
+      "name": "categories.columns",
+      "value": 4,
+      "unit": "count",
+      "sourceVersion": "v0.3.2",
+      "approvalStatus": "APPROVED_WIREFRAME",
+      "scope": "Eight first-level categories at desktop 1440px",
+      "source": "wireframes/categories-8-v0.3.2.html"
+    },
+    {
+      "name": "categories.rows",
+      "value": 2,
+      "unit": "count",
+      "sourceVersion": "v0.3.2",
+      "approvalStatus": "APPROVED_WIREFRAME",
+      "scope": "Eight first-level categories at desktop 1440px",
+      "source": "wireframes/categories-8-v0.3.2.html"
+    },
+    {
+      "name": "primary.image",
+      "value": 37.5,
+      "unit": "percent",
+      "sourceVersion": "v0.3.4",
+      "approvalStatus": "APPROVED_WIREFRAME",
+      "scope": "Desktop card; compact ratio applies only to upper image/content row",
+      "source": "wireframes/campaign-card-primary-ac-v0.3.4.html",
+      "approximate": false
+    },
+    {
+      "name": "primary.content",
+      "value": 62.5,
+      "unit": "percent",
+      "sourceVersion": "v0.3.4",
+      "approvalStatus": "APPROVED_WIREFRAME",
+      "scope": "Desktop card; compact ratio applies only to upper image/content row",
+      "source": "wireframes/campaign-card-primary-ac-v0.3.4.html",
+      "approximate": false
+    },
+    {
+      "name": "compact.image",
+      "value": 38,
+      "unit": "percent",
+      "sourceVersion": "v0.3.5",
+      "approvalStatus": "APPROVED_WIREFRAME",
+      "scope": "Desktop card; compact ratio applies only to upper image/content row",
+      "source": "wireframes/campaign-cards-compact-ac-v0.3.5.html",
+      "approximate": true
+    },
+    {
+      "name": "compact.content",
+      "value": 62,
+      "unit": "percent",
+      "sourceVersion": "v0.3.5",
+      "approvalStatus": "APPROVED_WIREFRAME",
+      "scope": "Desktop card; compact ratio applies only to upper image/content row",
+      "source": "wireframes/campaign-cards-compact-ac-v0.3.5.html",
+      "approximate": true
+    },
+    {
+      "name": "compact.fundingWidth",
+      "value": 100,
+      "unit": "percent",
+      "sourceVersion": "v0.3.5",
+      "approvalStatus": "APPROVED_WIREFRAME",
+      "scope": "Full compact-card lower funding section",
+      "source": "wireframes/campaign-cards-compact-ac-v0.3.5.html"
+    },
+    {
+      "name": "footer.topLeftRadius",
+      "value": 56,
+      "unit": "px",
+      "sourceVersion": "v0.6.3",
+      "approvalStatus": "PENDING_APPROVAL",
+      "scope": "Desktop footer only; preserve provisional baseline, not runtime card radius",
+      "source": "wireframes/footer-desktop-v0.6.3.html",
+      "baselineApproval": "PROVISIONALLY_APPROVED"
+    },
+    {
+      "name": "footer.topRightRadius",
+      "value": 56,
+      "unit": "px",
+      "sourceVersion": "v0.6.3",
+      "approvalStatus": "PENDING_APPROVAL",
+      "scope": "Desktop footer only; preserve provisional baseline, not runtime card radius",
+      "source": "wireframes/footer-desktop-v0.6.3.html",
+      "baselineApproval": "PROVISIONALLY_APPROVED"
+    },
+    {
+      "name": "footer.width",
+      "value": 100,
+      "unit": "percent",
+      "sourceVersion": "v0.6.3",
+      "approvalStatus": "PENDING_APPROVAL",
+      "scope": "Desktop footer only; preserve provisional baseline, not runtime card radius",
+      "source": "wireframes/footer-desktop-v0.6.3.html",
+      "baselineApproval": "PROVISIONALLY_APPROVED"
+    },
+    {
+      "name": "footer.floatingCard",
+      "value": false,
+      "unit": "boolean",
+      "sourceVersion": "v0.6.3",
+      "approvalStatus": "PENDING_APPROVAL",
+      "scope": "Desktop footer only; preserve provisional baseline, not runtime card radius",
+      "source": "wireframes/footer-desktop-v0.6.3.html",
+      "baselineApproval": "PROVISIONALLY_APPROVED"
+    },
+    {
+      "name": "categories.lineColors",
+      "value": null,
+      "unit": null,
+      "sourceVersion": "v0.7.0",
+      "approvalStatus": "PENDING_APPROVAL",
+      "scope": "Future high-fidelity; no value authorized",
+      "source": "DESIGN_DECISION_LOG.md"
+    },
+    {
+      "name": "typography.finalScale",
+      "value": null,
+      "unit": null,
+      "sourceVersion": "v0.7.0",
+      "approvalStatus": "PENDING_APPROVAL",
+      "scope": "Future high-fidelity; no value authorized",
+      "source": "DESIGN_DECISION_LOG.md"
+    },
+    {
+      "name": "shadow.final",
+      "value": null,
+      "unit": null,
+      "sourceVersion": "v0.7.0",
+      "approvalStatus": "PENDING_APPROVAL",
+      "scope": "Future high-fidelity; no value authorized",
+      "source": "DESIGN_DECISION_LOG.md"
+    },
+    {
+      "name": "background.final",
+      "value": null,
+      "unit": null,
+      "sourceVersion": "v0.7.0",
+      "approvalStatus": "PENDING_APPROVAL",
+      "scope": "Future high-fidelity; no value authorized",
+      "source": "DESIGN_DECISION_LOG.md"
+    }
+  ]
+}

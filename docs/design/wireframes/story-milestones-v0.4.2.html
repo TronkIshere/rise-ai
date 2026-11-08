@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+
+<html lang="vi">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>Riser AI | Wireframe v0.4.2 — Typography &amp; Content Density</title>
+<style>
+  :root { --ink:#1e1e1e; --mid:#464646; --muted:#646464; --line:#b3b3b3; --fine:#dadada; --panel:#f2f2f2; --paper:#fff; }
+  * { box-sizing:border-box; }
+  html{scroll-behavior:smooth}
+  body{margin:0;color:var(--ink);background:#ececec;font-family:Arial,"DejaVu Sans",sans-serif;-webkit-font-smoothing:antialiased}
+  button,a{font:inherit;color:inherit}button{cursor:pointer}
+  .sheet{max-width:1440px;min-height:100vh;margin:auto;background:#fff;padding:0 96px 52px}
+  .toolbar{display:flex;align-items:center;justify-content:space-between;height:66px;border-bottom:1px solid var(--fine);font-size:12px;gap:18px}
+  .toolbar strong{font-size:13px;letter-spacing:.025em}.toolbar-sub{color:#666;margin-left:12px}.tools{display:flex;gap:8px}
+  .tools button{background:#fff;border:1px solid #999;padding:9px 13px;border-radius:0;font-size:12px;font-weight:700}
+  .tools button[aria-pressed=true]{background:#2e2e2e;color:#fff}
+  .source-bar{padding:21px 0 24px;display:flex;gap:18px;align-items:baseline;justify-content:space-between;color:#505050;font-size:12px;border-bottom:1px solid #e6e6e6}
+  .source-bar a{text-underline-offset:4px;font-weight:700}.transition-note{font-size:11px;color:#777;letter-spacing:.045em}
+  .journey{position:relative;padding-left:81px;margin-top:26px}
+  .journey:before{content:"";position:absolute;top:22px;bottom:155px;left:24px;width:1px;background:#bdbdbd}
+  .stage{position:relative}.stage .index{position:absolute;left:-81px;top:4px;width:49px;height:49px;display:grid;place-items:center;background:#fff;border:1.5px solid #555;font-size:15px;font-weight:800;z-index:1}
+  .eyebrow{font-size:12px;font-weight:800;letter-spacing:.09em;color:#484848;margin:0 0 18px}
+  .story{padding:45px 0 57px}
+  .story-grid{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr);gap:59px;align-items:center}
+  .hero-line{font-size:46px;line-height:1.13;font-weight:800;letter-spacing:-.018em;margin:0 0 24px;max-width:640px}
+  .lead{font-size:17px;line-height:1.74;max-width:590px;margin:0 0 23px;color:#343434}
+  .detail{font-size:14px;line-height:1.7;color:#444;margin:0;max-width:590px}
+  .story-evidence{display:grid;grid-template-columns:125px 1fr;gap:21px;align-items:center;border-top:1px solid #c5c5c5;padding-top:19px;margin-top:30px;max-width:570px}
+  .stat{font-size:43px;font-weight:800;line-height:1}.stat-label{font-size:13px;font-weight:700;line-height:1.55}.stat-note{display:block;font-size:12px;color:#656565;font-weight:400;margin-top:3px}
+  .media{margin:0}.media-box{height:390px;border:1px solid #999;background:#e6e6e6;position:relative;display:flex;justify-content:center;align-items:center;overflow:hidden}
+  .media-box:before,.media-box:after{content:"";position:absolute;left:-30%;top:50%;width:160%;height:1px;background:#b7b7b7;transform:rotate(39deg)}
+  .media-box:after{transform:rotate(-39deg)}
+  .media-box strong{z-index:1;font-size:15px;line-height:1.6;text-align:center;background:#ededed;padding:18px 28px;border:1px solid #c0c0c0}
+  .media figcaption{font-size:12px;color:#5b5b5b;line-height:1.55;margin-top:12px;max-width:400px}
+  .step-link{margin-top:26px;display:inline-block;font-size:13px;font-weight:800;text-decoration:none;border-bottom:2px solid #222;padding-bottom:7px}
+  .step-link:hover{background:#eee}
+  .solution{border-top:1px solid #b6b6b6;padding:48px 0 59px}
+  .solution-heading{display:grid;grid-template-columns:minmax(0,1fr) 390px;gap:40px;align-items:end}
+  .solution h2,.milestone h2,.current h2{font-size:34px;line-height:1.25;letter-spacing:-.008em;margin:0;font-weight:800}
+  .subcopy{margin:0;color:#474747;font-size:14px;line-height:1.7}
+  .action-list{display:grid;grid-template-columns:repeat(3,1fr);gap:30px;margin-top:33px}
+  .action{padding-top:14px;border-top:2px solid #696969}
+  .action .number{font-weight:800;font-size:13px;color:#5b5b5b;margin-bottom:15px}
+  .action h3{font-size:18px;line-height:1.36;margin:0 0 10px}.action p{font-size:14px;line-height:1.64;margin:0;color:#444}
+  .bridge{font-size:13px;font-weight:700;border-top:1px dashed #a5a5a5;margin:29px 0 0;padding-top:19px;display:flex;align-items:center;gap:13px;color:#4b4b4b}
+  .bridge:before{content:"↓";border:1px solid #888;width:30px;height:30px;display:grid;place-items:center;font-size:17px;color:#222;flex:none}
+  .milestone{border-top:1px solid #b6b6b6;padding:52px 0 53px}
+  .milestone-head{display:flex;align-items:end;justify-content:space-between;gap:40px}
+  .milestone-head h2{max-width:655px}.count{min-width:200px;border-bottom:2px solid #444;padding-bottom:10px;font-size:13px;line-height:1.7;text-align:right}
+  .count strong{display:block;font-size:26px;color:#222}
+  .stepper{position:relative;margin:40px 0 0 0;padding:0;list-style:none}
+  .stepper:before{content:"";position:absolute;left:26px;top:25px;bottom:80px;background:#bbb;width:2px}
+  .milestone-step{display:grid;grid-template-columns:55px 1fr;gap:22px;padding-bottom:29px;position:relative}
+  .milestone-step:last-child{padding-bottom:0}.milestone-dot{height:54px;width:54px;border:2px solid #737373;background:#fff;display:flex;align-items:center;justify-content:center;position:relative;z-index:1;font-weight:800;font-size:18px}
+  .milestone-step.done .milestone-dot{background:#e4e4e4}.milestone-step.now .milestone-dot{background:#333;color:#fff;border-color:#333}
+  .milestone-content{padding:10px 0 18px;border-bottom:1px solid #d1d1d1;min-width:0}
+  .milestone-step:last-child .milestone-content{border-bottom:0}
+  .stephead{display:flex;align-items:start;justify-content:space-between;gap:28px}
+  .stephead h3{margin:0;font-size:21px;line-height:1.35}
+  .state{display:inline-block;white-space:nowrap;font-size:12px;font-weight:800;border:1px solid #777;padding:7px 12px;color:#2e2e2e}
+  .now .state{color:#fff;background:#333;border-color:#333}
+  .step-detail{font-size:14px;line-height:1.65;color:#444;margin:13px 0 0;max-width:870px}
+  .milestone-meta{display:flex;flex-wrap:wrap;gap:15px 26px;margin-top:13px;font-size:13px;color:#464646}
+  .milestone-meta strong{color:#262626}
+  .current{border-top:2px solid #333;padding:38px 0 42px}
+  .current-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,.9fr);gap:64px}
+  .current h2{font-size:39px;line-height:1.21;margin:0 0 18px;max-width:580px}
+  .current .lead{font-size:16px;margin-bottom:0}
+  .current-facts{border-top:1px solid #aaa}
+  .current-fact{display:grid;grid-template-columns:116px 1fr;gap:17px;padding:16px 0;border-bottom:1px solid #ddd;font-size:14px;line-height:1.6}
+  .current-fact strong{font-size:12px;color:#454545}
+  .current-caption{font-size:12px;line-height:1.7;color:#505050;margin:22px 0 0}
+  .end{border-top:1px solid #c0c0c0;padding:22px 0 0;margin-top:14px;display:flex;justify-content:space-between;gap:30px;font-size:12px;color:#5a5a5a;line-height:1.7}
+  .note{display:none;margin-top:13px;border:1px dashed #787878;background:#f3f3f3;padding:12px 15px;color:#3d3d3d;font-size:12px;line-height:1.6;max-width:920px}
+  .show-notes .note{display:block}
+  .show-guides .sheet{background-image:linear-gradient(90deg,rgba(0,0,0,.03) 1px,transparent 1px);background-size:calc((100% - 192px)/12) 100%}
+  @media(max-width:1100px){.sheet{padding:0 44px 50px}.journey{padding-left:68px}.stage .index{left:-68px}.story-grid{gap:28px}.hero-line{font-size:37px}.media-box{height:335px}.solution-heading{grid-template-columns:1fr 290px}.current-grid{gap:35px}}
+  @media(max-width:700px){.sheet{padding:0 20px 30px}.toolbar{height:auto;padding:13px 0;align-items:start}.toolbar-sub{display:block;margin:5px 0 0}.source-bar{display:block}.transition-note{display:block;margin-top:7px}.journey{padding-left:44px}.journey:before{left:15px}.stage .index{left:-44px;width:30px;height:30px;font-size:11px}.story{padding-top:35px}.story-grid,.solution-heading,.current-grid{display:block}.hero-line{font-size:33px}.media{margin-top:26px}.media-box{height:250px}.story-evidence{grid-template-columns:105px 1fr}.solution h2,.milestone h2{font-size:28px}.action-list{grid-template-columns:1fr;gap:21px}.action{padding-top:12px}.milestone-head{display:block}.count{text-align:left;margin-top:20px}.stephead{display:block}.state{margin-top:12px}.stepper:before{left:18px}.milestone-step{grid-template-columns:38px 1fr;gap:17px}.milestone-dot{height:38px;width:38px;font-size:14px}.current h2{font-size:31px}.current-facts{margin-top:25px}.current-fact{grid-template-columns:94px 1fr}.end{display:block}.tools{flex-wrap:wrap}}
+</style>
+<style>
+/* v0.4.2 — targeted typography and content-resilience pass. No visual branding. */
+body {font-family:Arial,'DejaVu Sans','Segoe UI',sans-serif;}
+.toolbar {min-height:80px;height:auto;padding:12px 0;}
+.tools {align-items:center; flex-wrap:wrap;justify-content:flex-end;}
+.density-controls {display:inline-flex;gap:0;border:1px solid #777;margin-right:8px;}
+.density-controls button {min-width:88px;border:0;border-right:1px solid #777;font-size:13px;padding:10px 12px;}
+.density-controls button:last-child {border-right:0;}
+.density-controls button[aria-pressed="true"] {color:#fff;background:#252525;}
+.mode-information {font-size:13px;font-weight:600;line-height:1.55;color:#303030;border-bottom:1px solid #ddd;padding:12px 0 13px;}
+.story-grid {align-items:start;}
+.eyebrow {font-size:13px;letter-spacing:.055em;line-height:1.55;}
+.hero-line {font-size:clamp(36px,3.25vw,46px);line-height:1.19;letter-spacing:0;overflow-wrap:break-word;text-wrap:pretty;}
+.lead {font-size:18px;line-height:1.65;max-width:65ch;}
+.detail {font-size:16px;line-height:1.7;max-width:67ch;}
+.stat-label {font-size:14px;}
+.stat-note {font-size:13px;}
+.media figcaption {font-size:13px;}
+.solution h2,.milestone h2,.current h2 {letter-spacing:0;overflow-wrap:break-word;}
+.solution h2 {max-width:31ch;}
+.subcopy {font-size:16px;line-height:1.68;max-width:56ch;}
+.action h3 {font-size:19px;line-height:1.4;overflow-wrap:break-word;}
+.action p {font-size:16px;line-height:1.65;}
+.action-list {align-items:start;}
+.bridge {font-size:14px;line-height:1.6;}
+.stephead {align-items:flex-start;flex-wrap:wrap;}
+.stephead h3 {font-size:21px;line-height:1.42;max-width:45ch;overflow-wrap:break-word;flex:1 1 330px;}
+.state {font-size:13px;line-height:1.4;max-width:100%;white-space:normal;text-align:center;flex:0 1 auto;}
+.step-detail {font-size:16px;line-height:1.68;max-width:68ch;}
+.milestone-meta {font-size:14px;line-height:1.55;}
+.current h2 {max-width:30ch;}
+.current-fact {font-size:15px;line-height:1.65;}
+.current-fact strong {font-size:13px;}
+.current-caption {font-size:14px;line-height:1.65;max-width:94ch;}
+.content-check {border-top:1px solid #999;padding:24px 0 32px;margin-left:81px;}
+.content-check h2 {font-size:22px;margin:0 0 10px;}
+.content-check p {font-size:14px;line-height:1.65;max-width:86ch;}
+.check-stats {display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin:22px 0;}
+.check-stats>div {border-top:2px solid #777;padding-top:12px;}
+.check-stats dt {font-size:13px;color:#444;margin-bottom:6px;line-height:1.5;}
+.check-stats dd {font-size:15px;font-weight:700;line-height:1.5;margin:0;}
+.content-check-note {border-left:3px solid #888;padding-left:14px;} .editorial-flag {font-size:14px;font-weight:700;border-top:1px solid #bbb;padding-top:13px;}
+@media(max-width:1100px){.content-check{margin-left:68px}.check-stats{grid-template-columns:repeat(2,1fr)}.solution-heading{grid-template-columns:minmax(0,1fr) minmax(0,.75fr)}}
+@media(max-width:700px){.toolbar{align-items:flex-start;flex-direction:column;gap:10px;}.tools{justify-content:flex-start;}.density-controls button{min-width:72px;padding:9px}.mode-information{font-size:12px}.hero-line{font-size:33px;line-height:1.2}.lead{font-size:17px}.detail{font-size:16px}.media-box{height:260px}.solution h2,.milestone h2{font-size:28px}.stephead h3{font-size:19px}.step-detail{font-size:15px}.milestone-meta{font-size:14px}.current h2{font-size:30px}.content-check{margin-left:44px}.check-stats{grid-template-columns:1fr 1fr;gap:14px}.check-stats dd{font-size:14px}.state{margin-top:10px}.current-fact{grid-template-columns:95px 1fr;gap:9px}}
+</style></head>
+<body>
+<main class="sheet" id="top">
+<header class="toolbar">
+<div><strong>RISER AI / WIREFRAME</strong><span class="toolbar-sub">v0.4.2 · Storytelling &amp; Milestone Journey · 1440px</span></div>
+<div class="tools"><div aria-label="Kiểm tra độ dài nội dung" class="density-controls" role="group"><button aria-pressed="true" data-mode="source" type="button">Nguồn seed</button><button aria-pressed="false" data-mode="short" type="button">Ngắn</button><button aria-pressed="false" data-mode="long" type="button">Dài</button></div><button aria-pressed="false" id="toggleNotes" type="button">Hiện ghi chú UX</button><button aria-pressed="false" id="toggleGuides" type="button">Hiện lưới</button></div>
+</header>
+<div class="source-bar"><div>PHẦN TIẾP THEO SAU DISCOVERY v0.3.6 · <strong>DỮ LIỆU DEMO MÔ PHỎNG</strong></div><span class="transition-note">VẪN LÀ BẢN THÔ · CHƯA DUYỆT</span></div><div aria-live="polite" class="mode-information" id="modeInformation" role="status">Đang xem: Nội dung từ kịch bản seed / bản thô v0.4.1 — chưa phải API live.</div>
+<div class="journey">
+<section aria-labelledby="problem-head" class="stage story" id="problem">
+<span aria-hidden="true" class="index">01</span>
+<p class="eyebrow">VẤN ĐỀ CẦN GIẢI QUYẾT</p>
+<div class="story-grid">
+<div>
+<h1 class="hero-line" id="problem-head">Một chiếc máy tính cũ.<br/>Nhiều học sinh cùng chờ lượt.</h1>
+<p class="lead">Theo kịch bản chiến dịch demo, học sinh tại một trường vùng cao giả định phải dùng chung một máy tính cũ và học trong các phòng chưa có đủ bàn ghế phù hợp.</p>
+<p class="detail">Đây là điểm khởi đầu của <strong>Laptops and Learning Kits for Highland Pupils (Demo)</strong> — một kế hoạch nhằm cải thiện điều kiện tiếp cận thiết bị và không gian học tập.</p>
+<div class="story-evidence"><span class="stat">180</span><span class="stat-label">Học sinh dự kiến thụ hưởng<span class="stat-note">Mục tiêu của kịch bản, không phải kết quả đã đạt.</span></span></div>
+<a class="step-link" href="#solution">Xem giải pháp được đề xuất ↓</a>
+</div>
+<figure class="media"><div aria-label="Khung giữ chỗ cho ảnh chiến dịch Creator cung cấp" class="media-box" role="img"><strong>VỊ TRÍ ẢNH CHIẾN DỊCH<br/>Creator cung cấp / fallback</strong></div><figcaption>Ảnh giữ chỗ. Không đại diện cho trường học, học sinh hoặc bằng chứng thực tế.</figcaption></figure>
+</div>
+<div class="note">UX 01 · Không lặp lại Campaign Card với tên, đơn vị và thanh huy động. Mở câu chuyện bằng một vấn đề cụ thể từ dữ liệu nguồn; con số 180 là mục tiêu dự kiến, không phải tác động đã xảy ra.</div>
+</section>
+<section aria-labelledby="solution-head" class="stage solution" id="solution">
+<span aria-hidden="true" class="index">02</span>
+<p class="eyebrow">GIẢI PHÁP DỰ KIẾN</p>
+<div class="solution-heading"><h2 id="solution-head">Từ thiếu thiết bị đến một môi trường học tập sử dụng được lâu dài.</h2><p class="subcopy">Kế hoạch không dừng ở việc mua máy tính. Dữ liệu demo mô tả ba nhóm công việc liên tiếp để tạo điều kiện sử dụng thiết bị và hỗ trợ giáo viên.</p></div>
+<div class="action-list">
+<div class="action"><div class="number">BƯỚC A</div><h3>Trang bị thiết bị</h3><p>Mua laptop và máy tính bảng để học sinh có cơ hội tiếp cận công nghệ.</p></div>
+<div class="action"><div class="number">BƯỚC B</div><h3>Hoàn thiện phòng học</h3><p>Trang bị bàn ghế và nội thất cho hai phòng học được đề xuất.</p></div>
+<div class="action"><div class="number">BƯỚC C</div><h3>Hỗ trợ giáo viên</h3><p>Tập huấn kỹ năng số cho 8 giáo viên theo kế hoạch của chiến dịch.</p></div>
+</div>
+<p class="bridge">Từng giải pháp có một cột mốc để theo dõi công việc, điều kiện và trạng thái.</p>
+<div class="note">UX 02 · Giải pháp được nhóm thành ba hành động, không thành ba card có nền. Đây là cầu nối có ý nghĩa giữa vấn đề con người và timeline thực hiện.</div>
+</section>
+<section aria-labelledby="milestones-head" class="stage milestone" id="milestones">
+<span aria-hidden="true" class="index">03</span>
+<p class="eyebrow">HÀNH TRÌNH THỰC HIỆN</p>
+<div class="milestone-head"><h2 id="milestones-head">Từ kế hoạch đến hành động: chiến dịch đang ở bước nào?</h2><div class="count"><strong>01 / 03</strong>cột mốc hoàn thành trong kịch bản seed</div></div>
+<ol class="stepper">
+<li class="milestone-step done"><span aria-hidden="true" class="milestone-dot">01</span><div class="milestone-content"><div class="stephead"><h3>Mua laptop và máy tính bảng</h3><span class="state">HOÀN THÀNH · DEMO</span></div><p class="step-detail">Trong kịch bản seed, hóa đơn được chấp thuận và cột mốc được đánh dấu hoàn thành sau nghiệp vụ giải ngân mô phỏng.</p><div class="milestone-meta"><span>Kinh phí dự kiến: <strong>40 triệu ₫</strong></span><span>Đã giải ngân mô phỏng: <strong>40 triệu ₫</strong></span></div></div></li>
+<li class="milestone-step now"><span aria-hidden="true" class="milestone-dot">02</span><div class="milestone-content"><div class="stephead"><h3>Trang bị hai phòng học</h3><span class="state">ĐANG THỰC HIỆN · DEMO</span></div><p class="step-detail">Báo cáo tiến độ đã được nộp trong kịch bản; yêu cầu giải ngân mô phỏng 20 triệu ₫ đang ở bước xem xét. Chưa thể coi yêu cầu đó là khoản đã giải ngân.</p><div class="milestone-meta"><span>Kinh phí dự kiến: <strong>50 triệu ₫</strong></span><span>Trọng tâm hiện tại: <strong>Đánh giá yêu cầu &amp; minh chứng</strong></span></div></div></li>
+<li class="milestone-step planned"><span aria-hidden="true" class="milestone-dot">03</span><div class="milestone-content"><div class="stephead"><h3>Tập huấn kỹ năng số cho giáo viên</h3><span class="state">DỰ KIẾN · DEMO</span></div><p class="step-detail">Mục tiêu kế hoạch: 8 giáo viên hoàn thành chương trình 20 giờ. Kịch bản chưa ghi nhận cột mốc này đã bắt đầu hoặc hoàn thành.</p><div class="milestone-meta"><span>Kinh phí dự kiến: <strong>30 triệu ₫</strong></span><span>Trạng thái: <strong>Chưa bắt đầu theo seed</strong></span></div></div></li>
+</ol>
+<div class="note">UX 03 · Chỉ có cột mốc 02 được nhấn mạnh bằng tương phản để làm rõ vị trí hiện tại. Số 01/03 là đếm cột mốc completed, không phải 33% tác động và không phải 33% ngân sách.</div>
+</section>
+<section aria-labelledby="current-head" class="stage current" id="current">
+<span aria-hidden="true" class="index">04</span>
+<p class="eyebrow">TÌNH TRẠNG HIỆN TẠI CỦA KỊCH BẢN</p>
+<div class="current-grid"><div><h2 id="current-head">Hiện tại: đang thực hiện cột mốc 02.</h2><p class="lead">Dự án đã hoàn thành một bước trong dữ liệu mô phỏng. Công việc tiếp theo là xử lý yêu cầu và thông tin kiểm tra cho giai đoạn trang bị phòng học, trước khi bước sang tập huấn giáo viên.</p></div>
+<div class="current-facts"><div class="current-fact"><strong>ĐÃ GHI NHẬN</strong><span>Cột mốc 01 hoàn thành sau quy trình xét duyệt mô phỏng.</span></div><div class="current-fact"><strong>ĐANG XEM XÉT</strong><span>Yêu cầu giải ngân 20 triệu ₫ của cột mốc 02; không phải khoản đã chuyển.</span></div><div class="current-fact"><strong>TIẾP THEO</strong><span>Triển khai cột mốc tập huấn giáo viên khi đủ điều kiện trong kế hoạch.</span></div></div></div>
+<p class="current-caption"><strong>Ranh giới dữ liệu:</strong> tiền đóng góp đã ghi nhận trên Campaign Card khác với số tiền giải ngân và trạng thái cột mốc. Không có ảnh thực địa, giao dịch thật hoặc chứng nhận tác động trong bản phác thảo này.</p>
+<div class="note">UX 04 · Kết bằng lời giải đáp "Đang ở đâu?" thay vì thêm một bảng dashboard khác. Thông tin có nguồn trong DemoDataSeeder; bản thật phải đọc trạng thái từ Backend tại thời điểm truy cập.</div>
+</section>
+</div><section aria-labelledby="content-check-title" class="content-check" id="content-check"><h2 id="content-check-title">Kiểm tra độ dài nội dung</h2>
+<p>Ba chế độ sử dụng cùng bố cục. <strong>Nguồn seed</strong> giữ nội dung đã trình bày ở v0.4.1; <strong>Ngắn</strong> và <strong>Dài</strong> là dữ liệu giả lập <em>chỉ để thử giao diện</em>, không phải dữ liệu chiến dịch hoặc lời kể của người thật.</p>
+<dl class="check-stats">
+<div><dt>Tiêu đề mở chuyện</dt><dd id="titleCount">—</dd></div>
+<div><dt>Đoạn mở chuyện</dt><dd id="leadCount">—</dd></div>
+<div><dt>Mô tả cột mốc dài nhất</dt><dd id="stepCount">—</dd></div>
+<div><dt>Ngắt chữ / co giãn chiều cao</dt><dd>Không dùng khung chiều cao cố định, không cắt chữ bằng dấu ba chấm</dd></div>
+</dl>
+<p id="editorialFlag" class="editorial-flag" role="status"></p><p class="content-check-note">Kiểm tra bắt buộc trước nghiệm thu: tiêu đề dài, mô tả dài, badge trạng thái, trường dữ liệu thiếu, nội dung trên desktop và mobile. Các font/kích thước trong bản này mới là thông số thử nghiệm.</p></section>
+<footer class="end"><span><strong>RISER AI · STORY + MILESTONES · WIREFRAME v0.4.2</strong><br/>Content-stress review; chưa được duyệt, không thay đổi các phần trong PR #8.</span><span>Tham chiếu: DemoDataSeeder.java · CampaignResponse · MilestoneResponse<br/>Dữ liệu mô phỏng, không phản ánh trạng thái live.</span></footer>
+</main>
+<script>
+ for (const [id,cls,on,off] of [['toggleNotes','show-notes','Ẩn ghi chú UX','Hiện ghi chú UX'],['toggleGuides','show-guides','Ẩn lưới','Hiện lưới']]) {
+  const b=document.getElementById(id);b.addEventListener('click',()=>{const yes=document.body.classList.toggle(cls);b.textContent=yes?on:off;b.setAttribute('aria-pressed',String(yes));});
+ }
+</script>
+<script>
+const selectors = ["#problem-head", "#problem .lead", "#problem .detail", "#solution-head", "#solution .subcopy", "#solution .action:nth-child(1) p", "#solution .action:nth-child(2) p", "#solution .action:nth-child(3) p", "#milestones-head", ".milestone-step:nth-child(1) h3", ".milestone-step:nth-child(1) .step-detail", ".milestone-step:nth-child(2) h3", ".milestone-step:nth-child(2) .step-detail", ".milestone-step:nth-child(3) h3", ".milestone-step:nth-child(3) .step-detail", "#current-head", "#current .lead"];
+const sourceHtml = Object.fromEntries(selectors.map(s => [s, document.querySelector(s).innerHTML]));
+const variants = {"short": {"#problem-head": "Học sinh cần thêm thiết bị học tập.", "#problem .lead": "Thiếu thiết bị và bàn ghế phù hợp khiến việc thực hành kỹ năng số gặp khó khăn.", "#problem .detail": "Kịch bản demo về hỗ trợ điều kiện học tập tại trường vùng cao giả định.", "#solution-head": "Ba việc cần thực hiện.", "#solution .subcopy": "Thiết bị, phòng học và tập huấn giáo viên.", "#solution .action:nth-child(1) p": "Mua thiết bị học tập dùng chung.", "#solution .action:nth-child(2) p": "Hoàn thiện hai phòng học.", "#solution .action:nth-child(3) p": "Tập huấn cho giáo viên.", "#milestones-head": "Chiến dịch đang ở đâu?", ".milestone-step:nth-child(1) h3": "Mua thiết bị", ".milestone-step:nth-child(1) .step-detail": "Cột mốc đã hoàn thành trong kịch bản seed.", ".milestone-step:nth-child(2) h3": "Trang bị phòng học", ".milestone-step:nth-child(2) .step-detail": "Yêu cầu giải ngân đang được xem xét.", ".milestone-step:nth-child(3) h3": "Tập huấn giáo viên", ".milestone-step:nth-child(3) .step-detail": "Chưa bắt đầu theo kịch bản demo.", "#current-head": "Đang ở cột mốc 02.", "#current .lead": "Dữ liệu seed cho thấy chiến dịch đang thực hiện bước trang bị phòng học."}, "long": {"#problem-head": "Khi nhiều học sinh ở một trường vùng cao phải dùng chung một thiết bị học tập đã cũ, các giờ thực hành kỹ năng số sẽ được tổ chức như thế nào?", "#problem .lead": "Trong bối cảnh của chiến dịch demo, học sinh ở một trường vùng cao giả định phải chia sẻ một máy tính cũ, trong khi không gian thực hành chưa được trang bị đầy đủ bàn ghế và thiết bị sử dụng chung. Mục tiêu được đưa ra không chỉ là bổ sung máy tính, mà còn tạo điều kiện để các em được tiếp cận hoạt động học tập có hướng dẫn một cách ổn định.", "#problem .detail": "Đoạn văn này được kéo dài để kiểm tra cách xuống dòng của bản thô. Nội dung được diễn giải từ phần vấn đề, giải pháp và mục tiêu trong kịch bản seed; không phải lời chứng thực của học sinh, giáo viên hay dữ liệu thực tế từ một cơ sở giáo dục.", "#solution-head": "Từ việc bổ sung thiết bị học tập đến hoàn thiện không gian thực hành và hỗ trợ giáo viên tổ chức các buổi học kỹ năng số.", "#solution .subcopy": "Một kế hoạch có nhiều hoạt động liên quan cần được trình bày theo thứ tự hợp lý, tránh khiến người đọc hiểu nhầm rằng chỉ cần mua máy tính là mọi khó khăn về môi trường học tập đã được giải quyết.", "#solution .action:nth-child(1) p": "Chuẩn bị quy trình mua sắm thiết bị dùng chung, đối chiếu hóa đơn và tài liệu bàn giao theo điều kiện nghiệm thu của cột mốc đầu tiên trong chiến dịch mô phỏng.", "#solution .action:nth-child(2) p": "Hoàn thiện không gian học tập với bàn ghế và phương án bố trí phòng, kiểm tra báo cáo tiến độ và các hồ sơ cần thiết trước khi đánh giá yêu cầu giải ngân theo từng giai đoạn.", "#solution .action:nth-child(3) p": "Tổ chức chương trình kỹ năng số cho giáo viên theo kế hoạch đào tạo 20 giờ, gắn với danh sách tham gia và chứng từ theo điều kiện hoàn thành cột mốc khi được triển khai.", "#milestones-head": "Theo dõi từng giai đoạn thực hiện: bước nào đã hoàn thành, bước nào đang được xử lý, và những yêu cầu nào vẫn cần được xem xét?", ".milestone-step:nth-child(1) h3": "Mua laptop và máy tính bảng để tạo điều kiện học tập có hướng dẫn", ".milestone-step:nth-child(1) .step-detail": "Trong kịch bản seed, cột mốc đầu bao gồm thủ tục mua laptop và máy tính bảng, nộp hóa đơn nhà cung cấp, xem xét chứng từ và thực hiện các bước xét duyệt giải ngân mô phỏng. Trạng thái hoàn thành ở đây phản ánh các thao tác đã ghi nhận trong hệ thống trình diễn, không được sử dụng như bằng chứng rằng thiết bị đã đến một trường học có thật.", ".milestone-step:nth-child(2) h3": "Trang bị bàn ghế và bố trí hai phòng học theo kế hoạch cải thiện điều kiện học tập", ".milestone-step:nth-child(2) .step-detail": "Cột mốc thứ hai trong seed đang ở trạng thái thực hiện. Báo cáo tiến độ về phương án bố trí phòng học đã được gửi, và một yêu cầu giải ngân mô phỏng trị giá 20 triệu đồng đã chuyển sang bước xem xét. Vì yêu cầu chưa đồng nghĩa với việc giải ngân, giao diện cần phân biệt rõ các loại thông tin này, dù mô tả có dài nhiều dòng.", ".milestone-step:nth-child(3) h3": "Tập huấn kỹ năng số cho giáo viên sau khi đáp ứng điều kiện triển khai", ".milestone-step:nth-child(3) .step-detail": "Theo kế hoạch giả định, 8 giáo viên được dự kiến tham gia chương trình tập huấn 20 giờ. Đầu ra sẽ cần được đối chiếu với danh sách tham gia và các điều kiện nghiệm thu nêu trong hồ sơ chiến dịch. Đoạn này chỉ kiểm tra khả năng hiển thị mô tả dài; chưa có cơ sở coi chương trình tập huấn là đã bắt đầu hoặc hoàn thành.", "#current-head": "Hiện tại, chiến dịch đang ở cột mốc 02: trang bị hai phòng học và xem xét yêu cầu giải ngân liên quan.", "#current .lead": "Đây là một trạng thái nghiệp vụ trong hệ thống mô phỏng, không phải thông báo về tiến độ thực địa. Khi triển khai thật, thông điệp cần được tổng hợp từ trạng thái cột mốc, hồ sơ minh chứng và yêu cầu giải ngân đang chờ xử lý, thay vì được viết cố định theo một kịch bản demo."}};
+function applyMode(mode){
+  const set = variants[mode];
+  for (const sel of selectors){
+    const node = document.querySelector(sel);
+    if (!node) continue;
+    if (mode === 'source') node.innerHTML = sourceHtml[sel];
+    else node.textContent = set[sel];
+  }
+  document.querySelectorAll('[data-mode]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.mode === mode)));
+  document.getElementById('modeInformation').textContent = mode === 'source'
+    ? 'Đang xem: Nội dung từ kịch bản seed / bản thô v0.4.1 — chưa phải API live.'
+    : `Đang xem: Ví dụ ${mode === 'short' ? 'NGẮN' : 'DÀI'} để thử bố cục — KHÔNG phải nội dung chiến dịch hoặc dữ liệu API.`;
+  const textLength = sel => document.querySelector(sel).textContent.trim().length;
+  document.getElementById('titleCount').textContent = textLength('#problem-head') + ' ký tự';
+  document.getElementById('leadCount').textContent = textLength('#problem .lead') + ' ký tự';
+  document.getElementById('stepCount').textContent = Math.max(...[1,2,3].map(i=>textLength(`.milestone-step:nth-child(${i}) .step-detail`))) + ' ký tự';
+  const header = document.querySelector('#problem-head');
+  const st = getComputedStyle(header);
+  const lines = Math.round(header.getBoundingClientRect().height / parseFloat(st.lineHeight));
+  const limit = window.innerWidth <= 700 ? 6 : 4;
+  document.getElementById('editorialFlag').textContent = lines > limit ? `CẦN BIÊN TẬP: tiêu đề đang chiếm khoảng ${lines} dòng (ngưỡng kiểm tra ${limit} dòng). Giữ nguyên nội dung đầy đủ trong wireframe để kiểm tra, nhưng nên viết lại ngắn gọn trước khi duyệt copy cho Homepage.` : `THỬ ĐỌC: tiêu đề chiếm khoảng ${lines} dòng tại viewport hiện tại; chưa vượt ngưỡng kiểm tra ${limit} dòng.`;
+}
+document.querySelectorAll('[data-mode]').forEach(b => b.addEventListener('click', () => applyMode(b.dataset.mode)));
+applyMode('source');
+window.addEventListener('resize',()=>{const active=document.querySelector('[data-mode][aria-pressed="true"]'); if(active)applyMode(active.dataset.mode);});
+</script></body>
+</html>

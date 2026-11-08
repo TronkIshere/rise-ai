@@ -1,8 +1,8 @@
-# Riser AI — Approved Wireframe Baseline
+# Riser AI — Design Baseline Governance
 
 **Recorded:** 2026-11-05  
-**Scope:** Desktop 1440px, public homepage Hero and Campaign Discovery  
-**Status:** **Approved for layout and information architecture only**; not approved as high-fidelity UI or React implementation.
+**Scope:** Desktop 1440px, public homepage baseline and assembled Master
+**Status:** Per-section approvals below. Master v0.7.0 is **ASSEMBLED — PENDING VISUAL APPROVAL**; no high-fidelity or React approval.
 
 This directory is the canonical record of design decisions agreed in the conversation.
 
@@ -41,3 +41,20 @@ This directory is the canonical record of design decisions agreed in the convers
 - [Demo seeder](../../rise-ai-backend/src/main/java/com/riseai/configuration/DemoDataSeeder.java)
 
 This folder is **not** an approval to implement React. Move to visual design only after a separate visual review.
+
+## Governance and Master v0.7.0
+
+- [UI Guardrails](./UI_GUARDRAILS.md) — ten mandatory scope and preservation rules.
+- [UI Token Registry](./UI_TOKEN_REGISTRY.md) — existing runtime values versus approved wireframe structure and pending visual choices.
+- [Layout Tokens JSON](./WIREFRAME_LAYOUT_TOKENS.json) — design documentation only; never a runtime theme.
+- [Master Review](./MASTER_WIREFRAME_V070_REVIEW.md) — pending visual approval and review checklist.
+- [Source Manifest](./SOURCE_MANIFEST.json) — byte counts, original package entries and SHA-256 provenance.
+
+| Additional source | Approval | Preserved HTML |
+|---|---|---|
+| Featured Story + Milestones v0.4.2 | Provisionally approved | [HTML](./wireframes/story-milestones-v0.4.2.html) |
+| Transparency v0.5.0 | Provisionally approved | [HTML](./wireframes/transparency-v0.5.0.html) |
+| Footer Desktop v0.6.3 | Provisionally approved | [HTML](./wireframes/footer-desktop-v0.6.3.html) |
+| Homepage Master v0.7.0 | ASSEMBLED — PENDING VISUAL APPROVAL | [HTML](./wireframes/homepage-master-v0.7.0.html) |
+
+Locked order: Hero → 01–02–03 → 8 Categories → Campaign Discovery → Featured Story → Milestones → Transparency → Footer. The previously approved structures remain locked; importing the remaining sources grants no new visual approval. No required HTML is missing; v0.3.6 remains its written composition spec, not reconstructed HTML.
