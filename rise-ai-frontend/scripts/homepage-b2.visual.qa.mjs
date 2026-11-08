@@ -93,7 +93,7 @@ const heroVisual = async p => p.evaluate(() => {
   const title = document.querySelector('#top .hero-copy h1')?.getBoundingClientRect();
   const buttons = document.querySelector('#top .hero-buttons')?.getBoundingClientRect();
   const journey = document.querySelector('#journey')?.getBoundingClientRect();
-  return { titleHeight: title?.height ?? 0, titleY: title?.top ?? 0, buttonsBottom: buttons?.bottom ?? 0, journeyY: journey?.top ?? 0 };
+  return { titleHeight: title?.height ?? 0, titleY: (title?.top ?? 0) + window.scrollY, buttonsBottom: (buttons?.bottom ?? 0) + window.scrollY, journeyY: (journey?.top ?? 0) + window.scrollY };
 });
 const reactHeroVisual = await heroVisual(page);
 const approvedHeroVisual = await heroVisual(refPage);
