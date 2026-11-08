@@ -1,27 +1,11 @@
-# B2 Development Master v1.3.2 — design-source handoff
+# B2 Development Master v1.3.2 — approved Homepage baseline / React handoff
 
-**Status:** User-approved component decisions integrated; **Homepage remains visual review candidate**, not a React implementation or production release.
+**Owner approval — 2026-11-08:** Homepage B2 v1.3.2 is formally approved in full for React Desktop 1440px, **including Milestones Journey Landscape background**. This supersedes the provisional status in the historical design-source snapshot at commit `215d01ff97fda6a03016c402eb4c7460bb7c8c3b`. The original archived HTML/CSS and assets remain unchanged as the approved visual authority.
 
-**Scope:** Desktop 1440px only. User explicitly stopped new Mobile/Tablet UI development on 2026-11-08. Existing responsive code in this static study is preserved; do not expand its mobile scope.
+**Approved sections:** Hero + 01–02–03 Journey; Categories C3.1; Campaign Discovery (A+C 1+2); Featured Story; Milestones K1 plus Journey Landscape; Transparency T1.2; Footer editorial typography v1.3.2 and wave/background. Sequence remains locked.
 
-## Approved / provisional
+**Current delivery stage:** React implementation on a separate feature branch/PR. React build/testing and visual parity must be reviewed independently; **design approval is not code approval or deployment permission**. Only Homepage route and Homepage-specific components/assets/tokens/styles are in scope; no Mobile/Tablet UI work. Auth, donations, Backend, Monitoring and Admin remain untouched.
 
-- **Approved:** Categories C3.1 (8 cards, 4×2, kinetic outline, bold typography); Milestones K1 card design; Transparency T1.2 cards plus the dossier and caution card; Footer editorial typography v1.3.2.
-- **Retained without redesign:** Hero and 01–02–03 journey, Campaign Discovery, Featured Story, Footer wave/artwork; baseline Homepage v0.7.1b semantics and content constraints remain authoritative.
-- **Provisional:** Milestones Journey Landscape background was reviewed/accepted for integration but not separately approved as final.
-- **Pending:** Whole-Homepage visual sign-off and any authorization for React implementation or merge/deploy.
+**Semantics:** Public campaign data must come from Backend `ACTIVE` listing, optional category filter; funding/escrow/disbursements are simulated ledgers, never cash transfers; concept images and story/milestones/dossier narratives are labelled illustrative demo, never evidence or field verification. AI provides non-authoritative advisory signals; Admin has final authority.
 
-## Files and verification
-
-- `index.html`, `style.css`, `script.js`, `sections/`, `assets/`: original **editable study source**, byte-for-byte from the uploaded v1.3.2 archive.
-- `B2_DEVELOPMENT_MASTER_V1_3_2_STANDALONE.html`: original self-contained preview.
-- `review/QA_V132.json`: original Chromium validation evidence (prior session; **not rerun by this commit**).
-- `review/fullpage_1440.jpg`: JPEG derivative of original 1440px screenshot to keep Git history compact.
-- `references/approved_visual_reference_01.jpg`, `...02.jpg`: reduced-size JPEG derivatives of approved imagery for design comparison. Originals are in the archived Library package, not reinterpreted or edited.
-- `CHANGELOG_V1_3_2.md`, `README.md`: original version notes.
-
-## Safety and integration guardrails
-
-All money and campaign data are simulated; concept images are not field evidence. Monitoring/AI is advisory, and final review authority remains with Admin. No React, Backend, Monitoring, API, or deployment changes in this handoff. Do not copy static HTML as production data. Implementation must use Frontend token source and Backend contract, and proceed only after explicit approval.
-
-**History:** This commit is a documentation/design-source snapshot. Its placement on the existing Categories C3.1 design branch does **not** imply #9/#10/#11 have merged or that the whole Homepage is approved.
+Read `REACT_IMPLEMENTATION.md` for source mapping, practical integration limitations and the mandatory verification/PR gate. Do not merge to `master` without review and full tests.
