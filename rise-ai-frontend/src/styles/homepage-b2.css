@@ -2572,3 +2572,10 @@
 .b2-homepage #campaigns .campaign-layout{align-items:stretch}
 .b2-homepage .campaign-main-body h3{overflow-wrap:anywhere}
 .b2-homepage .compact-copy h3 a:hover{text-decoration:underline}
+
+
+/* Hero B2 v1.3.2: standalone HTML fallback, isolated from app font token */
+/* The approved HTML falls back from Be Vietnam Pro to Noto Sans / Arial.
+   The shared React --font-sans falls back to system-ui instead and expands the
+   headline to four lines at 1440px, pushing the CTAs into the Journey wave. */
+.b2-homepage .hero-shell {font-family:"Be Vietnam Pro","Noto Sans",Arial,sans-serif}
