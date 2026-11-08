@@ -67,6 +67,11 @@ jobs:
           node-version: '22'
           cache: npm
           cache-dependency-path: rise-ai-frontend/package-lock.json
+      - name: Permit Flyway append-only guards in ephemeral CI MySQL
+        run: |
+          mysql_id=$(docker ps --filter ancestor=mysql:8.4 --format '{{.ID}}' | head -1)
+          test -n "$mysql_id"
+          docker exec "$mysql_id" mysql -uroot -pci-only-root-password -e "SET GLOBAL log_bin_trust_function_creators = 1;"
       - name: Build genuine Spring Boot Backend
         working-directory: rise-ai-backend
         run: mvn -B -DskipTests package
