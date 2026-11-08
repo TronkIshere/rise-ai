@@ -85,7 +85,7 @@ check('transparency disclosure closes via keyboard', await disclosure.getAttribu
 // the same JS document, because FE-00 holds session tokens only in memory.
 await page.evaluate(() => { window.__b2SpaMarker = 'same-document'; });
 await page.locator('#footer a[href="/campaigns"]').click();
-await page.waitForURL(/\\/campaigns(?:\\?|$)/);
+await page.waitForURL('**/campaigns');
 const sameDocument = await page.evaluate(() => window.__b2SpaMarker === 'same-document');
 check('B2 footer navigation uses SPA without full reload', sameDocument, `path=${new URL(page.url()).pathname}; marker=${sameDocument}`);
 await page.goBack();
