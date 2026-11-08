@@ -46,7 +46,7 @@ const ctx = await browser.newContext({ viewport: { width: 1440, height: 900 }, d
 const page = await ctx.newPage();
 const browserErrors = [], failedHttp = [], calls = [];
 page.on('pageerror', e => browserErrors.push(String(e)));
-page.on('console', e => { if (e.type() === 'error') browserErrors.push('console: ' + e.text()); });
+page.on('console', e => { if (e.type() === 'error' && !/favicon\.ico/.test(e.location()?.url || '')) browserErrors.push('console: ' + e.text()); });
 page.on('response', response => { if (response.status() >= 400 && !/favicon\.ico/.test(response.url())) failedHttp.push(response.status() + ' ' + response.url()); });
 await page.route(/\/api\/v1\/campaigns(?:\?|$)/, async route => {
   const u = new URL(route.request().url()); calls.push(u.searchParams.toString());
@@ -70,11 +70,11 @@ check('campaigns API filters status=ACTIVE', calls.some(x=>new URLSearchParams(x
 await page.screenshot({ path: resolve(out,'react-homepage-1440.png'), fullPage: true });
 // Selected category must issue a real server-filtered query (intercepted by QA).
 await page.locator('#categories button[data-vibe="education"]').click();
-await page.waitForFunction(() => document.querySelectorAll('#campaigns .campaign-card').length===1, {timeout: 15000});
+await page.waitForFunction(() => document.querySelectorAll('#campaigns .campaign-card').length===1, undefined, {timeout: 15000});
 const pressed = await page.locator('#categories button[data-vibe="education"]').getAttribute('aria-pressed');
 check('category filter updates Backend query and aria-pressed', pressed==='true' && calls.some(x=>new URLSearchParams(x).get('category')==='EDUCATION'), `pressed=${pressed}; ${calls.at(-1)}`);
 await page.locator('#clear-filter').click();
-await page.waitForFunction(() => document.querySelectorAll('#campaigns .campaign-card').length===3, {timeout:15000});
+await page.waitForFunction(() => document.querySelectorAll('#campaigns .campaign-card').length===3, undefined, {timeout:15000});
 check('clear filter restores 3 campaign cards', await page.locator('#campaigns .campaign-card').count()===3);
 const disclosure = page.locator('#transparency-more-button');
 await disclosure.focus();await page.keyboard.press('Space');
