@@ -2,9 +2,17 @@ import { Link } from 'react-router';
 import type { CampaignResponse } from '@/api/contracts';
 import { CampaignMedia } from '@/components/ui/CampaignMedia';
 import { amountLabel, categoryLabel, progressLabel, progressValue, safeImageUrl } from '@/lib/campaign-display';
+import { isSyntheticPlaceholderMedia } from '@/lib/b2-campaign-media';
 
 function campaignLink(campaign: CampaignResponse): string | undefined {
   return campaign.slug ? `/campaigns/${encodeURIComponent(campaign.slug)}` : undefined;
+}
+
+function approvedCampaignCover(campaign: CampaignResponse): string | undefined {
+  const source = safeImageUrl(campaign.coverImageUrl);
+  // The demo seeder uses placehold.co; it is neither artwork nor evidence
+  // provided by a campaign. Use the approved B2 concept fallback instead.
+  return source && !isSyntheticPlaceholderMedia(source) ? source : undefined;
 }
 
 function FundingMeter({ campaign, compact = false }: { campaign: CampaignResponse; compact?: boolean }) {
@@ -23,7 +31,7 @@ function FundingMeter({ campaign, compact = false }: { campaign: CampaignRespons
 }
 
 function ApprovedMedia({ campaign, fallback }: { campaign: CampaignResponse; fallback: 'campaign-hope.jpg' | 'campaign-library.jpg' | 'campaign-learning.jpg' }) {
-  const src = safeImageUrl(campaign.coverImageUrl);
+  const src = approvedCampaignCover(campaign);
   return src
     ? <CampaignMedia src={src} alt={campaign.title || 'Ảnh chiến dịch từ hệ thống'} className="b2-campaign-media" />
     : <img src={'/b2-home/' + fallback} alt="Hình ảnh concept minh họa, không phải bằng chứng hoặc ảnh chiến dịch" loading="lazy" />;
@@ -34,7 +42,7 @@ function MainCampaign({ campaign }: { campaign: CampaignResponse }) {
   return <article className="campaign-main campaign-card">
     <div className="campaign-main-media">
       <ApprovedMedia campaign={campaign} fallback="campaign-hope.jpg" />
-      <span className="media-mark">{safeImageUrl(campaign.coverImageUrl) ? 'ẢNH DO CHIẾN DỊCH CUNG CẤP' : <>CONCEPT IMAGE<br />KHÔNG PHẢI MINH CHỨNG</>}</span>
+      <span className="media-mark">{approvedCampaignCover(campaign) ? 'ẢNH TRONG HỒ SƠ CHIẾN DỊCH' : <>CONCEPT IMAGE<br />KHÔNG PHẢI MINH CHỨNG</>}</span>
     </div>
     <div className="campaign-main-body">
       <div className="campaign-meta"><span className="tag tag-peach">{categoryLabel(campaign.category)}</span><span className="tag tag-border">ACTIVE · TỪ BACKEND</span></div>
@@ -54,7 +62,7 @@ function CompactCampaign({ campaign, index }: { campaign: CampaignResponse; inde
   const to = campaignLink(campaign);
   return <article className="campaign-compact campaign-card">
     <div className="compact-top">
-      <div className="compact-media"><ApprovedMedia campaign={campaign} fallback={index === 0 ? 'campaign-library.jpg' : 'campaign-learning.jpg'} /><span>{safeImageUrl(campaign.coverImageUrl) ? 'ẢNH CHIẾN DỊCH' : 'ẢNH MINH HỌA'}</span></div>
+      <div className="compact-media"><ApprovedMedia campaign={campaign} fallback={index === 0 ? 'campaign-library.jpg' : 'campaign-learning.jpg'} /><span>{approvedCampaignCover(campaign) ? 'ẢNH HỒ SƠ CHIẾN DỊCH' : 'ẢNH MINH HỌA'}</span></div>
       <div className="compact-copy">
         <span className={'tag ' + (index === 0 ? 'tag-warm' : 'tag-blue')}>{categoryLabel(campaign.category)} · ACTIVE</span>
         <h3>{to ? <Link to={to}>{campaign.title || 'Chiến dịch chưa có tiêu đề'}</Link> : campaign.title || 'Chiến dịch chưa có tiêu đề'}</h3>
