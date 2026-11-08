@@ -946,7 +946,7 @@
 .b2-homepage .hero-shell::after {
   content:"";position:absolute;z-index:1;pointer-events:none;
   bottom:45px;left:-55px;width:220px;height:420px;
-  background:url("../assets/botanical-edge.svg") center/contain no-repeat;opacity:.7;
+  background:url("/b2-home/botanical-edge.svg") center/contain no-repeat;opacity:.7;
 }
 
 
@@ -974,7 +974,7 @@
 .b2-homepage .hero-buttons .button-outline {background:#052d237a;backdrop-filter:blur(3px)}
 
 
-.b2-homepage .journey {background:#073a2c url("../assets/journey-forest.svg") center bottom/100% auto no-repeat;isolation:isolate}
+.b2-homepage .journey {background:#073a2c url("/b2-home/journey-forest.svg") center bottom/100% auto no-repeat;isolation:isolate}
 
 
 .b2-homepage .journey:before {background:linear-gradient(0deg,#062f25af,transparent 80%),radial-gradient(ellipse at 55% 0%,#9ca34b33,transparent 47%)}
@@ -1504,10 +1504,10 @@
 .b2-homepage .campaigns-section {isolation:isolate;overflow:hidden;background:linear-gradient(150deg,#f7f5e5 0%,#edf3dc 45%,#f6f0dc 100%)}
 
 
-.b2-homepage .campaigns-section::before {content:"";position:absolute;z-index:-1;bottom:-30px;left:0;right:0;height:265px;background:url("../assets/soft-hills.svg") center bottom/100% 100% no-repeat;opacity:.45;pointer-events:none}
+.b2-homepage .campaigns-section::before {content:"";position:absolute;z-index:-1;bottom:-30px;left:0;right:0;height:265px;background:url("/b2-home/soft-hills.svg") center bottom/100% 100% no-repeat;opacity:.45;pointer-events:none}
 
 
-.b2-homepage .campaigns-section::after {content:"";position:absolute;right:-45px;top:140px;width:180px;height:350px;background:url("../assets/botanical-edge.svg") center/contain no-repeat;opacity:.18;transform:rotate(172deg);pointer-events:none}
+.b2-homepage .campaigns-section::after {content:"";position:absolute;right:-45px;top:140px;width:180px;height:350px;background:url("/b2-home/botanical-edge.svg") center/contain no-repeat;opacity:.18;transform:rotate(172deg);pointer-events:none}
 
 
 .b2-homepage .campaign-layout {align-items:stretch}
@@ -2256,7 +2256,7 @@
   z-index:-1;
   inset:auto 0 -25px;
   height:170px;
-  background:url("../assets/footer-hills.svg") center bottom/100% 100% no-repeat;
+  background:url("/b2-home/footer-hills.svg") center bottom/100% 100% no-repeat;
   opacity:.32;
   pointer-events:none;
 }
@@ -2270,7 +2270,7 @@
   height:300px;
   right:-41px;
   bottom:33px;
-  background:url("../assets/botanical-edge.svg") center/contain no-repeat;
+  background:url("/b2-home/botanical-edge.svg") center/contain no-repeat;
   transform:rotate(175deg);
   opacity:.29;
   pointer-events:none;

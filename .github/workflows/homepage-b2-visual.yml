@@ -1,0 +1,40 @@
+name: Homepage B2 visual QA (1440px)
+on:
+  push:
+    branches: [feat/homepage-b2-v132-desktop-20261108]
+    paths:
+      - 'rise-ai-frontend/**'
+      - '.github/workflows/homepage-b2-visual.yml'
+permissions:
+  contents: read
+jobs:
+  desktop-1440:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: rise-ai-frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: rise-ai-frontend/package-lock.json
+      - run: npm ci --no-audit --no-fund
+      - name: Install temporary browser-only QA runner
+        run: |
+          npm install --no-save --no-package-lock playwright@1.56.1
+          npx playwright install --with-deps chromium
+      - name: Run Vite preview and exercise React in Chromium at 1440px
+        run: |
+          npm run dev -- --host 127.0.0.1 --port 5173 > /tmp/b2-vite.log 2>&1 &
+          for n in $(seq 1 40); do curl -sf http://127.0.0.1:5173/ >/dev/null && break; sleep 1; done
+          node scripts/homepage-b2.visual.qa.mjs
+      - name: Upload side-by-side review evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: homepage-b2-react-1440-qa
+          path: rise-ai-frontend/visual-qa/b2-v132/
+          retention-days: 14
+          if-no-files-found: warn
