@@ -3,11 +3,11 @@
  * Execute separately with Playwright installed; NOT part of npm run verify.
  * Fixture is local browser interception, never production data or a Backend change.
  */
-import assert from 'node:assert/strict';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { chromium } from 'playwright';
+/* global document, window, scrollX, scrollY */
 
 const out = resolve('visual-qa/b2-v132');
 await mkdir(out, { recursive: true });
@@ -96,7 +96,8 @@ for (const [state, code] of [['error',503],['empty',200]]) {
   await p.route(/\/api\/v1\/campaigns(?:\?|$)/, async route=>route.fulfill({status:code,contentType:'application/json',body:code===200?JSON.stringify({code:200,data:{data:[],currentPage:0,pageSize:3,totalElements:0,totalPages:0}}):JSON.stringify({status:503,message:'Backend unavailable in QA'})}));
   await p.goto('http://127.0.0.1:5173/',{waitUntil:'networkidle',timeout:45000});
   const expected=state==='error'?'Chưa tải được chiến dịch':'Chưa có chiến dịch đang kêu gọi';
-  const msg=p.locator('.b2-api-message');await msg.first().waitFor({timeout:20000});
+  const msg=p.locator('.b2-api-message');
+  await p.getByText(expected, { exact: false }).first().waitFor({ timeout: 25000 });
   check(`${state} API state`,(await msg.innerText()).includes(expected) && (await p.locator('#campaigns .campaign-card').count())===0);
   await c.close();
 }
