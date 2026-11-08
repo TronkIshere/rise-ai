@@ -62,7 +62,7 @@ try {
   await page.locator('#campaigns .campaign-card').first().waitFor({ timeout: 25000 });
   await page.evaluate(() => document.fonts.ready);
   const actual = await metrics(page);
-  record('1440 homepage all approved sections', ['#top','#journey','#categories','#campaigns','#story','#milestones','#transparency','#footer'].every(Boolean) &&
+  record('1440 homepage all approved sections', (await Promise.all(['#top','#journey','#categories','#campaigns','#story','#milestones','#transparency','#footer'].map(sel => page.locator(sel).count()))).every(count => count === 1) &&
       actual.categoryCount === 8 && actual.campaignCount === 3 && actual.milestoneCount === 3 && actual.transparencyCount === 3,
       JSON.stringify(actual));
   record('desktop no horizontal overflow and valid landmarks', actual.docWidth <= 1440 && actual.mainCount === 1 && actual.h1Count === 1);
@@ -125,9 +125,17 @@ try {
   await page.waitForURL('**/workspace');
   record('real Backend demo DONOR login through Nginx', new URL(page.url()).pathname === '/workspace' &&
     apiCalls.some(x => x.path === '/api/v1/auth/login' && x.status === 200));
-  await page.goto(base + '/admin/monitoring');
-  await page.waitForURL('**/login');
-  record('DONOR cannot access Admin browser route', new URL(page.url()).pathname === '/login');
+  await page.evaluate(() => {
+    window.history.pushState(null, '', '/admin/monitoring');
+    window.dispatchEvent(new PopStateEvent('popstate'));
+  });
+  await page.waitForURL('**/admin/monitoring');
+  await page.getByRole('heading', { name: 'Tài khoản không có quyền truy cập' }).waitFor();
+  record('logged-in DONOR cannot access Admin browser route',
+    new URL(page.url()).pathname === '/admin/monitoring' &&
+    (await page.getByRole('heading', { name: 'Tài khoản không có quyền truy cập' }).count()) === 1);
+  await page.reload({ waitUntil: 'networkidle' });
+  record('memory-only session cleared on full reload', new URL(page.url()).pathname === '/login');
   record('no uncaught browser errors', errors.length === 0, JSON.stringify(errors.slice(0, 8)));
 } catch (error) {
   errors.push('FAIL: ' + String(error));
