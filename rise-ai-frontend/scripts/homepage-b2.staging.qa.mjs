@@ -127,7 +127,7 @@ try {
     apiCalls.some(x => x.path === '/api/v1/auth/login' && x.status === 200));
   await page.evaluate(() => {
     window.history.pushState(null, '', '/admin/monitoring');
-    window.dispatchEvent(new PopStateEvent('popstate'));
+    window.dispatchEvent(new window.PopStateEvent('popstate'));
   });
   await page.waitForURL('**/admin/monitoring');
   await page.getByRole('heading', { name: 'Tài khoản không có quyền truy cập' }).waitFor();
