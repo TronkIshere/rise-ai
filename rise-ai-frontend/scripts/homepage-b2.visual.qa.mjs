@@ -81,6 +81,16 @@ await disclosure.focus();await page.keyboard.press('Space');
 check('transparency disclosure opens via keyboard', await disclosure.getAttribute('aria-expanded')==='true' && !(await page.locator('#transparency-detail').isHidden()));
 await page.keyboard.press('Space');
 check('transparency disclosure closes via keyboard', await disclosure.getAttribute('aria-expanded')==='false' && await page.locator('#transparency-detail').isHidden());
+// The footer crosses into the shared React routes. Navigation must preserve
+// the same JS document, because FE-00 holds session tokens only in memory.
+await page.evaluate(() => { window.__b2SpaMarker = 'same-document'; });
+await page.locator('#footer a[href="/campaigns"]').click();
+await page.waitForURL(/\\/campaigns(?:\\?|$)/);
+const sameDocument = await page.evaluate(() => window.__b2SpaMarker === 'same-document');
+check('B2 footer navigation uses SPA without full reload', sameDocument, `path=${new URL(page.url()).pathname}; marker=${sameDocument}`);
+await page.goBack();
+await page.waitForURL(/\\/$/);
+await page.locator('#top').waitFor();
 // The reference is a standalone design file, not React. Capture for direct two-up review.
 const ref = resolve('../docs/design/art-direction/approved/b2-development-master-v1.3.2/B2_DEVELOPMENT_MASTER_V1_3_2_STANDALONE.html');
 const refPage = await ctx.newPage();
