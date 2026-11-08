@@ -1,0 +1,219 @@
+/* 08 — FOOTER ONLY · v1.1 targeted adjustment, 2026-11-07. */
+/* Owner freeze: all preceding sections are unchanged; this curved edge belongs to Footer. */
+.footer{
+  --footer-top:#102e2b;
+  position:relative;
+  z-index:2;
+  isolation:isolate;
+  overflow:visible;
+  min-height:320px;
+  padding:68px 0 0;
+  border-radius:0;
+  background:linear-gradient(165deg,var(--footer-top) 0%,#09221f 51%,#041817 100%);
+}
+/* Curved boundary extends into the EMPTY bottom padding of Transparency.
+   Gold/sage lip ensures the two dark-green sections never read as one flat panel. */
+.footer-crest{
+  position:absolute;
+  left:0;
+  top:-85px;
+  width:100%;
+  height:104px;
+  z-index:0;
+  display:block;
+  overflow:visible;
+  pointer-events:none;
+  stroke:none;
+}
+.footer-crest path{stroke:none}
+.footer-crest-lip{fill:#d5c69c}
+.footer-crest-main{fill:var(--footer-top)}
+/* Landscape stays near the ground, away from nav and disclaimer readability. */
+.footer::before{
+  content:"";
+  position:absolute;
+  z-index:-1;
+  inset:auto 0 -25px;
+  height:170px;
+  background:url('../assets/footer-hills.svg') center bottom/100% 100% no-repeat;
+  opacity:.32;
+  pointer-events:none;
+}
+.footer::after{
+  content:"";
+  position:absolute;
+  z-index:-1;
+  width:165px;
+  height:300px;
+  right:-41px;
+  bottom:33px;
+  background:url('../assets/botanical-edge.svg') center/contain no-repeat;
+  transform:rotate(175deg);
+  opacity:.29;
+  pointer-events:none;
+}
+.footer-hill{display:none}
+.footer-content{position:relative;z-index:2;grid-template-columns:1.1fr .72fr .8fr 1.25fr;gap:36px;padding-bottom:35px}
+.footer-brand p{font-size:12px}
+.footer-column h2{font-size:13px}
+.footer-column a,.footer-column span{font-size:12px;transition:color .16s}
+.footer-column a:hover{color:#f4c88c}
+.footer-disclaimer{padding:18px;border:1px solid #e1d5ac2b;background:linear-gradient(145deg,#21443aa6,#0b322eb8);backdrop-filter:blur(4px)}
+.footer-bottom{position:relative;z-index:2;min-height:57px;border-top:1px solid #e6e7c92f;background:#061c1bb3}
+@media(max-width:1100px){.footer-content{gap:25px}}
+@media(max-width:760px){
+ .footer{padding-top:67px}
+ .footer-crest{top:-50px;height:64px}
+ .footer-content{grid-template-columns:1fr 1fr;gap:35px}
+ .footer-brand,.footer-disclaimer{grid-column:span 2}
+}
+/* Contain Footer's ornamental leaf within its own width; prevents horizontal overflow. */
+.footer::after{right:12px;width:140px;height:245px}
+
+
+/* v1.3.1 — OWNER REQUEST: FOOTER TYPOGRAPHY AND LEGIBILITY ONLY.
+   Do not modify the wave, landscape, section structure, content or earlier sections. */
+.footer{
+  color:#fffaf0;
+  font-size:15px;
+}
+.footer .footer-content{
+  gap:clamp(25px,3.1vw,46px);
+  padding-bottom:39px;
+}
+.footer .wordmark b{
+  font-size:27px;
+  letter-spacing:-.055em;
+}
+.footer .footer-brand p{
+  font-size:15px;
+  font-weight:550;
+  line-height:1.68;
+  color:#f1f5e9;
+  max-width:310px;
+  margin:18px 0 14px;
+}
+.footer .footer-caption{
+  font-size:12px;
+  font-weight:800;
+  line-height:1.5;
+  letter-spacing:.025em;
+  color:#ffd596;
+}
+.footer .footer-column h2{
+  font-size:17px;
+  font-weight:850;
+  line-height:1.4;
+  color:#ffe3af;
+  margin-bottom:16px;
+}
+.footer .footer-column a,
+.footer .footer-column span{
+  font-size:15px;
+  font-weight:580;
+  line-height:1.55;
+  color:#f1f6ec;
+  margin-top:11px;
+  transition:color .16s ease;
+}
+.footer .footer-column a:hover,
+.footer .footer-column a:focus-visible{
+  color:#ffcf89;
+  text-decoration:underline;
+  text-underline-offset:4px;
+}
+.footer .footer-column small{
+  font-size:12.5px;
+  font-weight:550;
+  color:#dceadf;
+  line-height:1.65;
+  margin-top:11px;
+}
+.footer .footer-disclaimer{
+  padding:22px 22px 19px;
+  background:linear-gradient(145deg,rgba(30,73,59,.94),rgba(13,56,49,.94));
+  border-color:rgba(244,220,172,.36);
+  backdrop-filter:none;
+}
+.footer .footer-warning{
+  font-size:12.5px;
+  font-weight:950;
+  letter-spacing:.09em;
+  line-height:1.5;
+  color:#ffcf8c;
+}
+.footer .footer-disclaimer p{
+  font-size:14.5px;
+  font-weight:550;
+  line-height:1.7;
+  color:#f0f7ee;
+  margin:13px 0 17px;
+}
+.footer .footer-disclaimer a{
+  font-size:15px;
+  font-weight:850;
+  line-height:1.45;
+  color:#ffcf8c;
+}
+.footer .footer-disclaimer a:hover,
+.footer .footer-disclaimer a:focus-visible{
+  text-decoration:underline;
+  text-underline-offset:4px;
+}
+.footer .footer-bottom{
+  gap:18px;
+  min-height:67px;
+  font-size:12.5px;
+  font-weight:550;
+  line-height:1.55;
+  color:#e0ede5;
+}
+.footer .footer-bottom a{
+  font-size:13.5px;
+  font-weight:800;
+  white-space:nowrap;
+  color:#fff1cd;
+}
+@media(max-width:1100px){
+ .footer .footer-content{gap:24px}
+ .footer .footer-column a,.footer .footer-column span{font-size:14px}
+}
+@media(max-width:760px){
+ .footer .footer-content{grid-template-columns:repeat(2,minmax(0,1fr));gap:28px 18px}
+ .footer .footer-brand,.footer .footer-disclaimer{grid-column:1/-1}
+ .footer .footer-bottom{flex-wrap:wrap;align-items:flex-start;padding-block:16px;min-height:0}
+}
+
+/* Scoped exploratory typography: Footer v1.3.2. No other section selectors. */
+.footer{font-family:"Be Vietnam Pro", "Segoe UI", "Noto Sans", Arial, sans-serif; font-size:17px; color:#fffaf1}
+.footer .footer-content{grid-template-columns:1.12fr .70fr .78fr 1.16fr; gap:clamp(22px,2.6vw,38px);padding-bottom:44px;align-items:start}
+.footer .wordmark{gap:15px}
+.footer .wordmark .mark{width:46px;height:49px}
+.footer .wordmark svg{width:40px;height:40px;stroke-width:2.15}
+.footer .wordmark b{font-size:34px;font-weight:900;letter-spacing:-.055em}
+.footer .footer-brand p{font-size:17.5px;font-weight:620;line-height:1.62;max-width:300px;color:#fff7ea;margin:22px 0 15px}
+.footer .footer-caption{display:inline-block;font-size:13.5px;line-height:1.5;letter-spacing:0;font-weight:800;color:#ffcc8a;border-left:3px solid #df9b62;padding:4px 0 4px 12px}
+.footer .footer-column h2{font-size:20px;font-weight:900;line-height:1.28;letter-spacing:-.035em;color:#fff8e7;margin:9px 0 22px;padding-bottom:13px;border-bottom:2px solid rgba(237,183,116,.68)}
+.footer .footer-column a,.footer .footer-column span{font-size:17px;font-weight:690;line-height:1.5;letter-spacing:-.015em;color:#f9fcf4;margin-top:13px}
+.footer .footer-column a:hover,.footer .footer-column a:focus-visible{color:#ffcf8c}
+.footer .footer-column small{font-size:14.5px;line-height:1.5;font-weight:550;color:#e0ebdf;margin-top:14px}
+.footer .footer-disclaimer{padding:26px 25px 25px}
+.footer .footer-warning{font-size:14px;line-height:1.4;letter-spacing:.045em;color:#ffce92;font-weight:950}
+.footer .footer-disclaimer p{font-size:16.2px;line-height:1.65;font-weight:600;color:#fff8ed;margin:17px 0 21px}
+.footer .footer-disclaimer a{font-size:17px;font-weight:900;line-height:1.35;color:#ffcf8f;gap:14px}
+.footer .footer-disclaimer svg{width:19px;height:19px}
+.footer .footer-bottom{font-size:13px;letter-spacing:0;color:#f0f5ea;gap:18px;min-height:74px;line-height:1.6;font-weight:620;flex-wrap:wrap;padding:16px 0}
+.footer .footer-bottom a{font-size:15px;font-weight:900;color:#fff2d0}
+@media(max-width:1100px){
+  .footer .footer-content{grid-template-columns:1.15fr 1fr;gap:32px 40px}
+  .footer .footer-brand,.footer .footer-disclaimer{grid-column:auto}
+  .footer .footer-column a,.footer .footer-column span{font-size:16.5px}
+}
+@media(max-width:760px){
+  .footer .footer-content{grid-template-columns:repeat(2,minmax(0,1fr));gap:30px 20px}
+  .footer .footer-brand,.footer .footer-disclaimer{grid-column:1/-1}
+  .footer .footer-brand p{font-size:17px}
+  .footer .footer-column h2{font-size:19px}
+  .footer .footer-column a,.footer .footer-column span{font-size:16px}
+  .footer .footer-bottom{gap:12px}
+}

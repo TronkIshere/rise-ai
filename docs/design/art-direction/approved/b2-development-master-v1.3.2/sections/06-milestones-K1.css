@@ -1,0 +1,94 @@
+/* Scoped from approved/reviewed standalone prototype — only #milestones */
+#milestones{--forest:#123b2d; --forest2:#184a36; --paper:#fffaf0; --muted:#526a59;
+      --sage:#dce5c8; --canvas:#edf0db; --copper:#b95231; --gold:#e9b36e;
+      --completed:#276a47; --active:#b64a28; --upcoming:#326782;
+      --shadow:#143e2f; --border:#113c2c;}
+#milestones *, #milestones *::before, #milestones *::after{box-sizing:border-box}
+#milestones a{color:inherit}
+#milestones button{font:inherit}
+#milestones .preview-brand{font-size:14px;font-weight:850;letter-spacing:-.045em}
+#milestones{position:relative;overflow:hidden;isolation:isolate;min-height:823px;background:
+      radial-gradient(ellipse 460px 340px at 50% 51%,rgba(231,154,79,.22) 0%,rgba(231,154,79,.08) 45%,transparent 85%),
+      radial-gradient(ellipse 930px 480px at 82% 10%,rgba(250,246,219,.94) 0%,transparent 70%),
+      linear-gradient(180deg,#f7f1d9 0%,#e8e8c9 25%,#d8e3c4 64%,#c0d4ad 100%)}
+#milestones .hills{position:absolute;left:0;bottom:0;width:100%;height:140px;pointer-events:none;z-index:-1}
+#milestones .grain{position:absolute;inset:0;pointer-events:none;opacity:.11;background-image:url("data:image/svg+xml,%3Csvg viewBox=%220 0 180 180%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22n%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%22.6%22 numOctaves=%222%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 opacity=%22.19%22 filter=%22url(%23n)%22/%3E%3C/svg%3E")}
+#milestones .inner{max-width:1250px;margin:auto;padding:47px 0 150px;position:relative}
+#milestones .head{display:flex;justify-content:space-between;align-items:end;gap:24px}
+#milestones .eyebrow{font-size:11px;font-weight:850;letter-spacing:.19em;color:#b14e2c;margin-bottom:14px}
+#milestones .head h2{font-size:42px;line-height:1.07;letter-spacing:-.053em;margin:0;font-weight:900}
+#milestones .head h2 em{color:#bd623e;font-style:normal}
+#milestones .intro{font-size:13px;color:#4e6855;line-height:1.7;margin:14px 0 0;max-width:650px}
+#milestones .counter{display:flex;align-items:center;gap:18px;margin-bottom:8px}
+#milestones .counter strong{font-size:62px;letter-spacing:-.08em;line-height:1}
+#milestones .counter strong span{font-size:21px;color:#77977b;letter-spacing:-.02em;margin-left:10px}
+#milestones .counter small{font-size:12px;line-height:1.65;color:#50715c;max-width:150px}
+#milestones .track{height:36px;margin:17px 0 4px;position:relative;display:flex;align-items:center}
+#milestones .track::before{content:"";height:4px;width:100%;background:#a2b195;position:absolute;top:17px;border-radius:10px}
+#milestones .track::after{content:"";height:4px;width:63%;position:absolute;top:17px;background:linear-gradient(90deg,#3e8761 0 48%,#d77a4a 48% 100%);border-radius:10px}
+#milestones .track-label{position:absolute;left:0;top:0;right:0;font-size:0;display:flex;justify-content:space-around}
+#milestones .track-label b{position:relative;z-index:1;width:21px;height:21px;margin-top:8px;background:#e8edd9;border:4px solid #426f56;transform:rotate(45deg);box-shadow:0 0 0 4px #ecf1df}
+#milestones .track-label b:nth-child(2){border-color:#c65b32;background:#ffcf9c}
+#milestones .track-label b:nth-child(3){border-color:#557c8b}
+#milestones .cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:21px;margin-top:9px}
+#milestones .card{--accent:#286b48;--accent2:#b8d8a1;--ink-on:#ecf9e5;position:relative;background:var(--paper);border:3px solid var(--border);border-radius:19px;min-width:0;min-height:350px;overflow:visible;box-shadow:8px 9px 0 var(--shadow);transition:transform .23s cubic-bezier(.2,.8,.2,1),box-shadow .23s cubic-bezier(.2,.8,.2,1);isolation:isolate}
+#milestones .card:is(:hover,:focus-within){transform:translate(-4px,-5px);box-shadow:12px 14px 0 var(--shadow)}
+#milestones .card.current{--accent:#b9512e;--accent2:#f3b26d;--ink-on:#fff8ee}
+#milestones .card.future{--accent:#2d637d;--accent2:#a4c9d7;--ink-on:#eaf9ff}
+#milestones .card::before{content:"";position:absolute;inset:0;background:#fff8ed;border-radius:16px;z-index:-1}
+#milestones .head-art{position:relative;height:112px;border-radius:16px 16px 0 0;overflow:hidden;background:var(--accent);color:#fff8e9}
+#milestones .head-art::after{content:"";position:absolute;width:230px;height:130px;border-radius:50% 0 0 50%;right:-40px;bottom:-75px;background:var(--accent2);opacity:.96;transform:rotate(-17deg)}
+#milestones .tag{position:absolute;top:18px;left:19px;z-index:3;display:flex;gap:8px;align-items:center;font-size:10px;font-weight:900;letter-spacing:.065em}
+#milestones .tag svg{width:18px;height:18px;stroke-width:2.3}
+#milestones .stage-num{position:absolute;left:21px;bottom:8px;font-weight:950;font-size:63px;letter-spacing:-.12em;line-height:1;color:#ffffff}
+#milestones .stage-num span{color:var(--accent2);font-size:19px;letter-spacing:0;margin-left:2px}
+#milestones .illustration{position:absolute;right:7px;top:4px;width:125px;height:105px;z-index:2}
+#milestones .illustration *{vector-effect:non-scaling-stroke}
+#milestones .card-body{padding:22px 22px 17px;position:relative}
+#milestones .card-body::after{content:"";height:2px;background:var(--accent);width:42px;position:absolute;top:21px;right:24px;opacity:.65}
+#milestones .seq{display:inline-block;font-size:10px;color:var(--accent);font-weight:900;letter-spacing:.07em;margin-bottom:8px}
+#milestones .card-body h3{font-size:23px;line-height:1.17;letter-spacing:-.045em;font-weight:900;margin:0 0 11px;min-height:54px}
+#milestones .description{font-size:12px;line-height:1.66;color:#475e52;margin:0;min-height:60px}
+#milestones .description strong{color:#9c4928}
+#milestones .funding{margin-top:16px;display:flex;justify-content:space-between;align-items:center;border-top:2px dashed #d9d2bb;padding-top:14px}
+#milestones .funding-label{display:flex;flex-direction:column;gap:5px;max-width:150px}
+#milestones .funding-label span{font-size:11px;color:#5f735d;font-weight:650}
+#milestones .funding-label small{font-size:10px;color:#647569;line-height:1.4}
+#milestones .money{font-size:28px;font-weight:950;color:var(--accent);letter-spacing:-.065em;white-space:nowrap}
+#milestones .money small{font-size:17px}
+#milestones .status-ribbon{position:absolute;top:-13px;right:18px;padding:7px 10px 7px 12px;background:#fef9e9;border:2px solid var(--forest);box-shadow:3px 4px 0 var(--forest);border-radius:5px;font-size:10px;letter-spacing:.025em;color:var(--accent);font-weight:900;z-index:5;transform:rotate(2deg)}
+#milestones .card.current .status-ribbon{background:#ffdeb3;transform:rotate(-2deg)}
+#milestones .card.future .status-ribbon{background:#e1edf1}
+#milestones .note{border-radius:17px;border:1px solid #d1d9b8;background:#fffbf1;box-shadow:0 5px 12px rgba(18,59,45,.07);padding:18px 20px;display:flex;gap:15px;align-items:center;justify-content:space-between;margin-top:25px}
+#milestones .note strong{display:block;font-size:16px;letter-spacing:-.035em;margin:5px 0}
+#milestones .note p{margin:0;font-size:11px;color:#66806b}
+#milestones .note .note-top{font-size:10px;letter-spacing:.13em;font-weight:850;color:#b8572d}
+#milestones .note a{text-decoration:none;display:flex;gap:10px;align-items:center;padding:14px 19px;border-radius:40px;color:#fffaf0;background:var(--forest);font-size:12px;font-weight:800;white-space:nowrap}
+#milestones .note a:hover{background:#28644b}
+#milestones .note a:focus-visible{outline:3px solid #ed9b40;outline-offset:4px}
+@media (prefers-reduced-motion:reduce){#milestones .card{transition:none}
+#milestones .card:is(:hover,:focus-within){transform:none}}
+@media (max-width:1280px){#milestones .inner{padding-left:28px;padding-right:28px}
+#milestones .cards{gap:16px}
+#milestones .card-body{padding:20px 17px 16px}
+#milestones .money{font-size:24px}}
+@media (max-width:920px){#milestones .head{align-items:flex-start}
+#milestones .counter{margin-top:25px}
+#milestones .cards{grid-template-columns:1fr;max-width:640px;margin:12px auto}
+#milestones .card{min-height:unset}
+#milestones .card-body{padding:24px}
+#milestones .description{min-height:auto}
+#milestones .track{display:none}
+#milestones{min-height:0}
+#milestones .inner{padding-bottom:120px}
+#milestones .counter strong{font-size:44px}
+#milestones .head h2{font-size:36px}
+#milestones .note{flex-wrap:wrap}}
+@media (max-width:520px){#milestones .head{display:block}
+#milestones .counter{margin-top:20px}
+#milestones .card-body{padding:19px}
+#milestones .money{font-size:24px}
+#milestones .head h2{font-size:31px}}
+#milestones .landscape-atmosphere{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:-1}
+#milestones .hills{height:186px;bottom:-1px;z-index:-1}
+#milestones .grain{opacity:.13;z-index:-1}

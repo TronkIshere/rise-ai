@@ -1,0 +1,43 @@
+/* 04 — CAMPAIGN DISCOVERY.
+   Main A+C 37.5/62.5; compact A+C top 38/62 with full-width funding lower band.
+   Demo figures and funding semantics remain unmodified. */
+.campaigns-section{isolation:isolate;overflow:hidden;background:linear-gradient(150deg,#f7f5e5 0%,#edf3dc 45%,#f6f0dc 100%)}
+.campaigns-section::before{content:"";position:absolute;z-index:-1;bottom:-30px;left:0;right:0;height:265px;background:url('../assets/soft-hills.svg') center bottom/100% 100% no-repeat;opacity:.45;pointer-events:none}
+.campaigns-section::after{content:"";position:absolute;right:-45px;top:140px;width:180px;height:350px;background:url('../assets/botanical-edge.svg') center/contain no-repeat;opacity:.18;transform:rotate(172deg);pointer-events:none}
+.campaign-layout{align-items:stretch}
+.campaign-card{border:1px solid #fff7df99;border-radius:20px;box-shadow:0 20px 40px #24472e22}
+.campaign-main-media img{filter:saturate(1.07) contrast(1.06)}
+.campaign-main-media:after{background:linear-gradient(180deg,#031e1d00 30%,#052e237a 100%)}
+.campaign-main-body{position:relative;overflow:hidden;background:linear-gradient(140deg,#11543b,#073b2b 66%,#0a3a2b)}
+.campaign-main-body::before{content:"";position:absolute;pointer-events:none;right:-85px;top:-45px;width:260px;height:260px;border:1px solid #ddc48d24;border-radius:50%;box-shadow:0 0 0 45px #a5aa4b10,0 0 0 95px #b6b86b09}
+.campaign-main-body>*{position:relative;z-index:1}
+.campaign-main-body .tag-border{color:#f7eaca}
+.campaign-keyfacts{border-color:#cddfba36}
+.funding-panel{border:1px solid #f8e4bb44;background:#ecf3d915;border-radius:13px}
+.progress-bar{height:9px;background:#f3ecd245;overflow:hidden}
+.progress-bar>span{background:linear-gradient(90deg,#f7aa5d,#ffce87)}
+.compact-card{background:#fffaf0}
+.compact-media img{filter:saturate(1.02)}
+.compact-copy{background:linear-gradient(135deg,#fffcf4,#faf1e2)}
+.compact-funding{background:#f8f1df}
+.compact-bar>span{background:linear-gradient(90deg,#cb7b44,#dfa866)}
+@media(min-width:1101px){
+ .campaigns-section{padding:63px 0 76px}
+ .campaign-head{margin-bottom:23px}
+ .campaign-layout{grid-template-columns:1.24fr 1fr;gap:18px}
+ .campaign-main{min-height:450px;grid-template-columns:37.5% 62.5%}
+ .campaign-main-body{padding:24px 23px 20px}
+ .campaign-main h3{font-size:34px;line-height:1.07;margin:14px 0 9px}
+ .campaign-para{font-size:12px;line-height:1.55;margin-bottom:10px}
+ .campaign-keyfacts{padding:10px 0 12px}
+ .campaign-keyfacts dd{line-height:1.4}
+ .funding-panel{margin-top:auto;padding:11px 12px 10px}
+ .funding-values strong{font-size:21px}
+ .campaign-compacts{gap:12px}
+ .compact-top{height:151px;min-height:151px}
+ .compact-funding{height:67px;min-height:67px;padding:8px 15px}
+ .compact-copy h3{font-size:17px;line-height:1.24}
+ .compact-copy p{font-size:11px;line-height:1.4}
+ .compact-legal{font-size:9px;line-height:1.2}
+ .campaign-end{margin-top:15px}
+}
