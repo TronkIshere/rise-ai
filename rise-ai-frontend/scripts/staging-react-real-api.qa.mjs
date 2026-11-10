@@ -126,9 +126,14 @@ try {
       const url = new URL(r.url());
       return url.searchParams.get('status') === 'ACTIVE' && !url.searchParams.has('category');
     }, { timeout: 30000 }),
-    page.locator('#clear-filter').click(),
+    (async () => {
+      await page.locator('#clear-filter').click();
+      // React Query may reuse fresh cached unfiltered data; force a reload
+      // to prove the restored state also works through real HTTP.
+      await page.reload({ waitUntil: 'networkidle' });
+    })(),
   ]);
-  check('Clear filter re-queries unfiltered live Backend', resetResponse.status() === 200);
+  check('Clear filter and reload re-query unfiltered live Backend', resetResponse.status() === 200);
   await page.waitForFunction(expected => document.querySelectorAll('#campaigns .campaign-card').length === expected,
     rows.length, { timeout: 30000 });
   check('Unfiltered campaign list restored', (await page.locator('#campaigns .campaign-card').count()) === rows.length);
