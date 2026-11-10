@@ -35,5 +35,7 @@ public interface DisbursementRepository extends JpaRepository<DisbursementReques
 
     Page<DisbursementRequest> findByCampaignId(UUID campaignId, Pageable pageable);
 
+    List<DisbursementRequest> findByCampaignIdOrderByCreatedAtAsc(UUID campaignId);
+
     Page<DisbursementRequest> findByRequestStatus(DisbursementStatus status, Pageable pageable);
 }

@@ -24,6 +24,7 @@ import com.riseai.repository.OrganizationRepository;
 import com.riseai.repository.UserRepository;
 import com.riseai.security.AuthUser;
 import com.riseai.service.CampaignService;
+import com.riseai.service.ChainEscrowRecorder;
 import com.riseai.service.DisbursementService;
 import com.riseai.service.DisputeService;
 import com.riseai.service.DonationService;
@@ -93,6 +94,7 @@ public class DemoDataSeeder implements ApplicationRunner {
     private final DisbursementService disbursementService;
     private final DisputeService disputeService;
     private final RefundService refundService;
+    private final ChainEscrowRecorder chainEscrow;
     private final TransactionTemplate transactionTemplate;
     private final RiseProperties properties;
 
@@ -198,6 +200,10 @@ public class DemoDataSeeder implements ApplicationRunner {
         disbursementService.startReview(admin, r1);
         disbursementService.approve(admin, r1, "Evidence accepted and amount within the milestone budget");
         disbursementService.release(admin, r1);
+        if (chainEscrow.releaseRequiresChain()) {
+            // On-chain, the release lands only after the objection window, so milestone 1 stays open and milestone 2 cannot start yet.
+            return;
+        }
         milestoneService.complete(admin, m1, "Delivery confirmed in simulated review");
         milestoneService.start(creator, m2);
         evidence(creator, m2, EvidenceType.PROGRESS_REPORT, "Furniture quotation and room layout", "sim://evidence/edu-m2-quotation.pdf");

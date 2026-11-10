@@ -91,6 +91,15 @@ class AvalancheEscrowEngineIntegrationTest extends AbstractMySqlIntegrationTest 
                 respond(exchange, 200, body);
                 return;
             }
+            if ("config".equals(path[4])) {
+                respond(exchange, 200, "{\"environment\":\"AVALANCHE_FUJI\",\"chainId\":43113,\"escrow\":\"0xe5\",\"token\":\"0x70\",\"tokenKind\":\"RISE_VND\","
+                        + "\"anchor\":\"0xa1\",\"contractVersion\":\"1\",\"paused\":false}");
+                return;
+            }
+            if ("campaigns".equals(path[4]) && "GET".equals(exchange.getRequestMethod())) {
+                respond(exchange, 200, "{\"status\":\"QUEUED\",\"releaseAt\":1900000000}");
+                return;
+            }
             if ("transactions".equals(path[4]) && REVERTED_KEYS.contains(path[5])) {
                 respond(exchange, 200, "{\"state\":\"REVERTED\",\"txHash\":\"0xabc\"}");
                 return;
@@ -419,6 +428,53 @@ class AvalancheEscrowEngineIntegrationTest extends AbstractMySqlIntegrationTest 
         anchorRelay.anchorOnce();
         assertThat(ANCHORS.get("AUDIT")).hasSize(2);
         assertThat(ANCHORS.get("AUDIT").get(1)[0]).isEqualTo(report("AUDIT").recomputedRoot());
+    }
+
+    private com.riseai.dto.response.CampaignChainResponse.Disbursement chainView(ActiveCampaign campaign, UUID request) {
+        return transparencyService.campaignChain(null, campaign.id()).disbursements().stream()
+                .filter(d -> d.disbursementId().equals(request)).findFirst().orElseThrow();
+    }
+
+    @Test
+    void theChainViewFollowsAReleaseThroughTheObjectionWindow() {
+        ActiveCampaign campaign = funded(3_000_000);
+        UUID request = approved(campaign);
+        drain();
+        assertThat(transparencyService.campaignChain(null, campaign.id()).openStatus()).isEqualTo("CONFIRMED");
+        assertThat(chainView(campaign, request).chainStatus()).isEqualTo("RESERVED_ON_CHAIN");
+
+        REVERT_ACTIONS.put("execute-release", "window");
+        disbursementService.release(admin, request);
+        for (int i = 0; i < 4; i++) {
+            relay.relayOnce();
+        }
+        com.riseai.dto.response.CampaignChainResponse.Disbursement waiting = chainView(campaign, request);
+        assertThat(waiting.chainStatus()).isEqualTo("IN_OBJECTION_WINDOW");
+        assertThat(waiting.releaseAt()).isEqualTo(java.time.Instant.ofEpochSecond(1_900_000_000L));
+        assertThat(waiting.queueTxHash()).isEqualTo("0xabc");
+        assertThat(waiting.releaseTxHash()).isNull();
+
+        REVERT_ACTIONS.clear();
+        drain();
+        com.riseai.dto.response.CampaignChainResponse.Disbursement released = chainView(campaign, request);
+        assertThat(released.chainStatus()).isEqualTo("RELEASED_ON_CHAIN");
+        assertThat(released.requestStatus()).isEqualTo(DisbursementStatus.RELEASED);
+        assertThat(released.releaseTxHash()).isEqualTo("0xabc");
+        assertThat(transparencyService.campaignChain(null, campaign.id()).transactions())
+                .allSatisfy(tx -> assertThat(tx.explorerUrl()).isEqualTo(tx.txHash() == null ? null : "https://testnet.snowtrace.io/tx/" + tx.txHash()));
+    }
+
+    @Test
+    void theChainConfigNamesTheNetworkContractsAndExplorer() {
+        com.riseai.dto.response.ChainConfigResponse config = transparencyService.chainConfig();
+        assertThat(config.onChain()).isTrue();
+        assertThat(config.available()).isTrue();
+        assertThat(config.network()).isEqualTo("AVALANCHE_FUJI");
+        assertThat(config.chainId()).isEqualTo(43113L);
+        assertThat(config.escrowContract()).isEqualTo("0xe5");
+        assertThat(config.anchorContract()).isEqualTo("0xa1");
+        assertThat(config.beneficiaryAddress()).isEqualTo(BENEFICIARY);
+        assertThat(config.explorerAddressUrl()).isEqualTo("https://testnet.snowtrace.io/address/");
     }
 
     @Test

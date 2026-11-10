@@ -270,6 +270,39 @@
         "required" : [ "amount", "item" ],
         "type" : "object"
       },
+      "CampaignChainResponse" : {
+        "properties" : {
+          "campaignId" : {
+            "format" : "uuid",
+            "type" : "string"
+          },
+          "chainCampaignId" : {
+            "type" : "string"
+          },
+          "disbursements" : {
+            "items" : {
+              "$ref" : "#/components/schemas/Disbursement"
+            },
+            "type" : "array"
+          },
+          "explorerTxUrl" : {
+            "type" : "string"
+          },
+          "onChain" : {
+            "type" : "boolean"
+          },
+          "openStatus" : {
+            "type" : "string"
+          },
+          "transactions" : {
+            "items" : {
+              "$ref" : "#/components/schemas/Transaction"
+            },
+            "type" : "array"
+          }
+        },
+        "type" : "object"
+      },
       "CampaignRequest" : {
         "properties" : {
           "beneficiaryCount" : {
@@ -546,6 +579,51 @@
         },
         "type" : "object"
       },
+      "ChainConfigResponse" : {
+        "properties" : {
+          "anchorContract" : {
+            "type" : "string"
+          },
+          "available" : {
+            "type" : "boolean"
+          },
+          "beneficiaryAddress" : {
+            "type" : "string"
+          },
+          "chainId" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "contractVersion" : {
+            "type" : "string"
+          },
+          "escrowContract" : {
+            "type" : "string"
+          },
+          "explorerAddressUrl" : {
+            "type" : "string"
+          },
+          "explorerTxUrl" : {
+            "type" : "string"
+          },
+          "network" : {
+            "type" : "string"
+          },
+          "onChain" : {
+            "type" : "boolean"
+          },
+          "paused" : {
+            "type" : "boolean"
+          },
+          "tokenContract" : {
+            "type" : "string"
+          },
+          "tokenKind" : {
+            "type" : "string"
+          }
+        },
+        "type" : "object"
+      },
       "ConfirmDonationRequest" : {
         "properties" : {
           "simulatedReference" : {
@@ -634,6 +712,38 @@
           }
         },
         "required" : [ "amount", "reason" ],
+        "type" : "object"
+      },
+      "Disbursement" : {
+        "properties" : {
+          "chainStatus" : {
+            "type" : "string"
+          },
+          "disbursementId" : {
+            "format" : "uuid",
+            "type" : "string"
+          },
+          "queueTxHash" : {
+            "type" : "string"
+          },
+          "releaseAt" : {
+            "format" : "date-time",
+            "type" : "string"
+          },
+          "releaseTxHash" : {
+            "type" : "string"
+          },
+          "requestCode" : {
+            "type" : "string"
+          },
+          "requestStatus" : {
+            "enum" : [ "SUBMITTED", "UNDER_REVIEW", "NEEDS_MORE_EVIDENCE", "APPROVED", "REJECTED", "RELEASED", "CANCELLED", "DISPUTED" ],
+            "type" : "string"
+          },
+          "reserveTxHash" : {
+            "type" : "string"
+          }
+        },
         "type" : "object"
       },
       "DisbursementResponse" : {
@@ -2361,6 +2471,21 @@
         },
         "type" : "object"
       },
+      "ResponseAPICampaignChainResponse" : {
+        "properties" : {
+          "code" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "data" : {
+            "$ref" : "#/components/schemas/CampaignChainResponse"
+          },
+          "message" : {
+            "type" : "string"
+          }
+        },
+        "type" : "object"
+      },
       "ResponseAPICampaignResponse" : {
         "properties" : {
           "code" : {
@@ -2384,6 +2509,21 @@
           },
           "data" : {
             "$ref" : "#/components/schemas/CampaignStatistics"
+          },
+          "message" : {
+            "type" : "string"
+          }
+        },
+        "type" : "object"
+      },
+      "ResponseAPIChainConfigResponse" : {
+        "properties" : {
+          "code" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "data" : {
+            "$ref" : "#/components/schemas/ChainConfigResponse"
           },
           "message" : {
             "type" : "string"
@@ -3257,6 +3397,31 @@
           },
           "user" : {
             "$ref" : "#/components/schemas/UserResponse"
+          }
+        },
+        "type" : "object"
+      },
+      "Transaction" : {
+        "properties" : {
+          "action" : {
+            "type" : "string"
+          },
+          "explorerUrl" : {
+            "type" : "string"
+          },
+          "recordedAt" : {
+            "format" : "date-time",
+            "type" : "string"
+          },
+          "referenceId" : {
+            "format" : "uuid",
+            "type" : "string"
+          },
+          "status" : {
+            "type" : "string"
+          },
+          "txHash" : {
+            "type" : "string"
           }
         },
         "type" : "object"
@@ -7465,6 +7630,53 @@
           }
         },
         "summary" : "Compare the stored ledger, audit log and monitoring occurrences with their on-chain anchors",
+        "tags" : [ "Transparency (on-chain anchors)" ]
+      }
+    },
+    "/api/v1/transparency/campaigns/{campaignId}" : {
+      "get" : {
+        "operationId" : "campaign",
+        "parameters" : [ {
+          "in" : "path",
+          "name" : "campaignId",
+          "required" : true,
+          "schema" : {
+            "format" : "uuid",
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ResponseAPICampaignChainResponse"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "A campaign's on-chain transactions and the chain status of each disbursement request",
+        "tags" : [ "Transparency (on-chain anchors)" ]
+      }
+    },
+    "/api/v1/transparency/chain" : {
+      "get" : {
+        "operationId" : "chain",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ResponseAPIChainConfigResponse"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "The chain, contract addresses and explorer the escrow mirror uses (onChain=false with the simulated engine)",
         "tags" : [ "Transparency (on-chain anchors)" ]
       }
     },

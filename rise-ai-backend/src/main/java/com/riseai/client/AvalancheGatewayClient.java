@@ -80,9 +80,34 @@ public class AvalancheGatewayClient {
 
     /** The latest on-chain anchor of a kind. Throws when the gateway cannot answer, which callers report as unavailable. */
     public LatestAnchor latestAnchor(String kind) {
+        JsonNode json = getJson(BASE + "/anchors/" + kind + "/latest");
+        return new LatestAnchor(json.path("anchorContract").asText(null), json.path("count").asLong(0), json.hasNonNull("root") ? json.get("root").asText() : null,
+                json.hasNonNull("recordCount") ? json.get("recordCount").asLong() : null, json.hasNonNull("anchoredAt") ? json.get("anchoredAt").asLong() : null);
+    }
+
+    public record DeploymentInfo(String environment, long chainId, String escrow, String token, String tokenKind, String anchor,
+                                 String contractVersion, boolean paused) {
+    }
+
+    /** The verified deployment the gateway runs against. Throws when the gateway cannot answer. */
+    public DeploymentInfo deployment() {
+        JsonNode json = getJson(BASE + "/config");
+        return new DeploymentInfo(json.path("environment").asText(null), json.path("chainId").asLong(0), json.path("escrow").asText(null),
+                json.path("token").asText(null), json.path("tokenKind").asText(null), json.path("anchor").asText(null),
+                json.path("contractVersion").asText(null), json.path("paused").asBoolean(false));
+    }
+
+    /** When a queued release may execute on-chain, in epoch seconds, or null when the chain has no queued release for it. Throws when unreachable. */
+    public Long releaseAt(String campaignBytes32, String requestBytes32) {
+        JsonNode json = getJson(BASE + "/campaigns/" + campaignBytes32 + "/reservations/" + requestBytes32);
+        long releaseAt = json.path("releaseAt").asLong(0);
+        return releaseAt > 0 ? releaseAt : null;
+    }
+
+    private JsonNode getJson(String path) {
         HttpResponse<String> response;
         try {
-            response = httpClient.send(builder(BASE + "/anchors/" + kind + "/latest").GET().build(), HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
+            response = httpClient.send(builder(path).GET().build(), HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
         } catch (IOException ex) {
             throw new IllegalStateException("Gateway unreachable", ex);
         } catch (InterruptedException ex) {
@@ -93,9 +118,7 @@ public class AvalancheGatewayClient {
             throw new IllegalStateException("Gateway answered HTTP " + response.statusCode());
         }
         try {
-            JsonNode json = objectMapper.readTree(response.body());
-            return new LatestAnchor(json.path("anchorContract").asText(null), json.path("count").asLong(0), json.hasNonNull("root") ? json.get("root").asText() : null,
-                    json.hasNonNull("recordCount") ? json.get("recordCount").asLong() : null, json.hasNonNull("anchoredAt") ? json.get("anchoredAt").asLong() : null);
+            return objectMapper.readTree(response.body());
         } catch (IOException ex) {
             throw new IllegalStateException("Gateway returned a non-JSON body", ex);
         }

@@ -13,6 +13,9 @@ public interface ChainCommandRepository extends JpaRepository<ChainCommand, UUID
     @Query(value = "select id from chain_commands where status in ('PENDING', 'SUBMITTED') order by seq limit :limit", nativeQuery = true)
     List<String> findOpenIdsInOrder(int limit);
 
+    @Query(value = "select * from chain_commands where campaign_id = :campaignId order by seq", nativeQuery = true)
+    List<ChainCommand> findByCampaignInOrder(String campaignId);
+
     boolean existsByReferenceIdAndActionInAndStatusIn(UUID referenceId, Collection<String> actions, Collection<ChainCommandStatus> statuses);
 
     long deleteByReferenceIdAndActionAndStatus(UUID referenceId, String action, ChainCommandStatus status);
