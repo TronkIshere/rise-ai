@@ -1,0 +1,22 @@
+CREATE TABLE chain_commands (
+    id CHAR(36) NOT NULL,
+    seq BIGINT NOT NULL AUTO_INCREMENT,
+    campaign_id CHAR(36) NOT NULL,
+    action VARCHAR(40) NOT NULL,
+    payload VARCHAR(12000) NOT NULL,
+    status VARCHAR(12) NOT NULL,
+    attempt INT NOT NULL DEFAULT 0,
+    next_attempt_at DATETIME(6) NOT NULL,
+    tx_hash VARCHAR(66) NULL,
+    last_error VARCHAR(500) NULL,
+    reference_id CHAR(36) NULL,
+    actor_id CHAR(36) NULL,
+    version BIGINT NOT NULL DEFAULT 0,
+    created_at DATETIME(6) NOT NULL,
+    updated_at DATETIME(6) NOT NULL,
+    PRIMARY KEY (id),
+    UNIQUE KEY uk_chain_commands_seq (seq),
+    CONSTRAINT ck_chain_commands_status CHECK (status IN ('PENDING', 'SUBMITTED', 'CONFIRMED', 'FAILED', 'CANCELLED')),
+    INDEX idx_chain_commands_open (status, seq),
+    INDEX idx_chain_commands_reference (reference_id, action)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

@@ -54,6 +54,12 @@ rise:
   escrow:
     currency: VND
     dispute-auto-hold: true
+    engine: ${RISE_ESCROW_ENGINE:simulated}
+  avalanche:
+    gateway-url: ${RISE_AVALANCHE_GATEWAY_URL:http://localhost:8082}
+    internal-api-key: ${RISE_AVALANCHE_INTERNAL_API_KEY:}
+    beneficiary-address: ${RISE_AVALANCHE_BENEFICIARY_ADDRESS:}
+    release-delay: ${RISE_AVALANCHE_RELEASE_DELAY:PT24H}
   simulation:
     donation-confirmation-enabled: true
   seed:

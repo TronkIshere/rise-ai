@@ -1,0 +1,17 @@
+{
+  "admin": "0xB62CA2602De72DC1edf5f6A7B614ba6376E14889",
+  "anchor": "0xc89c4de6b0fd19db8ff236A55eeD84e9ea17B0b5",
+  "anchorer": "0x5F90Fbe1b75C99000d504e2Cb44D7dacE4ae8444",
+  "approver": "0xdFae3BB55D4aEF68b645964806Ab1dCc6366553F",
+  "chainId": 43113,
+  "contractVersion": "1",
+  "environment": "AVALANCHE_FUJI",
+  "escrow": "0xBfD3BcEc6A23b5107c7AEb13F601c4B39719652A",
+  "minReleaseDelay": 60,
+  "operator": "0x5F90Fbe1b75C99000d504e2Cb44D7dacE4ae8444",
+  "schemaVersion": 2,
+  "startBlock": 60813204,
+  "token": "0x1e5F693e787AB7556846fE6A41545F5D6CBd2980",
+  "tokenKind": "RISE_VND",
+  "treasury": "0xB62CA2602De72DC1edf5f6A7B614ba6376E14889"
+}

@@ -20,6 +20,7 @@ import com.riseai.repository.MilestoneRepository;
 import com.riseai.security.AuthUser;
 import com.riseai.service.AuditService;
 import com.riseai.service.CampaignService;
+import com.riseai.service.ChainEscrowRecorder;
 import com.riseai.service.DomainEventPublisher;
 import com.riseai.service.EvidenceService;
 import com.riseai.service.MilestoneService;
@@ -51,6 +52,7 @@ public class EvidenceServiceImpl implements EvidenceService {
     private final MilestoneService milestoneService;
     private final AuditService auditService;
     private final DomainEventPublisher domainEvents;
+    private final ChainEscrowRecorder chainEscrow;
 
     @Transactional
     @Override
@@ -95,6 +97,7 @@ public class EvidenceServiceImpl implements EvidenceService {
         }
         auditService.transition(actor.id(), "MILESTONE_EVIDENCE_SUBMITTED", ENTITY, evidence.getId(), null, EvidenceStatus.SUBMITTED, request.title());
         domainEvents.publish(RiseEvents.evidenceSubmitted(evidence, actor));
+        chainEscrow.evidenceSubmitted(evidence);
         milestoneService.refreshStatus(milestone, actor.id(), "Evidence submitted");
         return EvidenceResponse.from(evidence);
     }
@@ -116,6 +119,7 @@ public class EvidenceServiceImpl implements EvidenceService {
         evidence.setReviewNote(note);
         auditService.transition(actor.id(), accept ? "EVIDENCE_ACCEPTED" : "EVIDENCE_REJECTED", ENTITY, id, EvidenceStatus.SUBMITTED, target, note);
         domainEvents.publish(RiseEvents.evidenceReviewed(evidence, accept, actor));
+        chainEscrow.evidenceReviewed(evidence, accept);
         Milestone milestone = milestoneRepository.findByIdForUpdate(evidence.getMilestoneId()).orElseThrow(() -> ApplicationException.notFound("Milestone"));
         milestoneService.refreshStatus(milestone, actor.id(), "Evidence reviewed");
         return EvidenceResponse.from(evidence);
