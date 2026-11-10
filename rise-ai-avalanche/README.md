@@ -98,6 +98,23 @@ A campaign of 30,000,000 VND in two milestones ran through the real backend (`RI
 
 Read back from the chain afterwards: the beneficiary holds 15,000,000.00 rVND; the escrow holds 10,000,000.00; `totalHeld` equals the escrow balance; and the campaign shows confirmed 25,000,000, available 10,000,000, disbursed 15,000,000. The backend moved the request to RELEASED only after the execute transaction was confirmed, about two minutes after the admin's click.
 
+### Fuji dispute run (2026-11-10)
+
+A donor opened a misuse-of-funds dispute while a 10,000,000 VND release sat in its objection window.
+
+1. After the window ended, `execute-release` was sent straight to the gateway, bypassing the backend. The contract refused it with `MilestoneDisputed()`: [0x203f…f768](https://testnet.snowtrace.io/tx/0x203fdba9829485ee7cff9dbbab2a171b217093b4fbb115fb8b9ec2e731c4f768) (receipt status failed).
+2. The reservation stayed QUEUED, the beneficiary balance did not change, and the backend kept the request DISPUTED.
+3. Once the admin dismissed the dispute, the backend sent [close-dispute](https://testnet.snowtrace.io/tx/0x4fbbc83091c1347052aa5cf6d7b391a1c150237a237cc8544d14a6860ef9f6c6).
+4. The release then [executed](https://testnet.snowtrace.io/tx/0x267ebbf513e320ddc1016e71bb44d46a4dd6ececf6137a4e6bae339088e1fe1f), and the request became RELEASED.
+
+### Fuji anchoring run (2026-11-10)
+
+The escrow ledger (23 rows) and the audit log (185 rows) were anchored on RiseAnchor:
+- [ledger](https://testnet.snowtrace.io/tx/0xc5fffecc07e535720abf031480eadc8419a27fe15c9878147417c4e1319f6a88);
+- [audit log](https://testnet.snowtrace.io/tx/0x521a1aa639131e4c3ad9447498a185b906c6439961bf6a33cbf51b6873fd0225).
+
+`GET /api/v1/transparency/anchors` then reported both as CONSISTENT, with the recomputed root equal to the on-chain root.
+
 ## Reusable as is
 
 Chain client with RPC pacing, nonce allocation, transaction tracking through its full state set, log scanning with a cursor, deployment manifest verification, environment guards, and the internal API key filter. None of these depend on the freelance domain.
