@@ -1,5 +1,6 @@
 package com.riseai.configuration;
 
+import com.riseai.service.impl.ChainAnchorRelay;
 import com.riseai.service.impl.ChainCommandRelay;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -13,9 +14,15 @@ import org.springframework.scheduling.annotation.Scheduled;
 @RequiredArgsConstructor
 public class ChainCommandScheduler {
     private final ChainCommandRelay relay;
+    private final ChainAnchorRelay anchors;
 
     @Scheduled(fixedDelayString = "${rise.avalanche.relay-interval:PT2S}", initialDelayString = "${rise.avalanche.relay-initial-delay:PT10S}")
     public void relay() {
         relay.relayOnce();
+    }
+
+    @Scheduled(fixedDelayString = "${rise.avalanche.anchor-interval:PT5M}", initialDelayString = "${rise.avalanche.anchor-initial-delay:PT1M}")
+    public void anchor() {
+        anchors.anchorOnce();
     }
 }

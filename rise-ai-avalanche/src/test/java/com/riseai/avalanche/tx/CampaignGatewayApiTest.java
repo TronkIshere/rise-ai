@@ -85,7 +85,11 @@ class CampaignGatewayApiTest {
     }
 
     private void grant(String role, SignerRole signer) {
-        ContractFixtures.sendFromAdmin(LocalStack.anvilUrl(), STACK.escrow(), FunctionEncoder.encode(new Function("grantRole", List.of(
+        grant(STACK.escrow(), role, signer);
+    }
+
+    private void grant(String contract, String role, SignerRole signer) {
+        ContractFixtures.sendFromAdmin(LocalStack.anvilUrl(), contract, FunctionEncoder.encode(new Function("grantRole", List.of(
                 new Bytes32(Numeric.hexStringToByteArray(Hash.sha3String(role))), new Address(registry.get(signer).address())), List.of())));
     }
 
@@ -98,6 +102,7 @@ class CampaignGatewayApiTest {
         }
         grant("OPERATOR_ROLE", SignerRole.OPERATOR);
         grant("APPROVER_ROLE", SignerRole.APPROVER);
+        grant(STACK.anchor(), "ANCHORER_ROLE", SignerRole.ANCHORER);
         prepared = true;
     }
 
@@ -272,6 +277,32 @@ class CampaignGatewayApiTest {
         assertEquals(first.get("txHash"), second.get("txHash"));
         assertEquals(first.get("nonce"), second.get("nonce"));
         exchange(HttpMethod.POST, actionPath(campaign, "open"), KEY, body.replace("\"target\":\"5\"", "\"target\":\"6\"").replace("[\"5\"]", "[\"6\"]"), 409);
+    }
+
+    private String anchor(String kind, String root, String previous, long count) throws InterruptedException {
+        String key = "op-" + UUID.randomUUID();
+        exchange(HttpMethod.POST, "/api/v1/avalanche/anchors/" + kind + "/execute", KEY,
+                "{\"operationKey\":\"" + key + "\",\"root\":\"" + root + "\",\"previousRoot\":\"" + previous + "\",\"recordCount\":" + count + "}", 200);
+        return await(key);
+    }
+
+    @Test
+    void anchorsChainOnTheirPreviousRootAndCannotBeForked() throws Exception {
+        prepareChain();
+        String zero = "0x" + "0".repeat(64);
+        assertEquals(0, ((Number) get("/anchors/FINDINGS/latest").get("count")).intValue());
+        String first = fresh();
+        String second = fresh();
+        assertOk(anchor("FINDINGS", first, zero, 3));
+        assertEquals("REVERTED", anchor("FINDINGS", second, zero, 4), "a second anchor must name the first as its previous root");
+        assertEquals("REVERTED", anchor("FINDINGS", second, first, 2), "the record count can never shrink");
+        assertOk(anchor("FINDINGS", second, first, 4));
+        Map<String, Object> latest = get("/anchors/FINDINGS/latest");
+        assertEquals(2, ((Number) latest.get("count")).intValue());
+        assertEquals(second, latest.get("root"));
+        assertEquals(4, ((Number) latest.get("recordCount")).intValue());
+        assertEquals(STACK.anchor(), latest.get("anchorContract"));
+        exchange(HttpMethod.GET, "/api/v1/avalanche/anchors/WALLETS/latest", null, null, 400);
     }
 
     @Test

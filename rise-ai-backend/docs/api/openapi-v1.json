@@ -130,6 +130,41 @@
         },
         "type" : "object"
       },
+      "Anchor" : {
+        "properties" : {
+          "anchoredAt" : {
+            "format" : "date-time",
+            "type" : "string"
+          },
+          "anchoredRecordCount" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "anchoredRoot" : {
+            "type" : "string"
+          },
+          "currentRecordCount" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "explorerUrl" : {
+            "type" : "string"
+          },
+          "kind" : {
+            "type" : "string"
+          },
+          "recomputedRoot" : {
+            "type" : "string"
+          },
+          "status" : {
+            "type" : "string"
+          },
+          "txHash" : {
+            "type" : "string"
+          }
+        },
+        "type" : "object"
+      },
       "AssignDisputeRequest" : {
         "properties" : {
           "reviewerId" : {
@@ -2953,6 +2988,21 @@
         },
         "type" : "object"
       },
+      "ResponseAPITransparencyReport" : {
+        "properties" : {
+          "code" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "data" : {
+            "$ref" : "#/components/schemas/TransparencyReport"
+          },
+          "message" : {
+            "type" : "string"
+          }
+        },
+        "type" : "object"
+      },
       "ResponseAPIUserResponse" : {
         "properties" : {
           "code" : {
@@ -3207,6 +3257,23 @@
           },
           "user" : {
             "$ref" : "#/components/schemas/UserResponse"
+          }
+        },
+        "type" : "object"
+      },
+      "TransparencyReport" : {
+        "properties" : {
+          "anchorContract" : {
+            "type" : "string"
+          },
+          "anchors" : {
+            "items" : {
+              "$ref" : "#/components/schemas/Anchor"
+            },
+            "type" : "array"
+          },
+          "onChain" : {
+            "type" : "boolean"
           }
         },
         "type" : "object"
@@ -7380,6 +7447,25 @@
           }
         },
         "tags" : [ "Refunds (simulated)" ]
+      }
+    },
+    "/api/v1/transparency/anchors" : {
+      "get" : {
+        "operationId" : "anchors",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ResponseAPITransparencyReport"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Compare the stored ledger, audit log and monitoring occurrences with their on-chain anchors",
+        "tags" : [ "Transparency (on-chain anchors)" ]
       }
     },
     "/api/v1/users/me" : {

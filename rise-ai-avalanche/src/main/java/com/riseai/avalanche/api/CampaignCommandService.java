@@ -176,6 +176,35 @@ public class CampaignCommandService {
         return code;
     }
 
+    /** The anchored record sets. The contract hashes nothing; the name only selects which history a root belongs to. */
+    public static final List<String> ANCHOR_KINDS = List.of("LEDGER", "AUDIT", "FINDINGS");
+
+    public static String anchorKind(String kind) {
+        if (kind == null || !ANCHOR_KINDS.contains(kind)) {
+            throw new ApiException(400, "INVALID_ANCHOR_KIND", "kind must be one of " + ANCHOR_KINDS);
+        }
+        return org.web3j.crypto.Hash.sha3String(kind);
+    }
+
+    public TxRecord anchor(String kind, Dtos.AnchorRequest r) {
+        if (submission == null || registry == null) {
+            throw new ApiException(409, "SIGNER_UNAVAILABLE", "no backend signer exists in " + environment.environment());
+        }
+        String kindId = anchorKind(kind);
+        String root = requireId(r.root(), "root");
+        String previous = requireId(r.previousRoot(), "previousRoot");
+        long count = required(r.recordCount(), "recordCount");
+        if (count <= 0) {
+            throw new ApiException(400, "INVALID_REQUEST", "recordCount must be positive");
+        }
+        return submission.submit(new SubmitRequest(required(r.operationKey(), "operationKey"), SignerRole.ANCHORER, deployment().manifest().anchor(),
+                CampaignCalls.anchor(kindId, root, previous, count), GAS));
+    }
+
+    public CampaignReader.Anchor latestAnchor(String kind) {
+        return reader().latestAnchor(deployment().manifest().anchor(), anchorKind(kind));
+    }
+
     public Optional<TxRecord> transaction(String operationKey) {
         return repository.find(environment.environment().name(), environment.chainId(), operationKey);
     }

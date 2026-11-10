@@ -54,6 +54,22 @@ public class CampaignReader {
                 number(hex, 4).longValueExact());
     }
 
+    public record Anchor(long sequence, String root, long recordCount, long anchoredAt) {
+    }
+
+    /** The latest anchor of a kind on the RiseAnchor contract, or null when none exists yet. */
+    public Anchor latestAnchor(String anchorContract, String kind) {
+        long count = number(answer(anchorContract, CampaignCalls.anchorCount(kind)), 0).longValueExact();
+        if (count == 0) {
+            return null;
+        }
+        String hex = answer(anchorContract, CampaignCalls.anchorAt(kind, count - 1));
+        if (hex.length() != 3 * 64) {
+            throw new IllegalStateException("unexpected anchor answer length " + hex.length());
+        }
+        return new Anchor(count - 1, "0x" + word(hex, 0), number(hex, 1).longValueExact(), number(hex, 2).longValueExact());
+    }
+
     public boolean paused() {
         String selector = Numeric.toHexString(Hash.sha3("paused()".getBytes(StandardCharsets.UTF_8)), 0, 4, true);
         return number(answer(selector), 0).signum() != 0;
@@ -77,7 +93,11 @@ public class CampaignReader {
     }
 
     private String answer(String data) {
-        ChainClient.CallResult result = client.call(contract, data);
+        return answer(contract, data);
+    }
+
+    private String answer(String target, String data) {
+        ChainClient.CallResult result = client.call(target, data);
         if (result.reverted()) {
             throw new IllegalStateException("the escrow read reverted");
         }

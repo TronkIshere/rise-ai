@@ -34,7 +34,8 @@ public class SecurityConfig {
             "/actuator/health", "/actuator/health/**", "/actuator/info", "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html"
     };
     private static final String[] PUBLIC_READ_ENDPOINTS = {
-            "/api/v1/campaigns/**", "/api/v1/milestones/**", "/api/v1/disbursements/**", "/api/v1/evidence/**", "/api/v1/organizations/**"
+            "/api/v1/campaigns/**", "/api/v1/milestones/**", "/api/v1/disbursements/**", "/api/v1/evidence/**", "/api/v1/organizations/**",
+            "/api/v1/transparency/**"
     };
 
     private final JwtService jwtService;

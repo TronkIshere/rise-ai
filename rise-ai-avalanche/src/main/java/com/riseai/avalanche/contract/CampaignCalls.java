@@ -96,6 +96,18 @@ public final class CampaignCalls {
         return encode("recordAdjustment", b32(campaignId), b32(adjustmentId), new Bool(credit), new Uint256(amount));
     }
 
+    public static String anchor(String kind, String root, String previousRoot, long recordCount) {
+        return encode("anchor", b32(kind), b32(root), b32(previousRoot), new Uint64(recordCount));
+    }
+
+    public static String anchorCount(String kind) {
+        return encode("anchorCount", b32(kind));
+    }
+
+    public static String anchorAt(String kind, long sequence) {
+        return encode("anchorAt", b32(kind), new Uint256(BigInteger.valueOf(sequence)));
+    }
+
     public static String getCampaign(String campaignId) {
         return encode("getCampaign", b32(campaignId));
     }
