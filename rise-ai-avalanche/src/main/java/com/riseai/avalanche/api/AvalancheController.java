@@ -100,6 +100,20 @@ public class AvalancheController {
         return toResponse(service.execute(campaignId, action, request));
     }
 
+    @PostMapping("/anchors/{kind}/execute")
+    public TransactionResponse anchor(@PathVariable("kind") String kind, @RequestBody Dtos.AnchorRequest request) {
+        return toResponse(service.anchor(kind, request));
+    }
+
+    @GetMapping("/anchors/{kind}/latest")
+    public Dtos.AnchorResponse latestAnchor(@PathVariable("kind") String kind) {
+        CampaignReader.Anchor a = service.latestAnchor(kind);
+        String contract = service.deployment().manifest().anchor();
+        return a == null
+                ? new Dtos.AnchorResponse(envName(), true, chainId(), contract, kind, 0, null, null, null, null)
+                : new Dtos.AnchorResponse(envName(), true, chainId(), contract, kind, a.sequence() + 1, a.sequence(), a.root(), a.recordCount(), a.anchoredAt());
+    }
+
     @GetMapping("/transactions/{operationKey}")
     public TransactionResponse transaction(@PathVariable("operationKey") String operationKey) {
         return service.transaction(operationKey).map(this::toResponse)

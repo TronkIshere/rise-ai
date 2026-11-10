@@ -45,6 +45,10 @@ class AvalancheEscrowEngineIntegrationTest extends AbstractMySqlIntegrationTest 
     private static final Map<String, String> REVERT_ACTIONS = new ConcurrentHashMap<>();
     private static final Map<String, String> KEY_TO_ACTION = new ConcurrentHashMap<>();
     private static volatile boolean down;
+    private static final String ZERO = "0x" + "0".repeat(64);
+    private static final Map<String, List<String[]>> ANCHORS = new ConcurrentHashMap<>();
+    private static final List<JsonNode> ANCHOR_REQUESTS = new CopyOnWriteArrayList<>();
+    private static final Set<String> REVERTED_KEYS = ConcurrentHashMap.newKeySet();
 
     private record Sent(String campaign, String action, JsonNode body, String apiKey) {
     }
@@ -62,6 +66,35 @@ class AvalancheEscrowEngineIntegrationTest extends AbstractMySqlIntegrationTest 
                 return;
             }
             String[] path = exchange.getRequestURI().getPath().split("/");
+            if ("anchors".equals(path[4])) {
+                String kind = path[5];
+                List<String[]> history = ANCHORS.computeIfAbsent(kind, k -> new CopyOnWriteArrayList<>());
+                if ("POST".equals(exchange.getRequestMethod())) {
+                    JsonNode body = mapper.readTree(exchange.getRequestBody());
+                    String key = body.path("operationKey").asText();
+                    String expected = history.isEmpty() ? ZERO : history.get(history.size() - 1)[0];
+                    long lastCount = history.isEmpty() ? 0 : Long.parseLong(history.get(history.size() - 1)[1]);
+                    ANCHOR_REQUESTS.add(body);
+                    if (body.path("previousRoot").asText().equals(expected) && body.path("recordCount").asLong() >= lastCount) {
+                        history.add(new String[]{body.path("root").asText(), body.path("recordCount").asText()});
+                    } else {
+                        REVERTED_KEYS.add(key);
+                    }
+                    KEY_TO_ACTION.put(key, "anchor");
+                    respond(exchange, 200, "{\"state\":\"SUBMITTED\",\"txHash\":\"0xanchor\"}");
+                    return;
+                }
+                String body = history.isEmpty()
+                        ? "{\"anchorContract\":\"0xa1\",\"count\":0}"
+                        : "{\"anchorContract\":\"0xa1\",\"count\":" + history.size() + ",\"root\":\"" + history.get(history.size() - 1)[0]
+                        + "\",\"recordCount\":" + history.get(history.size() - 1)[1] + ",\"anchoredAt\":1700000000}";
+                respond(exchange, 200, body);
+                return;
+            }
+            if ("transactions".equals(path[4]) && REVERTED_KEYS.contains(path[5])) {
+                respond(exchange, 200, "{\"state\":\"REVERTED\",\"txHash\":\"0xabc\"}");
+                return;
+            }
             if ("POST".equals(exchange.getRequestMethod())) {
                 JsonNode body = mapper.readTree(exchange.getRequestBody());
                 SENT.add(new Sent(path[5], path[7], body, exchange.getRequestHeaders().getFirst("X-Internal-Api-Key")));
@@ -95,10 +128,16 @@ class AvalancheEscrowEngineIntegrationTest extends AbstractMySqlIntegrationTest 
         registry.add("rise.avalanche.retry-interval", () -> "PT0S");
         registry.add("rise.avalanche.relay-interval", () -> "PT1H");
         registry.add("rise.avalanche.relay-initial-delay", () -> "PT1H");
+        registry.add("rise.avalanche.anchor-initial-delay", () -> "PT1H");
+        registry.add("rise.avalanche.anchor-lag", () -> "PT0S");
     }
 
     @Autowired
     ChainCommandRelay relay;
+    @Autowired
+    com.riseai.service.impl.ChainAnchorRelay anchorRelay;
+    @Autowired
+    com.riseai.service.TransparencyService transparencyService;
     @Autowired
     EscrowLedgerRepository ledgerRepository;
 
@@ -109,6 +148,10 @@ class AvalancheEscrowEngineIntegrationTest extends AbstractMySqlIntegrationTest 
     @BeforeEach
     void setUp() {
         jdbcTemplate.update("delete from chain_commands");
+        jdbcTemplate.update("delete from chain_anchors");
+        ANCHORS.clear();
+        ANCHOR_REQUESTS.clear();
+        REVERTED_KEYS.clear();
         SENT.clear();
         REVERT_ACTIONS.clear();
         KEY_TO_ACTION.clear();
@@ -309,6 +352,73 @@ class AvalancheEscrowEngineIntegrationTest extends AbstractMySqlIntegrationTest 
         ActiveCampaign campaign = activeCampaign(creator, admin, 3_000_000);
         assertError(() -> requestFunds(creator, campaign.milestones().get(0), 1_000_000), com.riseai.exception.ErrorCode.INVALID_STATE_TRANSITION);
         assertThat(jdbcTemplate.queryForObject("select count(*) from chain_commands where action = 'reserve'", Integer.class)).isZero();
+    }
+
+    private com.riseai.dto.response.TransparencyReport.Anchor report(String kind) {
+        return transparencyService.anchors().anchors().stream().filter(a -> a.kind().equals(kind)).findFirst().orElseThrow();
+    }
+
+    @Test
+    void eachHistoryIsAnchoredAndVerifiesAgainstTheChain() {
+        activeCampaign(creator, admin, 3_000_000);
+        anchorRelay.anchorOnce();
+        anchorRelay.anchorOnce();
+
+        assertThat(ANCHOR_REQUESTS).extracting(n -> n.path("previousRoot").asText()).contains(ZERO);
+        var ledger = report("LEDGER");
+        var audit = report("AUDIT");
+        assertThat(ledger.status()).isEqualTo("CONSISTENT");
+        assertThat(audit.status()).isEqualTo("CONSISTENT");
+        assertThat(audit.recomputedRoot()).isEqualTo(audit.anchoredRoot()).startsWith("0x").hasSize(66);
+        assertThat(audit.anchoredRecordCount()).isEqualTo(audit.currentRecordCount());
+        assertThat(jdbcTemplate.queryForObject("select count(*) from chain_anchors where status = 'CONFIRMED'", Integer.class)).isGreaterThanOrEqualTo(2);
+    }
+
+    @Test
+    void theNextAnchorChainsOnThePreviousRootAndNothingNewMeansNoAnchor() {
+        activeCampaign(creator, admin, 3_000_000);
+        anchorRelay.anchorOnce();
+        anchorRelay.anchorOnce();
+        int requests = ANCHOR_REQUESTS.size();
+        anchorRelay.anchorOnce();
+        assertThat(ANCHOR_REQUESTS).as("no new records, no new anchor").hasSize(requests);
+
+        String firstAuditRoot = ANCHORS.get("AUDIT").get(0)[0];
+        user(Role.DONOR);
+        activeCampaign(creator, admin, 2_000_000);
+        anchorRelay.anchorOnce();
+        anchorRelay.anchorOnce();
+        assertThat(ANCHORS.get("AUDIT")).hasSize(2);
+        assertThat(ANCHOR_REQUESTS).anySatisfy(n -> assertThat(n.path("previousRoot").asText()).isEqualTo(firstAuditRoot));
+        assertThat(report("AUDIT").status()).isEqualTo("CONSISTENT");
+    }
+
+    @Test
+    void aBackdatedRecordInTheDatabaseIsDetected() {
+        activeCampaign(creator, admin, 3_000_000);
+        anchorRelay.anchorOnce();
+        anchorRelay.anchorOnce();
+        assertThat(report("AUDIT").status()).isEqualTo("CONSISTENT");
+
+        jdbcTemplate.update("insert into audit_logs (id, action, entity_type, created_at) values (?, 'FORGED_ENTRY', 'CAMPAIGN', '2000-01-01 00:00:00')",
+                UUID.randomUUID().toString());
+
+        assertThat(report("AUDIT").status()).isEqualTo("MISMATCH");
+    }
+
+    @Test
+    void aForkedAnchorIsRefusedAndTheNextPassStartsFromTheChain() {
+        activeCampaign(creator, admin, 3_000_000);
+        ANCHORS.put("AUDIT", new CopyOnWriteArrayList<>(List.<String[]>of(new String[]{"0x" + "ab".repeat(32), "1"})));
+        jdbcTemplate.update("insert into chain_anchors (id, kind, record_count, root, previous_root, status, created_at, updated_at) "
+                + "values (?, 'AUDIT', 1, ?, ?, 'PENDING', utc_timestamp(6), utc_timestamp(6))", UUID.randomUUID().toString(), "0x" + "cd".repeat(32), ZERO);
+        anchorRelay.anchorOnce();
+        anchorRelay.anchorOnce();
+        assertThat(jdbcTemplate.queryForObject("select count(*) from chain_anchors where kind = 'AUDIT' and status = 'FAILED'", Integer.class)).isEqualTo(1);
+        anchorRelay.anchorOnce();
+        anchorRelay.anchorOnce();
+        assertThat(ANCHORS.get("AUDIT")).hasSize(2);
+        assertThat(ANCHORS.get("AUDIT").get(1)[0]).isEqualTo(report("AUDIT").recomputedRoot());
     }
 
     @Test

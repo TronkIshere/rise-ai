@@ -62,6 +62,45 @@ public class AvalancheGatewayClient {
         return send(request, false);
     }
 
+    public record LatestAnchor(String anchorContract, long count, String root, Long recordCount, Long anchoredAt) {
+    }
+
+    public Result anchor(String kind, String root, String previousRoot, long recordCount, String operationKey) {
+        ObjectNode node = objectMapper.createObjectNode();
+        node.put("operationKey", operationKey);
+        node.put("root", root);
+        node.put("previousRoot", previousRoot);
+        node.put("recordCount", recordCount);
+        HttpRequest request = builder(BASE + "/anchors/" + kind + "/execute")
+                .header("Content-Type", "application/json")
+                .POST(HttpRequest.BodyPublishers.ofString(node.toString(), StandardCharsets.UTF_8))
+                .build();
+        return send(request, false);
+    }
+
+    /** The latest on-chain anchor of a kind. Throws when the gateway cannot answer, which callers report as unavailable. */
+    public LatestAnchor latestAnchor(String kind) {
+        HttpResponse<String> response;
+        try {
+            response = httpClient.send(builder(BASE + "/anchors/" + kind + "/latest").GET().build(), HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
+        } catch (IOException ex) {
+            throw new IllegalStateException("Gateway unreachable", ex);
+        } catch (InterruptedException ex) {
+            Thread.currentThread().interrupt();
+            throw new IllegalStateException("Interrupted", ex);
+        }
+        if (response.statusCode() != 200) {
+            throw new IllegalStateException("Gateway answered HTTP " + response.statusCode());
+        }
+        try {
+            JsonNode json = objectMapper.readTree(response.body());
+            return new LatestAnchor(json.path("anchorContract").asText(null), json.path("count").asLong(0), json.hasNonNull("root") ? json.get("root").asText() : null,
+                    json.hasNonNull("recordCount") ? json.get("recordCount").asLong() : null, json.hasNonNull("anchoredAt") ? json.get("anchoredAt").asLong() : null);
+        } catch (IOException ex) {
+            throw new IllegalStateException("Gateway returned a non-JSON body", ex);
+        }
+    }
+
     public Result transaction(String operationKey) {
         return send(builder(BASE + "/transactions/" + operationKey).GET().build(), true);
     }

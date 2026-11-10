@@ -41,6 +41,14 @@ public final class Dtos {
     public record HashStatusResponse(String environment, boolean isSimulated, long chainId, String txHash, String state, Long blockNumber) {
     }
 
+    public record AnchorResponse(String environment, boolean isSimulated, long chainId, String anchorContract, String kind, long count, Long sequence,
+                                 String root, Long recordCount, Long anchoredAt) {
+    }
+
+    @JsonIgnoreProperties(ignoreUnknown = false)
+    public record AnchorRequest(String operationKey, String root, String previousRoot, Long recordCount) {
+    }
+
     /** Unknown properties are rejected: a caller can never smuggle in a signer role, a key, an RPC URL or a chain id. */
     @JsonIgnoreProperties(ignoreUnknown = false)
     public record CommandRequest(String operationKey, String beneficiary, String target, Long releaseDelay, List<String> milestoneIds,

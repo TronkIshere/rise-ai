@@ -8,8 +8,11 @@ import java.time.Duration;
 /** Used only with rise.escrow.engine=avalanche. The default engine is simulated and never contacts a chain gateway. */
 @ConfigurationProperties(prefix = "rise.avalanche")
 public record AvalancheEscrowProperties(URI gatewayUrl, String internalApiKey, String beneficiaryAddress, Duration releaseDelay,
-                                        Duration connectTimeout, Duration readTimeout, Duration retryInterval, Integer batchSize) {
+                                        Duration connectTimeout, Duration readTimeout, Duration retryInterval, Integer batchSize,
+                                        Duration anchorLag, String explorerTxUrl) {
     public AvalancheEscrowProperties {
+        anchorLag = anchorLag == null ? Duration.ofMinutes(1) : anchorLag;
+        explorerTxUrl = explorerTxUrl == null || explorerTxUrl.isBlank() ? "https://testnet.snowtrace.io/tx/" : explorerTxUrl;
         gatewayUrl = gatewayUrl == null ? URI.create("http://localhost:8082") : gatewayUrl;
         releaseDelay = releaseDelay == null ? Duration.ofHours(24) : releaseDelay;
         connectTimeout = connectTimeout == null ? Duration.ofSeconds(2) : connectTimeout;
