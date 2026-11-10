@@ -1,0 +1,44 @@
+server:
+  port: ${SERVER_PORT:8082}
+
+spring:
+  application:
+    name: rise-ai-avalanche
+  jackson:
+    deserialization:
+      # a request can never carry unknown fields such as a key, an RPC URL or a chain id
+      fail-on-unknown-properties: true
+
+# No default environment: startup fails unless LOCAL_SIMULATION or AVALANCHE_FUJI is set explicitly.
+avalanche:
+  environment: ${AVALANCHE_ENVIRONMENT:}
+  rpc:
+    primary:
+      url: ${AVALANCHE_RPC_PRIMARY_URL:}
+    secondary:
+      url: ${AVALANCHE_RPC_SECONDARY_URL:}
+    timeout-ms: ${AVALANCHE_RPC_TIMEOUT_MS:10000}
+    min-gap-ms: ${AVALANCHE_RPC_MIN_GAP_MS:1000}
+  # Development signers: opt-in, LOCAL_SIMULATION only (enabling them elsewhere aborts startup).
+  signers:
+    enabled: ${AVALANCHE_SIGNERS_ENABLED:false}
+    # dev: ephemeral keys, LOCAL_SIMULATION only. keystore: two operator-held testnet keystores, AVALANCHE_FUJI only (ADR-009).
+    mode: ${AVALANCHE_SIGNERS_MODE:dev}
+    operator:
+      path: ${AVALANCHE_OPERATOR_KEYSTORE:}
+      password-file: ${AVALANCHE_OPERATOR_PASSWORD_FILE:}
+      address: ${AVALANCHE_OPERATOR_ADDRESS:}
+    approver:
+      path: ${AVALANCHE_APPROVER_KEYSTORE:}
+      password-file: ${AVALANCHE_APPROVER_PASSWORD_FILE:}
+      address: ${AVALANCHE_APPROVER_ADDRESS:}
+  # Transaction tracking and submission: opt-in. Needs a separately provisioned local MySQL database named avalanche_gateway.
+  tx:
+    enabled: ${AVALANCHE_TX_ENABLED:false}
+    reconcile-interval-ms: ${AVALANCHE_TX_RECONCILE_INTERVAL_MS:0}
+  db:
+    url: ${AVALANCHE_DB_URL:}
+    username: ${AVALANCHE_DB_USERNAME:}
+    password: ${AVALANCHE_DB_PASSWORD:}
+  # Internal API protection for every mutating endpoint (X-Internal-Api-Key). Blank means every POST is refused.
+  internal-api-key: ${AVALANCHE_INTERNAL_API_KEY:}
