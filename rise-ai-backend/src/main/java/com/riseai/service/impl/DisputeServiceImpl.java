@@ -28,6 +28,7 @@ import com.riseai.repository.UserRepository;
 import com.riseai.security.AuthUser;
 import com.riseai.service.AuditService;
 import com.riseai.service.CampaignService;
+import com.riseai.service.ChainEscrowRecorder;
 import com.riseai.service.DisbursementService;
 import com.riseai.service.DisputeService;
 import com.riseai.service.DomainEventPublisher;
@@ -62,6 +63,7 @@ public class DisputeServiceImpl implements DisputeService {
     private final AuditService auditService;
     private final DomainEventPublisher domainEvents;
     private final RiseProperties properties;
+    private final ChainEscrowRecorder chainEscrow;
 
     @Transactional
     @Override
@@ -112,6 +114,7 @@ public class DisputeServiceImpl implements DisputeService {
         domainEvents.publish(RiseEvents.disputeOpened(dispute, actor));
         if (milestoneId != null && properties.escrow().disputeAutoHold()) {
             String reason = "Held by dispute " + dispute.getDisputeCode();
+            chainEscrow.disputeOpened(campaignId, milestoneId, dispute.getId());
             disbursementService.holdForDispute(milestoneId, actor.id(), reason);
             milestoneService.markDisputed(milestoneId, actor.id(), reason);
         }
@@ -240,6 +243,7 @@ public class DisputeServiceImpl implements DisputeService {
             return;
         }
         String note = "Dispute " + dispute.getDisputeCode() + " closed as " + dispute.getDisputeStatus();
+        chainEscrow.disputeClosed(dispute.getCampaignId(), dispute.getId());
         if (upheld) {
             disbursementService.rejectDisputed(milestoneId, dispute.getDisbursementRequestId(), actorId, note);
         }

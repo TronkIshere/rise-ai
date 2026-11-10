@@ -32,6 +32,9 @@ public interface DisbursementService {
 
     DisbursementResponse release(AuthUser actor, UUID id);
 
+    /** Records a release the chain has already executed. Called only by the chain command relay. */
+    void completeChainRelease(UUID id, UUID actorId);
+
     EvidenceResponse addEvidence(AuthUser actor, UUID id, EvidenceRequest request);
 
     DisbursementResponse get(AuthUser actor, UUID id);
