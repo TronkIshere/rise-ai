@@ -1,3 +1,4 @@
+/* global document, window, innerWidth */
 /**
  * Isolated FE-06 staging browser acceptance against real Spring Boot + MySQL.
  * Target: locally deployed Nginx container (same-origin /api/v1 proxy).
