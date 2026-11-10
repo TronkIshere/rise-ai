@@ -60,7 +60,7 @@ const failedAssets = [];
 page.on('pageerror', e => consoleErrors.push(String(e)));
 page.on('console', e => { if (e.type() === 'error' && !/favicon\\.ico/.test(e.location()?.url || '')) consoleErrors.push(e.text()); });
 page.on('response', response => {
-  if (/\\/api\\/v1\\/campaigns/.test(response.url())) {
+  if (response.url().includes('/api/v1/campaigns')) {
     report.requestEvidence.push({ path: new URL(response.url()).pathname + new URL(response.url()).search, status: response.status() });
   } else if (response.status() >= 400 && !/favicon\\.ico/.test(response.url())) {
     failedAssets.push(response.status() + ' ' + response.url());
@@ -75,7 +75,7 @@ try {
   await page.locator('#campaigns .campaign-card').first().waitFor({ timeout: 30000 });
   await page.evaluate(() => document.fonts.ready);
   const initialCount = await page.locator('#campaigns .campaign-card').count();
-  check('Homepage renders real API rows', initialCount === rows.length && rows.some(c => page.locator('#campaigns').textContent), { api: rows.length, cards: initialCount });
+  check('Homepage renders real API rows', initialCount === rows.length && rows.length > 0, { api: rows.length, cards: initialCount });
   const campaignText = await page.locator('#campaigns').innerText();
   check('Live API campaign title appears in rendered React', rows.some(c => campaignText.includes(c.title)), rows.map(c => c.title));
   check('Exactly eight approved category buttons', (await page.locator('#categories button.cat').count()) === 8);
