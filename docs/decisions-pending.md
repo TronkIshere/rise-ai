@@ -109,7 +109,7 @@ Out of scope here: checklist items M1.9 and M1.11 (the two git-history exception
 
 ## P6. Smart contract security review
 
-**Current state.** `CampaignEscrow`, `RiseVND` and `RiseAnchor` are tested locally: 143 Foundry tests, 5 invariants and three deliberate mutations caught (`rise-ai-avalanche/README.md`). They were deployed and exercised on Fuji on 2026-11-10. They have **no external security review**. Fuji signing uses operator-held hot keystores (ADR-009), not KMS or a multisig.
+**Current state.** `CampaignEscrow`, `RiseVND` and `RiseAnchor` are tested with the Foundry suite in `rise-ai-avalanche/contracts/test` (unit, fuzz and 5 invariants in `CampaignEscrowInvariants.t.sol`), which CI runs on every pull request; `rise-ai-avalanche/README.md` also records three deliberate mutations being caught. They were deployed and exercised on Fuji on 2026-11-10. They have **no external security review**. Fuji signing uses operator-held hot keystores (ADR-009), not KMS or a multisig.
 
 **Proposal.**
 - **Before any public testnet use with real users:** an external review of the three contracts by an independent reviewer, plus an automated static-analysis pass (for example Slither) recorded in the repository. Fix or explicitly accept every finding.
