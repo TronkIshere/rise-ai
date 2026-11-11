@@ -32,7 +32,7 @@ The backend owns every business and financial decision. The monitor sees only mi
 
 ## Quick start (local)
 
-Prerequisites: JDK 21 (set `JAVA_HOME` to it), Docker, Maven 3.9+ for the backend (the monitor ships `./mvnw`).
+Prerequisites: JDK 21 (set `JAVA_HOME` to it), Docker, Maven 3.9+ for the backend (the monitor ships `./mvnw`). Check your machine with `bash scripts/check-env.sh` (read-only); details in [`docs/local-environment.md`](docs/local-environment.md).
 
 ```bash
 # 1. Database for the backend
