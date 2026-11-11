@@ -1,0 +1,90 @@
+name: B2 Section 05 HTML 1440px landscape review
+on:
+  push:
+    branches:
+      - review/b2-milestones-landscape-fade-20261112
+permissions:
+  contents: read
+jobs:
+  html-1440:
+    runs-on: ubuntu-24.04
+    defaults:
+      run:
+        working-directory: rise-ai-frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: rise-ai-frontend/package-lock.json
+      - name: Install browser QA tooling
+        run: |
+          npm ci --no-audit --no-fund
+          npm install --no-save --no-package-lock --no-audit --no-fund playwright@1.56.1
+          npx playwright install --with-deps chromium
+      - name: Render actual approved HTML source at Desktop 1440
+        run: |
+          node --input-type=module <<'JS'
+          import { chromium } from 'playwright';
+          import { mkdir, readFile, writeFile } from 'node:fs/promises';
+          import { resolve } from 'node:path';
+          import { pathToFileURL } from 'node:url';
+          const out = resolve('../docs/design/art-direction/approved/b2-development-master-v1.3.2/review/section05-1440');
+          const html = resolve('../docs/design/art-direction/approved/b2-development-master-v1.3.2/index.html');
+          await mkdir(out, {recursive:true});
+          const browser = await chromium.launch({headless:true, args:['--no-sandbox']});
+          const page = await browser.newPage({viewport:{width:1440,height:900},deviceScaleFactor:1,reducedMotion:'reduce'});
+          const errors=[];
+          page.on('pageerror', error => errors.push(String(error)));
+          const report={viewport:'1440x900@1',source:'B2 Development Master v1.3.2 index.html with linked CSS',scope:'Only Milestones bottom SVG hills mask',checks:[],pass:false};
+          const check=(name,pass,details)=>{report.checks.push({name,pass:!!pass,details});if(!pass)throw Error(name+' '+JSON.stringify(details));};
+          try {
+            await page.goto(pathToFileURL(html).href, {waitUntil:'load',timeout:60000});
+            await page.evaluate(()=>document.fonts.ready);
+            const section=page.locator('#milestones');
+            await section.scrollIntoViewIfNeeded();
+            const metrics=await section.evaluate(el=>{
+              const r=el.getBoundingClientRect();
+              const note=el.querySelector('.note').getBoundingClientRect();
+              const cards=[...el.querySelectorAll('.cards .card')].map(c=>c.getBoundingClientRect());
+              return {width:r.width,height:r.height,documentWidth:document.documentElement.scrollWidth,viewportWidth:innerWidth,
+                note:{x:note.x,y:note.y,width:note.width,height:note.height},
+                cards:cards.map(c=>({x:c.x,y:c.y,width:c.width,height:c.height})),
+                mask:getComputedStyle(el.querySelector('.hills')).maskImage};
+            });
+            report.geometry=metrics;
+            check('Desktop section fills 1440px', metrics.width===1440,metrics.width);
+            check('Exactly 3 milestone cards', await section.locator('.cards .card').count()===3);
+            check('Paper note and green CTA remain', await section.locator('.note a[href="#transparency"]').count()===1);
+            check('Mask is gradient not none', metrics.mask.includes('linear-gradient'),metrics.mask);
+            check('No horizontal scroll',metrics.documentWidth<=1440,metrics.documentWidth);
+            const override=await page.addStyleTag({content:'#milestones .hills{-webkit-mask-image:none!important;mask-image:none!important}'});
+            await section.screenshot({path:resolve(out,'before-section05-1440.png')});
+            await override.evaluate(el=>el.remove());
+            await section.screenshot({path:resolve(out,'after-section05-1440.png')});
+            const before=await readFile(resolve(out,'before-section05-1440.png'));
+            const after=await readFile(resolve(out,'after-section05-1440.png'));
+            check('Actual HTML pixels changed by only scoped mask', !before.equals(after), {beforeBytes:before.length,afterBytes:after.length});
+            const final=await section.evaluate(el=>({
+              width:el.getBoundingClientRect().width,
+              height:el.getBoundingClientRect().height,
+              cardCount:el.querySelectorAll('.cards .card').length,
+              noteWidth:el.querySelector('.note').getBoundingClientRect().width
+            }));
+            check('Card and section layout unaltered',final.width===metrics.width&&final.height===metrics.height&&final.cardCount===3&&final.noteWidth===metrics.note.width,final);
+            check('No page runtime errors',errors.length===0,errors);
+            report.pass=true;
+          }catch(e){report.error=String(e);console.error(e);process.exitCode=1;}
+          await writeFile(resolve(out,'report.json'),JSON.stringify(report,null,2));
+          console.log('B2 Section05 HTML 1440: '+(report.pass?'PASS':'FAIL'));
+          await browser.close();
+          JS
+      - name: Upload original and faded HTML screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: b2-section05-html-landscape-1440-before-after
+          path: docs/design/art-direction/approved/b2-development-master-v1.3.2/review/section05-1440/
+          if-no-files-found: warn
+          retention-days: 14

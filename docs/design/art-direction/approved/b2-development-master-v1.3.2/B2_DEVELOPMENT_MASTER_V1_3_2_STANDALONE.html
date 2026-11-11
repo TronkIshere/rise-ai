@@ -898,7 +898,9 @@
 #milestones .money{font-size:24px}
 #milestones .head h2{font-size:31px}}
 #milestones .landscape-atmosphere{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:-1}
-#milestones .hills{height:186px;bottom:-1px;z-index:-1}
+/* Section 05 review: soften only the top edge of the bottom Journey Landscape.
+   The paper note, CTA and lower hill silhouettes keep their approved geometry. */
+#milestones .hills{height:186px;bottom:-1px;z-index:-1;-webkit-mask-image:linear-gradient(to bottom,transparent 0%,rgba(0,0,0,.12) 20%,rgba(0,0,0,.52) 44%,rgba(0,0,0,.9) 66%,#000 82%);mask-image:linear-gradient(to bottom,transparent 0%,rgba(0,0,0,.12) 20%,rgba(0,0,0,.52) 44%,rgba(0,0,0,.9) 66%,#000 82%)}
 #milestones .grain{opacity:.13;z-index:-1}
 /* -------- sections/07-transparency-T12.css -------- */
 /* Scoped from approved/reviewed standalone prototype — only #transparency */
