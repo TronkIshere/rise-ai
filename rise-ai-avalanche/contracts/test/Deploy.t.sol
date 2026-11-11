@@ -48,21 +48,29 @@ contract DeployGuardTest is Test {
         script.guard("", 31337);
     }
 
-    function test_runOnTheWrongChainRevertsBeforeDeployingAnything() public {
+    // vm.setEnv is process-wide and forge runs test functions in parallel, so every case that reads the deploy
+    // environment runs from this one test, in sequence.
+    function test_environmentDrivenRuns() public {
+        _runOnTheWrongChainRevertsBeforeDeployingAnything();
+        _operatorAndApproverMustDiffer();
+        _localRunDeploysGrantsRolesFundsTreasuryAndWritesTheManifest();
+    }
+
+    function _runOnTheWrongChainRevertsBeforeDeployingAnything() internal {
         _env(operator, approver);
         vm.chainId(43114);
         vm.expectRevert(abi.encodeWithSelector(Deploy.MainnetForbidden.selector, uint256(43114)));
         script.run();
     }
 
-    function test_operatorAndApproverMustDiffer() public {
+    function _operatorAndApproverMustDiffer() internal {
         _env(operator, operator);
         vm.chainId(31337);
         vm.expectRevert(Deploy.RolesMustDiffer.selector);
         script.run();
     }
 
-    function test_localRunDeploysGrantsRolesFundsTreasuryAndWritesTheManifest() public {
+    function _localRunDeploysGrantsRolesFundsTreasuryAndWritesTheManifest() internal {
         _env(operator, approver);
         vm.chainId(31337);
         Deploy.Deployment memory d = script.run();
