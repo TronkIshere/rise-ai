@@ -63,4 +63,4 @@ bash scripts/forge.sh "forge test --summary"    # Foundry 1.8.7 in Docker
 
 ## Whole app
 
-See `docs/local-docker-stack.md` (added by PR #23) for `docker-compose.yml`, which runs every module, including a local Avalanche chain.
+See [local-docker-stack.md](local-docker-stack.md) for `docker-compose.yml`, which runs every module, including a local Avalanche chain.
