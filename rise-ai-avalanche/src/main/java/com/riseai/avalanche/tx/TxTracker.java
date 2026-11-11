@@ -153,11 +153,13 @@ public class TxTracker {
         TxRecord confirmed = transitions.apply(record, TxState.CONFIRMED, "tx_hash", hash, "previous_tx_hashes", previous,
                 "block_number", receipt.blockNumber(), "block_hash", receipt.blockHash(), "receipt_status", 1,
                 "last_error_class", null, "missing_observations", 0);
-        return checkFinality(confirmed);
+        // apply() returns the newer row when this pass's snapshot lost the version check; the next pass confirms it.
+        return confirmed.state() == TxState.CONFIRMED ? checkFinality(confirmed) : confirmed;
     }
 
     private TxRecord missing(TxRecord record) {
-        long reference = record.submittedAtMs() != null ? record.submittedAtMs() : record.updatedAtMs();
+        // Not updatedAtMs: every reconcile pass bumps it, so a record that was never accepted would never be resent.
+        long reference = record.submittedAtMs() != null ? record.submittedAtMs() : record.createdAtMs();
         boolean graceElapsed = clock.millis() - reference >= properties.replaceGraceMs();
         long latestNonce = client.transactionCount(record.signerAddress(), DefaultBlockParameterName.LATEST);
         if (latestNonce > record.nonce()) {

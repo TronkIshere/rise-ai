@@ -5,8 +5,8 @@
 | 0 Core backend | IMPLEMENTED; verified manually by the developer (2026-10-25) | — | Schema, auth, CRUD, simulated escrow, seed, tests, docs | `phase-0-acceptance-criteria.md` items verified locally |
 | 1 Business hardening | IMPLEMENTED (2026-10-25); see the progress table in `phase-1-business-hardening.md` | 0 verified locally | See `phase-1-business-hardening.md` | Invariant tests, reconciliation job, stable API |
 | 2 AI monitoring integration | MVP IMPLEMENTED (2026-10-25): M0–M7, M10 MVP E2E and most M9 MVP items; M8 (AI-assisted analysis) and production items PENDING. Sub-phases in `../../docs/ai-monitoring/04-roadmap.md` | 1 | Transactional outbox, event publisher, contracts, findings and review (see roadmap) | `phase-2-ai-monitoring.md` criteria and `../../docs/ai-monitoring/05-acceptance-checklist.md` |
-| 3 Avalanche escrow | PLANNED | 1 (2 optional) | Contracts, adapter behind `EscrowEngine`, sync | `phase-3-avalanche.md` criteria |
-| 4 Production readiness | PLANNED | 1–3 as applicable | Ops, security, observability | `phase-4-production-readiness.md` |
+| 3 Avalanche escrow | IMPLEMENTED (2026-11-10), opt-in with `rise.escrow.engine=avalanche`, default `simulated`; run end to end on Fuji testnet once; no contract security review. See the status section of `phase-3-avalanche.md` | 1 (2 optional) | Contracts, adapter behind `EscrowEngine`, sync | `phase-3-avalanche.md` criteria |
+| 4 Production readiness | PARTIALLY IMPLEMENTED (2026-10-30); external operational work open. See the status table in `phase-4-production-readiness.md` | 1–3 as applicable | Ops, security, observability | `phase-4-production-readiness.md` |
 
 ## Phase 0 steps (as executed)
 1. Repository review — uploaded files were a partial snapshot of an unrelated project (WiTech). Conventions reused: `ResponseAPI`/`PageResponse` envelopes, `ApplicationException`+`ErrorCode`, Nimbus JWT, BCrypt, UUID ids, stateless filter. Not reused: MatBao/company/invitation/Redis/OTP code. Fixed patterns: error handler leaking root causes, plaintext refresh-token storage, whitelisted `/users/**`.
@@ -20,4 +20,4 @@
 9. Documentation and ADRs.
 
 ## Next action for any agent
-Phases 1 and 2 (MVP) are complete; see their documents for evidence. Remaining Phase 2 work is listed in `../../docs/ai-monitoring/06-progress-report.md` › Next steps. Do not start Phase 3 (Avalanche) without an explicit request; it depends only on Phase 1.
+Phases 1 and 2 (MVP) are complete and Phase 3 is implemented as an opt-in testnet engine; see their documents for evidence. Remaining Phase 2 work is listed in `../../docs/ai-monitoring/06-progress-report.md` › Next steps; open Phase 3 and 4 items are in their status sections. Do not use mainnet or real assets.

@@ -167,6 +167,25 @@ class TxLifecycleTest {
 
     // ---- S2 reverted -----------------------------------------------------------------------------------------------
 
+    /**
+     * A pass works from rows read at its start. If the submission thread moved a row on meanwhile, the CONFIRMED update loses
+     * the version check and returns the newer, still unconfirmed row; that must not be treated as confirmed.
+     */
+    @Test
+    void aStaleSnapshotThatLosesTheConfirmRaceIsLeftForTheNextPass() {
+        Harness h = fundedHarness(LocalStack.anvilUrl(), Harness.props(30_000, 2));
+        TxRecord created = createOnly(h, "op-stale", SignerRole.RELAYER, OK_TARGET);
+        TransactionSigning.Signed signed = TransactionSigning.sign(created, h.registry.get(SignerRole.RELAYER));
+        TxRecord staleSigned = h.transitions.apply(created, TxState.SIGNED, "raw_tx", signed.rawHex(), "tx_hash", signed.txHash());
+        TxRecord sent = h.submission.send(staleSigned);
+        assertEquals(TxState.SUBMITTED, sent.state());
+        awaitMined(created.nonce(), created.signerAddress());
+
+        TxRecord afterLostRace = h.tracker.reconcile(staleSigned);
+        assertEquals(TxState.SUBMITTED, afterLostRace.state());
+        assertEquals(TxState.CONFIRMED, reconcileUntil(h, created.id(), TxState.CONFIRMED).state());
+    }
+
     @Test
     void s2_receiptStatusZeroIsRevertedAndNeverConfirmed() {
         Harness h = fundedHarness(LocalStack.anvilUrl(), Harness.props(30_000, 2));
@@ -383,6 +402,27 @@ class TxLifecycleTest {
         assertEquals(TxState.SUBMITTED, resent.state());
         assertEquals(submitted.nonce(), resent.nonce());
         assertEquals(submitted.txHash(), resent.txHash());
+        assertEquals(TxState.CONFIRMED, reconcileUntil(h, submitted.id(), TxState.CONFIRMED).state());
+    }
+
+    /** With a real grace period: every reconcile pass updates the row, which must not keep postponing the resend forever. */
+    @Test
+    void insufficientFundsIsResentAfterTheGracePeriodAlthoughEveryPassUpdatesTheRecord() {
+        SignerRegistry registry = Harness.newRegistry();   // deliberately not funded
+        Harness h = harness(LocalStack.anvilUrl(), 5000, Harness.props(1_000, 2), registry);
+        TxRecord submitted = h.submission.submit(request("op-poor-grace", OK_TARGET));
+        assertEquals(TxState.SIGNED, submitted.state());
+        assertEquals(ErrorClass.INSUFFICIENT_FUNDS.name(), submitted.lastErrorClass());
+
+        AnvilRpc.fund(LocalStack.anvilUrl(), registry.get(SignerRole.RELAYER).address());
+        TxRecord record = submitted;
+        for (int i = 0; i < 30 && record.state() == TxState.SIGNED; i++) {   // a pass every 200 ms, like the scheduler
+            record = h.tracker.reconcile(submitted.id());
+            sleep(200);
+        }
+        assertNotEquals(TxState.SIGNED, record.state(), "never resent after the 1 s grace period");
+        assertEquals(submitted.nonce(), record.nonce());
+        assertEquals(submitted.txHash(), record.txHash());
         assertEquals(TxState.CONFIRMED, reconcileUntil(h, submitted.id(), TxState.CONFIRMED).state());
     }
 
