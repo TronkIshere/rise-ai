@@ -167,6 +167,25 @@ class TxLifecycleTest {
 
     // ---- S2 reverted -----------------------------------------------------------------------------------------------
 
+    /**
+     * A pass works from rows read at its start. If the submission thread moved a row on meanwhile, the CONFIRMED update loses
+     * the version check and returns the newer, still unconfirmed row; that must not be treated as confirmed.
+     */
+    @Test
+    void aStaleSnapshotThatLosesTheConfirmRaceIsLeftForTheNextPass() {
+        Harness h = fundedHarness(LocalStack.anvilUrl(), Harness.props(30_000, 2));
+        TxRecord created = createOnly(h, "op-stale", SignerRole.RELAYER, OK_TARGET);
+        TransactionSigning.Signed signed = TransactionSigning.sign(created, h.registry.get(SignerRole.RELAYER));
+        TxRecord staleSigned = h.transitions.apply(created, TxState.SIGNED, "raw_tx", signed.rawHex(), "tx_hash", signed.txHash());
+        TxRecord sent = h.submission.send(staleSigned);
+        assertEquals(TxState.SUBMITTED, sent.state());
+        awaitMined(created.nonce(), created.signerAddress());
+
+        TxRecord afterLostRace = h.tracker.reconcile(staleSigned);
+        assertEquals(TxState.SUBMITTED, afterLostRace.state());
+        assertEquals(TxState.CONFIRMED, reconcileUntil(h, created.id(), TxState.CONFIRMED).state());
+    }
+
     @Test
     void s2_receiptStatusZeroIsRevertedAndNeverConfirmed() {
         Harness h = fundedHarness(LocalStack.anvilUrl(), Harness.props(30_000, 2));
