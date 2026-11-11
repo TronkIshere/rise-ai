@@ -66,4 +66,5 @@ The same commands run in `.github/workflows/ci.yml` and `frontend-ci.yml`.
 
 ## Documentation
 - [`docs/INDEX.md`](docs/INDEX.md): repository-level index.
+- [`docs/local-docker-stack.md`](docs/local-docker-stack.md): run the whole app (MySQL, monitoring, backend, frontend, local Avalanche chain and gateway) with the root `docker-compose.yml`.
 - [`docs/ai-monitoring/`](docs/ai-monitoring/README.md): monitoring roadmap, requirements, acceptance checklist and [progress report](docs/ai-monitoring/06-progress-report.md).
