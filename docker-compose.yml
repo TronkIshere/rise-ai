@@ -76,7 +76,7 @@ services:
       RISE_DEMO_PASSWORD: ${RISE_DEMO_PASSWORD:-Demo@12345}
       RISE_SIMULATION_DONATION_CONFIRMATION_ENABLED: ${RISE_SIMULATION_ENABLED:-false}
     ports:
-      - "8080:8080"
+      - "127.0.0.1:8080:8080"
     healthcheck:
       test: ["CMD-SHELL", "bash -c 'exec 3<>/dev/tcp/localhost/8080 && printf \"GET /actuator/health/readiness HTTP/1.0\r\n\r\n\" >&3 && grep -q UP <&3'"]
       interval: 15s

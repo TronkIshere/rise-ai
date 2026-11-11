@@ -8,7 +8,7 @@ The root `docker-compose.yml` runs every module on one machine for **local testi
 |---|---|---|
 | `mysql` | not published | MySQL 8.4: databases `rise_ai` (backend) and `avalanche_gateway` (gateway) |
 | `rise-ai-monitoring` | not published | Monitoring service, AI off |
-| `rise-ai-backend` | `8080` | Spring Boot backend, `prod` profile, escrow engine `avalanche` by default |
+| `rise-ai-backend` | `127.0.0.1:8080` | Spring Boot backend, `prod` profile, escrow engine `avalanche` by default |
 | `rise-ai-frontend` | `127.0.0.1:5174` | React build behind Nginx; `/api` is proxied to the backend |
 | `anvil` | `127.0.0.1:8545` | Local chain 31337; state kept in the `rise_anvil_data` volume |
 | `rise-ai-avalanche` | `127.0.0.1:8082` | Avalanche gateway, `LOCAL_SIMULATION`, dev signers, transactions on |
