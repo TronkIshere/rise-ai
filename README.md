@@ -2,7 +2,7 @@
 
 Rise AI is a charity funding platform built around **milestone-based escrow**. Donors fund campaigns. Funds are held in a simulated escrow and released milestone by milestone, against submitted evidence and under administrator review. An independent AI monitoring service watches the activity and flags patterns for human review.
 
-> **Simulation only.** No real money moves: payments, escrow, releases and refunds are simulated in MySQL. With the opt-in `rise.escrow.engine=avalanche`, escrow steps are also mirrored on the Avalanche **Fuji testnet** with a simulated token (rVND); mainnet is refused. AI monitoring is advisory; it never approves, blocks or releases funds.
+> **Simulation only.** No real money moves: payments, escrow, releases and refunds are simulated in MySQL. With the opt-in `rise.escrow.engine=avalanche`, escrow steps are also mirrored on a chain with a simulated token (rVND): a local Anvil node (the Compose stack) or the Avalanche **Fuji testnet**; mainnet is refused. AI monitoring is advisory; it never approves, blocks or releases funds.
 
 ## Modules
 
@@ -50,7 +50,7 @@ Then log in as `admin@riseai.example` / `Demo@12345` (dev only) and open `GET /a
 
 Frontend (in another terminal, backend on :8080 first): `cd rise-ai-frontend && npm ci && npm run dev`, then open http://localhost:5173.
 
-The default escrow engine is `simulated`. Running with the Avalanche gateway is described in [`rise-ai-avalanche/README.md`](rise-ai-avalanche/README.md) (Fuji needs operator-held testnet keystores, ADR-009).
+The backend's default escrow engine is `simulated`; the root `docker-compose.yml` sets `avalanche` against a local chain ([`docs/local-docker-stack.md`](docs/local-docker-stack.md)). Running against Fuji is described in [`rise-ai-avalanche/README.md`](rise-ai-avalanche/README.md) (Fuji needs operator-held testnet keystores, ADR-009).
 
 The backend also runs on its own (the relay is off by default); events then wait in the outbox.
 
