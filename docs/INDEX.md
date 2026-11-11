@@ -94,6 +94,9 @@ Status labels used by the backend docs: **IMPLEMENTED** (in code), **DESIGNED** 
 | [ai-monitoring/08-d12-threshold-proposal.md](ai-monitoring/08-d12-threshold-proposal.md) | D12 threshold proposal for owner review (not active) |
 | [ai-monitoring/09-rule-audit.md](ai-monitoring/09-rule-audit.md) | Line-by-line audit of the eight Rise rules, defects fixed and residual limitations |
 
+## Pending owner decisions
+[decisions-pending.md](decisions-pending.md): default proposals (D12 thresholds, AI notes, alert destination, retention, admin 2FA, contract security review). Status: PROPOSED, awaiting project owner confirmation.
+
 ## Known documentation gaps
 These were found during repository discovery on 2026-10-25. The `METHOD_NOT_ALLOWED` and `/actuator/info` omissions were fixed in Phase 1.
 - (Resolved 2026-10-25) The root `README.md` now contains setup instructions.
