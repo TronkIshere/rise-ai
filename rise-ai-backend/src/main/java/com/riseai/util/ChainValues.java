@@ -1,0 +1,30 @@
+package com.riseai.util;
+
+import java.math.BigDecimal;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.HexFormat;
+import java.util.UUID;
+
+/** Conversions between backend values and CampaignEscrow values. Amounts mirror exactly: rVND has the ledger's two decimals. */
+public final class ChainValues {
+    private ChainValues() {
+    }
+
+    public static String bytes32(UUID id) {
+        return "0x" + "0".repeat(32) + id.toString().replace("-", "");
+    }
+
+    public static String baseUnits(BigDecimal amount) {
+        return amount.movePointRight(2).toBigIntegerExact().toString();
+    }
+
+    public static String sha256Hex(String value) {
+        try {
+            return "0x" + HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(value.getBytes(StandardCharsets.UTF_8)));
+        } catch (NoSuchAlgorithmException ex) {
+            throw new IllegalStateException(ex);
+        }
+    }
+}

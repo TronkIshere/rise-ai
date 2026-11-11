@@ -26,6 +26,7 @@ import com.riseai.repository.MilestoneRepository;
 import com.riseai.security.AuthUser;
 import com.riseai.service.AuditService;
 import com.riseai.service.CampaignService;
+import com.riseai.service.ChainEscrowRecorder;
 import com.riseai.service.DisbursementService;
 import com.riseai.service.DomainEventPublisher;
 import com.riseai.service.EscrowEngine;
@@ -63,6 +64,7 @@ public class DisbursementServiceImpl implements DisbursementService {
     private final MilestoneService milestoneService;
     private final EvidenceService evidenceService;
     private final EscrowEngine escrowEngine;
+    private final ChainEscrowRecorder chainEscrow;
     private final AuditService auditService;
     private final DomainEventPublisher domainEvents;
     private final RiseProperties properties;
@@ -229,6 +231,27 @@ public class DisbursementServiceImpl implements DisbursementService {
         if (milestone.getReservedAmount().compareTo(amount) < 0) {
             throw new IllegalStateException("Milestone reservation is lower than the approved amount");
         }
+        if (chainEscrow.releaseRequiresChain()) {
+            chainEscrow.requestRelease(campaign.getId(), disbursement.getId(), actor.id());
+            return DisbursementResponse.from(disbursement);
+        }
+        return applyRelease(disbursement, campaign, milestone, actor);
+    }
+
+    @Transactional
+    @Override
+    public void completeChainRelease(UUID id, UUID actorId) {
+        DisbursementRequest disbursement = lock(id);
+        if (disbursement.getRequestStatus() == DisbursementStatus.RELEASED) {
+            return;
+        }
+        States.require(disbursement.getRequestStatus(), DisbursementStatus.APPROVED);
+        Campaign campaign = campaignService.load(disbursement.getCampaignId());
+        applyRelease(disbursement, campaign, lockMilestone(disbursement.getMilestoneId()), new AuthUser(actorId, null, Set.of(Role.ADMIN)));
+    }
+
+    private DisbursementResponse applyRelease(DisbursementRequest disbursement, Campaign campaign, Milestone milestone, AuthUser actor) {
+        BigDecimal amount = disbursement.getRequestedAmount();
         EscrowLedgerEntry entry = escrowEngine.release(campaign.getId(), disbursement.getCurrency(), milestone.getId(), disbursement.getId(), amount, actor.id());
         Instant now = Instant.now();
         milestone.setReservedAmount(milestone.getReservedAmount().subtract(amount));
