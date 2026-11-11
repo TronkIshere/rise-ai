@@ -14,6 +14,7 @@ Status labels used by the backend docs: **IMPLEMENTED** (in code), **DESIGNED** 
 | `rise-ai-avalanche/` | Avalanche gateway (Spring Boot 3.5.16, port 8082) and Foundry contracts (`CampaignEscrow`, `RiseVND`, `RiseAnchor`); local Anvil or Fuji testnet only. See `rise-ai-avalanche/README.md` |
 | `docs/design/` | Owner-approved UI design baselines and guardrails (read before any frontend redesign) |
 | `docs/frontend/` | Pointer to the frontend docs |
+| `docker-compose.yml`, `docs/local-docker-stack.md` | Whole app on one machine (MySQL, monitoring, backend, frontend, local Avalanche chain and gateway); local testing only |
 | `rise-ai-backend/` | Spring Boot 3.3.5 / Java 21 / Maven backend |
 | `rise-ai-monitoring/` | AI monitoring service (Spring Boot 3.5.15 / Java 21, `com.riseai.monitoring`, port 8081), renamed from `local-ai-event-monitor` on 2026-10-25. Docs index: `rise-ai-monitoring/docs/README.md` |
 | `docs/ai-monitoring/` | Cross-module monitoring roadmap, requirements, acceptance checklist and progress report |

@@ -133,7 +133,7 @@ Written at import time. The State column was updated on 2026-11-11 from the merg
 | 6 | **Beneficiary address** | **Closed for the simulation.** One configured address, `RISE_AVALANCHE_BENEFICIARY_ADDRESS` |
 | 7 | **Signing on Fuji** | **Closed as a testnet exception** (ADR-009, keystore mode). KMS/HSM and a multisig are still required before any non-testnet use |
 | 8 | **Architecture record**: ADR-005 places chain logic inside the backend | **Open.** ADR-009 covers signers only; no ADR records the separate gateway service |
-| 9 | **Operations**: no Dockerfile, Compose service or CI job | **Partly closed.** CI jobs exist; no Dockerfile or Compose service yet. The gateway needs its own MySQL database `avalanche_gateway` |
+| 9 | **Operations**: no Dockerfile, Compose service or CI job | **Closed for local use.** CI jobs exist; `Dockerfile` and a LOCAL_SIMULATION Compose service (Anvil, contract deploy, gateway, signer bootstrap) were added by PR #23, see `docs/local-docker-stack.md`. No Fuji or production deployment shape exists |
 | 10 | **Assurance**: no Fuji deployment, no external audit | **Partly closed.** Deployed and run on Fuji once (2026-11-10). No external security review of `CampaignEscrow`, `RiseVND` or `RiseAnchor` |
 
 ## Rules

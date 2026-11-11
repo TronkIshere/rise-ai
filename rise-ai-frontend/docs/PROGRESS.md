@@ -9,7 +9,7 @@
 | FE-04 | Admin review queues, simulated escrow, reconciliation and independent approvals | MERGED — ACCEPTED | PR #5 squash merged to master 7baba935; Codex browser retest 12/12 PASS and Frontend/Backend/Monitoring/Images CI PASS after merge |
 | FE-05 | Admin AI monitoring findings, independent human review, rule precision, audit logs and delivery retry | MERGED — ACCEPTED | PR #6 squash merged to master 2480b598; Codex browser 40/40 PASS, Frontend/Backend/Monitoring/Images CI PASS on master |
 | FE-06 | Final cross-module E2E, same-origin local/staging frontend deployment, release smoke, rollback and operator handoff | MERGED — formal acceptance not recorded | PR #7 squash merged to master c228df34 on 2026-11-01; post-merge master CI 41333241949 and Frontend checks 41333241845 PASS. No document records an independent acceptance or a public deployment; external production deploy separately gated |
-| Homepage B2 | Homepage B2 v1.3.2 React Desktop 1440px (after the FE-06 design selection) | MERGED | PR #12 merged to master 13384047 on 2026-11-08; master CI and Frontend checks PASS on that commit. Draft PRs #14, #16 and #20 (staging acceptance, demo media, staging with real API) are still open |
+| Homepage B2 | Homepage B2 v1.3.2 React Desktop 1440px (after the FE-06 design selection) | MERGED | PR #12 merged to master 13384047 on 2026-11-08; master CI and Frontend checks PASS on that commit. Follow-up staging QA and demo-media pull requests are tracked on GitHub |
 
 The source tree was reviewed against Rise AI master and the separate Advanced-Web-Programming frontend reference. The previous FE-00 package used a stale duplicate OpenAPI snapshot; this branch references the backend contract directly.
 
