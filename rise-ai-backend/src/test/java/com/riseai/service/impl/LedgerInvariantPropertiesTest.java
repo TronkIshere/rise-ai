@@ -13,6 +13,7 @@ import com.riseai.service.AuditService;
 import net.jqwik.api.Arbitraries;
 import net.jqwik.api.Arbitrary;
 import net.jqwik.api.Combinators;
+import net.jqwik.api.Example;
 import net.jqwik.api.ForAll;
 import net.jqwik.api.Property;
 import net.jqwik.api.Provide;
@@ -63,6 +64,15 @@ class LedgerInvariantPropertiesTest {
             assertThat(h.entries).allMatch(e -> e.getAmount().signum() > 0);
             assertThat(h.entries.stream().map(EscrowLedgerEntry::getIdempotencyKey).distinct().count()).isEqualTo(h.entries.size());
         }
+    }
+
+    // Regression for master CI run 42773726026: replaying a release that was first rejected while frozen.
+    @Example
+    void replayOfARejectedReleaseDoesNotLeaveAStaleReservation() {
+        everyOperationSequenceKeepsAggregatesConsistentWithTheLedger(List.of(
+                new Step(Kind.CONTRIBUTE, 10_000, 0), new Step(Kind.RESERVE, 5_000, 0), new Step(Kind.FREEZE, 1, 0),
+                new Step(Kind.RELEASE, 1, 0), new Step(Kind.ACTIVATE, 1, 0), new Step(Kind.REPLAY, 1, 0),
+                new Step(Kind.CANCEL_RESERVATION, 1, 0)));
     }
 
     @Provide
@@ -150,8 +160,9 @@ class LedgerInvariantPropertiesTest {
         }
 
         void run(Runnable operation) {
-            lastOperation = operation;
             operation.run();
+            // Only successful operations are replayed: a rejected one could succeed later and bypass the reservation bookkeeping.
+            lastOperation = operation;
         }
 
         Optional<Reservation> take(List<Reservation> open, int pick) {

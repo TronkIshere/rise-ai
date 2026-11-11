@@ -1,6 +1,6 @@
 # FE-06 — Final E2E, release validation, deployment and handoff
 
-**Status: DRAFT / NOT ACCEPTED.** Scope: frontend files only. FE-00–FE-05 functionality is already accepted on master at `2480b598`. FE-06 is the technical-release gate, **not** a new UI feature. Do not add SaaS styling or redesign: the user specifically requested multi-concept UI/UX review and rework **after FE-06**.
+**Status: MERGED via PR #7 (c228df34, 2026-11-01); formal acceptance not recorded.** Scope: frontend files only. FE-00–FE-05 functionality is already accepted on master at `2480b598`. FE-06 is the technical-release gate, **not** a new UI feature. Do not add SaaS styling or redesign: the user specifically requested multi-concept UI/UX review and rework **after FE-06**.
 
 ## Verified baseline
 - FE-05 PR #6 squash merged to master `2480b598efbba95cafd6c53de60147f9b0bae7ad`.

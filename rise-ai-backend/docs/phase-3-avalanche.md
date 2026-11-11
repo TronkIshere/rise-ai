@@ -1,6 +1,28 @@
-# Phase 3 — Avalanche Escrow Integration (PLANNED, NOT IMPLEMENTED)
+# Phase 3 — Avalanche Escrow Integration (IMPLEMENTED, opt-in, testnet only)
 
-No blockchain code, SDKs, keys or RPC configuration exist in Phase 0. Do not deploy to mainnet or handle real assets without explicit authorization, testing and security review.
+Do not deploy to mainnet or handle real assets without explicit authorization, testing and security review.
+
+## Status (2026-11-11, from the merged code and recorded runs)
+
+Merged through PRs #17, #18 and #19 (commits `84b36b5`, `0ede0be`, `2f05d8e`, `c1463fb`, `74de1a5`).
+
+| Item | State | Evidence |
+|---|---|---|
+| Engine selection `rise.escrow.engine=simulated\|avalanche` | IMPLEMENTED; default `simulated` | `application.yml` (`RISE_ESCROW_ENGINE`), `AvalancheEscrowEngine` is `@ConditionalOnProperty(... havingValue = "avalanche")` |
+| `AvalancheEscrowEngine` | IMPLEMENTED | Keeps the MySQL ledger and every rule of `SimulatedEscrowEngine`, and queues the matching `CampaignEscrow` call in the same transaction. A release is recorded as RELEASED only after the chain executes it, after the objection window |
+| Chain command outbox and relay | IMPLEMENTED | `chain_commands` (V12), `ChainCommandRelay` (runs outside business transactions, strictly in order per campaign) |
+| Gateway | IMPLEMENTED as a separate service | `rise-ai-avalanche/` (port 8082), called through `AvalancheGatewayClient` with an internal API key. ADR-005 originally placed chain logic inside the backend; no ADR yet records the separate-service choice |
+| Contracts | IMPLEMENTED, tested locally | `CampaignEscrow`, `RiseVND` (simulated VND, 2 decimals), `RiseAnchor` in `rise-ai-avalanche/contracts/src` |
+| History anchoring | IMPLEMENTED | `chain_anchors` (V13), `ChainAnchorRelay`; public `GET /api/v1/transparency/anchors` reports CONSISTENT / MISMATCH / NOT_ANCHORED / UNAVAILABLE |
+| Public chain view | IMPLEMENTED | `GET /api/v1/transparency/chain`, `GET /api/v1/transparency/campaigns/{campaignId}` (`onChain=false` with the simulated engine) |
+| Fuji signing | IMPLEMENTED as a testnet exception | ADR-009: operator-held keystores, Fuji only; no KMS/HSM or multisig |
+| Fuji end-to-end, dispute and anchoring runs | RUN once, 2026-11-10 | Transaction links in `rise-ai-avalanche/README.md` |
+| Tests | Backend `AvalancheEscrowEngineIntegrationTest` (against a stub gateway), `AvalancheDemoSeedIntegrationTest`, `TransparencyIntegrationTest`; gateway and Foundry suites in CI (`avalanche-gateway`, `avalanche-contracts` jobs) | `.github/workflows/ci.yml` |
+
+**Differences from the design below.** The implemented ledger rows are still written as `COMPLETED` in the business transaction; there are no `chain_id` / `tx_hash` / `log_index` columns on the ledger and no `chain_sync_cursor` table. The chain transaction hash is stored on `chain_commands` and `chain_anchors`. The design sections below are kept as the original plan.
+
+**Acceptance criteria status.** "Security review of contracts completed" is **not met** (no external audit). The other criteria below are not ticked here, because no document records a check against each of them.
+
 
 ## Inputs & prerequisites
 Phase 1 complete. Read `architecture.md`, `escrow-lifecycle.md`, `ledger-and-balance-rules.md`, ADR-003, ADR-005. Inspect `service/EscrowEngine` and `SimulatedEscrowEngine`.

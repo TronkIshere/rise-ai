@@ -1,8 +1,8 @@
 # rise-ai-avalanche
 
-Avalanche C-Chain gateway and Solidity escrow for Rise AI backend Phase 3. Imported from FreelaX at commit `b543b65` (`avalanche-integration` and `avalanche-contracts`).
+Avalanche C-Chain gateway and Solidity escrow for Rise AI backend Phase 3. Originally imported from FreelaX at commit `b543b65` (`avalanche-integration` and `avalanche-contracts`), then rewritten for Rise AI.
 
-**Status: imported, not integrated.** Nothing in `rise-ai-backend` or `rise-ai-frontend` calls this module yet, and donations and releases still run on `SimulatedEscrowEngine`.
+**Status (2026-11-11): integrated, opt-in, testnet only.** The backend calls this gateway through `AvalancheGatewayClient` when it runs with `rise.escrow.engine=avalanche` (`RISE_ESCROW_ENGINE=avalanche`): `AvalancheEscrowEngine` keeps the MySQL ledger and queues chain commands (`chain_commands`, V12), which `ChainCommandRelay` sends here. The default engine is still `simulated`, so without that setting donations and releases run on `SimulatedEscrowEngine` only. End-to-end, dispute and anchoring runs on Fuji are recorded below (2026-11-10). The frontend does not call this gateway; it reads chain status from the backend's `/api/v1/transparency/*` endpoints.
 
 **Simulation only:** `LOCAL_SIMULATION` (Anvil, chain 31337) and `AVALANCHE_FUJI` (chain 43113). Startup refuses anything else. Mainnet is out of scope.
 
@@ -20,7 +20,7 @@ Standalone Maven project. It shares no code or database with the other modules.
 - Package `com.freelax.avalanchegateway` became `com.riseai.avalanche`.
 - Maven coordinates, application name and jar became `rise-ai-avalanche`; the FreelaX parent POM was replaced by the Spring Boot parent with the same pinned versions.
 - Default port moved from 9194 to 8082.
-- `FreelaXEscrow` names, the ABI and EIP-712 strings were left unchanged on purpose. They are part of the contract's signing domain and must change together with the contract.
+- At import, the `FreelaXEscrow` names, ABI and EIP-712 strings were left unchanged. The FreelaX contract has since been replaced: `contracts/src` now holds only `CampaignEscrow`, `RiseVND` and `RiseAnchor`, and no file under `src/main` or `contracts/src` references `FreelaXEscrow`.
 
 ## Run the tests
 
@@ -29,8 +29,8 @@ This machine may not have JDK 21, so use the pinned images:
 ```bash
 MSYS_NO_PATHCONV=1 docker run --rm --memory=2560m \
   -v //var/run/docker.sock:/var/run/docker.sock \
-  -v "D:/hackathon/rise-ai/rise-ai-avalanche:/src" \
-  -v "C:/Users/Tuan_Minh/.m2:/root/.m2" -w /src \
+  -v "<repo>/rise-ai-avalanche:/src" \
+  -v "<home>/.m2:/root/.m2" -w /src \
   -e TESTCONTAINERS_HOST_OVERRIDE=host.docker.internal -e MAVEN_OPTS=-Xmx384m \
   maven:3.9-eclipse-temurin-21 mvn -B -ntp clean test -DargLine=-Xmx1g
 
@@ -48,7 +48,7 @@ Docker-gated tests skip silently when Testcontainers cannot reach Docker, so che
 
 Rise AI contracts added afterwards (`CampaignEscrow`, `RiseVND`, `RiseAnchor`): `forge test --summary` reports 143 passed, 0 failed, 1 skipped in total, 66 of them new. The 5 invariants ran 64 runs of 64 calls with 1,431 of 4,096 calls reverting as expected. Three deliberate mutations on a scratch copy (held balance not reduced, payout to the caller, objection window and dispute check removed) were each caught. These contracts have no security review and run locally only.
 
-The skipped tests are optional: `AnvilWebContextTest`, `FujiReadOnlyWebContextTest`, one case in `ManifestIntegrationTest`, and the Foundry `UsdcForkTest`. These results cover the imported FreelaX escrow only, not any Rise AI flow.
+The skipped tests are optional: `AnvilWebContextTest`, `FujiReadOnlyWebContextTest`, one case in `ManifestIntegrationTest`, and the Foundry `UsdcForkTest`. The table above covers the imported FreelaX escrow only. CI now runs both suites on every pull request (`avalanche-gateway` and `avalanche-contracts` jobs in `.github/workflows/ci.yml`).
 
 ## Fuji runbook (testnet only, ADR-009)
 
@@ -121,18 +121,20 @@ Chain client with RPC pacing, nonce allocation, transaction tracking through its
 
 ## Gaps against Rise AI
 
-| # | Gap | Why it matters | Likely fix |
-|---|---|---|---|
-| 1 | **Contract model.** The gateway still targets `FreelaXEscrow`, one client, one freelancer and one fixed amount per escrow | Rise AI pools many donors per campaign, with several milestones, partial releases, reservations and pro-rata refunds | `contracts/src/CampaignEscrow.sol` written and tested locally; not deployed and not yet used by the gateway |
-| 2 | **Domain layer.** `EscrowActionService`, `EscrowCalls`, `EscrowAuthorizations`, `FundTerms`, `EscrowEvents` and the DTOs are written for fund, submit, revise, dispute | They encode the freelance lifecycle | Rewrite against the new contract |
-| 3 | **Backend adapter.** No `AvalancheEscrowEngine` and no gateway client exist | The module is unreachable from business flows | Add the engine behind `rise.escrow.engine`, default `simulated` |
-| 4 | **Sync versus async.** `EscrowEngine` runs inside a mandatory transaction and every ledger row is `COMPLETED` | Chain writes are asynchronous | Pending/confirmed semantics, chain command outbox, event mirror (ADR-003, ADR-005) |
-| 5 | **Currency.** `ManifestVerifier` still requires a 6-decimal USDC token | `CampaignEscrow` uses `RiseVND` (simulated VND, 2 decimals, matching `DECIMAL(19,2)`) | Update the verifier and manifest |
-| 6 | **Beneficiary address.** Organizations have no on-chain address | `openCampaign` needs a fixed beneficiary | Use a configured simulation address for now |
-| 7 | **Signing on Fuji.** Backend signers are limited to `LOCAL_SIMULATION`, and ADR-005 requires KMS/HSM and human-held multisig | There is no route to Fuji writes | Human-signed flow or KMS decision |
-| 8 | **Architecture record.** ADR-005 places chain logic inside the backend; this module is a separate service | The decision needs updating | New ADR |
-| 9 | **Operations.** No Dockerfile, Compose service or CI job; needs its own MySQL database named `avalanche_gateway` | Cannot run with the stack yet | Add when integration starts |
-| 10 | **Assurance.** No Fuji deployment, no external audit; Slither triage only, in FreelaX | Evidence covers the FreelaX contract and local runs | Security review of the new contract before any public testnet use |
+Written at import time. The State column was updated on 2026-11-11 from the merged code.
+
+| # | Gap at import | State (2026-11-11) |
+|---|---|---|
+| 1 | **Contract model.** The gateway targeted `FreelaXEscrow` (one client, one freelancer, one fixed amount) | **Closed.** `CampaignEscrow` is deployed on Fuji (address above) and used by the gateway (`contract/CampaignCalls`, `CampaignEvents`, `CampaignReader`) |
+| 2 | **Domain layer** written for the freelance lifecycle | **Closed.** `api/CampaignCommandService` and `POST /api/v1/avalanche/campaigns/{campaignId}/actions/{action}/execute` |
+| 3 | **Backend adapter** missing | **Closed.** `AvalancheEscrowEngine` behind `rise.escrow.engine`, default `simulated`; `AvalancheGatewayClient` |
+| 4 | **Sync versus async** chain writes | **Addressed differently from ADR-003/005.** Ledger rows are still `COMPLETED` in the business transaction; chain calls go through the `chain_commands` outbox (V12), and a release becomes RELEASED only after the chain executes it. There is no chain-event mirror into the ledger |
+| 5 | **Currency** (6-decimal USDC) | **Closed.** `ManifestVerifier` requires a 2-decimal rVND token and refuses real or bridged USDC |
+| 6 | **Beneficiary address** | **Closed for the simulation.** One configured address, `RISE_AVALANCHE_BENEFICIARY_ADDRESS` |
+| 7 | **Signing on Fuji** | **Closed as a testnet exception** (ADR-009, keystore mode). KMS/HSM and a multisig are still required before any non-testnet use |
+| 8 | **Architecture record**: ADR-005 places chain logic inside the backend | **Open.** ADR-009 covers signers only; no ADR records the separate gateway service |
+| 9 | **Operations**: no Dockerfile, Compose service or CI job | **Closed for local use.** CI jobs exist; `Dockerfile` and a LOCAL_SIMULATION Compose service (Anvil, contract deploy, gateway, signer bootstrap) were added by PR #23, see `docs/local-docker-stack.md`. No Fuji or production deployment shape exists |
+| 10 | **Assurance**: no Fuji deployment, no external audit | **Partly closed.** Deployed and run on Fuji once (2026-11-10). No external security review of `CampaignEscrow`, `RiseVND` or `RiseAnchor` |
 
 ## Rules
 
