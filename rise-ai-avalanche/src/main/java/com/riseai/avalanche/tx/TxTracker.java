@@ -158,7 +158,8 @@ public class TxTracker {
     }
 
     private TxRecord missing(TxRecord record) {
-        long reference = record.submittedAtMs() != null ? record.submittedAtMs() : record.updatedAtMs();
+        // Not updatedAtMs: every reconcile pass bumps it, so a record that was never accepted would never be resent.
+        long reference = record.submittedAtMs() != null ? record.submittedAtMs() : record.createdAtMs();
         boolean graceElapsed = clock.millis() - reference >= properties.replaceGraceMs();
         long latestNonce = client.transactionCount(record.signerAddress(), DefaultBlockParameterName.LATEST);
         if (latestNonce > record.nonce()) {

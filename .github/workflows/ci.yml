@@ -80,4 +80,5 @@ jobs:
           RISE_DB_ROOT_PASSWORD: ci
           RISE_JWT_SECRET: ci-only-jwt-secret-0123456789-abcdefghijkl
           RISE_MONITORING_SERVICE_KEY: ci-only-service-key
+          RISE_AVALANCHE_INTERNAL_API_KEY: ci-only-gateway-key
         run: docker compose build

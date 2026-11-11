@@ -405,6 +405,27 @@ class TxLifecycleTest {
         assertEquals(TxState.CONFIRMED, reconcileUntil(h, submitted.id(), TxState.CONFIRMED).state());
     }
 
+    /** With a real grace period: every reconcile pass updates the row, which must not keep postponing the resend forever. */
+    @Test
+    void insufficientFundsIsResentAfterTheGracePeriodAlthoughEveryPassUpdatesTheRecord() {
+        SignerRegistry registry = Harness.newRegistry();   // deliberately not funded
+        Harness h = harness(LocalStack.anvilUrl(), 5000, Harness.props(1_000, 2), registry);
+        TxRecord submitted = h.submission.submit(request("op-poor-grace", OK_TARGET));
+        assertEquals(TxState.SIGNED, submitted.state());
+        assertEquals(ErrorClass.INSUFFICIENT_FUNDS.name(), submitted.lastErrorClass());
+
+        AnvilRpc.fund(LocalStack.anvilUrl(), registry.get(SignerRole.RELAYER).address());
+        TxRecord record = submitted;
+        for (int i = 0; i < 30 && record.state() == TxState.SIGNED; i++) {   // a pass every 200 ms, like the scheduler
+            record = h.tracker.reconcile(submitted.id());
+            sleep(200);
+        }
+        assertNotEquals(TxState.SIGNED, record.state(), "never resent after the 1 s grace period");
+        assertEquals(submitted.nonce(), record.nonce());
+        assertEquals(submitted.txHash(), record.txHash());
+        assertEquals(TxState.CONFIRMED, reconcileUntil(h, submitted.id(), TxState.CONFIRMED).state());
+    }
+
     @Test
     void permanentRejectionFailsAndFlagsANonceGapThatBlocksFurtherAllocation() {
         // Anvil does not enforce intrinsic gas at admission, but it does refuse a gas limit above the block gas limit.
