@@ -89,7 +89,8 @@ function DetailContent({ campaign, slug }: { campaign: CampaignResponse; slug: s
       <div className="campaign-flow-primary">
         <div className="campaign-flow-cover">
           <CampaignMedia src={safeImageUrl(campaign.coverImageUrl)} alt={'Ảnh đại diện: ' + title} className="campaign-flow-cover-image" />
-          <span className="campaign-flow-cover-caption">ẢNH TỪ HỒ SƠ / KHÔNG THAY THẾ MINH CHỨNG</span>
+          <span className="campaign-flow-cover-caption campaign-flow-cover-source">ẢNH TỪ HỒ SƠ / KHÔNG THAY THẾ MINH CHỨNG</span>
+          <span className="campaign-flow-cover-caption campaign-flow-cover-unavailable">CHƯA CÓ ẢNH ĐẠI DIỆN</span>
         </div>
         <div className="campaign-flow-story">
           <div className="campaign-flow-eyebrow">CÂU CHUYỆN &amp; TÁC ĐỘNG</div>

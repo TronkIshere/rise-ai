@@ -28,15 +28,15 @@ function ContributionFlow({ slug }: { slug: string }) {
   const [acknowledged, setAcknowledged] = useState(false);
   const [result, setResult] = useState<DonationResponse | null>(null);
   const [validation, setValidation] = useState('');
-  // An identical retry after a network timeout must reuse its server idempotency key.
-  const pending = useRef<{ signature: string; key: string } | null>(null);
+  // Keep keys for submitted payloads while the outcome is uncertain, even if the donor edits and reverts.
+  const pendingKeys = useRef(new Map<string, string>());
   const create = useMutation({
     mutationFn: ({ campaignId, payload, key }: { campaignId: string; payload: CreateDonationRequest; key: string }) =>
       createDonation(campaignId, payload, key),
     retry: false,
     onSuccess(data) {
       setResult(data);
-      pending.current = null;
+      pendingKeys.current.clear();
       void cache.invalidateQueries({ queryKey: ['donor', user?.id] });
       void cache.invalidateQueries({ queryKey: ['campaign', slug] });
       void cache.invalidateQueries({ queryKey: ['public-campaigns'] });
@@ -70,11 +70,13 @@ function ContributionFlow({ slug }: { slug: string }) {
       donorMessage: message.trim(), paymentMethod: method,
     };
     const signature = current.id + JSON.stringify(payload);
-    if (!pending.current || pending.current.signature !== signature) {
-      pending.current = { signature, key: crypto.randomUUID() };
+    let key = pendingKeys.current.get(signature);
+    if (!key) {
+      key = crypto.randomUUID();
+      pendingKeys.current.set(signature, key);
     }
     try {
-      await create.mutateAsync({ campaignId: current.id, payload, key: pending.current.key });
+      await create.mutateAsync({ campaignId: current.id, payload, key });
     } catch { /* Preserve the idempotency key. Error is visible below the form. */ }
   }
 
@@ -91,18 +93,18 @@ function ContributionFlow({ slug }: { slug: string }) {
       <div className="campaign-flow-contribution-grid">
         <div className="campaign-flow-donation-paper">
           <div className="campaign-flow-eyebrow">BƯỚC 01 / KIỂM TRA CHIẾN DỊCH</div>
-          {campaign.isPending ? <StatusMessage title="Đang tải thông tin chiến dịch…" /> : null}
-          {campaign.isError ? <div className="campaign-flow-retry" role="alert">
+          {!result && campaign.isPending ? <StatusMessage title="Đang tải thông tin chiến dịch…" /> : null}
+          {!result && campaign.isError ? <div className="campaign-flow-retry" role="alert">
             <StatusMessage error title="Không thể tải chiến dịch" detail={campaign.error.message}/>
             <button type="button" onClick={() => void campaign.refetch()}>Thử tải lại</button>
           </div> : null}
-          {campaign.isSuccess && current ? <>
+          {(campaign.isSuccess || result) && current ?
             <div className="campaign-flow-contribution-heading">
               <span className="campaign-flow-category">{categoryLabel(current.category)}</span>
               <h2>{current.title?.trim() || 'Chiến dịch đang cập nhật tên'}</h2>
               <p>Mục tiêu mô phỏng: {amountLabel(current.targetAmount, current.currency)}</p>
-            </div>
-            {result ? <div className="campaign-flow-success" role="status">
+            </div> : null}
+          {result ? <div className="campaign-flow-success" role="status">
               <CheckCircle2 size={33} aria-hidden="true" />
               <h2>Đã gửi yêu cầu đóng góp mô phỏng</h2>
               <p>Mã yêu cầu: <strong>{result.donationCode ?? result.id ?? 'Chưa cập nhật'}</strong></p>
@@ -110,7 +112,8 @@ function ContributionFlow({ slug }: { slug: string }) {
               <p>Yêu cầu không đồng nghĩa đã xác nhận. Chỉ quản trị viên được xử lý và xác nhận trên Backend.</p>
               <div className="campaign-flow-actions"><Link to="/donor">Xem lịch sử đóng góp <ArrowUpRight size={16} aria-hidden="true"/></Link>
                 <Link to={'/campaigns/' + encodeURIComponent(slug)}>Về hồ sơ chiến dịch</Link></div>
-            </div> : !allowed ? <div className="campaign-flow-retry" role="status"><StatusMessage
+            </div> : null}
+          {!result && campaign.isSuccess && current ? (!allowed ? <div className="campaign-flow-retry" role="status"><StatusMessage
               title="Chiến dịch hiện không nhận đóng góp"
               detail="Backend không cho phép tạo yêu cầu tại trạng thái này. Hãy chọn một chiến dịch ACTIVE đang tiếp nhận đóng góp."/>
               <Link to="/campaigns">Xem chiến dịch khác</Link></div>
@@ -144,8 +147,7 @@ function ContributionFlow({ slug }: { slug: string }) {
                 <LockKeyhole size={17} aria-hidden="true"/> Gửi yêu cầu mô phỏng
               </Button>
               <p className="campaign-flow-field-help" role="note">Không nhập dữ liệu ngân hàng, thẻ hoặc thông tin thanh toán thực.</p>
-            </form>}
-          </> : null}
+            </form>) : null}
         </div>
         <aside className="campaign-flow-contribution-aside" aria-label="Tóm tắt và lưu ý an toàn">
           <span className="campaign-flow-heading-icon" aria-hidden="true"><HeartHandshake size={23}/></span>

@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from 'react';
-import { Navigate, useLocation, useNavigate } from 'react-router';
+import { Navigate, useLocation } from 'react-router';
 import { useAuth } from '@/auth/auth-context';
 import { ApiError } from '@/api/client';
 import { Container } from '@/components/layout/Container';
@@ -9,14 +9,15 @@ import { Card } from '@/components/ui/Card';
 
 export function LoginPage() {
   const { user, login } = useAuth();
-  const navigate = useNavigate();
   const location = useLocation();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
 
-  if (user) return <Navigate to="/workspace" replace />;
+  const from = (location.state as { from?: string } | null)?.from;
+  const destination = typeof from === 'string' && from.startsWith('/') && !from.startsWith('//') ? from : '/workspace';
+  if (user) return <Navigate to={destination} replace />;
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -24,8 +25,6 @@ export function LoginPage() {
     setError('');
     try {
       await login({ email: email.trim(), password });
-      const from = (location.state as { from?: string } | null)?.from;
-      navigate(from?.startsWith('/') && !from.startsWith('//') ? from : '/workspace', { replace: true });
     } catch (reason) {
       setError(reason instanceof ApiError ? reason.message : 'Không đăng nhập được. Vui lòng kiểm tra thông tin.');
     } finally {

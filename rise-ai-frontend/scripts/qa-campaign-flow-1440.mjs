@@ -1,7 +1,7 @@
 /* Campaign Discovery → Detail → Contribution browser E2E.
    Explicitly intercepted API fixtures, never a substitute for live Backend QA.
    Works on Windows (npm.cmd) and POSIX systems. */
-/* global document:readonly, window:readonly, getComputedStyle:readonly */
+/* global document:readonly, window:readonly */
 import { chromium } from 'playwright';
 import { spawn } from 'node:child_process';
 import { mkdir, writeFile } from 'node:fs/promises';
@@ -50,7 +50,7 @@ try{
   await waitForVite();
   browser=await chromium.launch({headless:true,args:['--no-sandbox']});
   const page=await browser.newPage({viewport:{width:1440,height:900},deviceScaleFactor:1,reducedMotion:'reduce'});
-  let firstContributionFailed=false;
+  let rejectedDonations=0;
   let donationSucceeded=false;
   const postKeys=[];
   page.on('pageerror',e=>report.errors.push('JS: '+String(e)));
@@ -68,6 +68,9 @@ try{
     const found=name===active.slug ? {...active,acceptingDonations:!donationSucceeded} :
       name===closed.slug ? closed : null;
     report.requests.push({type:'detail',slug:name});
+    if(name===active.slug && donationSucceeded){
+      return route.fulfill({status:503,json:{message:'Campaign refresh temporarily unavailable'}});
+    }
     return route.fulfill({status:found?200:404,contentType:'application/json',
       body:JSON.stringify(found?{data:found}:{message:'Not found'})});
   });
@@ -85,8 +88,8 @@ try{
     const payload=route.request().postDataJSON();
     postKeys.push(key);
     report.requests.push({type:'donation',key,amount:payload.amount,method:payload.paymentMethod,auth:route.request().headers().authorization});
-    if(!firstContributionFailed){
-      firstContributionFailed=true;
+    if(rejectedDonations<2){
+      rejectedDonations++;
       return route.fulfill({status:503,contentType:'application/json',body:JSON.stringify({message:'Temporarily unavailable'})});
     }
     donationSucceeded=true;
@@ -113,8 +116,11 @@ try{
     await page.getByRole('heading',{name:'Vấn đề cần giải quyết'}).isVisible() &&
     await page.getByRole('heading',{name:'Đơn vị giáo dục QA'}).isVisible() &&
     await page.getByText('Đây là hệ thống mô phỏng.',{exact:false}).count()>0,null);
+  check('A missing cover is labeled as unavailable',
+    await page.getByText('CHƯA CÓ ẢNH ĐẠI DIỆN',{exact:true}).isVisible(),null);
   check('Detail Desktop 1440 has no horizontal scroll',
     await page.evaluate(()=>document.documentElement.scrollWidth<=1440),null);
+  await page.evaluate(()=>window.scrollTo(0,0));
   await page.screenshot({path:resolve(evidence,'campaign-detail-1440.png'),fullPage:true,animations:'disabled'});
 
   await page.getByRole('link',{name:/Ghi nhận đóng góp mô phỏng/}).click();
@@ -128,6 +134,9 @@ try{
   await page.getByRole('heading',{name:'Đồng hành cùng một sáng kiến'}).waitFor();
   check('Login returns DONOR to the intended contribution route',
     page.url().endsWith('/campaigns/'+active.slug+'/contribute'),page.url());
+  await page.evaluate(()=>window.scrollTo(0,0));
+  check('Contribution form has no horizontal scroll at 1440px',
+    await page.evaluate(()=>document.documentElement.scrollWidth===1440),null);
   await page.screenshot({path:resolve(evidence,'campaign-contribution-1440.png'),fullPage:true,animations:'disabled'});
 
   const send=page.getByRole('button',{name:/Gửi yêu cầu mô phỏng/});
@@ -136,24 +145,38 @@ try{
   await page.getByRole('checkbox',{name:/Tôi hiểu đây là yêu cầu mô phỏng/}).check();
   check('Minimum simulated amount enforced by browser input constraints',
     await page.locator('#donation-amount').evaluate(el=>!el.checkValidity()),null);
+  await send.click();
+  check('Invalid amount did not submit a donation',postKeys.length===0,postKeys);
   await page.locator('#donation-amount').fill('120000');
   await send.click();
   await page.getByText('Không ghi nhận được yêu cầu:',{exact:false}).waitFor();
   check('Failed Backend donation displays retryable error without false success',
     !await page.getByText('Đã gửi yêu cầu đóng góp mô phỏng').count()&&postKeys.length===1,postKeys);
+  await page.locator('#donation-amount').fill('130000');
   await send.click();
-  await page.getByRole('heading',{name:'Đã gửi yêu cầu đóng góp mô phỏng'}).waitFor();
+  await page.getByText('Không ghi nhận được yêu cầu:',{exact:false}).waitFor();
+  await page.locator('#donation-amount').fill('120000');
+  let failedRefreshes=0;
+  const refreshFailed=page.waitForResponse(response=>
+    response.url().endsWith('/api/v1/campaigns/slug/'+active.slug) &&
+    response.status()===503 && ++failedRefreshes===2);
+  await send.click();
+  await refreshFailed;
+  await page.waitForLoadState('networkidle');
   check('POST carries Authorization, simulated method and correct campaign',
     report.requests.some(r=>r.type==='donation'&&r.auth==='Bearer qa-memory-token'&&r.amount===120000&&r.method==='SIMULATED_BANK_TRANSFER'),
     report.requests.filter(r=>r.type==='donation'));
-  check('Retry reused the same Idempotency-Key and only one confirmation appears',
-    postKeys.length===2&&postKeys[0]===postKeys[1]&&
-    await page.getByText('QA-2026-001').isVisible(),postKeys);
-  check('Success survives status change from Backend after cache invalidation',
-    await page.getByRole('heading',{name:'Đã gửi yêu cầu đóng góp mô phỏng'}).isVisible() &&
-    !await page.locator('#donation-method').count(),null);
+  const confirmation = {
+    sameKey: postKeys.length===3 && postKeys[0]===postKeys[2] && postKeys[0]!==postKeys[1],
+    visible: await page.getByRole('heading',{name:'Đã gửi yêu cầu đóng góp mô phỏng'}).isVisible(),
+    pending: await page.getByText('Chờ quản trị viên xác nhận',{exact:true}).isVisible(),
+    code: await page.getByText('QA-2026-001',{exact:true}).isVisible(),
+  };
+  check('Returning to the original payload reuses its key and preserves PENDING confirmation after failed detail refresh',
+    Object.values(confirmation).every(Boolean),confirmation);
   check('No second donation can be submitted after success',
     await page.getByRole('button',{name:/Gửi yêu cầu mô phỏng/}).count()===0,postKeys);
+  await page.evaluate(()=>window.scrollTo(0,0));
   await page.screenshot({path:resolve(evidence,'campaign-contribution-success-1440.png'),fullPage:true,animations:'disabled'});
 
   const fresh=await browser.newPage({viewport:{width:1440,height:900},deviceScaleFactor:1});
