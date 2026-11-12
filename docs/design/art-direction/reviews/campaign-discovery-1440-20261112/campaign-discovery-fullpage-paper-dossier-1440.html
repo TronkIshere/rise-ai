@@ -518,6 +518,51 @@ a:focus-visible,button:focus-visible,input:focus-visible{outline:3px solid #f0bc
     rgba(0,0,0,.30) 86%, transparent 100%);
 }
 
+
+/* Campaign Discovery review · ONE continuous nature backdrop (cards → pagination → footer line).
+   The landscape is a shared underlying layer, not a new section or generated raster image. */
+.campaign-natural-continuum{
+  position:relative;
+  width:100vw;
+  max-width:none;
+  margin-left:calc(50% - 50vw);
+  isolation:isolate;
+}
+.campaign-natural-continuum > .continuous-landscape{
+  position:absolute;inset:auto 0 0;height:660px;z-index:0;
+  pointer-events:none;overflow:hidden;
+}
+.campaign-natural-continuum > .continuous-landscape svg{
+  display:block;width:100%;height:100%;
+}
+.campaign-natural-continuum > .campaign-page-dossier{
+  z-index:1;
+  background:linear-gradient(180deg,
+    #fff8eb 0%,#f7f6eb 8%,#e8eedf 16%,
+    #dae6d1 54%,#cadbbd 73%,
+    rgba(213,227,191,.86) 83%,
+    rgba(213,227,191,.42) 92%,
+    transparent 100%);
+}
+.campaign-natural-continuum > .campaign-page-dossier > .bottom-valley{
+  display:none;
+}
+.campaign-natural-continuum > #pagination-landscape{
+  position:relative;z-index:1;margin-top:-1px;
+  background:linear-gradient(to bottom,rgba(213,227,191,0),rgba(213,227,191,0));
+}
+.campaign-natural-continuum > #pagination-landscape > .pagination-scene{
+  display:none;
+}
+.campaign-natural-continuum #pagination-landscape .pagination-controls{
+  background:rgba(255,249,235,.84);
+  box-shadow:0 10px 30px rgba(20,64,39,.19);
+}
+.campaign-natural-continuum:has(#paper-section[hidden]) > .continuous-landscape{display:none;}
+.footer-wave{
+  background:linear-gradient(180deg,#d3e1c5 0%,#c2d5b8 65%,#b1cba9 100%);
+}
+
 </style>
 </head>
 <body>
@@ -584,7 +629,39 @@ a:focus-visible,button:focus-visible,input:focus-visible{outline:3px solid #f0bc
 <div class="art-label">ẢNH CONCEPT B2 · KHÔNG PHẢI MINH CHỨNG</div><div class="base-guide"></div>
 </div>
         </section></div>
-        <section id="paper-section" class="review-section campaign-page-dossier" data-version="campaign-fullpage-paper-dossier-review-v1">
+        <div class="campaign-natural-continuum">
+  <div class="continuous-landscape" aria-hidden="true">
+    <svg viewBox="0 0 1440 660" preserveAspectRatio="none" role="presentation" focusable="false">
+      <defs>
+        <linearGradient id="continuum-field" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#dbe8d4" stop-opacity="0"/>
+          <stop offset=".22" stop-color="#dbe8d4" stop-opacity=".68"/>
+          <stop offset=".60" stop-color="#c5dba9"/>
+          <stop offset=".89" stop-color="#8bb17c"/>
+          <stop offset="1" stop-color="#d3e1c5"/>
+        </linearGradient>
+        <linearGradient id="continuum-water" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#f3f6de" stop-opacity=".15"/>
+          <stop offset=".40" stop-color="#dceacb" stop-opacity=".66"/>
+          <stop offset="1" stop-color="#f5ebca" stop-opacity=".75"/>
+        </linearGradient>
+      </defs>
+      <rect width="1440" height="660" fill="url(#continuum-field)"/>
+      <path d="M0 285C135 217 199 252 331 227S506 235 643 203 837 232 979 185 1200 207 1440 172V660H0Z" fill="#c3d6ba" opacity=".38"/>
+      <path d="M0 353C130 318 250 340 369 304S582 314 689 286 890 330 1008 278 1260 294 1440 256V660H0Z" fill="#a8c89f" opacity=".48"/>
+      <path d="M0 427C175 355 330 412 476 367S716 415 894 346 1199 380 1440 325V660H0Z" fill="#bfd29e" opacity=".86"/>
+      <path d="M0 524C139 463 280 488 410 460S703 503 870 440 1192 469 1440 406V660H0Z" fill="#98bc82" opacity=".78"/>
+      <path d="M735 321C686 364 797 402 760 451S617 505 716 550 900 584 885 647" stroke="url(#continuum-water)" stroke-width="54" opacity=".63" fill="none" stroke-linecap="round"/>
+      <path d="M735 321C686 364 797 402 760 451S617 505 716 550 900 584 885 647" stroke="#f5edcb" stroke-width="3" opacity=".37" fill="none" stroke-linecap="round"/>
+      <path d="M0 596C155 536 286 559 423 527S712 572 865 517 1190 545 1440 499V660H0Z" fill="#6f9d70" opacity=".56"/>
+      <path d="M0 641C166 607 325 638 487 606S783 643 950 606 1265 635 1440 591V660H0Z" fill="#87aa76" opacity=".42"/>
+      <g fill="none" stroke="#49794d" opacity=".36" stroke-width="2" stroke-linecap="round">
+        <path d="M26 650l14-48m-8 36-17-20m17 1 20-24M107 654l8-46m-4 28-15-19m20 4 18-20M1335 658l12-54m-7 29-19-17m20 1 17-19M1418 650l-13-45m7 26 18-18"/>
+      </g>
+      <g fill="#f8efcd" opacity=".8"><circle cx="59" cy="626" r="3"/><circle cx="117" cy="604" r="2.6"/><circle cx="1381" cy="612" r="3"/><circle cx="1312" cy="640" r="2.5"/></g>
+    </svg>
+  </div>
+  <section id="paper-section" class="review-section campaign-page-dossier" data-version="campaign-fullpage-paper-dossier-review-v1">
 <div aria-hidden="true" class="top-landscape"><svg preserveaspectratio="none" viewbox="0 0 1440 205"><defs><lineargradient id="sky" x1="0" x2="0" y1="0" y2="1"><stop stop-color="#e4eced"></stop><stop offset="1" stop-color="#f4f1e3"></stop></lineargradient><lineargradient id="mount" x1="0" x2="0" y1="0" y2="1"><stop stop-color="#84aeb1"></stop><stop offset="1" stop-color="#c0d8b6"></stop></lineargradient></defs><path d="M0 0h1440v205H0Z" fill="url(#sky)"></path><path d="M0 131q132-37 241 0t247-10q171-43 331-1t219-38q111-88 205-59t197 15v167H0Z" fill="#cad9bc"></path><path d="M795 156q89-51 156-66t140-47q31 13 57 4t64-37q42 47 68 45t160-35v185H795Z" fill="url(#mount)" opacity=".82"></path><path d="M0 170q129-58 275-15t246-11q162-40 277 16t294-36q201-63 348-21v102H0Z" fill="#b9ceb0" opacity=".86"></path><path d="M0 190q212-45 365-19t270-3q151-29 299 0t272-18q135-25 234 4v51H0Z" fill="#e2e9d2"></path><path d="M0 198q190-38 384-9t278-6q198-23 342 10t436-19" fill="none" opacity=".52" stroke="#89aa7f" stroke-width="2"></path></svg></div>
 <svg aria-hidden="true" class="corner-leaves" viewbox="0 0 170 280"><path d="M-14 272Q35 132 119-12" fill="none" stroke="#497548" stroke-width="6"></path><path d="M15 182Q-30 140-8 91Q30 122 15 182ZM36 114Q-1 69 31 30Q66 70 36 114ZM73 74Q56 17 113-8Q120 41 73 74ZM3 234Q-24 214-8 168Q34 186 3 234Z" fill="#91b371" stroke="#5e854a" stroke-width="2"></path><path d="M31 155Q43 109 96 92Q90 151 31 155Z" fill="#c5d480"></path></svg>
 <svg aria-hidden="true" class="corner-leaves right" viewbox="0 0 170 280"><path d="M-14 272Q35 132 119-12" fill="none" stroke="#497548" stroke-width="6"></path><path d="M15 182Q-30 140-8 91Q30 122 15 182ZM36 114Q-1 69 31 30Q66 70 36 114ZM73 74Q56 17 113-8Q120 41 73 74ZM3 234Q-24 214-8 168Q34 186 3 234Z" fill="#91b371" stroke="#5e854a" stroke-width="2"></path></svg>
@@ -617,6 +694,7 @@ a:focus-visible,button:focus-visible,input:focus-visible{outline:3px solid #f0bc
   <p class="pagination-count" id="pagination-count">Trang 1 / 6 · 9 hồ sơ/trang</p>
   <div id="pagination-slot"></div>
 </section>
+  </div>
       </section>
     </main>
   </div>
