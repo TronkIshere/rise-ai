@@ -405,6 +405,8 @@ a:focus-visible,button:focus-visible,input:focus-visible{outline:3px solid #f0bc
 .campaign-page-dossier>.content{width:1230px;max-width:calc(100% - 70px);margin:0 auto}
 .campaign-page-dossier .header-copy h2{font-size:44px;line-height:1.09;letter-spacing:-.055em;color:#073b2b;margin:0;font-weight:900}
 .campaign-page-dossier .dossier{min-height:292px;height:292px}
+/* Dynamic preview dossiers have no --grain-img; never let the background-image declaration become invalid. */
+.campaign-page-dossier .dossier-paper{background-image:linear-gradient(125deg,#fffaf1 0%,#f6eddd 66%,#eee0c9 100%);background-color:#fff6e8}
 .campaign-page-dossier .category-artwork{width:100%;height:100%;display:grid;place-items:center;background:linear-gradient(135deg,#faf6e7,#d4e6d4);border-radius:3px}
 .campaign-page-dossier .category-artwork .cat-art{width:145px;height:135px;position:static;display:block;opacity:1;filter:drop-shadow(0 5px 5px #193d2b25)}
 .campaign-page-dossier .dossier-copy h2{font-size:24px;line-height:1.17;min-height:0;margin:8px 0 6px}
