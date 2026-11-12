@@ -1,0 +1,30 @@
+name: Campaign Discovery Full-page HTML 1440 Review
+on:
+  push:
+    branches:
+      - design/campaign-discovery-fullpage-paper-dossier-1440-20261112
+  workflow_dispatch:
+jobs:
+  visual-review:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: rise-ai-frontend/package-lock.json
+      - run: npm ci
+        working-directory: rise-ai-frontend
+      - run: npx playwright install --with-deps chromium
+        working-directory: rise-ai-frontend
+      - name: Full-page Chromium QA 1440
+        run: node scripts/qa-campaigns-fullpage-1440.mjs
+        working-directory: rise-ai-frontend
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: campaign-fullpage-1440-evidence
+          path: docs/design/art-direction/reviews/campaign-discovery-1440-20261112/evidence-fullpage/
+          if-no-files-found: warn
