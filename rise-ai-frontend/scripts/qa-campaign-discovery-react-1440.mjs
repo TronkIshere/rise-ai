@@ -104,6 +104,32 @@ try {
     report.requests[0]?.status === 'ACTIVE' && report.requests[0]?.size === '9' &&
     report.requests[0]?.page === '0', report.requests[0]);
   check('Detail CTA uses real /campaigns/:slug link', first.link === '/campaigns/qa-campaign-2', first.link);
+
+  const landscapeGeometry=await page.evaluate(()=>{
+    const meadow=document.querySelector('.continuous-landscape');
+    const valley=document.querySelector('.bottom-valley');
+    const duplicateScene=document.querySelector('.pagination-scene');
+    const section=document.querySelector('#paper-section');
+    const lead=document.querySelector('#lead-section');
+    return {
+      meadowPosition:meadow?getComputedStyle(meadow).position:null,
+      valleyDisplay:valley?getComputedStyle(valley).display:null,
+      duplicateSceneDisplay:duplicateScene?getComputedStyle(duplicateScene).display:null,
+      pageHeight:document.documentElement.scrollHeight,
+      leadToPaper:section&&lead?Math.round(section.getBoundingClientRect().top-lead.getBoundingClientRect().bottom):null
+    };
+  });
+  report.landscapeGeometry=landscapeGeometry;
+  check('Shared meadow is positioned behind dossiers, not an extra layout block',
+    landscapeGeometry.meadowPosition==='absolute',landscapeGeometry);
+  check('Original landscape continuity hides duplicate valley and pagination artwork',
+    landscapeGeometry.valleyDisplay==='none'&&landscapeGeometry.duplicateSceneDisplay==='none',
+    landscapeGeometry);
+  check('Full-page layout density remains near owner-approved 1440 reference',
+    landscapeGeometry.pageHeight>=4600&&landscapeGeometry.pageHeight<=5500&&
+      landscapeGeometry.leadToPaper!==null&&landscapeGeometry.leadToPaper<=30,
+    landscapeGeometry);
+
   await page.screenshot({ path: resolve(evidence, 'campaign-react-1440-full.png'), fullPage: true, animations: 'disabled' });
 
   await page.locator('#reading-results .read-profile').first().click();

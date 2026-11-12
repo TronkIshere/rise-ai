@@ -679,3 +679,25 @@ a:focus-visible,button:focus-visible,input:focus-visible{outline:3px solid #f0bc
   .campaign-page-dossier .dossier .dossier-meta .demo-stamp{font-size:9px}
   .cd-illustration[aria-hidden="true"]{pointer-events:none}
 }
+
+
+/* React's static-art wrapper has display:contents, but CSS child combinators
+   still see the wrapper. Restore exact PR #33 landscape positioning/masks.
+   This prevents a 780px extra band between feature and Paper Dossier. */
+@scope (.campaign-discovery) {
+  .campaign-natural-continuum > .cd-art > .continuous-landscape {
+    position:absolute;inset:auto 0 0;height:780px;z-index:0;
+    pointer-events:none;overflow:hidden;
+  }
+  .campaign-natural-continuum > .cd-art > .continuous-landscape svg {
+    display:block;width:100%;height:100%;
+  }
+  .campaign-page-dossier > .cd-art > .top-landscape {
+    -webkit-mask-image:linear-gradient(to bottom,transparent 0%,rgba(0,0,0,.10) 20%,
+      rgba(0,0,0,.52) 49%,rgba(0,0,0,.78) 70%,rgba(0,0,0,.30) 86%,transparent 100%);
+    mask-image:linear-gradient(to bottom,transparent 0%,rgba(0,0,0,.10) 20%,
+      rgba(0,0,0,.52) 49%,rgba(0,0,0,.78) 70%,rgba(0,0,0,.30) 86%,transparent 100%);
+  }
+  .campaign-natural-continuum > .campaign-page-dossier > .cd-art > .bottom-valley { display:none; }
+  .campaign-natural-continuum > #pagination-landscape > .cd-art > .pagination-scene { display:none; }
+}
