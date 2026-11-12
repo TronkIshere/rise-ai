@@ -21,7 +21,7 @@
 Workflow `Campaign Discovery Section05 HTML Desktop 1440 Review` runs real headless Chromium at **1440×900 DPR 1** on the committed HTML and uploads:
 - full-page `before-v13-1440.png` with mask temporarily disabled
 - full-page `after-v131-fade-1440.png`
-- cropped `after-bottom-transition-1440.png` and `qa-report.json`
+- landscape-element close-up `after-bottom-transition-1440.png` and `qa-report.json`
 
 Technical QA tests 3 dossier rows, 3 CTAs, images, data-version, horizontal overflow, exact pre/post card geometry, pixel change, demo notice and console errors.
 
@@ -30,3 +30,7 @@ Technical QA tests 3 dossier rows, 3 CTAs, images, data-version, horizontal over
 **Integration blockers:** There is no verified fully assembled 1440px `/campaigns` page with latest Section02/04/05/06 and Header/Footer; section source HTML previews exist separately in Library. Creating a fictitious all-page PASS is prohibited. Assemble the full page on a follow-on integration stage *after* the last Section05 screenshot is approved. The preview includes fictional data and is not connected to real Backend; real API and accessibility/functionality gates must be verified separately.
 
 **Source integrity:** ChatGPT Library remains the original unmodified source of v1.3; this checkpoint stores a new derivative. No mobile UI work.
+
+## QA rerun note
+
+The initial Chromium run generated full before/after images and passed all 10 checks reached, but the workflow failed on a screenshot **clip-coordinate error**, not an HTML rendering assertion. A subsequent follow-up fixes the screenshot instruction to capture the actual bottom landscape element. Re-run status must be verified from GitHub Actions; do not mark PASS from this note alone.

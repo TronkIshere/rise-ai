@@ -1,3 +1,5 @@
+/* Browser globals are evaluated by Playwright inside page.evaluate callbacks, not Node. */
+/* global document:readonly, getComputedStyle:readonly, innerWidth:readonly */
 import {chromium} from 'playwright';
 import {mkdir,readFile,writeFile} from 'node:fs/promises';
 import {resolve} from 'node:path';
@@ -57,9 +59,12 @@ try{
   const before=await readFile(resolve(evidenceDir,'before-v13-1440.png'));
   const after=await readFile(resolve(evidenceDir,'after-v131-fade-1440.png'));
   check('Fade changes rendered pixels',!before.equals(after),{beforeBytes:before.length,afterBytes:after.length});
-  const sectionTop=await sec.evaluate(e=>e.getBoundingClientRect().top+scrollY);
-  const sectionHeight=metrics.section.height;
-  await page.screenshot({path:resolve(evidenceDir,'after-bottom-transition-1440.png'),clip:{x:0,y:Math.max(0,sectionTop+sectionHeight-350),width:1440,height:350},animations:'disabled'});
+  // Capture the actual bottom-landscape element instead of using a document-space
+  // clip on a viewport screenshot (which fails when the clip lies below viewport).
+  await page.locator('.bottom-valley').screenshot({
+    path:resolve(evidenceDir,'after-bottom-transition-1440.png'),
+    animations:'disabled'
+  });
   await page.locator('.read-profile').first().click();
   check('Reader CTA displays demo-only notice',await page.locator('#toast').isVisible());
   await page.keyboard.press('Escape');
