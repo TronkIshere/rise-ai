@@ -37,8 +37,8 @@ export function AdminDashboardPage(){
     ['Đề nghị giải ngân mở',stats.data?.openDisbursementRequests],
     ['Tranh chấp mở',stats.data?.openDisputes],
   ];
-  return <Container className="py-10 sm:py-14">
-    <div className="flex flex-wrap items-end justify-between gap-4">
+  return <div className="rise-dashboard admin-dashboard"><Container className="dashboard-inner py-10 sm:py-14">
+    <div className="dashboard-hero flex flex-wrap items-end justify-between gap-4">
       <div>
         <p className="text-xs font-extrabold uppercase tracking-widest text-brand">ADMIN · QUY TRÌNH MÔ PHỎNG</p>
         <h1 className="mt-3 text-3xl font-extrabold text-brand-ink sm:text-4xl">Trung tâm xét duyệt</h1>
@@ -50,9 +50,9 @@ export function AdminDashboardPage(){
         <Link to="/admin/audit" className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-border bg-surface px-5 text-sm font-bold text-brand"><BookOpenText size={18} aria-hidden="true"/> Audit</Link>
       </div>
     </div>
-    <section className="mt-9" aria-label="Thống kê hoạt động">
+    <section className="dashboard-section dashboard-stat-section mt-9" aria-label="Thống kê hoạt động">
       {stats.isPending?<StatusMessage title="Đang tải thống kê…"/>:null}
-      {stats.isError?<StatusMessage error title="Không tải được thống kê" detail={stats.error.message}/>:null}
+      {stats.isError?<div className="space-y-3"><StatusMessage error title="Không tải được thống kê" detail={stats.error.message}/><Button variant="outline" onClick={()=>void stats.refetch()}>Thử tải lại thống kê</Button></div>:null}
       {stats.isSuccess?<div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {metrics.map(([label,value])=><div key={label} className="rounded-card border border-border bg-surface p-5"><p className="text-xs font-semibold text-muted">{label}</p><p className="mt-3 text-3xl font-extrabold text-brand-ink">{typeof value==='number'?new Intl.NumberFormat('vi-VN').format(value):'—'}</p></div>)}
       </div>:null}
@@ -60,12 +60,12 @@ export function AdminDashboardPage(){
         <strong>Quỹ mô phỏng:</strong> Đã xác nhận {amountLabel(stats.data.totalConfirmedContributions,stats.data.currency)} · Đã giải ngân {amountLabel(stats.data.totalDisbursed,stats.data.currency)} · Đã hoàn {amountLabel(stats.data.totalRefunded,stats.data.currency)}.
       </div>:null}
     </section>
-    <section className="mt-12" aria-labelledby="admin-queues">
+    <section className="dashboard-section mt-12" aria-labelledby="admin-queues">
       <div className="flex flex-wrap items-center justify-between gap-3"><h2 id="admin-queues" className="flex items-center gap-2 text-2xl font-extrabold text-brand-ink"><ClipboardCheck className="text-brand" aria-hidden="true"/> Hàng chờ xử lý</h2>
-        <Button variant="outline" onClick={()=>void records.refetch()}><RefreshCcw size={16} aria-hidden="true"/> Làm mới</Button>
+        <Button variant="outline" onClick={()=>{void records.refetch();void stats.refetch();}}><RefreshCcw size={16} aria-hidden="true"/> Làm mới Dashboard</Button>
       </div>
-      <div className="mt-5 flex flex-wrap gap-2" aria-label="Nhóm xét duyệt">
-        {adminQueues.map(x=><Button key={x.id} variant={kind===x.id?'primary':'outline'} onClick={()=>choose(x.id)}>{x.label}</Button>)}
+      <div className="dashboard-tabbar mt-5 flex flex-wrap gap-2" role="group" aria-label="Nhóm xét duyệt">
+        {adminQueues.map(x=><Button key={x.id} aria-pressed={kind===x.id} variant={kind===x.id?'primary':'outline'} onClick={()=>choose(x.id)}>{x.label}</Button>)}
       </div>
       <div className="mt-5 flex flex-wrap items-center gap-3">
         <label htmlFor="admin-queue-status" className="text-sm font-semibold text-copy">Trạng thái</label>
@@ -98,5 +98,5 @@ export function AdminDashboardPage(){
       {records.isSuccess?<RecordPagination page={page} pages={records.data.totalPages??0} onChange={setPage}/>:null}
     </section>
     <div className="mt-9 flex items-start gap-3 rounded-xl bg-soft-mint p-5 text-sm text-brand-ink"><ShieldCheck className="shrink-0 text-brand" size={20} aria-hidden="true"/> Quyết định chỉ có hiệu lực sau khi Backend chấp nhận. Cảnh báo AI và Audit có khu vực độc lập để kiểm tra dữ kiện; AI chỉ khuyến nghị, Admin đưa ra quyết định.</div>
-  </Container>;
+  </Container></div>;
 }
