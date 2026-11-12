@@ -586,6 +586,20 @@ a:focus-visible,button:focus-visible,input:focus-visible{outline:3px solid #f0bc
   overflow:hidden;
 }
 .footer-wave svg{width:100%;height:135px;display:block;}
+
+/* Finish the forest as a dissolve, not a flat-colored boundary. */
+.footer-wave{position:relative;}
+.footer-wave::after{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(180deg,transparent 0%,
+    rgba(6,46,35,.10) 37%,rgba(6,46,35,.55) 74%,#062e23 100%);
+}
+#pagination-landscape .pagination-overline,
+#pagination-landscape .pagination-count{
+  color:#133f2b;
+  text-shadow:0 1px 2px rgba(255,252,233,.9),0 -1px 1px rgba(255,252,233,.55);
+}
+
 .site-footer{margin-top:-1px;}
 
 </style>
