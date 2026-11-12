@@ -1,19 +1,137 @@
-import { ArrowLeft, CalendarDays, CheckCircle2, HeartHandshake, MapPin, ShieldCheck, UsersRound } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { Link, useParams } from 'react-router';
+import { ArrowLeft, ArrowUpRight, CalendarDays, CheckCircle2, HeartHandshake, MapPin, ShieldCheck, UsersRound } from 'lucide-react';
+import { ApiError } from '@/api/client';
 import { getCampaignBySlug, listCampaignMilestones } from '@/api/campaigns';
+import type { CampaignResponse } from '@/api/contracts';
 import { Container } from '@/components/layout/Container';
 import { CampaignMedia } from '@/components/ui/CampaignMedia';
 import { FundingProgress } from '@/components/ui/FundingProgress';
 import { StatusMessage } from '@/components/ui/StatusMessage';
-import { amountLabel, categoryLabel, dateLabel, milestoneLabel, statusLabel } from '@/lib/campaign-display';
+import { amountLabel, categoryLabel, dateLabel, milestoneLabel, safeImageUrl, statusLabel } from '@/lib/campaign-display';
 
-function NarrativeSection({ heading, content }: { heading: string; content?: string }) {
-  if (!content?.trim()) return null;
-  return <section className="border-b border-border pb-8 last:border-0" aria-label={heading}>
-    <h2 className="text-2xl font-extrabold text-brand-ink">{heading}</h2>
-    <p className="mt-4 whitespace-pre-line text-sm leading-8 text-muted">{content}</p>
+function DetailSection({ heading, children }: { heading: string; children?: string }) {
+  if (!children?.trim()) return null;
+  return <section className="campaign-flow-story-section">
+    <h2>{heading}</h2>
+    <p>{children}</p>
   </section>;
+}
+
+function DetailGallery({ campaign }: { campaign: CampaignResponse }) {
+  const images = (campaign.galleryImageUrls ?? [])
+    .map(safeImageUrl).filter((url): url is string => Boolean(url))
+    .filter((url, index, all) => all.indexOf(url) === index).slice(0, 6);
+  if (!images.length) return null;
+  return <section className="campaign-flow-gallery" aria-labelledby="detail-gallery-heading">
+    <h2 id="detail-gallery-heading">Hình ảnh chiến dịch</h2>
+    <p>Ảnh được cung cấp trong hồ sơ chiến dịch, không thay thế việc thẩm định minh chứng.</p>
+    <div className="campaign-flow-gallery-grid">
+      {images.map((src, i) => <CampaignMedia key={src} src={src} alt={'Hình ảnh chiến dịch ' + (i + 1)} className="campaign-flow-gallery-image" />)}
+    </div>
+  </section>;
+}
+
+function DetailMilestones({ campaign }: { campaign: CampaignResponse }) {
+  const campaignId = campaign.id;
+  const milestones = useQuery({
+    queryKey: ['campaign-milestones', campaignId],
+    queryFn: () => listCampaignMilestones(campaignId!),
+    enabled: Boolean(campaignId),
+  });
+  const entries = [...(milestones.data ?? [])].sort((a, b) => (a.sequenceNumber ?? 0) - (b.sequenceNumber ?? 0));
+  return <section className="campaign-flow-milestones" aria-labelledby="detail-milestones-heading">
+    <div className="campaign-flow-heading-row">
+      <span className="campaign-flow-heading-icon" aria-hidden="true"><CheckCircle2 size={22}/></span>
+      <div><h2 id="detail-milestones-heading">Hành trình theo cột mốc</h2>
+        <p>Thông tin tiến độ được đồng bộ từ Backend, không phải minh chứng đã được xác thực độc lập.</p></div>
+    </div>
+    {!campaignId ? <StatusMessage title="Chưa công bố cột mốc" detail="Hồ sơ chưa có mã chiến dịch." /> : null}
+    {campaignId && milestones.isPending ? <StatusMessage title="Đang tải cột mốc…" /> : null}
+    {campaignId && milestones.isError ? <div className="campaign-flow-status"><StatusMessage error title="Không thể tải cột mốc" detail={milestones.error.message}/>
+      <button type="button" onClick={() => void milestones.refetch()}>Thử tải lại cột mốc</button></div> : null}
+    {campaignId && milestones.isSuccess && entries.length === 0 ? <StatusMessage title="Chưa có cột mốc" detail="Chưa có lộ trình công khai trong hệ thống." /> : null}
+    {campaignId && milestones.isSuccess && entries.length > 0 ? <ol className="campaign-flow-milestone-list">
+      {entries.map((item, index) => <li key={item.id ?? index} className="campaign-flow-milestone">
+        <span className="campaign-flow-milestone-number">{String(item.sequenceNumber ?? index + 1).padStart(2, '0')}</span>
+        <div className="campaign-flow-milestone-body">
+          <div className="campaign-flow-milestone-head"><h3>{item.title ?? 'Cột mốc đang cập nhật'}</h3>
+            <span>{milestoneLabel(item.milestoneStatus)}</span></div>
+          {item.description ? <p className="campaign-flow-milestone-description">{item.description}</p> : null}
+          <div className="campaign-flow-milestone-details">
+            <span>Kinh phí dự kiến: {amountLabel(item.plannedAmount, campaign.currency)}</span>
+            <span>Giải ngân mô phỏng: {amountLabel(item.releasedAmount, campaign.currency)}</span>
+            {item.dueAt ? <span>Dự kiến: {dateLabel(item.dueAt)}</span> : null}
+          </div>
+        </div>
+      </li>)}
+    </ol> : null}
+  </section>;
+}
+
+function DetailContent({ campaign, slug }: { campaign: CampaignResponse; slug: string }) {
+  const active = campaign.campaignStatus === 'ACTIVE' && campaign.acceptingDonations === true;
+  const title = campaign.title?.trim() || 'Hồ sơ chiến dịch chưa có tiêu đề';
+  return <>
+    <div className="campaign-flow-status-tags">
+      <span>{categoryLabel(campaign.category)}</span>
+      <span>{statusLabel(campaign.campaignStatus)}</span>
+      <span className="campaign-flow-tag-warm">GIAO DỊCH MÔ PHỎNG</span>
+    </div>
+    <h1 className="campaign-flow-title">{title}</h1>
+    {campaign.shortDescription ? <p className="campaign-flow-intro">{campaign.shortDescription}</p> : null}
+    <div className="campaign-flow-facts">
+      {campaign.location ? <span><MapPin size={17} aria-hidden="true"/>{campaign.location}</span> : null}
+      {campaign.publishedAt ? <span><CalendarDays size={17} aria-hidden="true"/>Công bố: {dateLabel(campaign.publishedAt)}</span> : null}
+      {campaign.organization?.name ? <span><HeartHandshake size={17} aria-hidden="true"/>{campaign.organization.name}</span> : null}
+    </div>
+    <div className="campaign-flow-columns">
+      <div className="campaign-flow-primary">
+        <div className="campaign-flow-cover">
+          <CampaignMedia src={safeImageUrl(campaign.coverImageUrl)} alt={'Ảnh đại diện: ' + title} className="campaign-flow-cover-image" />
+          <span className="campaign-flow-cover-caption">ẢNH TỪ HỒ SƠ / KHÔNG THAY THẾ MINH CHỨNG</span>
+        </div>
+        <div className="campaign-flow-story">
+          <div className="campaign-flow-eyebrow">CÂU CHUYỆN &amp; TÁC ĐỘNG</div>
+          <DetailSection heading="Câu chuyện chiến dịch">{campaign.fullDescription}</DetailSection>
+          <DetailSection heading="Vấn đề cần giải quyết">{campaign.problemStatement}</DetailSection>
+          <DetailSection heading="Giải pháp đề xuất">{campaign.solutionDescription}</DetailSection>
+          <DetailSection heading="Tác động mong muốn">{campaign.impactGoals}</DetailSection>
+          <DetailSection heading="Những người được hỗ trợ">{campaign.beneficiaryDescription}</DetailSection>
+          {!campaign.fullDescription && !campaign.problemStatement && !campaign.solutionDescription && !campaign.impactGoals && !campaign.beneficiaryDescription
+            ? <p className="campaign-flow-muted">Nội dung chi tiết đang được cập nhật từ Backend.</p> : null}
+        </div>
+        <DetailGallery campaign={campaign} />
+        <DetailMilestones campaign={campaign} />
+      </div>
+      <aside className="campaign-flow-aside" aria-label="Tiến độ và hành động">
+        <div className="campaign-flow-summary">
+          <p className="campaign-flow-eyebrow">HỒ SƠ TÀI TRỢ / MÔ PHỎNG</p>
+          <h2>Đồng hành cùng chiến dịch</h2>
+          <FundingProgress raised={campaign.funding?.netRaised} target={campaign.targetAmount} currency={campaign.currency} />
+          <div className="campaign-flow-summary-stats">
+            <div><small>Đã giải ngân (mô phỏng)</small><strong>{amountLabel(campaign.funding?.totalDisbursed, campaign.currency)}</strong></div>
+            <div><small>Người thụ hưởng dự kiến</small>
+              <strong>{campaign.beneficiaryCount == null ? 'Chưa cập nhật' : new Intl.NumberFormat('vi-VN').format(campaign.beneficiaryCount)}</strong></div>
+          </div>
+          <p className="campaign-flow-disclaimer">Đây là hệ thống mô phỏng. Không nhận hoặc chuyển tiền thật. Mọi khoản đóng góp chỉ được ghi nhận qua Backend và chờ Admin xác nhận.</p>
+          {active ? <Link className="campaign-flow-cta" to={'/campaigns/' + encodeURIComponent(slug) + '/contribute'}>
+            Ghi nhận đóng góp mô phỏng <ArrowUpRight size={18} aria-hidden="true"/>
+          </Link> : <p className="campaign-flow-unavailable" role="status">Chiến dịch hiện chưa tiếp nhận đóng góp.</p>}
+          <Link className="campaign-flow-cta-secondary" to="/campaigns">Khám phá chiến dịch khác</Link>
+        </div>
+        {campaign.organization?.name ? <section className="campaign-flow-organization">
+          <p className="campaign-flow-eyebrow">ĐƠN VỊ TRIỂN KHAI</p>
+          <h2>{campaign.organization.name}</h2>
+          {campaign.organization.verificationStatus === 'VERIFIED' ? <p className="campaign-flow-verified"><ShieldCheck size={17} aria-hidden="true"/>Đã xác minh trong hệ thống</p> : <p>Trạng thái xác minh chưa được công bố.</p>}
+          <p>Trạng thái nội bộ không thay thế việc xác minh pháp lý.</p>
+        </section> : null}
+        <div className="campaign-flow-ai-note"><UsersRound size={22} aria-hidden="true"/>
+          <p>AI chỉ cung cấp cảnh báo hỗ trợ. Các quyết định phê duyệt, giải ngân và xử lý khiếu nại thuộc về con người.</p>
+        </div>
+      </aside>
+    </div>
+  </>;
 }
 
 export function CampaignDetailPage() {
@@ -23,104 +141,21 @@ export function CampaignDetailPage() {
     queryFn: () => getCampaignBySlug(slug!),
     enabled: Boolean(slug),
   });
-  const campaignId = campaign.data?.id;
-  const milestones = useQuery({
-    queryKey: ['campaign-milestones', campaignId],
-    queryFn: () => listCampaignMilestones(campaignId!),
-    enabled: Boolean(campaignId),
-  });
-
-  if (!slug) return <Container className="py-16"><StatusMessage error title="Đường dẫn chiến dịch không hợp lệ"/></Container>;
-
-  return <>
-    <section className="border-b border-border bg-soft-mint">
-      <Container className="py-8">
-        <Link to="/campaigns" className="inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-brand hover:underline"><ArrowLeft size={17} aria-hidden="true"/> Trở về danh sách</Link>
-      </Container>
-    </section>
-    <Container className="py-10 sm:py-14" >
-      {campaign.isPending ? <StatusMessage title="Đang tải nội dung chiến dịch…" /> : null}
-      {campaign.isError ? <div className="space-y-4"><StatusMessage error title="Không thể tải chiến dịch" detail={campaign.error.message}/><Link to="/campaigns" className="text-sm font-bold text-brand underline">Xem các chiến dịch khác</Link></div> : null}
-      {campaign.isSuccess ? <>
-        <div className="mb-7 flex flex-wrap items-center gap-3 text-xs font-bold">
-          <span className="rounded-full bg-soft-mint px-3 py-2 text-brand">{categoryLabel(campaign.data.category)}</span>
-          <span className="rounded-full border border-border bg-surface px-3 py-2 text-muted">{statusLabel(campaign.data.campaignStatus)}</span>
-          <span className="rounded-full bg-soft-sand px-3 py-2 text-warning">Bản mô phỏng</span>
-        </div>
-        <h1 className="max-w-4xl text-4xl font-extrabold leading-tight tracking-tight text-brand-ink sm:text-5xl">{campaign.data.title ?? 'Chưa có tiêu đề'}</h1>
-        {campaign.data.shortDescription ? <p className="mt-5 max-w-3xl text-base leading-8 text-muted">{campaign.data.shortDescription}</p> : null}
-        <div className="mt-6 flex flex-wrap gap-x-6 gap-y-3 text-sm text-muted">
-          {campaign.data.location ? <span className="inline-flex items-center gap-2"><MapPin size={16} aria-hidden="true"/>{campaign.data.location}</span> : null}
-          {campaign.data.publishedAt ? <span className="inline-flex items-center gap-2"><CalendarDays size={16} aria-hidden="true"/>Công bố: {dateLabel(campaign.data.publishedAt)}</span> : null}
-          {campaign.data.organization?.name ? <span className="inline-flex items-center gap-2"><HeartHandshake size={16} aria-hidden="true"/>{campaign.data.organization.name}</span> : null}
-        </div>
-        <div className="mt-9 grid gap-8 lg:grid-cols-[minmax(0,1fr)_350px] lg:items-start">
-          <div>
-            <CampaignMedia src={campaign.data.coverImageUrl} alt={'Ảnh đại diện: ' + (campaign.data.title ?? 'Chiến dịch')} className="h-64 rounded-card sm:h-96" />
-            <div className="mt-10 space-y-8">
-              <NarrativeSection heading="Câu chuyện chiến dịch" content={campaign.data.fullDescription} />
-              <NarrativeSection heading="Vấn đề cần giải quyết" content={campaign.data.problemStatement} />
-              <NarrativeSection heading="Giải pháp đề xuất" content={campaign.data.solutionDescription} />
-              <NarrativeSection heading="Tác động mong muốn" content={campaign.data.impactGoals} />
-              {campaign.data.beneficiaryDescription ? <NarrativeSection heading="Những người được hỗ trợ" content={campaign.data.beneficiaryDescription} /> : null}
-            </div>
-
-            <section className="mt-12" aria-labelledby="milestones-title">
-              <div className="flex items-center gap-3"><span className="flex size-11 items-center justify-center rounded-xl bg-soft-mint text-brand"><CheckCircle2 size={23} aria-hidden="true"/></span><div><h2 id="milestones-title" className="text-2xl font-extrabold text-brand-ink">Lộ trình theo cột mốc</h2><p className="mt-1 text-xs text-muted">Thông tin trạng thái từ Backend Rise AI</p></div></div>
-              <div className="mt-7">
-                {!campaignId ? <StatusMessage title="Chưa có dữ liệu cột mốc" detail="Backend chưa cung cấp mã chiến dịch."/> : null}
-                {campaignId && milestones.isPending ? <StatusMessage title="Đang tải cột mốc…" /> : null}
-                {campaignId && milestones.isError ? <StatusMessage error title="Không thể tải cột mốc" detail={milestones.error.message}/> : null}
-                {campaignId && milestones.isSuccess && milestones.data.length === 0 ? <StatusMessage title="Chưa công bố cột mốc" detail="Chưa có dữ liệu lộ trình cho chiến dịch này." /> : null}
-                {campaignId && milestones.isSuccess && milestones.data.length > 0 ? <ol className="space-y-4">
-                  {[...milestones.data].sort((a,b) => (a.sequenceNumber ?? 0) - (b.sequenceNumber ?? 0)).map((milestone, index) => <li key={milestone.id ?? index} className="rounded-card border border-border bg-surface p-6">
-                    <div className="flex flex-wrap items-start gap-4">
-                      <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-soft-mint text-sm font-extrabold text-brand">{String(milestone.sequenceNumber ?? index + 1).padStart(2, '0')}</span>
-                      <div className="min-w-0 flex-1"><div className="flex flex-wrap items-center justify-between gap-2">
-                        <h3 className="text-lg font-bold text-brand-ink">{milestone.title ?? 'Cột mốc chưa có tiêu đề'}</h3>
-                        <span className="rounded-full bg-soft-sand px-3 py-1.5 text-xs font-semibold text-warning">{milestoneLabel(milestone.milestoneStatus)}</span>
-                      </div>
-                      {milestone.description ? <p className="mt-3 whitespace-pre-line text-sm leading-7 text-muted">{milestone.description}</p> : null}
-                      <div className="mt-4 flex flex-wrap gap-x-6 gap-y-2 text-xs text-muted">
-                        <span>Kinh phí dự kiến: {amountLabel(milestone.plannedAmount, campaign.data.currency)}</span>
-                        <span>Đã giải ngân (mô phỏng): {amountLabel(milestone.releasedAmount, campaign.data.currency)}</span>
-                        {milestone.dueAt ? <span>Dự kiến: {dateLabel(milestone.dueAt)}</span> : null}
-                      </div></div>
-                    </div>
-                  </li>)}
-                </ol> : null}
-              </div>
-            </section>
-          </div>
-
-          <aside className="space-y-5 lg:sticky lg:top-28" aria-label="Tóm tắt chiến dịch">
-            <div className="rounded-card border border-border bg-surface p-7 shadow-sm">
-              <p className="text-xs font-extrabold uppercase tracking-[.13em] text-brand">Tiến độ tài trợ</p>
-              <div className="mt-5"><FundingProgress raised={campaign.data.funding?.netRaised} target={campaign.data.targetAmount} currency={campaign.data.currency}/></div>
-              <div className="mt-6 grid grid-cols-2 gap-4 border-t border-border pt-5 text-sm">
-                <div><p className="text-xs text-muted">Đã giải ngân (mô phỏng)</p><p className="mt-2 font-bold text-brand-ink">{amountLabel(campaign.data.funding?.totalDisbursed, campaign.data.currency)}</p></div>
-                <div><p className="text-xs text-muted">Người thụ hưởng dự kiến</p><p className="mt-2 font-bold text-brand-ink">{campaign.data.beneficiaryCount == null ? 'Chưa cập nhật' : new Intl.NumberFormat('vi-VN').format(campaign.data.beneficiaryCount)}</p></div>
-              </div>
-              <div className="mt-6 rounded-xl bg-soft-sand p-4 text-xs leading-6 text-warning">
-                Giao dịch và dòng tiền trong Rise AI hiện chỉ là mô phỏng. FE-02 chỉ ghi nhận yêu cầu đóng góp mô phỏng, không thanh toán tiền thật.
-              </div>
-              {campaign.data.campaignStatus === 'ACTIVE' && campaign.data.acceptingDonations
-                ? <Link to={'/campaigns/' + encodeURIComponent(slug) + '/contribute'} className="mt-6 inline-flex min-h-11 w-full items-center justify-center rounded-xl bg-brand px-5 py-3 text-center text-sm font-bold text-white hover:bg-brand-hover">
-                    Ghi nhận đóng góp mô phỏng
-                  </Link>
-                : <p className="mt-5 text-xs text-muted">Chiến dịch hiện chưa tiếp nhận đóng góp.</p>}
-              <Link to="/campaigns" className="mt-4 inline-flex min-h-11 w-full items-center justify-center rounded-xl border border-border px-5 py-3 text-sm font-bold text-brand hover:bg-soft-mint">Khám phá chiến dịch khác</Link>
-            </div>
-            {campaign.data.organization?.name ? <div className="rounded-card border border-border bg-surface p-6">
-              <p className="text-xs font-bold uppercase tracking-wide text-muted">Đơn vị triển khai</p>
-              <p className="mt-3 text-lg font-bold text-brand-ink">{campaign.data.organization.name}</p>
-              {campaign.data.organization.verificationStatus === 'VERIFIED' ? <p className="mt-3 flex items-center gap-2 text-xs text-brand"><ShieldCheck size={16} aria-hidden="true" />Đã xác minh trong hệ thống mô phỏng</p> : null}
-              <p className="mt-3 text-xs leading-6 text-muted">Trạng thái xác minh trong ứng dụng không thay thế việc thẩm định pháp lý ngoài đời thực.</p>
-            </div> : null}
-            <div className="flex items-start gap-3 rounded-card bg-soft-mint p-5 text-xs leading-6 text-brand-ink"><UsersRound className="mt-1 shrink-0 text-brand" size={19} aria-hidden="true"/><p>AI Monitoring hỗ trợ phát hiện dấu hiệu cần xem xét. Mọi quyết định phê duyệt và giải ngân thuộc về người quản trị.</p></div>
-          </aside>
-        </div>
-      </> : null}
+  const missing = campaign.error instanceof ApiError && campaign.error.status === 404;
+  return <div className="campaign-flow campaign-detail-flow">
+    <div className="campaign-flow-topband"><Container>
+      <Link className="campaign-flow-back" to="/campaigns"><ArrowLeft size={17} aria-hidden="true"/> Trở về Campaign Discovery</Link>
+    </Container></div>
+    <Container className="campaign-flow-container">
+      {!slug ? <StatusMessage error title="Đường dẫn chiến dịch không hợp lệ" /> : null}
+      {slug && campaign.isPending ? <StatusMessage title="Đang tải hồ sơ chiến dịch…" /> : null}
+      {slug && campaign.isError ? <div className="campaign-flow-retry" role="alert">
+        <StatusMessage error title={missing ? 'Không tìm thấy chiến dịch' : 'Không thể tải chiến dịch'}
+          detail={missing ? 'Hồ sơ không tồn tại hoặc chưa được công bố.' : campaign.error.message}/>
+        <div className="campaign-flow-actions"><Link to="/campaigns">Quay về danh sách</Link>
+          {!missing ? <button type="button" onClick={() => void campaign.refetch()}>Thử tải lại</button> : null}</div>
+      </div> : null}
+      {slug && campaign.isSuccess ? <DetailContent campaign={campaign.data} slug={slug} /> : null}
     </Container>
-  </>;
+  </div>;
 }
