@@ -27,7 +27,7 @@ const campaigns = Array.from({ length: 19 }, (_, i) => ({
 }));
 const base = 'http://127.0.0.1:5181';
 const vite = spawn('npm', ['run', 'dev', '--', '--host', '127.0.0.1', '--port', '5181', '--strictPort'],
-  { cwd: process.cwd(), stdio: ['ignore', 'pipe', 'pipe'] });
+  { cwd: process.cwd(), stdio: ['ignore', 'pipe', 'pipe'], detached: true });
 let serverError = '';
 vite.stderr.on('data', (chunk) => { serverError += String(chunk); });
 const waitForServer = async () => {
@@ -152,6 +152,10 @@ try {
 } finally {
   await writeFile(resolve(evidence, 'qa-report.json'), JSON.stringify(report, null, 2), 'utf8');
   if (browser) await browser.close();
-  vite.kill('SIGTERM');
+  // npm launches Vite as a child: terminate the full process group so CI does
+  // not hang on inherited stdout/stderr after the browser has closed.
+  try { if (vite.pid) process.kill(-vite.pid, 'SIGTERM'); } catch { vite.kill('SIGTERM'); }
+  vite.stdout.destroy(); vite.stderr.destroy();
 }
 console.log(JSON.stringify({ pass: report.pass, checks: report.checks.length, errors: report.errors, failure: report.failure }, null, 2));
+process.exit(report.pass ? 0 : 1);
