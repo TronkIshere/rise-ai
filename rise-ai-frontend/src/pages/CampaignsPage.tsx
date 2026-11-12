@@ -11,7 +11,6 @@ import {
   campaignPaperTopArt, campaignPaperBottomArt, campaignPagerArt,
   campaignFooterWaveArt, campaignCategoryArt,
 } from './campaign-discovery-art';
-import '@/styles/campaign-discovery.css';
 
 const categoryDescriptions: Record<CampaignCategory, string> = {
   EDUCATION: 'Học tập và trường lớp',
