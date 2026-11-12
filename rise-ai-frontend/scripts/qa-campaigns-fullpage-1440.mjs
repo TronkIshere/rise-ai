@@ -1,5 +1,5 @@
 /* Browser globals in page.evaluate; not executed by Node. */
-/* global document:readonly, window:readonly, innerWidth:readonly */
+/* global document:readonly, window:readonly, innerWidth:readonly, getComputedStyle:readonly */
 import { chromium } from 'playwright';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
@@ -26,6 +26,8 @@ try{
   check('1440px desktop, no horizontal overflow',initial.viewportWidth===1440&&initial.documentWidth<=1440&&initial.sectionWidth===1440,initial);
   check('9 records/page split 1 lead + 8 dossiers',initial.state?.size===9&&initial.state?.leadVisible&&initial.rows===8,initial);
   check('8 dossier illustrations and actions',initial.arts===8&&initial.ctas===8,initial);
+  const paperBackground=await page.locator('#reading-results .dossier-paper').first().evaluate(el=>getComputedStyle(el).backgroundImage);
+  check('Dynamic paper surface has valid cream gradient',paperBackground.includes('linear-gradient')&&!paperBackground.includes('none'),paperBackground.slice(0,180));
   check('Original Header, Filter, Featured, Pagination and Footer preserved',await page.locator('.site-header').count()===1&&await page.locator('.filter-section').count()===1&&await page.locator('#lead-section').count()===1&&await page.locator('#pagination-landscape').count()===1&&await page.locator('.site-footer').count()===1);
   check('Truthful design-only notice',await page.locator('.preview-ribbon').isVisible());
   await page.screenshot({path:resolve(evidence,'campaign-fullpage-1440.png'),fullPage:true,animations:'disabled'});
