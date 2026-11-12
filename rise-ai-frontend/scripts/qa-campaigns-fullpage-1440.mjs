@@ -50,11 +50,17 @@ try{
     return last&&controls?Math.round(controls.top-last.bottom):null;
   });
   result.lastDossierToPagerButtons=controlGap;
+  const paginationLabelsVisible=await page.locator('#pagination-landscape .pagination-overline, #pagination-landscape .pagination-count')
+    .evaluateAll(elements=>elements.length===2&&elements.every(el=>{
+      const child=el.getBoundingClientRect(),parent=document.getElementById('pagination-landscape').getBoundingClientRect();
+      return child.top>=parent.top&&child.bottom<=parent.bottom;
+    }));
+  check('Pagination heading and page count remain fully visible',paginationLabelsVisible);
   check('Pagination is near the last dossier, but never covers its content',
     controlGap!==null&&controlGap>=40&&controlGap<=180,
     {gapPx:controlGap});
   check('Intended overlap joins the dossier background to pagination without moving Footer',
-    seam.gaps.paperToPager>=-145&&seam.gaps.paperToPager<=-135&&Math.abs(seam.gaps.pagerToWave)<=2,
+    seam.gaps.paperToPager>=-235&&seam.gaps.paperToPager<=-225&&Math.abs(seam.gaps.pagerToWave)<=2,
     seam.gaps);
   check('Pagination and footer use shared sage transition palette',
     seam.pagerBackground.includes('linear-gradient')&&seam.footerWaveMargin==='0px',
