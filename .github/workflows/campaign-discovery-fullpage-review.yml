@@ -15,10 +15,12 @@ jobs:
           node-version: '22'
           cache: npm
           cache-dependency-path: rise-ai-frontend/package-lock.json
-      - run: npm ci
+      - name: Install browser QA tooling
         working-directory: rise-ai-frontend
-      - run: npx playwright install --with-deps chromium
-        working-directory: rise-ai-frontend
+        run: |
+          npm ci --no-audit --no-fund
+          npm install --no-save --no-package-lock --no-audit --no-fund playwright@1.56.1
+          npx playwright install --with-deps chromium
       - name: Full-page Chromium QA 1440
         run: node scripts/qa-campaigns-fullpage-1440.mjs
         working-directory: rise-ai-frontend
