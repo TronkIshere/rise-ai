@@ -115,7 +115,8 @@ try {
 
   await page.locator('.cat[data-category="EDUCATION"]').click();
   await page.waitForURL('**/campaigns?category=EDUCATION');
-  await page.locator('#reading-results .dossier').first().waitFor();
+  // URL updates synchronously; wait for React Query to resolve the server-side result set.
+  await page.waitForFunction(() => document.querySelectorAll('#reading-results .dossier').length === 2);
   check('Category filter server-side and page reset', (await facts()).dossiers === 2 &&
     report.requests.at(-1)?.category === 'EDUCATION' && report.requests.at(-1)?.page === '0',
     { requests: report.requests.slice(-1), facts: await facts() });
