@@ -116,7 +116,7 @@ try {
       return match ? match.slice(1,4).map(Number) : null;
     };
     return {
-      shift:overline?new DOMMatrix(getComputedStyle(overline).transform).m42:null,
+      shift:overline?new window.DOMMatrix(getComputedStyle(overline).transform).m42:null,
       titleSize:overline?parseFloat(getComputedStyle(overline).fontSize):null,
       countSize:count?parseFloat(getComputedStyle(count).fontSize):null,
       buttonSize:pageButton?parseFloat(getComputedStyle(pageButton).fontSize):null,
@@ -124,7 +124,7 @@ try {
       countColor:count?parseColor(getComputedStyle(count).color):null,
       titleSurface:overline?getComputedStyle(overline).backgroundColor:null,
       countSurface:count?getComputedStyle(count).backgroundColor:null,
-      slotShift:slot?new DOMMatrix(getComputedStyle(slot).transform).m42:null,
+      slotShift:slot?new window.DOMMatrix(getComputedStyle(slot).transform).m42:null,
       disabledButtonColor:disabledButton?getComputedStyle(disabledButton).color:null,
     };
   });
