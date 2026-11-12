@@ -482,6 +482,42 @@ a:focus-visible,button:focus-visible,input:focus-visible{outline:3px solid #f0bc
 .footer-wave{background:linear-gradient(180deg,#cedfc6 0%,#bdd1b4 55%,#afc9aa 100%);}
 .footer-wave .journey-thread-finale{pointer-events:none;}
 
+
+/* Campaign Discovery / focused correction — Section 04 → small dossier cards.
+   The preceding featured section ends on warm cream. Start Section 05 in that
+   SAME cream and progressively reveal the mountain scene, with a gentle
+   atmospheric veil behind (not over) the paper cards and text. */
+.campaign-page-dossier{
+  margin-top:0;
+  background:linear-gradient(180deg,
+    #fff8eb 0%, #fff8eb 4%, #f7f6eb 8%,
+    #e8eedf 16%, #dae6d1 29%, #d9e3ce 56%,
+    #cadbbd 86%, var(--campaign-seam-sage) 100%);
+}
+.campaign-page-dossier::after{
+  content:"";
+  position:absolute;
+  inset:0 0 auto;
+  height:210px;
+  z-index:1;
+  pointer-events:none;
+  background:linear-gradient(180deg,
+    #fff8eb 0%, rgba(255,248,235,.97) 13%,
+    rgba(255,248,235,.78) 33%,
+    rgba(255,248,235,.30) 68%,
+    rgba(255,248,235,0) 100%);
+}
+.campaign-page-dossier > .top-landscape{
+  -webkit-mask-image:linear-gradient(to bottom,
+    transparent 0%, rgba(0,0,0,.10) 20%,
+    rgba(0,0,0,.52) 49%, rgba(0,0,0,.78) 70%,
+    rgba(0,0,0,.30) 86%, transparent 100%);
+  mask-image:linear-gradient(to bottom,
+    transparent 0%, rgba(0,0,0,.10) 20%,
+    rgba(0,0,0,.52) 49%, rgba(0,0,0,.78) 70%,
+    rgba(0,0,0,.30) 86%, transparent 100%);
+}
+
 </style>
 </head>
 <body>
