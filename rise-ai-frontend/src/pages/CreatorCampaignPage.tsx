@@ -40,7 +40,7 @@ export function CreatorCampaignPage() {
   const [reason,setReason]=useState('');
   const [notice,setNotice]=useState('');
   const [error,setError]=useState('');
-  const requestAttempt=useRef<{signature:string;key:string}|null>(null);
+  const requestAttempts=useRef(new Map<string,string>());
   const campaign=useQuery({queryKey:[...key,'campaign',id],queryFn:()=>getCreatorCampaign(id!),enabled:Boolean(id)});
   const owned=Boolean(campaign.data?.creatorId&&campaign.data.creatorId===user?.id);
   const milestones=useQuery({queryKey:[...key,'milestones',id],queryFn:()=>listCampaignMilestones(id!),enabled:Boolean(id&&owned)});
@@ -65,8 +65,8 @@ export function CreatorCampaignPage() {
     async onSuccess(){setEvidencePage(0);setEvidenceForm(evidenceBlank);setNotice('Đã gửi thông tin minh chứng chờ Admin xem xét.');await invalidate();},
   });
   const requestFunds=useMutation({
-    mutationFn:(params:{amount:number;reason:string;key:string})=>createCreatorDisbursement(selected!,{amount:params.amount,reason:params.reason},params.key),
-    async onSuccess(){setDisbursementPage(0);setAmount('');setReason('');requestAttempt.current=null;setNotice('Đã gửi đề nghị giải ngân mô phỏng. Không có tiền thật được chuyển.');await invalidate();},
+    mutationFn:(params:{milestoneId:string;amount:number;reason:string;key:string;signature:string})=>createCreatorDisbursement(params.milestoneId,{amount:params.amount,reason:params.reason},params.key),
+    async onSuccess(_,params){setDisbursementPage(0);setAmount('');setReason('');requestAttempts.current.delete(params.signature);setNotice('Đã gửi đề nghị giải ngân mô phỏng. Không có tiền thật được chuyển.');await invalidate();},
   });
   const fixFunds=useMutation({mutationFn:resubmitCreatorDisbursement,onSuccess(){setNotice('Đã gửi lại đề nghị để Admin xem xét.');invalidate();}});
   const cancelFunds=useMutation({
@@ -101,8 +101,12 @@ export function CreatorCampaignPage() {
     if(!Number.isSafeInteger(n)||n<=0||n>(activeMilestone?.remainingAmount??0)||!reason.trim()){setError('Nhập số tiền hợp lệ, không vượt ngân sách còn lại, và lý do.');return;}
     setError('');
     const signature=selected+JSON.stringify({amount:n,reason:reason.trim()});
-    if(!requestAttempt.current||requestAttempt.current.signature!==signature)requestAttempt.current={signature,key:crypto.randomUUID()};
-    try{await requestFunds.mutateAsync({amount:n,reason:reason.trim(),key:requestAttempt.current.key});}catch{/* Retry with same idempotency key. */}
+    let key=requestAttempts.current.get(signature);
+    if(!key){
+      key=crypto.randomUUID();
+      requestAttempts.current.set(signature,key);
+    }
+    try{await requestFunds.mutateAsync({milestoneId:selected,amount:n,reason:reason.trim(),key,signature});}catch{/* Keep the key for this payload while its outcome is uncertain. */}
   }
   if(!id)return <Container className="py-14"><StatusMessage error title="Thiếu mã chiến dịch"/></Container>;
   return <div className="rise-deep-page deep-creator-campaign">

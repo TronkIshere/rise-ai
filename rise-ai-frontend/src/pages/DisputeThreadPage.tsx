@@ -54,7 +54,10 @@ export function DisputeThreadPage() {
         <div className="flex items-center gap-2"><MessageCircle size={24} className="text-brand" aria-hidden="true"/><h2 className="text-xl font-bold text-brand-ink">Trao đổi</h2></div>
         <div className="mt-5 space-y-3">
           {messages.isPending?<StatusMessage title="Đang tải trao đổi…"/>:null}
-          {messages.isError?<StatusMessage error title="Không tải được tin nhắn" detail={messages.error.message}/>:null}
+          {messages.isError?<div className="space-y-3">
+            <StatusMessage error title="Không tải được tin nhắn" detail={messages.error.message}/>
+            <Button variant="outline" loading={messages.isFetching} onClick={()=>void messages.refetch()}>Tải lại trao đổi</Button>
+          </div>:null}
           {messages.isSuccess && !messages.data.data?.length?<StatusMessage title="Chưa có trao đổi"/>:null}
           {messages.data?.data?.map(item=><article className="rounded-xl border border-border bg-surface p-5" key={item.id}>
             <p className="text-xs font-semibold text-muted">{item.authorId===user?.id?'Bạn':'Người tham gia xử lý'} · {dateLabel(item.createdAt)}</p>

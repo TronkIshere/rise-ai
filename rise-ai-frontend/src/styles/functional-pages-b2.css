@@ -13,7 +13,7 @@
    radial-gradient(ellipse 520px 240px at 83% 4%,color-mix(in srgb, var(--color-soft-sand) 86%, var(--color-warning)) 1%,transparent 80%),
    radial-gradient(ellipse 610px 350px at 100% 24%,color-mix(in srgb, var(--color-brand) 2%, var(--color-border)) 0%,transparent 80%),
    linear-gradient(180deg,color-mix(in srgb, var(--color-soft-sand) 18%, var(--color-subtle)) 0%,color-mix(in srgb, var(--color-soft-mint) 32%, var(--color-soft-sand)) 480px,color-mix(in srgb, var(--color-soft-sand) 72%, var(--color-border)) 100%);
- overflow:hidden;
+ overflow:clip;
 }
 .rise-deep-page::before{
  content:'';position:absolute;z-index:-1;top:142px;right:-155px;
@@ -67,7 +67,7 @@
  color:color-mix(in srgb, var(--color-brand) 90%, var(--color-warning));
 }
 .rise-deep-page .deep-inner>a:hover{text-decoration:underline;text-underline-offset:5px;}
-.rise-deep-page .deep-inner>section{
+.rise-deep-page .deep-inner>section:where(:not(.rise-entry-art,.rise-entry-paper)){
  margin-top:29px;padding:25px 29px 31px;
  border:1px solid color-mix(in srgb, var(--color-brand) 18%, var(--color-soft-sand));border-radius:23px;background:color-mix(in srgb, color-mix(in srgb, var(--color-surface) 58%, var(--color-soft-sand)) 68%, transparent);
  box-shadow:0 12px 27px color-mix(in srgb, color-mix(in srgb, var(--color-brand-ink) 70%, var(--color-muted)) 5%, transparent);
@@ -176,6 +176,7 @@
  max-width:800px;
 }
 .deep-creator-editor .deep-inner>h1{color:color-mix(in srgb, var(--color-brand-hover) 96%, var(--color-warning));}
+.deep-donor-dispute .deep-inner section p{overflow-wrap:anywhere;}
 .deep-donor-dispute .deep-inner article{
  border-left:4px solid color-mix(in srgb, var(--color-brand) 46%, var(--color-soft-sand));
 }
@@ -218,8 +219,8 @@
  font-weight:950;color:color-mix(in srgb, var(--color-surface) 14%, var(--color-soft-sand))!important;
 }
 .rise-entry-art h1 em,.rise-workspace-hero h1 em,.rise-notfound-paper h1 em{
- font-family:Georgia,'Times New Roman',serif;font-weight:500;font-style:italic;
- letter-spacing:-.035em;
+ font-family:var(--font-sans);font-weight:650;font-style:italic;
+ letter-spacing:normal;
 }
 .rise-entry-art h1 em{color:color-mix(in srgb, var(--color-soft-sand) 66%, var(--color-warning));}
 .rise-entry-art>p{
@@ -328,7 +329,7 @@
 .rise-workspace-section-head>div>p{font-size:10px;letter-spacing:.16em;font-weight:950;color:color-mix(in srgb, var(--color-brand-hover) 74%, var(--color-soft-sand));}
 .rise-workspace-section-head h2{margin-top:8px;font-size:26px!important;letter-spacing:-.035em;}
 .rise-workspace-section-head>span{font-size:11px;font-weight:800;color:color-mix(in srgb, var(--color-brand-ink) 60%, var(--color-soft-sand));}
-.rise-workspace-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px;}
+.rise-workspace-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,19rem),1fr));gap:18px;}
 .rise-workspace-card{
  display:flex;flex-direction:column;align-items:flex-start;
  min-height:294px;position:relative;padding:25px 27px;border-radius:23px;
@@ -389,6 +390,17 @@
  min-height:46px;padding:12px 18px;font-size:12px;font-weight:850;border-radius:12px;}
 .rise-notfound-primary{background:color-mix(in srgb, var(--color-brand) 12%, var(--color-brand-hover));color:color-mix(in srgb, var(--color-surface) 20%, var(--color-soft-sand));box-shadow:0 8px 14px color-mix(in srgb, color-mix(in srgb, var(--color-brand-hover) 80%, var(--color-warning)) 11%, transparent);}
 .rise-notfound-secondary{background:color-mix(in srgb, var(--color-canvas) 42%, var(--color-border));color:color-mix(in srgb, var(--color-brand-hover) 70%, var(--color-muted));border:1px solid color-mix(in srgb, var(--color-brand) 20%, var(--color-soft-sand));}
+@media(min-width:1051px){
+ .rise-workspace-card:only-child{
+  display:grid;grid-template-columns:auto minmax(0,1fr) auto;
+  align-items:center;column-gap:22px;row-gap:8px;min-height:152px;
+ }
+ .rise-workspace-card:only-child .rise-workspace-card-top{grid-column:1/-1;}
+ .rise-workspace-card:only-child .rise-workspace-card-icon{grid-row:2/4;margin:0;}
+ .rise-workspace-card:only-child h3,
+ .rise-workspace-card:only-child p{grid-column:2;margin:0;}
+ .rise-workspace-card:only-child .rise-workspace-card-action{grid-column:3;grid-row:2/4;margin:0;padding:0;}
+}
 @media(max-width:1050px){
  .deep-admin-review .deep-inner>div.grid>aside,.deep-admin-finding .deep-inner>div.grid>aside{position:static;}
  .rise-entry-page .rise-entry-layout{grid-template-columns:1fr;}

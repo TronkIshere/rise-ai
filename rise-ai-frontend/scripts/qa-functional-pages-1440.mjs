@@ -2,6 +2,7 @@
    Runs on configured QA/staging Frontend+Backend (no intercept, no mock data).
    Do NOT use production credentials or production writes.
    Required RISE_QA_BASE_URL; optional user roles and record IDs described below. */
+/* global window, document, PopStateEvent */
 import { chromium } from 'playwright';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
@@ -17,12 +18,12 @@ const routes={
   guest:[['login','/login','rise-entry-page'],['not-found','/rise-qa-nonexistent-path','rise-notfound-page']],
   donor:[['workspace','/workspace','rise-workspace-page'],['dispute-thread',process.env.RISE_QA_DISPUTE_ID?
     '/donor/disputes/'+encodeURIComponent(process.env.RISE_QA_DISPUTE_ID):null,'deep-donor-dispute']],
-  creator:[['campaign-editor-new','/creator/campaigns/new','deep-creator-editor'],
+  creator:[['workspace','/workspace','rise-workspace-page'],['campaign-editor-new','/creator/campaigns/new','deep-creator-editor'],
     ['campaign-detail',process.env.RISE_QA_CREATOR_CAMPAIGN_ID?
       '/creator/campaigns/'+encodeURIComponent(process.env.RISE_QA_CREATOR_CAMPAIGN_ID):null,'deep-creator-campaign'],
     ['campaign-editor',process.env.RISE_QA_CREATOR_CAMPAIGN_ID?
       '/creator/campaigns/'+encodeURIComponent(process.env.RISE_QA_CREATOR_CAMPAIGN_ID)+'/edit':null,'deep-creator-editor']],
-  admin:[['review',process.env.RISE_QA_REVIEW_KIND&&process.env.RISE_QA_REVIEW_ID?
+  admin:[['workspace','/workspace','rise-workspace-page'],['review',process.env.RISE_QA_REVIEW_KIND&&process.env.RISE_QA_REVIEW_ID?
       '/admin/review/'+encodeURIComponent(process.env.RISE_QA_REVIEW_KIND)+'/'+encodeURIComponent(process.env.RISE_QA_REVIEW_ID):null,'deep-admin-review'],
     ['escrow','/admin/escrow','deep-admin-escrow'],
     ['monitoring','/admin/monitoring','deep-admin-monitoring'],
@@ -46,29 +47,67 @@ async function recordPage(page,role,name,path,klass){
     await go(page,path);
     await page.locator('.rise-deep-page.'+klass).waitFor({timeout:14000});
     await page.locator('h1').first().waitFor({state:'visible',timeout:14000});
-    await page.waitForTimeout(550);
-    const geometry=await page.evaluate(()=>({
-      scroll:document.documentElement.scrollWidth,
-      width:window.innerWidth,
-      title:document.querySelector('h1')?.textContent?.trim().slice(0,150)??'',
-      visibleElements:[...document.querySelectorAll('h1,h2')].filter(el=>{
-        const r=el.getBoundingClientRect();return r.width>0&&r.height>0;
-      }).length,
-    }));
-    const okay=geometry.scroll<=geometry.width+2 && Boolean(geometry.title);
+    await page.waitForFunction(() => [...document.querySelectorAll('.rise-deep-page [role=status]')]
+      .every(element => !/^Đang (tải|xác minh)/.test(element.textContent?.trim() ?? '')));
+    const geometry=await page.evaluate(async()=>{
+      await document.fonts.ready;
+      window.scrollTo({top:0,behavior:'instant'});
+      const content=document.querySelector('.rise-deep-page');
+      const art=content?.querySelector('.rise-entry-art');
+      const grid=content?.querySelector('.rise-workspace-grid');
+      const singleCard=grid?.querySelector('.rise-workspace-card:only-child');
+      return {
+        scroll:document.documentElement.scrollWidth,
+        width:window.innerWidth,
+        height:window.innerHeight,
+        dpr:window.devicePixelRatio,
+        title:content?.querySelector('h1')?.textContent?.trim().slice(0,150)??'',
+        errors:[...content.querySelectorAll('[role=alert]')].map(element=>element.textContent?.trim()),
+        hasFooter:Boolean(document.querySelector('footer')),
+        loginLandscape:art ? window.getComputedStyle(art).backgroundImage.includes('linear-gradient') : null,
+        workspaceCardRatio:singleCard ? singleCard.clientWidth/grid.clientWidth : null,
+      };
+    });
+    if(klass==='rise-entry-page'){
+      await page.locator('#email').focus();
+      await page.keyboard.press('Tab');
+      const password=page.locator('#password');
+      geometry.keyboardFocus=await password.evaluate(el=>{
+        const outline=window.getComputedStyle(el);
+        return document.activeElement===el && el.matches(':focus-visible') &&
+          outline.outlineStyle!=='none' && parseFloat(outline.outlineWidth)>=2;
+      });
+      await password.blur();
+    }
+    const okay=geometry.width===1440 && geometry.height===900 && geometry.dpr===1 &&
+      geometry.scroll<=geometry.width && Boolean(geometry.title) && geometry.hasFooter &&
+      geometry.errors.length===0 && geometry.loginLandscape!==false && geometry.keyboardFocus!==false &&
+      (geometry.workspaceCardRatio===null || geometry.workspaceCardRatio>=0.95);
     report.checks.push({role,name,path,pass:okay,geometry});
     await page.screenshot({path:join(root,role+'-'+name+'-1440.png'),
       fullPage:true,animations:'disabled'});
-    if(!okay)report.errors.push(role+':'+name+' overflow or missing title');
+    if(!okay)report.errors.push(role+':'+name+' failed visual or loaded-state checks');
   }catch(e){
     report.errors.push(role+':'+name+' '+String(e));
     report.checks.push({role,name,path,pass:false,error:String(e)});
   }
 }
+function observe(page,role){
+  page.on('pageerror',error=>report.errors.push(role+' JS '+String(error)));
+  page.on('console',message=>{
+    if(message.type()==='error') report.errors.push(role+' console '+message.text());
+  });
+  page.on('response',response=>{
+    const url=new URL(response.url());
+    if(url.pathname.startsWith('/api/v1/') && response.status()>=400){
+      report.errors.push(role+' HTTP '+response.status()+' '+url.pathname);
+    }
+  });
+}
 async function authRole(role,email,password){
   const context=await browser.newContext({viewport:{width:1440,height:900},deviceScaleFactor:1,reducedMotion:'reduce'});
   const page=await context.newPage();
-  page.on('pageerror',e=>report.errors.push(role+' JS '+String(e)));
+  observe(page,role);
   await page.goto(base+'/login',{waitUntil:'domcontentloaded',timeout:20000});
   await page.locator('#email').fill(email);
   await page.locator('#password').fill(password);
@@ -80,7 +119,7 @@ try{
   browser=await chromium.launch({headless:true,args:['--no-sandbox']});
   const guestContext=await browser.newContext({viewport:{width:1440,height:900},deviceScaleFactor:1,reducedMotion:'reduce'});
   const guest=await guestContext.newPage();
-  guest.on('pageerror',e=>report.errors.push('guest JS '+String(e)));
+  observe(guest,'guest');
   await guest.goto(base+'/login',{waitUntil:'domcontentloaded',timeout:20000});
   for(const [name,path,klass] of routes.guest)await recordPage(guest,'guest',name,path,klass);
   await guestContext.close();
