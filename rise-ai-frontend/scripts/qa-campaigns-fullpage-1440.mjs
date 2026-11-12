@@ -50,6 +50,22 @@ try{
   check('Pagination and footer use shared sage transition palette',
     seam.pagerBackground.includes('linear-gradient')&&seam.footerWaveMargin==='0px',
     {pagerBackground:seam.pagerBackground,footerWaveMargin:seam.footerWaveMargin});
+  const motif=await page.evaluate(()=>{
+    const section=document.getElementById('paper-section');
+    const pager=document.getElementById('pagination-landscape');
+    const footer=document.querySelector('.footer-wave');
+    return {
+      valleyRiver:!!section.querySelector('.journey-river-source path'),
+      pagerRiver:!!pager.querySelector('.journey-river-continuation path'),
+      footerThread:!!footer.querySelector('.journey-thread-finale'),
+      hiddenDecor:[section.querySelector('.bottom-valley'),pager.querySelector('.pagination-scene'),footer].every(el=>el.getAttribute('aria-hidden')==='true'),
+      footerBackground:getComputedStyle(footer).backgroundImage
+    };
+  });
+  result.journeyThread=motif;
+  check('One river-to-trail motif spans dossier valley, pagination, footer',motif.valleyRiver&&motif.pagerRiver&&motif.footerThread,motif);
+  check('Landscape motif is decorative and hidden from assistive technology',motif.hiddenDecor,motif);
+  check('Footer transition uses shared sage landscape',motif.footerBackground.includes('linear-gradient'),motif.footerBackground);
   await page.screenshot({path:resolve(evidence,'campaign-fullpage-1440.png'),fullPage:true,animations:'disabled'});
   await page.locator('#reading-results .read-profile').first().click();
   check('Dossier action shows mock-only disclosure',await page.locator('#demo-feedback').isVisible());

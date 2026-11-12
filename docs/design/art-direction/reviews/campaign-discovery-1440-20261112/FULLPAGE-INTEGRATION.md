@@ -19,3 +19,6 @@
 Owner raised a visual seam issue. Adjust **only** the transitions between (1) featured → paper dossiers, (2) paper bottom valley → Landscape Thread B pagination, (3) pagination → forest footer. The top scene gets a two-ended gradient alpha mask, the bottom photo gains a two-ended alpha mask and shared sage tone, and pagination/footer surfaces now meet without a disconnected cream strip. No component sizes, text, cards, data logic or Homepage changed.
 
 Chromium QA adds computed-style mask checks and actual layout seam-gap measurements; preserve latest screenshot artifact for owner visual approval. This is a design proposal pending review, not a signed-off visual master.
+
+## Journey Landscape Thread v1.2 — candidate for owner review
+Owner suggests a single pattern from the bottom of the small campaign dossiers to the beginning of Footer. The existing valley illustration is retained as a source; a softly lit river trail now carries through Section 06 and ends at the Footer wave. Pagination hill colors are reduced to support—not compete with—the trail. Cards, content, data, and functionality are unmodified. This is a design proposal, **not approved** until real 1440px screenshot review and independent review.
