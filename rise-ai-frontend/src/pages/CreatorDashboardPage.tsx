@@ -71,7 +71,7 @@ export function CreatorDashboardPage() {
     <section className="dashboard-section mt-10" aria-labelledby="creator-organizations">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h2 id="creator-organizations" className="flex items-center gap-2 text-2xl font-extrabold text-brand-ink"><Building2 className="text-brand" aria-hidden="true"/> Tổ chức của tôi</h2>
-        <Button variant="outline" onClick={createOrg}>+ Thêm tổ chức</Button>
+        <Button variant="outline" disabled={save.isPending} onClick={createOrg}>+ Thêm tổ chức</Button>
       </div>
       {formVisible?<form className="mt-5 grid gap-5 rounded-card border border-border bg-surface p-6 sm:grid-cols-2" onSubmit={e=>void submit(e)}>
         <h3 className="text-lg font-bold text-brand-ink sm:col-span-2">{editing?'Chỉnh sửa tổ chức':'Tạo tổ chức mới'}</h3>
@@ -89,8 +89,8 @@ export function CreatorDashboardPage() {
           <div className="flex flex-wrap justify-between gap-3"><h3 className="text-lg font-bold text-brand-ink">{org.name}</h3><span className="h-fit rounded-full bg-soft-sand px-3 py-1.5 text-xs text-warning">{verificationState(org.verificationStatus)}</span></div>
           <p className="mt-2 text-sm text-muted">{org.contactEmail}</p>
           {org.verificationNotes?<p className="mt-3 text-xs text-muted">Ghi chú duyệt: {org.verificationNotes}</p>:null}
-          <div className="mt-5 flex flex-wrap gap-2"><Button variant="outline" onClick={()=>editOrg(org)}>Chỉnh sửa</Button>
-            {org.id && (org.verificationStatus==='UNVERIFIED'||org.verificationStatus==='REJECTED')?<Button variant="outline" loading={verify.isPending} onClick={()=>{if(window.confirm('Gửi tổ chức để Admin xem xét xác minh?'))verify.mutate(org.id!);}}>Gửi xác minh</Button>:null}
+          <div className="mt-5 flex flex-wrap gap-2"><Button variant="outline" disabled={save.isPending} onClick={()=>editOrg(org)}>Chỉnh sửa</Button>
+            {org.id && (org.verificationStatus==='UNVERIFIED'||org.verificationStatus==='REJECTED')?<Button variant="outline" loading={verify.isPending} disabled={save.isPending} onClick={()=>{if(window.confirm('Gửi tổ chức để Admin xem xét xác minh?'))verify.mutate(org.id!);}}>Gửi xác minh</Button>:null}
           </div>
         </article>):null}
       </div>

@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState, type FormEvent } from 'react';
+import { useMemo, useRef, useState, type FormEvent, type KeyboardEvent } from 'react';
 import { useMutation, useQueries, useQuery, useQueryClient } from '@tanstack/react-query';
 import { AlertCircle, ArrowUpRight, HandHeart, MessageCircleWarning, ReceiptText, RotateCcw } from 'lucide-react';
 import { Link } from 'react-router';
@@ -19,6 +19,12 @@ function QueryState({ query, empty, retry }: { query: { isPending: boolean; isEr
   if (query.isError) return <div className="space-y-3"><StatusMessage error title="Không tải được dữ liệu" detail={query.error?.message}/><Button variant="outline" onClick={retry}>Thử lại</Button></div>;
   return <StatusMessage title={empty} detail="Dữ liệu được tải từ Backend, không thêm bản ghi giả." />;
 }
+
+const donorTabs = [
+  { id: 'donations', icon: HandHeart, label: 'Đóng góp' },
+  { id: 'refunds', icon: ReceiptText, label: 'Hoàn tiền' },
+  { id: 'disputes', icon: MessageCircleWarning, label: 'Phản ánh' },
+] as const;
 
 export function DonorDashboardPage() {
   const { user } = useAuth();
@@ -99,6 +105,26 @@ export function DonorDashboardPage() {
     catch {/* Show Backend error below. */}
   }
   function resetNotice() {setNotice('');setFormError('');}
+  function selectTab(next: Tab) {
+    setTab(next);
+    resetNotice();
+  }
+  function navigateTabs(event: KeyboardEvent<HTMLDivElement>) {
+    const index = donorTabs.findIndex(item => item.id === tab);
+    let next: number;
+    switch (event.key) {
+      case 'ArrowRight': next = (index + 1) % donorTabs.length; break;
+      case 'ArrowLeft': next = (index + donorTabs.length - 1) % donorTabs.length; break;
+      case 'Home': next = 0; break;
+      case 'End': next = donorTabs.length - 1; break;
+      default: return;
+    }
+    const item = donorTabs[next];
+    if (!item) return;
+    event.preventDefault();
+    event.currentTarget.querySelectorAll<HTMLButtonElement>('[role="tab"]')[next]?.focus();
+    selectTab(item.id);
+  }
   return <div className="rise-dashboard donor-dashboard"><Container className="dashboard-inner py-10 sm:py-14">
     <div className="dashboard-hero flex flex-wrap items-end justify-between gap-4">
       <div>
@@ -116,17 +142,13 @@ export function DonorDashboardPage() {
     <div className="dashboard-disclaimer mt-7 rounded-xl border border-border bg-soft-sand p-4 text-xs leading-6 text-warning">
       Toàn bộ đóng góp, hoàn tiền và trạng thái tài chính ở đây chỉ là mô phỏng. Việc tạo đóng góp không đồng nghĩa đã được xác nhận.
     </div>
-    <div className="dashboard-tabbar mt-8 flex flex-wrap gap-2 border-b border-border pb-4" role="tablist" aria-label="Quản lý đóng góp">
-      {([
-        {id:'donations' as Tab, icon: HandHeart, label:'Đóng góp'},
-        {id:'refunds' as Tab, icon: ReceiptText, label:'Hoàn tiền'},
-        {id:'disputes' as Tab, icon: MessageCircleWarning, label:'Phản ánh'},
-      ]).map(({id,icon:Icon,label})=><button key={id} id={'dashboard-tab-'+id} aria-controls={'dashboard-panel-'+id} type="button" role="tab" aria-selected={tab===id} onClick={()=>{setTab(id);resetNotice();}} className={'inline-flex min-h-11 items-center gap-2 rounded-xl px-5 text-sm font-semibold ' + (tab===id?'bg-brand text-white':'bg-surface text-brand hover:bg-soft-mint')}><Icon size={17} aria-hidden="true"/>{label}</button>)}
+    <div className="dashboard-tabbar mt-8 flex flex-wrap gap-2 border-b border-border pb-4" role="tablist" aria-label="Quản lý đóng góp" onKeyDown={navigateTabs}>
+      {donorTabs.map(({id,icon:Icon,label})=><button key={id} id={'dashboard-tab-'+id} aria-controls={'dashboard-panel-'+id} type="button" role="tab" aria-selected={tab===id} tabIndex={tab===id ? 0 : -1} onClick={()=>selectTab(id)} className={'inline-flex min-h-11 items-center gap-2 rounded-xl px-5 text-sm font-semibold ' + (tab===id?'bg-brand text-white':'bg-surface text-brand hover:bg-soft-mint')}><Icon size={17} aria-hidden="true"/>{label}</button>)}
     </div>
     {notice ? <p className="mt-5 rounded-xl bg-soft-mint p-4 text-sm text-brand-ink" role="status">{notice}</p> : null}
     {cancelPending.isError || cancelRequested.isError ? <p role="alert" className="mt-5 text-sm text-danger">{(cancelPending.error ?? cancelRequested.error)?.message}</p> : null}
 
-    {tab==='donations' ? <section id="dashboard-panel-donations" className="dashboard-section mt-7" role="tabpanel" aria-labelledby="dashboard-tab-donations">
+    <section hidden={tab!=='donations'} id="dashboard-panel-donations" className="dashboard-section mt-7" role="tabpanel" aria-labelledby="dashboard-tab-donations">
       <h2 className="text-xl font-bold text-brand-ink">Lịch sử đóng góp của tôi</h2>
       <div className="mt-5 space-y-4">
         {donations.isSuccess && donationItems.length ? donationItems.map(item=><article key={item.id} className="rounded-card border border-border bg-surface p-6">
@@ -156,9 +178,9 @@ export function DonorDashboardPage() {
           <div className="flex flex-wrap gap-2"><Button type="submit" loading={refund.isPending}>Gửi yêu cầu hoàn tiền</Button><Button type="button" variant="outline" onClick={()=>setSelectedDonation(null)}>Đóng</Button></div>
         </div>
       </form> : null}
-    </section>:null}
+    </section>
 
-    {tab==='refunds' ? <section id="dashboard-panel-refunds" className="dashboard-section mt-7" role="tabpanel" aria-labelledby="dashboard-tab-refunds">
+    <section hidden={tab!=='refunds'} id="dashboard-panel-refunds" className="dashboard-section mt-7" role="tabpanel" aria-labelledby="dashboard-tab-refunds">
       <h2 className="text-xl font-bold text-brand-ink">Yêu cầu hoàn tiền</h2>
       <div className="mt-5 space-y-4">
         {refunds.isSuccess && refunds.data.data?.length ? refunds.data.data.map(item=><article key={item.id} className="rounded-card border border-border bg-surface p-6">
@@ -169,9 +191,9 @@ export function DonorDashboardPage() {
         </article>) : <QueryState query={refunds} empty="Chưa có yêu cầu hoàn tiền" retry={()=>void refunds.refetch()}/>}
       </div>
       {refunds.isSuccess ? <RecordPagination page={refundPage} pages={refunds.data.totalPages??0} onChange={setRefundPage}/>:null}
-    </section>:null}
+    </section>
 
-    {tab==='disputes' ? <section id="dashboard-panel-disputes" className="dashboard-section mt-7" role="tabpanel" aria-labelledby="dashboard-tab-disputes">
+    <section hidden={tab!=='disputes'} id="dashboard-panel-disputes" className="dashboard-section mt-7" role="tabpanel" aria-labelledby="dashboard-tab-disputes">
       <h2 className="text-xl font-bold text-brand-ink">Phản ánh và tranh chấp</h2>
       <p className="mt-2 text-sm leading-7 text-muted">Theo quy tắc Backend, chỉ người có khoản đóng góp đã xác nhận mới có thể mở phản ánh. Chọn trang lịch sử bên dưới để tìm chiến dịch hợp lệ, không chỉ giới hạn ở trang đầu tiên.</p>
       <div className="mt-5 space-y-4">
@@ -199,7 +221,7 @@ export function DonorDashboardPage() {
           <Button type="submit" loading={dispute.isPending} disabled={!selectedCampaign}>Gửi phản ánh</Button>
         </div>
       </form>
-    </section>:null}
+    </section>
     <button type="button" onClick={()=>{invalidate();setNotice('');}} className="mt-10 inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-brand hover:underline"><RotateCcw size={16} aria-hidden="true"/> Làm mới dữ liệu của tôi</button>
   </Container></div>;
 }
