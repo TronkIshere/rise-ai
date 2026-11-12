@@ -701,3 +701,66 @@ a:focus-visible,button:focus-visible,input:focus-visible{outline:3px solid #f0bc
   .campaign-natural-continuum > .campaign-page-dossier > .cd-art > .bottom-valley { display:none; }
   .campaign-natural-continuum > #pagination-landscape > .cd-art > .pagination-scene { display:none; }
 }
+
+
+/* Campaign Discovery Desktop 1440 · targeted pagination legibility refinement.
+   Owner feedback: the controls were a little too high; small dark green
+   headings disappeared against the meadow. Move only the text/control group;
+   preserve the approved landscape, mountain seam and Footer geometry. */
+@scope (.campaign-discovery) {
+  #pagination-landscape .pagination-overline,
+  #pagination-landscape .pagination-count,
+  #pagination-landscape #pagination-slot {
+    position:relative;
+    transform:translateY(30px);
+  }
+  #pagination-landscape .pagination-overline {
+    font-size:14px;
+    line-height:1.45;
+    font-weight:900;
+    letter-spacing:.09em;
+    color:#fff8e9;
+    text-shadow:none;
+    background:rgba(8,55,40,.87);
+    border:1px solid rgba(250,226,166,.48);
+    border-radius:999px;
+    padding:7px 17px;
+    box-shadow:0 4px 12px rgba(9,52,34,.13);
+  }
+  #pagination-landscape .pagination-overline::before,
+  #pagination-landscape .pagination-overline::after {
+    background:#f9dc9d;
+    width:15px;
+    opacity:.95;
+  }
+  #pagination-landscape .pagination-count {
+    font-size:16px;
+    line-height:1.5;
+    font-weight:850;
+    letter-spacing:.01em;
+    color:#fff9e9;
+    text-shadow:none;
+    background:rgba(8,55,40,.84);
+    border:1px solid rgba(250,226,166,.40);
+    border-radius:999px;
+    padding:7px 20px;
+    box-shadow:0 4px 12px rgba(9,52,34,.12);
+  }
+  #pagination-landscape .pagination-controls {
+    background:rgba(255,251,235,.96);
+    border-color:#d2dfc3;
+  }
+  #pagination-landscape .pagination-controls button {
+    font-size:16px;
+    line-height:1.25;
+    font-weight:850;
+    min-width:48px;
+    height:48px;
+  }
+  #pagination-landscape .pagination-controls button:disabled {
+    opacity:1;
+    color:#46624e;
+    background:#e7eddf;
+    border-color:#bfcfba;
+  }
+}

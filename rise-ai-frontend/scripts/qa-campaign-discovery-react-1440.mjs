@@ -105,6 +105,43 @@ try {
     report.requests[0]?.page === '0', report.requests[0]);
   check('Detail CTA uses real /campaigns/:slug link', first.link === '/campaigns/qa-campaign-2', first.link);
 
+  const paginationReadability=await page.evaluate(()=>{
+    const overline=document.querySelector('#pagination-landscape .pagination-overline');
+    const count=document.querySelector('#pagination-landscape .pagination-count');
+    const slot=document.querySelector('#pagination-landscape #pagination-slot');
+    const pageButton=document.querySelector('#pagination-landscape .pagination-controls button[aria-current="page"]');
+    const disabledButton=document.querySelector('#pagination-landscape .pagination-controls button:disabled');
+    const parseColor=(value)=>{
+      const match=value.match(/^rgba?\\((\\d+),\\s*(\\d+),\\s*(\\d+)/);
+      return match ? match.slice(1,4).map(Number) : null;
+    };
+    return {
+      shift:overline?new DOMMatrix(getComputedStyle(overline).transform).m42:null,
+      titleSize:overline?parseFloat(getComputedStyle(overline).fontSize):null,
+      countSize:count?parseFloat(getComputedStyle(count).fontSize):null,
+      buttonSize:pageButton?parseFloat(getComputedStyle(pageButton).fontSize):null,
+      titleColor:overline?parseColor(getComputedStyle(overline).color):null,
+      countColor:count?parseColor(getComputedStyle(count).color):null,
+      titleSurface:overline?getComputedStyle(overline).backgroundColor:null,
+      countSurface:count?getComputedStyle(count).backgroundColor:null,
+      slotShift:slot?new DOMMatrix(getComputedStyle(slot).transform).m42:null,
+      disabledButtonColor:disabledButton?getComputedStyle(disabledButton).color:null,
+    };
+  });
+  report.paginationReadability=paginationReadability;
+  check('Pagination text and controls moved down exactly 30px without shifting landscape',
+    paginationReadability.shift===30&&paginationReadability.slotShift===30,paginationReadability);
+  check('Landscape heading, page count and number buttons use legible sizes',
+    paginationReadability.titleSize>=14&&paginationReadability.countSize>=16&&
+    paginationReadability.buttonSize>=16,paginationReadability);
+  check('Pagination labels have bright warm text over a dark backdrop for contrast',
+    paginationReadability.titleColor?.every(value=>value>=230)&&
+    paginationReadability.countColor?.every(value=>value>=230)&&
+    paginationReadability.titleSurface?.startsWith('rgba(8, 55, 40')&&
+    paginationReadability.countSurface?.startsWith('rgba(8, 55, 40'),
+    paginationReadability);
+
+
   const landscapeGeometry=await page.evaluate(()=>{
     const meadow=document.querySelector('.continuous-landscape');
     const valley=document.querySelector('.bottom-valley');
