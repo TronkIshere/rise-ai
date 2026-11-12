@@ -58,7 +58,7 @@ try{
     return {
       sharedMeadow:!!scene?.querySelector('#meadow-atmosphere')&&getComputedStyle(shared).display!=='none',
       forestTransition:!!footer?.querySelector('#footer-forest-grade'),
-      trees:scene?.querySelectorAll('g transform').length||0,
+      trees:scene?.querySelectorAll('g[transform]').length||0,
       hiddenDecor:shared?.getAttribute('aria-hidden')==='true'&&footer?.getAttribute('aria-hidden')==='true',
       pagerArtHidden:getComputedStyle(pager.querySelector('.pagination-scene')).display==='none',
       footerHeight:Math.round(footer.getBoundingClientRect().height)
