@@ -318,21 +318,21 @@ export function CampaignsPage() {
           </div> : null}
           {campaigns.isSuccess && lead ? <>
             <CampaignLead campaign={lead} />
-            <div className="campaign-natural-continuum">
+            <div className={"campaign-natural-continuum" + (dossiers.length === 0 ? " cd-single-result" : "")}>
               <StaticArt html={campaignMeadowArt} />
-              <section id="paper-section" className="review-section campaign-page-dossier" aria-labelledby="paper-title">
+              {dossiers.length > 0 ? <section id="paper-section" className="review-section campaign-page-dossier" aria-labelledby="paper-title">
                 <StaticArt html={campaignPaperTopArt} />
                 <div className="content">
                   <header className="section-header"><div className="header-copy">
                     <h2 id="paper-title">Hồ sơ chiến dịch cộng đồng</h2>
                     <p>Các hồ sơ được hiển thị theo dữ liệu từ Backend; thông tin tài trợ và giao dịch trong hệ thống là mô phỏng.</p>
                   </div></header>
-                  {dossiers.length ? <div className="dossiers" id="reading-results" aria-label="Các hồ sơ tiếp theo">
+                  <div className="dossiers" id="reading-results" aria-label="Các hồ sơ tiếp theo">
                     {dossiers.map((campaign, i) => <CampaignDossier key={campaign.id ?? campaign.slug ?? i} campaign={campaign} />)}
-                  </div> : <p className="cd-page-info">Không còn hồ sơ phụ trên trang này.</p>}
+                  </div>
                 </div>
                 <StaticArt html={campaignPaperBottomArt} />
-              </section>
+              </section> : <p className="cd-single-result-note" role="status">Đã hiển thị hồ sơ cuối cùng của trang này.</p>}
               <CampaignPager page={page} pages={pages} total={total} shown={results.length} onPage={changePage} />
             </div>
           </> : null}

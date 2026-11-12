@@ -193,6 +193,27 @@ try {
   check('Last page uses 0-based API page=2, 1 lead and zero dossier rows',
     (await facts()).lead === 1 && (await facts()).dossiers === 0 &&
     report.requests.at(-1)?.page === '2', report.requests.slice(-1));
+  const singleResultState=await page.evaluate(()=>{
+    const nature=document.querySelector('.campaign-natural-continuum');
+    const lead=document.querySelector('#lead-section');
+    const pager=document.querySelector('#pagination-landscape');
+    const message=document.querySelector('.cd-single-result-note');
+    return {
+      hasPaperPanel:!!document.querySelector('#paper-section'),
+      hasCompactState:nature?.classList.contains('cd-single-result'),
+      noteVisible:message ? getComputedStyle(message).display!=='none' : false,
+      gapAfterLead:pager&&lead?Math.round(pager.getBoundingClientRect().top-lead.getBoundingClientRect().bottom):null,
+      paginationVisible:!!pager,
+    };
+  });
+  report.singleResultState=singleResultState;
+  check('Single-result last page collapses empty Paper Dossier with accessible final-item note',
+    !singleResultState.hasPaperPanel && singleResultState.hasCompactState &&
+    singleResultState.noteVisible && singleResultState.paginationVisible, singleResultState);
+  check('Last-page pager is placed without a 1310px empty gap',
+    typeof singleResultState.gapAfterLead==='number' &&
+    singleResultState.gapAfterLead>=0 && singleResultState.gapAfterLead<250, singleResultState);
+
 
   await page.locator('#campaign-query').fill('khong-co-chien-dich-phu-hop');
   await page.locator('.search-form button').click();

@@ -27,3 +27,8 @@
 - Switched small dark green landscape labels to **warm ivory text on a translucent forest-green pill**, with a restrained amber outline; strengthened disabled button text contrast.
 - Added actual computed-style assertions in Chromium 1440 QA for text sizes, shift and color/backdrop, in addition to existing layout/search/filter/empty/API contract checks.
 - **Review required:** inspect captured React screenshot for clearance under final dossier and before Footer. A successful CI run alone is not owner visual approval.
+
+### Code review correction — last-page sparse layout (2026-11-12)
+- On a final page containing exactly **one** ACTIVE campaign, the 1,310px minimum Paper Dossier body had no rows and created excessive blank space. Removed that section only for this sparse case.
+- Replaced it with a compact accessible message and a normal pagination transition; the visual layout when 2–9 results are present remains unchanged.
+- Added Chromium QA assertions for absence of an empty Paper Dossier section and the remaining vertical gap. This does **not** constitute independent reviewer approval or merge permission.

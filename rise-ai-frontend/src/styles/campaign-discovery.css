@@ -764,3 +764,34 @@ a:focus-visible,button:focus-visible,input:focus-visible{outline:3px solid #f0bc
     border-color:#bfcfba;
   }
 }
+
+
+/* Code review: avoid a 1310px empty Paper Dossier panel when the last API
+   page contains only the single featured campaign (9-per-page contract).
+   Default 1+8 approved Desktop 1440 layout is unchanged. */
+@scope (.campaign-discovery) {
+  .campaign-natural-continuum.cd-single-result .cd-single-result-note {
+    position:relative;
+    z-index:2;
+    margin:76px auto 0;
+    padding:14px 28px;
+    width:fit-content;
+    max-width:calc(100% - 60px);
+    background:rgba(255,250,234,.93);
+    border:1px solid #b9cbb3;
+    border-radius:999px;
+    text-align:center;
+    color:#28523d;
+    font-size:15px;
+    font-weight:800;
+    box-shadow:0 7px 20px rgba(25,67,42,.10);
+  }
+  .campaign-natural-continuum.cd-single-result > #pagination-landscape {
+    margin-top:0;
+    min-height:300px;
+    padding:55px 24px 160px;
+  }
+  .campaign-natural-continuum.cd-single-result > .cd-art > .continuous-landscape {
+    height:610px;
+  }
+}
