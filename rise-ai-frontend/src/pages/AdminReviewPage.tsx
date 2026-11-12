@@ -90,7 +90,11 @@ export function AdminReviewPage(){
     actions=actions.filter(x=>x.id!=='approve');
   }
   const refresh=()=>{setNotice('Backend đã ghi nhận thay đổi.');void client.invalidateQueries({queryKey:['admin',user?.id]});};
-  return <Container className="py-10 sm:py-14">
+  return <div className="rise-deep-page deep-admin-review">
+    <div className="rise-deep-topline" aria-hidden="true">
+      <span>ADMIN / KIỂM DUYỆT</span><span>04 · HỒ SƠ XÉT DUYỆT</span>
+    </div>
+    <Container className="deep-inner py-10 sm:py-14">
     <Link to="/admin" className="inline-flex min-h-11 items-center gap-2 text-sm font-bold text-brand"><ArrowLeft size={17} aria-hidden="true"/> Về trung tâm xét duyệt</Link>
     {query.isPending?<div className="mt-6"><StatusMessage title="Đang tải hồ sơ…" /></div>:null}
     {query.isError?<div className="mt-6"><StatusMessage error title="Không thể tải hồ sơ" detail={query.error.message}/></div>:null}
@@ -155,5 +159,6 @@ export function AdminReviewPage(){
         </div>
       </aside>
     </div>:null}
-  </Container>;
+    </Container>
+  </div>;
 }

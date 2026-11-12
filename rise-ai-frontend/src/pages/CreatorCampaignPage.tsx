@@ -105,7 +105,11 @@ export function CreatorCampaignPage() {
     try{await requestFunds.mutateAsync({amount:n,reason:reason.trim(),key:requestAttempt.current.key});}catch{/* Retry with same idempotency key. */}
   }
   if(!id)return <Container className="py-14"><StatusMessage error title="Thiếu mã chiến dịch"/></Container>;
-  return <Container className="py-10 sm:py-14">
+  return <div className="rise-deep-page deep-creator-campaign">
+    <div className="rise-deep-topline" aria-hidden="true">
+      <span>CREATOR / TRIỂN KHAI</span><span>03 · LỘ TRÌNH MINH CHỨNG</span>
+    </div>
+    <Container className="deep-inner py-10 sm:py-14">
     <Link to="/creator" className="inline-flex min-h-11 items-center gap-2 text-sm font-bold text-brand"><ArrowLeft size={17} aria-hidden="true"/> Về không gian Creator</Link>
     {campaign.isPending?<div className="mt-7"><StatusMessage title="Đang tải chiến dịch…"/></div>:null}
     {campaign.isError?<div className="mt-7"><StatusMessage error title="Không tải được chiến dịch" detail={campaign.error.message}/></div>:null}
@@ -216,5 +220,6 @@ export function CreatorCampaignPage() {
       </section>
       <div className="mt-8 flex items-center gap-2 text-xs text-muted"><ShieldCheck size={18} className="text-brand" aria-hidden="true"/> Admin giữ quyền kiểm duyệt độc lập.</div>
     </>:null}
-  </Container>;
+    </Container>
+  </div>;
 }

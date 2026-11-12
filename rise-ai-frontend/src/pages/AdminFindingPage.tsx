@@ -37,7 +37,11 @@ export function AdminFindingPage(){
     if(!id||!detail.isSuccess||!finding||!history.isSuccess||!selected||!note.trim()||!confirmed||review.isPending)return;
     try{await review.mutateAsync();}catch{/* Show authoritative Backend error. */}
   }
-  return <Container className="py-10 sm:py-14">
+  return <div className="rise-deep-page deep-admin-finding">
+    <div className="rise-deep-topline" aria-hidden="true">
+      <span>ADMIN / ĐÁNH GIÁ TÍN HIỆU</span><span>07 · HỒ SƠ PHÁT HIỆN</span>
+    </div>
+    <Container className="deep-inner py-10 sm:py-14">
     <Link to="/admin/monitoring" className="inline-flex min-h-11 items-center gap-2 text-sm font-bold text-brand"><ArrowLeft size={17} aria-hidden="true"/> Danh sách phát hiện</Link>
     <h1 className="mt-4 text-3xl font-extrabold text-brand-ink">Kiểm tra một cảnh báo AI</h1>
     <p className="mt-3 max-w-3xl text-sm leading-7 text-muted">Kiểm tra dữ kiện, những lần xuất hiện và lịch sử xử lý trước khi ghi nhận kết luận. Monitoring chỉ cung cấp thông tin tham khảo; quyết định nghiệp vụ thuộc Admin và Backend.</p>
@@ -123,5 +127,6 @@ export function AdminFindingPage(){
         <p className="flex gap-2 rounded-xl bg-soft-sand p-4 text-xs leading-6 text-warning"><ShieldAlert size={18} className="shrink-0" aria-hidden="true"/> Cảnh báo chỉ hỗ trợ giám sát. Không suy diễn cảnh báo thành bằng chứng rằng chiến dịch vi phạm.</p>
       </aside>
     </div>:null}
-  </Container>;
+    </Container>
+  </div>;
 }

@@ -30,7 +30,11 @@ export function DisputeThreadPage() {
     try {await send.mutateAsync(message.trim());}catch{/* Error below */}
   }
   if (!id) return <Container className="py-14"><StatusMessage error title="Đường dẫn không hợp lệ"/></Container>;
-  return <Container className="py-10 sm:py-14">
+  return <div className="rise-deep-page deep-donor-dispute">
+    <div className="rise-deep-topline" aria-hidden="true">
+      <span>DONOR / PHẢN ÁNH</span><span>01 · HỒ SƠ TRAO ĐỔI</span>
+    </div>
+    <Container className="deep-inner py-10 sm:py-14">
     <Link to="/donor" className="inline-flex min-h-11 items-center gap-2 text-sm font-bold text-brand"><ArrowLeft size={17} aria-hidden="true"/> Về lịch sử đóng góp</Link>
     <h1 className="mt-5 text-3xl font-extrabold text-brand-ink">Chi tiết phản ánh</h1>
     {owned.isPending ? <div className="mt-5"><StatusMessage title="Đang xác minh dữ liệu phản ánh…"/></div>:null}
@@ -66,5 +70,6 @@ export function DisputeThreadPage() {
         <div className="mt-3"><Button type="submit" loading={send.isPending}>Gửi tin nhắn</Button></div>
       </form>}
     </>:null}
-  </Container>;
+    </Container>
+  </div>;
 }

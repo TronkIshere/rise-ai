@@ -7,6 +7,7 @@ import '@/styles/global.css';
 import '@/styles/campaign-discovery.css';
 import '@/styles/campaign-flow.css';
 import '@/styles/dashboard-suite.css';
+import '@/styles/functional-pages-b2.css';
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>

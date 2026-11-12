@@ -78,7 +78,11 @@ export function AdminDeliveryPage(){
   const outbox=useQuery({queryKey:[...key,'outbox',outboxFilter,outboxPage],queryFn:()=>listOutbox(outboxFilter,outboxPage)});
   const alerts=useQuery({queryKey:[...key,'alerts',alertFilter,alertPage],queryFn:()=>listAlerts(alertFilter,alertPage)});
   const refresh=()=>void client.invalidateQueries({queryKey:key});
-  return <Container className="py-10 sm:py-14">
+  return <div className="rise-deep-page deep-admin-delivery">
+    <div className="rise-deep-topline" aria-hidden="true">
+      <span>ADMIN / DÒNG SỰ KIỆN</span><span>08 · GIAO NHẬN CẢNH BÁO</span>
+    </div>
+    <Container className="deep-inner py-10 sm:py-14">
     <p className="text-xs font-extrabold uppercase tracking-widest text-brand">FE-05 · HỆ THỐNG GIÁM SÁT</p>
     <h1 className="mt-3 text-3xl font-extrabold text-brand-ink sm:text-4xl">Đường đi sự kiện và cảnh báo</h1>
     <p className="mt-3 max-w-3xl text-sm leading-7 text-muted">Theo dõi sự kiện từ Backend đến Monitoring và trạng thái gửi thông báo. Trạng thái hàng chờ không đảm bảo cảnh báo đã đến người nhận; nút thử lại chỉ đặt lại lịch.</p>
@@ -137,5 +141,6 @@ export function AdminDeliveryPage(){
         {alerts.isSuccess?<RecordPagination page={alertPage} pages={alerts.data.totalPages??0} onChange={setAlertPage}/>:null}
       </div>
     </section>
-  </Container>;
+    </Container>
+  </div>;
 }

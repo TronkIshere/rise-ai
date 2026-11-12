@@ -28,7 +28,11 @@ export function AdminAuditPage(){
     setFilters(Object.fromEntries(Object.entries(draft).map(([k,v])=>[k,v?.trim()])) as AuditFilters);
     setPage(0);
   }
-  return <Container className="py-10 sm:py-14">
+  return <div className="rise-deep-page deep-admin-audit">
+    <div className="rise-deep-topline" aria-hidden="true">
+      <span>ADMIN / TRUY VẾT</span><span>09 · NHẬT KÝ HỆ THỐNG</span>
+    </div>
+    <Container className="deep-inner py-10 sm:py-14">
     <p className="text-xs font-extrabold uppercase tracking-widest text-brand">FE-05 · NHẬT KÝ NGHIỆP VỤ</p>
     <h1 className="mt-3 text-3xl font-extrabold text-brand-ink sm:text-4xl">Lịch sử hoạt động đã ghi nhận</h1>
     <p className="mt-3 max-w-3xl text-sm leading-7 text-muted">Nhật ký do Backend cung cấp, để truy vết ai tác động đến đối tượng nào và khi nào. Không suy diễn trường trống thành sự kiện đã xác minh; không cho chỉnh sửa hay xóa nhật ký.</p>
@@ -67,5 +71,6 @@ export function AdminAuditPage(){
       </div>
       {query.isSuccess?<><p className="mt-3 text-xs text-muted">{countText(query.data.totalElements)} bản ghi từ Backend</p><RecordPagination page={page} pages={query.data.totalPages??0} onChange={setPage}/></>:null}
     </section>
-  </Container>;
+    </Container>
+  </div>;
 }

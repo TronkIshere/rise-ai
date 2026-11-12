@@ -122,7 +122,11 @@ export function CreatorCampaignEditorPage() {
   const {user}=useAuth();
   const campaign=useQuery({queryKey:['creator',user?.id,'campaign',id],queryFn:()=>getCreatorCampaign(id!),enabled:Boolean(id)});
   const owned=!!id && campaign.data?.creatorId===user?.id;
-  return <Container className="py-10 sm:py-14">
+  return <div className="rise-deep-page deep-creator-editor">
+    <div className="rise-deep-topline" aria-hidden="true">
+      <span>CREATOR / BIÊN TẬP</span><span>02 · HỒ SƠ CHIẾN DỊCH</span>
+    </div>
+    <Container className="deep-inner py-10 sm:py-14">
     <Link to={id?'/creator/campaigns/'+encodeURIComponent(id):'/creator'} className="inline-flex min-h-11 items-center gap-2 text-sm font-bold text-brand"><ArrowLeft size={17} aria-hidden="true"/> Quay lại</Link>
     <h1 className="mt-4 text-3xl font-extrabold text-brand-ink">{id?'Sửa chiến dịch':'Tạo chiến dịch mới'}</h1>
     {id&&campaign.isPending?<div className="mt-6"><StatusMessage title="Đang tải bản nháp…"/></div>:null}
@@ -130,5 +134,6 @@ export function CreatorCampaignEditorPage() {
     {id&&campaign.isSuccess&&!owned?<div className="mt-6"><StatusMessage error title="Không phải chiến dịch bạn quản lý"/></div>:null}
     {id&&campaign.isSuccess&&owned&&!editableCampaign(campaign.data.campaignStatus)?<div className="mt-6 flex items-start gap-3 rounded-xl bg-soft-sand p-5 text-sm text-warning"><AlertTriangle size={20} aria-hidden="true"/> Chỉ có thể sửa khi chiến dịch ở trạng thái DRAFT hoặc REJECTED.</div>:null}
     {(!id || (campaign.isSuccess&&owned&&editableCampaign(campaign.data.campaignStatus)))?<EditForm key={id??'new'} id={id} initial={campaign.data}/>:null}
-  </Container>;
+    </Container>
+  </div>;
 }

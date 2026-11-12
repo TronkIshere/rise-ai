@@ -98,7 +98,11 @@ export function AdminEscrowPage(){
     if(!uuid.test(candidate.trim())){setValidation('Mã chiến dịch phải là UUID hợp lệ.');return;}
     setValidation('');setActiveId(candidate.trim());setCampaignId(candidate.trim());setLedgerPage(0);setNotice('');
   }
-  return <Container className="py-10 sm:py-14">
+  return <div className="rise-deep-page deep-admin-escrow">
+    <div className="rise-deep-topline" aria-hidden="true">
+      <span>ADMIN / TÀI CHÍNH MÔ PHỎNG</span><span>05 · SỔ CÁI & ĐỐI SOÁT</span>
+    </div>
+    <Container className="deep-inner py-10 sm:py-14">
     <Link to="/admin" className="inline-flex min-h-11 items-center gap-2 text-sm font-bold text-brand"><ArrowLeft size={17} aria-hidden="true"/> Trung tâm quản trị</Link>
     <div className="mt-5 flex flex-wrap items-end justify-between gap-4"><div>
       <p className="text-xs font-extrabold uppercase tracking-widest text-brand">ADMIN · SỔ CÁI MÔ PHỎNG</p>
@@ -202,5 +206,6 @@ export function AdminEscrowPage(){
       </div>:null}
     </section>
     <p className="mt-10 flex items-start gap-3 rounded-card bg-soft-sand p-5 text-xs leading-6 text-warning"><ShieldAlert className="shrink-0" size={20} aria-hidden="true"/> Nếu báo cáo đối soát có sai lệch, không diễn giải số liệu như đã khớp và không coi việc tạo đề nghị là hoàn tất nghiệp vụ.</p>
-  </Container>;
+    </Container>
+  </div>;
 }

@@ -27,7 +27,11 @@ export function AdminMonitoringPage(){
     if(draft.campaignId?.trim()&&!uuid.test(draft.campaignId.trim())){setValidation('Mã chiến dịch phải là UUID hợp lệ.');return;}
     setValidation('');setFilter({...draft,category:draft.category?.trim()??'',campaignId:draft.campaignId?.trim()??''});setPage(0);
   }
-  return <Container className="py-10 sm:py-14">
+  return <div className="rise-deep-page deep-admin-monitoring">
+    <div className="rise-deep-topline" aria-hidden="true">
+      <span>ADMIN / GIÁM SÁT</span><span>06 · PHÁT HIỆN CẦN XEM XÉT</span>
+    </div>
+    <Container className="deep-inner py-10 sm:py-14">
     <p className="text-xs font-extrabold uppercase tracking-widest text-brand">FE-05 · DÀNH CHO ADMIN</p>
     <h1 className="mt-3 text-3xl font-extrabold text-brand-ink sm:text-4xl">Cảnh báo giám sát thiện nguyện</h1>
     <p className="mt-3 max-w-3xl text-sm leading-7 text-muted">Các phát hiện do Monitoring gửi đến Backend để Admin kiểm tra. Mỗi cảnh báo chỉ là tín hiệu tham khảo, không phải kết luận hành vi sai phạm và không tự dừng chiến dịch hay giải ngân.</p>
@@ -86,5 +90,6 @@ export function AdminMonitoringPage(){
         <p className="mt-2 text-xs text-muted">Tổng {countText(rule.total)} · Đang mở {countText(rule.open)} · Đã ghi nhận {countText(rule.acknowledged)}</p>
       </article>)}</div>
     </section>
-  </Container>;
+    </Container>
+  </div>;
 }
