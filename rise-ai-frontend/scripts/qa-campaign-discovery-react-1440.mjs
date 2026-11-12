@@ -53,6 +53,21 @@ try {
       await route.fulfill({ status: 503, contentType: 'application/json', body: JSON.stringify({ message: 'QA Backend unavailable' }) });
       return;
     }
+
+    if (url.searchParams.get('q') === 'qa-long-copy') {
+      const longCampaigns = campaigns.slice(0, 2).map((campaign, index) => ({
+        ...campaign,
+        title: ('Chiến dịch hỗ trợ cộng đồng ' + (index + 1) + ' ' + 'vùng sâu vùng xa '.repeat(15)).slice(0, 200),
+        shortDescription: 'Hỗ trợ học sinh và các gia đình địa phương. '.repeat(20).slice(0, 500),
+        beneficiaryDescription: 'Học sinh và các gia đình cần được hỗ trợ. '.repeat(60).slice(0, 2000),
+        solutionDescription: 'Bổ sung không gian học tập và thiết bị. '.repeat(140).slice(0, 5000),
+      }));
+      await route.fulfill({ json: { data: {
+        data: longCampaigns, currentPage: 0, pageSize: 9, totalElements: 2, totalPages: 1,
+      } } });
+      return;
+    }
+
     const selected = url.searchParams.get('category'), q = (url.searchParams.get('q') ?? '').trim().toLowerCase();
     const current = Number(url.searchParams.get('page') ?? 0), size = Number(url.searchParams.get('size') ?? 9);
     const filtered = campaigns.filter(c => (!selected || c.category === selected) &&
@@ -104,6 +119,39 @@ try {
     report.requests[0]?.status === 'ACTIVE' && report.requests[0]?.size === '9' &&
     report.requests[0]?.page === '0', report.requests[0]);
   check('Detail CTA uses real /campaigns/:slug link', first.link === '/campaigns/qa-campaign-2', first.link);
+
+  const focus = await page.locator('#campaign-query').evaluate((input) => {
+    input.focus();
+    const { outlineStyle, outlineWidth } = getComputedStyle(input);
+    return { visible: input.matches(':focus-visible'), outlineStyle, outlineWidth };
+  });
+  await page.locator('#campaign-query').blur();
+
+  const countLayer = await page.evaluate(() => {
+    const count = document.querySelector('.result-count');
+    const decoration = document.querySelector('#lead-section .art-leaf');
+    const artwork = decoration?.closest('svg');
+    if (!count || !decoration || !artwork) return null;
+    const shapes = [...artwork.querySelectorAll('.art-leaf, .art-leaf *')];
+    // Include the decorative SVG in hit testing so we can compare paint order.
+    const old = shapes.map((shape) => shape.style.pointerEvents);
+    shapes.forEach((shape) => { shape.style.pointerEvents = 'visiblePainted'; });
+    const area = count.getBoundingClientRect();
+    let sample = null;
+    for (let y = area.top; y < area.bottom && !sample; y += 2) {
+      for (let x = area.left; x < area.right && !sample; x += 2) {
+        const stack = document.elementsFromPoint(x, y);
+        const leaf = stack.findIndex((node) => node.closest('.art-leaf'));
+        const text = stack.indexOf(count);
+        if (leaf >= 0 && text >= 0) sample = { above: text < leaf, x: Math.round(x), y: Math.round(y) };
+      }
+    }
+    shapes.forEach((shape, i) => { shape.style.pointerEvents = old[i]; });
+    return sample;
+  });
+  check('Search keyboard focus and the result count stay visible',
+    focus.visible && focus.outlineStyle !== 'none' && parseFloat(focus.outlineWidth) >= 2 && countLayer?.above,
+    { focus, countLayer });
 
   const paginationReadability=await page.evaluate(()=>{
     const overline=document.querySelector('#pagination-landscape .pagination-overline');
@@ -221,6 +269,32 @@ try {
   check('Unmatched search renders genuine empty state; no fake cards',
     (await facts()).lead === 0 && (await facts()).dossiers === 0 &&
     report.requests.at(-1)?.q === 'khong-co-chien-dich-phu-hop', await facts());
+
+  await page.goto(base + '/campaigns?q=qa-long-copy');
+  await page.locator('#reading-results .dossier').waitFor();
+  const longCopyLayout = await page.evaluate(() => {
+    const rect = (selector) => document.querySelector(selector)?.getBoundingClientRect();
+    const featuredFacts = rect('#lead-section .facts');
+    const featuredAction = rect('#lead-section .action-row');
+    const featuredStory = rect('#lead-section .story');
+    const dossierCopy = rect('#reading-results .dossier-copy');
+    const dossierPaper = rect('#reading-results .dossier-paper');
+    return {
+      width: document.documentElement.scrollWidth,
+      featuredCopyBottom: Math.round(featuredFacts?.bottom),
+      featuredActionTop: Math.round(featuredAction?.top),
+      featuredActionBottom: Math.round(featuredAction?.bottom),
+      featuredStoryBottom: Math.round(featuredStory?.bottom),
+      dossierCopyBottom: Math.round(dossierCopy?.bottom),
+      dossierPaperBottom: Math.round(dossierPaper?.bottom),
+    };
+  });
+  check('Maximum-length API campaign text fits Featured and Paper Dossier previews',
+    longCopyLayout.width === 1440 &&
+    longCopyLayout.featuredCopyBottom <= longCopyLayout.featuredActionTop &&
+    longCopyLayout.featuredActionBottom <= longCopyLayout.featuredStoryBottom &&
+    longCopyLayout.dossierCopyBottom <= longCopyLayout.dossierPaperBottom,
+    longCopyLayout);
 
   // React Query retries by default, so disable the network before remounting with a new query key;
   // only assert the error state after the failed request is surfaced.
