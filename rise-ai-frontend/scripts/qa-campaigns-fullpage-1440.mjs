@@ -44,8 +44,17 @@ try{
   check('Top and bottom landscapes have graded alpha masks',
     seam.topMask.includes('linear-gradient')&&seam.bottomMask.includes('linear-gradient'),
     {topMask:seam.topMask,bottomMask:seam.bottomMask});
-  check('No abrupt layout gap at dossier → pagination → footer',
-    Math.abs(seam.gaps.paperToPager)<=2&&Math.abs(seam.gaps.pagerToWave)<=2,
+  const controlGap=await page.evaluate(()=>{
+    const last=document.querySelector('#reading-results .dossier:last-child')?.getBoundingClientRect();
+    const controls=document.querySelector('#pagination-slot .pagination-controls')?.getBoundingClientRect();
+    return last&&controls?Math.round(controls.top-last.bottom):null;
+  });
+  result.lastDossierToPagerButtons=controlGap;
+  check('Pagination is near the last dossier, but never covers its content',
+    controlGap!==null&&controlGap>=40&&controlGap<=180,
+    {gapPx:controlGap});
+  check('Intended overlap joins the dossier background to pagination without moving Footer',
+    seam.gaps.paperToPager>=-145&&seam.gaps.paperToPager<=-135&&Math.abs(seam.gaps.pagerToWave)<=2,
     seam.gaps);
   check('Pagination and footer use shared sage transition palette',
     seam.pagerBackground.includes('linear-gradient')&&seam.footerWaveMargin==='0px',
