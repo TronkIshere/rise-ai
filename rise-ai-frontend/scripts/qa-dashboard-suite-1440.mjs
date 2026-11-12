@@ -61,7 +61,8 @@ try{
         if(p==='/api/v1/donations/confirmed/refunds'&&method==='POST'){
           refundPosts++;
           keys.push(route.request().headers()['idempotency-key']);
-          if(refundPosts===1)return route.fulfill({status:503,contentType:'application/json',body:JSON.stringify({message:'Try again'})});
+          // A → B → A: the uncertain request A must reuse its original key.
+          if(refundPosts <= 2)return route.fulfill({status:503,contentType:'application/json',body:JSON.stringify({message:'Try again'})});
           return route.fulfill(envelope({id:'qa-refund-id',refundStatus:'REQUESTED',amount:100000},201));
         }
         if(p==='/api/v1/campaigns/qa-campaign-id/disputes'&&method==='POST')
@@ -101,6 +102,10 @@ try{
   const donor=await make('DONOR');
   await donor.page.getByRole('link',{name:'Quản lý đóng góp của tôi'}).click();
   await donor.page.getByRole('heading',{name:'Hành trình đóng góp'}).waitFor();
+  // Queries resolve asynchronously; never screenshot or assert placeholder counters.
+  await donor.page.waitForFunction(
+    () => document.querySelector('.dashboard-metric strong')?.textContent?.trim() === '2',
+  );
   check('DONOR metric shows total Backend records, not current page records',
     await donor.page.locator('.dashboard-metric').first().locator('strong').textContent()==='2',null);
   check('DONOR Desktop dashboard width stays within 1440',
@@ -116,17 +121,37 @@ try{
   await donor.page.getByRole('button',{name:'Yêu cầu hoàn tiền'}).click();
   await donor.page.locator('#refund-amount').fill('100000');
   await donor.page.locator('#refund-reason').fill('Hoàn tiền thử nghiệm QA');
-  await donor.page.getByRole('button',{name:'Gửi yêu cầu hoàn tiền'}).click();
+  const refundUrl='/api/v1/donations/confirmed/refunds';
+  const submitRefund=()=>donor.page.getByRole('button',{name:'Gửi yêu cầu hoàn tiền'}).click();
+  await Promise.all([
+    donor.page.waitForResponse(r=>r.url().includes(refundUrl)&&r.status()===503),
+    submitRefund(),
+  ]);
   await donor.page.getByText('Try again').waitFor();
-  await donor.page.getByRole('button',{name:'Gửi yêu cầu hoàn tiền'}).click();
+  // Change amount B and attempt it; the Backend outcome is also uncertain.
+  await donor.page.locator('#refund-amount').fill('110000');
+  await Promise.all([
+    donor.page.waitForResponse(r=>r.url().includes(refundUrl)&&r.status()===503),
+    submitRefund(),
+  ]);
+  await donor.page.locator('#refund-amount').fill('100000');
+  await Promise.all([
+    donor.page.waitForResponse(r=>r.url().includes(refundUrl)&&r.status()===201),
+    submitRefund(),
+  ]);
   await donor.page.getByText('Đã gửi yêu cầu hoàn tiền mô phỏng').waitFor();
-  check('DONOR refund retries reuse the same idempotency key',donor.keys.length===2&&
-    Boolean(donor.keys[0])&&donor.keys[0]===donor.keys[1],donor.keys);
+  check('DONOR refund A→B→A reuses key A and separates key B',
+    donor.keys.length===3&&Boolean(donor.keys[0])&&donor.keys[0]===donor.keys[2]&&
+    donor.keys[1]!==donor.keys[0],donor.keys);
   await donor.context.close();
 
   const creator=await make('CAMPAIGN_CREATOR');
   await creator.page.getByRole('link',{name:'Quản lý chiến dịch Creator'}).click();
   await creator.page.getByRole('heading',{name:'Quản lý hành trình thiện nguyện'}).waitFor();
+  await creator.page.waitForFunction(() => {
+    const metrics=[...document.querySelectorAll('.dashboard-metric strong')].map(el=>el.textContent?.trim());
+    return metrics[0]==='1' && metrics[1]==='1';
+  });
   check('CREATOR shows organization and campaign totals from Backend pages',
     await creator.page.locator('.dashboard-metric strong').allTextContents().then(x=>x[0]==='1'&&x[1]==='1'),null);
   await creator.page.screenshot({path:resolve(evidence,'creator-dashboard-1440.png'),fullPage:true,animations:'disabled'});
@@ -137,6 +162,12 @@ try{
   await creator.page.getByText('Đã lưu tổ chức trong Backend.').waitFor();
   check('CREATOR creates organization and shows Backend success notification',
     report.calls.some(c=>c.role==='CAMPAIGN_CREATOR'&&c.path==='/api/v1/organizations'&&c.method==='POST'),null);
+  creator.page.once('dialog',dialog=>void dialog.accept());
+  await creator.page.getByRole('button',{name:'Gửi xác minh'}).click();
+  await creator.page.getByText('Đã gửi tổ chức chờ Admin xác minh; không phải đã được xác minh.').waitFor();
+  check('CREATOR verification request is submitted to Backend, not silently approved',
+    report.calls.some(c=>c.role==='CAMPAIGN_CREATOR'&&
+      c.path==='/api/v1/organizations/qa-org-id/submit-verification'&&c.method==='POST'),null);
   check('CREATOR protected management CTA reaches creator campaign',
     await creator.page.locator('a[href="/creator/campaigns/qa-draft-id"]').getAttribute('href')==='/creator/campaigns/qa-draft-id',null);
   check('CREATOR Desktop dashboard width stays within 1440',
@@ -147,6 +178,9 @@ try{
   await admin.page.getByRole('link',{name:'Trung tâm quản trị'}).click();
   await admin.page.getByRole('heading',{name:'Trung tâm xét duyệt'}).waitFor();
   await admin.page.getByText('Tổ chức Cộng đồng QA').waitFor();
+  await admin.page.waitForFunction(
+    () => document.querySelector('.dashboard-stat-section .grid p:last-child')?.textContent?.trim() === '3',
+  );
   check('ADMIN queues source organizations and statistics from Backend',
     report.calls.some(c=>c.role==='ADMIN'&&c.path==='/api/v1/admin/statistics')&&
     report.calls.some(c=>c.role==='ADMIN'&&c.path==='/api/v1/organizations'&&c.query.includes('status=PENDING_REVIEW')),null);
@@ -157,10 +191,12 @@ try{
     report.calls.some(c=>c.role==='ADMIN'&&c.path==='/api/v1/admin/donations'&&c.query.includes('status=PENDING')),null);
   await Promise.all([
     admin.page.waitForResponse(res=>res.url().includes('/api/v1/admin/statistics')),
+    admin.page.waitForResponse(res=>res.url().includes('/api/v1/admin/donations')),
     admin.page.getByRole('button',{name:'Làm mới Dashboard'}).click(),
   ]);
-  check('ADMIN refresh exposes statistics and records invalidation',
-    report.calls.filter(c=>c.role==='ADMIN'&&c.path==='/api/v1/admin/statistics').length>=2,null);
+  check('ADMIN refresh re-fetches statistics AND the selected Backend queue',
+    report.calls.filter(c=>c.role==='ADMIN'&&c.path==='/api/v1/admin/statistics').length>=2 &&
+    report.calls.filter(c=>c.role==='ADMIN'&&c.path==='/api/v1/admin/donations').length>=2,null);
   check('ADMIN Desktop dashboard width stays within 1440',
     await admin.page.evaluate(()=>document.documentElement.scrollWidth<=window.innerWidth),null);
   await admin.context.close();
