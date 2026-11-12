@@ -1,0 +1,321 @@
+/* Real-browser React acceptance for Campaign Discovery Desktop 1440.
+ * Backend responses are explicitly intercepted test fixtures; production UI has NO fixture fallback.
+ */
+/* global document:readonly, window:readonly, getComputedStyle:readonly */
+import { chromium } from 'playwright';
+import { spawn } from 'node:child_process';
+import { mkdir, writeFile } from 'node:fs/promises';
+import { resolve } from 'node:path';
+
+const evidence = resolve('qa-evidence/campaign-discovery-react');
+await mkdir(evidence, { recursive: true });
+const report = { scope: 'React /campaigns — Campaign Discovery Desktop 1440', viewport: '1440x900 DPR1',
+  sourceType: 'Vite React in Chromium, intercepted Backend fixture only', checks: [], errors: [], requests: [], pass: false };
+const check = (label, pass, details) => {
+  report.checks.push({ label, pass: Boolean(pass), details });
+  if (!pass) throw Error(label + ': ' + JSON.stringify(details));
+};
+const campaigns = Array.from({ length: 19 }, (_, i) => ({
+  id: 'qa-' + (i + 1), slug: 'qa-campaign-' + (i + 1),
+  title: 'Chương trình hỗ trợ cộng đồng ' + (i + 1),
+  category: ['EDUCATION', 'COMMUNITY', 'FOOD_SECURITY', 'WATER_SANITATION', 'SCHOLARSHIP', 'INFRASTRUCTURE', 'HEALTH', 'OTHER'][i % 8],
+  shortDescription: 'Cùng cộng đồng tạo thêm không gian học tập và điều kiện hỗ trợ địa phương ' + (i + 1),
+  beneficiaryDescription: 'Học sinh và các gia đình tại địa phương',
+  solutionDescription: 'Bổ sung sách và hoạt động hỗ trợ học tập',
+  campaignStatus: 'ACTIVE', organization: { name: 'Đơn vị thực hiện QA ' + (i + 1) },
+  currency: 'VND', targetAmount: 20000000, funding: { netRaised: 5000000 },
+}));
+const base = 'http://127.0.0.1:5181';
+const vite = spawn('npm', ['run', 'dev', '--', '--host', '127.0.0.1', '--port', '5181', '--strictPort'],
+  { cwd: process.cwd(), stdio: ['ignore', 'pipe', 'pipe'], detached: true });
+let serverError = '';
+vite.stderr.on('data', (chunk) => { serverError += String(chunk); });
+const waitForServer = async () => {
+  for (let attempt = 0; attempt < 100; attempt++) {
+    try { const response = await fetch(base + '/campaigns'); if (response.ok) return; } catch { /* startup */ }
+    await new Promise((r) => setTimeout(r, 250));
+  }
+  throw Error('Vite startup timeout: ' + serverError.slice(-1600));
+};
+let browser;
+try {
+  await waitForServer();
+  browser = await chromium.launch({ headless: true, args: ['--no-sandbox'] });
+  const page = await browser.newPage({ viewport: { width: 1440, height: 900 }, deviceScaleFactor: 1,
+    reducedMotion: 'reduce' });
+  page.on('pageerror', e => report.errors.push('JS: ' + String(e)));
+  page.on('console', m => { if (m.type() === 'error' && !(forceError && m.text().includes('503'))) report.errors.push('Console: ' + m.text()); });
+  let forceError = false;
+  await page.route('**/api/v1/campaigns?**', async (route) => {
+    const url = new URL(route.request().url());
+    report.requests.push(Object.fromEntries(url.searchParams));
+    if (forceError) {
+      await route.fulfill({ status: 503, contentType: 'application/json', body: JSON.stringify({ message: 'QA Backend unavailable' }) });
+      return;
+    }
+
+    if (url.searchParams.get('q') === 'qa-long-copy') {
+      const longCampaigns = campaigns.slice(0, 2).map((campaign, index) => ({
+        ...campaign,
+        title: ('Chiến dịch hỗ trợ cộng đồng ' + (index + 1) + ' ' + 'vùng sâu vùng xa '.repeat(15)).slice(0, 200),
+        shortDescription: 'Hỗ trợ học sinh và các gia đình địa phương. '.repeat(20).slice(0, 500),
+        beneficiaryDescription: 'Học sinh và các gia đình cần được hỗ trợ. '.repeat(60).slice(0, 2000),
+        solutionDescription: 'Bổ sung không gian học tập và thiết bị. '.repeat(140).slice(0, 5000),
+      }));
+      await route.fulfill({ json: { data: {
+        data: longCampaigns, currentPage: 0, pageSize: 9, totalElements: 2, totalPages: 1,
+      } } });
+      return;
+    }
+
+    const selected = url.searchParams.get('category'), q = (url.searchParams.get('q') ?? '').trim().toLowerCase();
+    const current = Number(url.searchParams.get('page') ?? 0), size = Number(url.searchParams.get('size') ?? 9);
+    const filtered = campaigns.filter(c => (!selected || c.category === selected) &&
+      (!q || [c.title, c.shortDescription, c.category].join(' ').toLowerCase().includes(q)));
+    const payload = { data: {
+      data: filtered.slice(current * size, (current + 1) * size), currentPage: current,
+      pageSize: size, totalElements: filtered.length, totalPages: Math.ceil(filtered.length / size)
+    } };
+    await route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(payload) });
+  });
+  await page.route('**/api/v1/campaigns/slug/*', async route => {
+    const id = route.request().url().split('/').pop();
+    const item = campaigns.find(c => c.slug === id);
+    await route.fulfill({ status: item ? 200 : 404, contentType: 'application/json',
+      body: JSON.stringify({ data: item ?? null }) });
+  });
+  await page.route('**/api/v1/campaigns/*/milestones', async route =>
+    route.fulfill({ status: 200, contentType: 'application/json', body: '{"data":[]}' }));
+
+  await page.goto(base + '/campaigns', { waitUntil: 'networkidle' });
+  await page.evaluate(() => document.fonts.ready);
+  const facts = () => page.evaluate(() => ({
+    width: document.documentElement.scrollWidth, viewport: window.innerWidth,
+    hero: !!document.querySelector('.community-journey-art'),
+    artNodes: document.querySelectorAll('.community-journey-art .community-node').length,
+    lead: document.querySelectorAll('#lead-section .stage').length,
+    dossiers: document.querySelectorAll('#reading-results .dossier').length,
+    pager: document.querySelector('.pagination-count')?.textContent,
+    link: document.querySelector('#reading-results .read-profile')?.getAttribute('href'),
+    badge: document.querySelector('#paper-section .section-number')?.textContent,
+    disclaimer: document.querySelector('#paper-section .header-copy p')?.textContent,
+    paginationVisible: !!document.querySelector('#pagination-landscape'),
+    coverArt: !!document.querySelector('.shape-svg image'),
+    valley: document.querySelector('.bottom-valley') ? getComputedStyle(document.querySelector('.bottom-valley')).backgroundImage : null,
+  }));
+  const first = await facts();
+  report.initial = first;
+  check('React route renders real campaign data, no fixture DOM baked in',
+    await page.locator('#lead-section .story h2').textContent() === campaigns[0].title, first);
+  check('Desktop 1440 has no horizontal overflow', first.width <= 1440 && first.viewport === 1440, first);
+  check('One featured + 8 paper dossiers from 9 API records', first.lead === 1 && first.dossiers === 8, first);
+  check('Hero approved community landscape, no Section 05 number badge',
+    first.hero && first.artNodes >= 3 && !first.badge, first);
+  check('Section disclaimer describes Backend source and simulation',
+    first.disclaimer?.includes('Backend') && first.disclaimer?.includes('mô phỏng'), first.disclaimer);
+  check('Approved paper valley and featured artwork loaded',
+    first.coverArt && first.valley?.includes('valley.jpg'), { valley: first.valley, coverArt: first.coverArt });
+  check('ACTIVE filter and 9-record Backend page contract',
+    report.requests[0]?.status === 'ACTIVE' && report.requests[0]?.size === '9' &&
+    report.requests[0]?.page === '0', report.requests[0]);
+  check('Detail CTA uses real /campaigns/:slug link', first.link === '/campaigns/qa-campaign-2', first.link);
+
+  const focus = await page.locator('#campaign-query').evaluate((input) => {
+    input.focus();
+    const { outlineStyle, outlineWidth } = getComputedStyle(input);
+    return { visible: input.matches(':focus-visible'), outlineStyle, outlineWidth };
+  });
+  await page.locator('#campaign-query').blur();
+
+  const countLayer = await page.evaluate(() => {
+    const count = document.querySelector('.result-count');
+    const decoration = document.querySelector('#lead-section .art-leaf');
+    const artwork = decoration?.closest('svg');
+    if (!count || !decoration || !artwork) return null;
+    const shapes = [...artwork.querySelectorAll('.art-leaf, .art-leaf *')];
+    // Include the decorative SVG in hit testing so we can compare paint order.
+    const old = shapes.map((shape) => shape.style.pointerEvents);
+    shapes.forEach((shape) => { shape.style.pointerEvents = 'visiblePainted'; });
+    const area = count.getBoundingClientRect();
+    let sample = null;
+    for (let y = area.top; y < area.bottom && !sample; y += 2) {
+      for (let x = area.left; x < area.right && !sample; x += 2) {
+        const stack = document.elementsFromPoint(x, y);
+        const leaf = stack.findIndex((node) => node.closest('.art-leaf'));
+        const text = stack.indexOf(count);
+        if (leaf >= 0 && text >= 0) sample = { above: text < leaf, x: Math.round(x), y: Math.round(y) };
+      }
+    }
+    shapes.forEach((shape, i) => { shape.style.pointerEvents = old[i]; });
+    return sample;
+  });
+  check('Search keyboard focus and the result count stay visible',
+    focus.visible && focus.outlineStyle !== 'none' && parseFloat(focus.outlineWidth) >= 2 && countLayer?.above,
+    { focus, countLayer });
+
+  const paginationReadability=await page.evaluate(()=>{
+    const overline=document.querySelector('#pagination-landscape .pagination-overline');
+    const count=document.querySelector('#pagination-landscape .pagination-count');
+    const slot=document.querySelector('#pagination-landscape #pagination-slot');
+    const pageButton=document.querySelector('#pagination-landscape .pagination-controls button[aria-current="page"]');
+    const disabledButton=document.querySelector('#pagination-landscape .pagination-controls button:disabled');
+    const parseColor=(value)=>{
+      const channels=value.slice(value.indexOf('(')+1,value.indexOf(')'))
+        .split(',').slice(0,3).map(channel=>Number.parseInt(channel,10));
+      return channels.length===3 && channels.every(Number.isFinite) ? channels : null;
+    };
+    return {
+      shift:overline?new window.DOMMatrix(getComputedStyle(overline).transform).m42:null,
+      titleSize:overline?parseFloat(getComputedStyle(overline).fontSize):null,
+      countSize:count?parseFloat(getComputedStyle(count).fontSize):null,
+      buttonSize:pageButton?parseFloat(getComputedStyle(pageButton).fontSize):null,
+      titleColor:overline?parseColor(getComputedStyle(overline).color):null,
+      countColor:count?parseColor(getComputedStyle(count).color):null,
+      titleSurface:overline?getComputedStyle(overline).backgroundColor:null,
+      countSurface:count?getComputedStyle(count).backgroundColor:null,
+      slotShift:slot?new window.DOMMatrix(getComputedStyle(slot).transform).m42:null,
+      disabledButtonColor:disabledButton?getComputedStyle(disabledButton).color:null,
+    };
+  });
+  report.paginationReadability=paginationReadability;
+  check('Pagination text and controls moved down exactly 30px without shifting landscape',
+    paginationReadability.shift===30&&paginationReadability.slotShift===30,paginationReadability);
+  check('Landscape heading, page count and number buttons use legible sizes',
+    paginationReadability.titleSize>=14&&paginationReadability.countSize>=16&&
+    paginationReadability.buttonSize>=16,paginationReadability);
+  check('Pagination labels have bright warm text over a dark backdrop for contrast',
+    paginationReadability.titleColor?.every(value=>value>=230)&&
+    paginationReadability.countColor?.every(value=>value>=230)&&
+    paginationReadability.titleSurface?.startsWith('rgba(8, 55, 40')&&
+    paginationReadability.countSurface?.startsWith('rgba(8, 55, 40'),
+    paginationReadability);
+
+
+  const landscapeGeometry=await page.evaluate(()=>{
+    const meadow=document.querySelector('.continuous-landscape');
+    const valley=document.querySelector('.bottom-valley');
+    const duplicateScene=document.querySelector('.pagination-scene');
+    const section=document.querySelector('#paper-section');
+    const lead=document.querySelector('#lead-section');
+    return {
+      meadowPosition:meadow?getComputedStyle(meadow).position:null,
+      valleyDisplay:valley?getComputedStyle(valley).display:null,
+      duplicateSceneDisplay:duplicateScene?getComputedStyle(duplicateScene).display:null,
+      pageHeight:document.documentElement.scrollHeight,
+      leadToPaper:section&&lead?Math.round(section.getBoundingClientRect().top-lead.getBoundingClientRect().bottom):null
+    };
+  });
+  report.landscapeGeometry=landscapeGeometry;
+  check('Shared meadow is positioned behind dossiers, not an extra layout block',
+    landscapeGeometry.meadowPosition==='absolute',landscapeGeometry);
+  check('Original landscape continuity hides duplicate valley and pagination artwork',
+    landscapeGeometry.valleyDisplay==='none'&&landscapeGeometry.duplicateSceneDisplay==='none',
+    landscapeGeometry);
+  check('Full-page layout density remains near owner-approved 1440 reference',
+    landscapeGeometry.pageHeight>=4600&&landscapeGeometry.pageHeight<=5500&&
+      landscapeGeometry.leadToPaper!==null&&landscapeGeometry.leadToPaper<=30,
+    landscapeGeometry);
+
+  await page.screenshot({ path: resolve(evidence, 'campaign-react-1440-full.png'), fullPage: true, animations: 'disabled' });
+
+  await page.locator('#reading-results .read-profile').first().click();
+  await page.getByRole('heading', { name: campaigns[1].title }).waitFor();
+  check('Details CTA navigates to existing React /campaigns/:slug route',
+    page.url().endsWith('/campaigns/qa-campaign-2'), page.url());
+  await page.goto(base + '/campaigns');
+  await page.locator('#reading-results .dossier').first().waitFor();
+
+  await page.locator('.cat[data-category="EDUCATION"]').click();
+  await page.waitForURL('**/campaigns?category=EDUCATION');
+  // URL updates synchronously; wait for React Query to resolve the server-side result set.
+  await page.waitForFunction(() => document.querySelectorAll('#reading-results .dossier').length === 2);
+  check('Category filter server-side and page reset', (await facts()).dossiers === 2 &&
+    report.requests.at(-1)?.category === 'EDUCATION' && report.requests.at(-1)?.page === '0',
+    { requests: report.requests.slice(-1), facts: await facts() });
+  await page.locator('.reset').click();
+  await page.locator('#reading-results .dossier').nth(7).waitFor();
+
+  await page.getByRole('button', { name: 'Trang 3' }).click();
+  await page.waitForURL('**/campaigns?page=2');
+  await page.getByRole('heading', { name: campaigns[18].title }).waitFor();
+  check('Last page uses 0-based API page=2, 1 lead and zero dossier rows',
+    (await facts()).lead === 1 && (await facts()).dossiers === 0 &&
+    report.requests.at(-1)?.page === '2', report.requests.slice(-1));
+  const singleResultState=await page.evaluate(()=>{
+    const nature=document.querySelector('.campaign-natural-continuum');
+    const lead=document.querySelector('#lead-section');
+    const pager=document.querySelector('#pagination-landscape');
+    const message=document.querySelector('.cd-single-result-note');
+    return {
+      hasPaperPanel:!!document.querySelector('#paper-section'),
+      hasCompactState:nature?.classList.contains('cd-single-result'),
+      noteVisible:message ? getComputedStyle(message).display!=='none' : false,
+      gapAfterLead:pager&&lead?Math.round(pager.getBoundingClientRect().top-lead.getBoundingClientRect().bottom):null,
+      paginationVisible:!!pager,
+    };
+  });
+  report.singleResultState=singleResultState;
+  check('Single-result last page collapses empty Paper Dossier with accessible final-item note',
+    !singleResultState.hasPaperPanel && singleResultState.hasCompactState &&
+    singleResultState.noteVisible && singleResultState.paginationVisible, singleResultState);
+  check('Last-page pager is placed without a 1310px empty gap',
+    typeof singleResultState.gapAfterLead==='number' &&
+    singleResultState.gapAfterLead>=0 && singleResultState.gapAfterLead<250, singleResultState);
+
+
+  await page.locator('#campaign-query').fill('khong-co-chien-dich-phu-hop');
+  await page.locator('.search-form button').click();
+  await page.getByText('Không tìm thấy chiến dịch phù hợp').waitFor();
+  check('Unmatched search renders genuine empty state; no fake cards',
+    (await facts()).lead === 0 && (await facts()).dossiers === 0 &&
+    report.requests.at(-1)?.q === 'khong-co-chien-dich-phu-hop', await facts());
+
+  await page.goto(base + '/campaigns?q=qa-long-copy');
+  await page.locator('#reading-results .dossier').waitFor();
+  const longCopyLayout = await page.evaluate(() => {
+    const rect = (selector) => document.querySelector(selector)?.getBoundingClientRect();
+    const featuredFacts = rect('#lead-section .facts');
+    const featuredAction = rect('#lead-section .action-row');
+    const featuredStory = rect('#lead-section .story');
+    const dossierCopy = rect('#reading-results .dossier-copy');
+    const dossierPaper = rect('#reading-results .dossier-paper');
+    return {
+      width: document.documentElement.scrollWidth,
+      featuredCopyBottom: Math.round(featuredFacts?.bottom),
+      featuredActionTop: Math.round(featuredAction?.top),
+      featuredActionBottom: Math.round(featuredAction?.bottom),
+      featuredStoryBottom: Math.round(featuredStory?.bottom),
+      dossierCopyBottom: Math.round(dossierCopy?.bottom),
+      dossierPaperBottom: Math.round(dossierPaper?.bottom),
+    };
+  });
+  check('Maximum-length API campaign text fits Featured and Paper Dossier previews',
+    longCopyLayout.width === 1440 &&
+    longCopyLayout.featuredCopyBottom <= longCopyLayout.featuredActionTop &&
+    longCopyLayout.featuredActionBottom <= longCopyLayout.featuredStoryBottom &&
+    longCopyLayout.dossierCopyBottom <= longCopyLayout.dossierPaperBottom,
+    longCopyLayout);
+
+  // React Query retries by default, so disable the network before remounting with a new query key;
+  // only assert the error state after the failed request is surfaced.
+  forceError = true;
+  await page.goto(base + '/campaigns?q=qa-backend-error');
+  await page.locator('.cd-error strong').waitFor({ timeout: 30000 });
+  check('Backend failure shows error + retry instead of fabricated results',
+    await page.getByRole('button', { name: 'Thử lại' }).isVisible(), null);
+  check('No uncaught browser errors', report.errors.length === 0, report.errors);
+  report.pass = true;
+} catch (error) {
+  report.failure = String(error);
+  process.exitCode = 1;
+  console.error(error);
+} finally {
+  await writeFile(resolve(evidence, 'qa-report.json'), JSON.stringify(report, null, 2), 'utf8');
+  if (browser) await browser.close();
+  // npm launches Vite as a child: terminate the full process group so CI does
+  // not hang on inherited stdout/stderr after the browser has closed.
+  try { if (vite.pid) process.kill(-vite.pid, 'SIGTERM'); } catch { vite.kill('SIGTERM'); }
+  vite.stdout.destroy(); vite.stderr.destroy();
+}
+console.log(JSON.stringify({ pass: report.pass, checks: report.checks.length, errors: report.errors, failure: report.failure }, null, 2));
+process.exit(report.pass ? 0 : 1);

@@ -25,10 +25,11 @@ import { NotFoundPage } from '@/pages/NotFoundPage';
 export const router = createBrowserRouter([
   // B2 owns its approved header and footer. Other routes retain SiteShell.
   { path: '/', element: <HomePage /> },
+  // Campaign Discovery owns the approved Desktop 1440 header/footer, as Homepage B2 does.
+  { path: '/campaigns', element: <CampaignsPage /> },
   {
     element: <SiteShell />,
     children: [
-      { path: '/campaigns', element: <CampaignsPage /> },
       { path: '/campaigns/:slug', element: <CampaignDetailPage /> },
       { path: '/login', element: <LoginPage /> },
       { path: '/campaigns/:slug/contribute', element: <RequireAuth><RequireRole role="DONOR"><ContributePage /></RequireRole></RequireAuth> },
