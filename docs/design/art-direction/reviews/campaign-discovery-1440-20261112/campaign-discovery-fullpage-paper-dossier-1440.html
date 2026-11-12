@@ -417,6 +417,54 @@ a:focus-visible,button:focus-visible,input:focus-visible{outline:3px solid #f0bc
 .campaign-page-dossier .read-profile{right:47px;bottom:24px}
 @media(max-width:1300px){.campaign-page-dossier{width:1250px}.campaign-page-dossier>.content{max-width:calc(100% - 40px)}}
 
+
+/* CAMPAIGN DISCOVERY — LANDSCAPE CONTINUITY v1.1 (Desktop 1440 review).
+   Only transition surfaces are adjusted; sections/cards/content stay fixed.
+   Seams: featured -> dossier, dossier valley -> pagination, pagination -> footer. */
+:root{
+  --campaign-seam-cream:#fff8eb;
+  --campaign-seam-sage:#d5e3bf;
+  --campaign-seam-forest:#062e23;
+}
+.campaign-page-dossier{
+  margin-top:20px;
+  margin-bottom:-1px;
+  background:linear-gradient(180deg,
+    var(--campaign-seam-cream) 0%,#f4f6e9 4%,#e3eddb 12%,
+    #dae6d1 27%,#d9e3ce 56%,#cadbbd 86%,var(--campaign-seam-sage) 100%);
+}
+.campaign-page-dossier > .top-landscape{
+  -webkit-mask-image:linear-gradient(to bottom,
+    transparent 0%,rgba(0,0,0,.27) 15%,rgba(0,0,0,.78) 39%,
+    #000 60%,rgba(0,0,0,.52) 82%,transparent 100%);
+  mask-image:linear-gradient(to bottom,
+    transparent 0%,rgba(0,0,0,.27) 15%,rgba(0,0,0,.78) 39%,
+    #000 60%,rgba(0,0,0,.52) 82%,transparent 100%);
+}
+.campaign-page-dossier > .bottom-valley{
+  height:216px;
+  -webkit-mask-image:linear-gradient(to bottom,
+    transparent 0%,rgba(0,0,0,.12) 16%,rgba(0,0,0,.46) 35%,
+    #000 57%,#000 80%,rgba(0,0,0,.62) 89%,transparent 100%);
+  mask-image:linear-gradient(to bottom,
+    transparent 0%,rgba(0,0,0,.12) 16%,rgba(0,0,0,.46) 35%,
+    #000 57%,#000 80%,rgba(0,0,0,.62) 89%,transparent 100%);
+}
+.campaign-page-dossier > .bottom-valley::before{
+  background:none;
+}
+#pagination-landscape{
+  margin-top:0;
+  margin-bottom:-1px;
+  background:linear-gradient(180deg,
+    var(--campaign-seam-sage) 0%,#e4ecd8 23%,#e8eedf 43%,
+    #e0e9d4 71%,#d3e1c5 100%);
+}
+.footer-wave{
+  margin-top:0;
+  background:linear-gradient(180deg,#d3e1c5 0%,#d4e2c7 65%,#dbe8d0 100%);
+}
+
 </style>
 </head>
 <body>

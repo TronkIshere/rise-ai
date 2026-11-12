@@ -30,6 +30,26 @@ try{
   check('Dynamic paper surface has valid cream gradient',paperBackground.includes('linear-gradient')&&!paperBackground.includes('none'),paperBackground.slice(0,180));
   check('Original Header, Filter, Featured, Pagination and Footer preserved',await page.locator('.site-header').count()===1&&await page.locator('.filter-section').count()===1&&await page.locator('#lead-section').count()===1&&await page.locator('#pagination-landscape').count()===1&&await page.locator('.site-footer').count()===1);
   check('Truthful design-only notice',await page.locator('.preview-ribbon').isVisible());
+  const seam=await page.evaluate(()=>{
+    const rect=selector=>{const x=document.querySelector(selector).getBoundingClientRect();return {top:x.top+window.scrollY,bottom:x.bottom+window.scrollY,width:x.width};};
+    const top=document.querySelector('.campaign-page-dossier > .top-landscape');
+    const bottom=document.querySelector('.campaign-page-dossier > .bottom-valley');
+    const lead=rect('#lead-section'),paper=rect('#paper-section'),pager=rect('#pagination-landscape'),wave=rect('.footer-wave');
+    return {lead,paper,pager,wave,gaps:{leadToPaper:Math.round(paper.top-lead.bottom),paperToPager:Math.round(pager.top-paper.bottom),pagerToWave:Math.round(wave.top-pager.bottom)},
+      topMask:getComputedStyle(top).maskImage,bottomMask:getComputedStyle(bottom).maskImage,
+      pagerBackground:getComputedStyle(document.querySelector('#pagination-landscape')).backgroundImage,
+      footerWaveMargin:getComputedStyle(document.querySelector('.footer-wave')).marginTop};
+  });
+  result.seams=seam;
+  check('Top and bottom landscapes have graded alpha masks',
+    seam.topMask.includes('linear-gradient')&&seam.bottomMask.includes('linear-gradient'),
+    {topMask:seam.topMask,bottomMask:seam.bottomMask});
+  check('No abrupt layout gap at dossier → pagination → footer',
+    Math.abs(seam.gaps.paperToPager)<=2&&Math.abs(seam.gaps.pagerToWave)<=2,
+    seam.gaps);
+  check('Pagination and footer use shared sage transition palette',
+    seam.pagerBackground.includes('linear-gradient')&&seam.footerWaveMargin==='0px',
+    {pagerBackground:seam.pagerBackground,footerWaveMargin:seam.footerWaveMargin});
   await page.screenshot({path:resolve(evidence,'campaign-fullpage-1440.png'),fullPage:true,animations:'disabled'});
   await page.locator('#reading-results .read-profile').first().click();
   check('Dossier action shows mock-only disclosure',await page.locator('#demo-feedback').isVisible());

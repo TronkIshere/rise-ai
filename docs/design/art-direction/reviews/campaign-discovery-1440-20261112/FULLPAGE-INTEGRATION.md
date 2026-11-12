@@ -14,3 +14,8 @@
 - Inspect transitions between category filters, featured stage, Paper Dossier, pagination/footer; typography, art provenance, contrast and landscape fade at 1440px.
 - This HTML is a VISUAL PROTOTYPE, not a completed production `/campaigns` React route; no React/API QA or public deployment is claimed.
 - Do not merge without the owner's screenshot sign-off and an independent reviewer. Homepage v1.3.2 and mobile UI are outside scope.
+
+## Landscape continuity refinement v1.1 (2026-11-12)
+Owner raised a visual seam issue. Adjust **only** the transitions between (1) featured → paper dossiers, (2) paper bottom valley → Landscape Thread B pagination, (3) pagination → forest footer. The top scene gets a two-ended gradient alpha mask, the bottom photo gains a two-ended alpha mask and shared sage tone, and pagination/footer surfaces now meet without a disconnected cream strip. No component sizes, text, cards, data logic or Homepage changed.
+
+Chromium QA adds computed-style mask checks and actual layout seam-gap measurements; preserve latest screenshot artifact for owner visual approval. This is a design proposal pending review, not a signed-off visual master.
