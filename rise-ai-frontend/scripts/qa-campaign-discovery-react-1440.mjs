@@ -112,8 +112,9 @@ try {
     const pageButton=document.querySelector('#pagination-landscape .pagination-controls button[aria-current="page"]');
     const disabledButton=document.querySelector('#pagination-landscape .pagination-controls button:disabled');
     const parseColor=(value)=>{
-      const match=value.match(/^rgba?\\((\\d+),\\s*(\\d+),\\s*(\\d+)/);
-      return match ? match.slice(1,4).map(Number) : null;
+      const channels=value.slice(value.indexOf('(')+1,value.indexOf(')'))
+        .split(',').slice(0,3).map(channel=>Number.parseInt(channel,10));
+      return channels.length===3 && channels.every(Number.isFinite) ? channels : null;
     };
     return {
       shift:overline?new window.DOMMatrix(getComputedStyle(overline).transform).m42:null,
