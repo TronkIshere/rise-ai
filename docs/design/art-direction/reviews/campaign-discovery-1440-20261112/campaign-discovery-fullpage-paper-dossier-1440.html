@@ -4,7 +4,7 @@
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <title>Rise AI · Campaign Discovery · Desktop 1440 · Section 05 Paper Dossier full-page review</title>
-  <meta name="description" content="Campaign Discovery Section 05 Story Chapters v0.5, demo-only, not React/API production."/>
+  <meta name="description" content="Campaign Discovery full-page Paper Dossier desktop visual review. All campaigns shown are simulated design fixtures, not production data."/>
 <style>
 /* Component 02 source: Filter C3.1 Depth Trial, chosen enhanced state */
 
@@ -612,6 +612,22 @@ a:focus-visible,button:focus-visible,input:focus-visible{outline:3px solid #f0bc
   padding-bottom:346px;
 }
 
+
+/* Campaign Discovery: humanitarian journey panorama; no separate right-side mountain block.
+   Decorative and lightly blurred across the hero, with title contrast protected. */
+.introduction > .intro-landscape{
+  left:-26px;right:-26px;top:-25px;
+  width:calc(100% + 52px);height:calc(100% + 56px);
+  z-index:-1;opacity:.57;filter:blur(1.65px);
+  -webkit-mask-image:linear-gradient(90deg,rgba(0,0,0,.10) 0%,rgba(0,0,0,.35) 36%,rgba(0,0,0,.88) 73%,rgba(0,0,0,.65) 100%);
+  mask-image:linear-gradient(90deg,rgba(0,0,0,.10) 0%,rgba(0,0,0,.35) 36%,rgba(0,0,0,.88) 73%,rgba(0,0,0,.65) 100%);
+}
+.introduction > .intro-landscape svg{width:100%;height:100%;display:block}
+.introduction h1,.introduction p,.eyebrow-integrated{position:relative;z-index:1}
+#paper-section .section-header{align-items:flex-start;gap:0}
+#paper-section .header-copy{max-width:950px}
+#paper-section .header-copy p{max-width:850px;font-weight:600}
+
 </style>
 </head>
 <body>
@@ -626,10 +642,58 @@ a:focus-visible,button:focus-visible,input:focus-visible{outline:3px solid #f0bc
   <div class="main-body">
     <main class="site-content" id="main">
       <section class="introduction" aria-labelledby="page-title">
-        <div class="intro-landscape" aria-hidden="true"><svg viewBox="0 0 630 180" preserveAspectRatio="none"><path d="M0 167 Q135 113 247 144 T475 100 T630 79 V180H0Z" fill="#d5e4cc"/><path d="M0 177 Q121 139 244 162 T450 132 T630 105 V180H0Z" fill="#a9c39d" opacity=".8"/><path d="M-10 179 Q150 155 310 169 T630 136" fill="none" stroke="#688a66" stroke-width="1.5"/><path d="M520 93Q508 54 533 24Q548 72 520 93M550 87Q548 44 573 21Q584 62 550 87" fill="#bdcea9" opacity=".95"/><path d="M525 140Q542 102 558 70" fill="none" stroke="#718e66" stroke-width="2"/></svg></div>
+        <div class="intro-landscape" aria-hidden="true">
+          <svg class="community-journey-art" viewBox="0 0 1250 245" preserveAspectRatio="xMidYMid slice" focusable="false">
+            <defs>
+              <linearGradient id="campaign-journey-sky" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#f7f5e9"/><stop offset=".62" stop-color="#e8eedf"/><stop offset="1" stop-color="#dde8d4"/></linearGradient>
+              <linearGradient id="campaign-journey-meadow" x1="0" y1="0" x2="1" y2="0"><stop stop-color="#e4e9d9"/><stop offset=".53" stop-color="#bfceb7"/><stop offset="1" stop-color="#b1c9b0"/></linearGradient>
+              <linearGradient id="campaign-journey-trail" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#f6dfb0"/><stop offset="1" stop-color="#d5b480"/></linearGradient>
+              <radialGradient id="campaign-journey-glow"><stop stop-color="#fff5d0" stop-opacity=".94"/><stop offset="1" stop-color="#fff5d0" stop-opacity="0"/></radialGradient>
+            </defs>
+            <path d="M0 0H1250V245H0Z" fill="url(#campaign-journey-sky)" opacity=".64"/>
+            <circle cx="1100" cy="58" r="112" fill="url(#campaign-journey-glow)"/>
+            <circle cx="1100" cy="58" r="21" fill="#f9e0a6" opacity=".75"/>
+            <path d="M0 177C160 151 247 170 391 159S642 175 798 150 1080 157 1250 132V245H0Z" fill="#d7e3cb" opacity=".69"/>
+            <path d="M0 214C184 184 334 217 496 184S791 181 932 175s214-22 318-8v78H0Z" fill="url(#campaign-journey-meadow)" opacity=".73"/>
+            <path d="M90 241C293 209 413 226 571 206S838 212 1002 191s186-4 248-12" fill="none" stroke="#f4e4bd" stroke-width="18" stroke-linecap="round" opacity=".40"/>
+            <path d="M90 241C293 209 413 226 571 206S838 212 1002 191s186-4 248-12" fill="none" stroke="url(#campaign-journey-trail)" stroke-width="2" stroke-linecap="round" stroke-dasharray="2 10" opacity=".72"/>
+            <g class="community-node" transform="translate(635 105)" opacity=".52">
+              <path d="M5 42L65 0l58 42v67H5Z" fill="#f8efcf" stroke="#71967c" stroke-width="3"/>
+              <path d="M-3 43 65-7l66 50" stroke="#83a287" stroke-width="8" stroke-linecap="round" fill="none"/>
+              <path d="M55 109V60h25v49" fill="#b5cda8"/><path d="M18 53h22v21H18zm73 0h22v21H91" fill="#d2dfcb"/>
+              <path d="m29 93 17-7 17 7 17-7 17 7" fill="none" stroke="#bb9063" stroke-width="3" stroke-linejoin="round"/>
+              <path d="M29 95v14m34-16v16m34-16v16" stroke="#bb9063" stroke-width="2"/>
+            </g>
+            <g class="community-node" transform="translate(894 70)" opacity=".56">
+              <path d="M0 54 76 6l74 48v80H0Z" fill="#f5eed9" stroke="#759c7e" stroke-width="3"/>
+              <path d="m-8 57 84-59 83 59" fill="none" stroke="#91b297" stroke-width="9" stroke-linecap="round"/>
+              <rect x="58" y="70" width="37" height="64" rx="4" fill="#c4d7ba"/>
+              <rect x="16" y="72" width="24" height="26" rx="3" fill="#d7e8e3"/><rect x="112" y="72" width="24" height="26" rx="3" fill="#d7e8e3"/>
+              <path d="m49 42 26-13 27 13-27 13Z" fill="#d7b98a"/><path d="M59 40v14m32-14v14" stroke="#8b6b49" stroke-width="2"/>
+            </g>
+            <g class="community-node" transform="translate(1117 112)" opacity=".58">
+              <path d="M0 38 45 2l48 36v62H0Z" fill="#f4ecd7" stroke="#7c9e82" stroke-width="3"/>
+              <path d="M-7 39 45-6l55 45" stroke="#8cae91" stroke-width="7" fill="none" stroke-linecap="round"/>
+              <rect x="31" y="56" width="27" height="44" rx="3" fill="#c8d9bf"/>
+              <path d="M12 69h12m44 0h12" stroke="#9fb6a4" stroke-width="6"/>
+              <path d="m45 17 6 8-6 8-6-8Z" fill="#e4ba78"/>
+            </g>
+            <g class="community-hands" transform="translate(786 149)" opacity=".72">
+              <circle cx="12" cy="2" r="8" fill="#d5ae87"/><circle cx="54" cy="5" r="8" fill="#c9a37a"/>
+              <path d="M0 46V22q5-12 15-12t15 13v16M43 43V24q5-12 14-12t14 13v21" fill="#7ba78b"/>
+              <path d="M27 24q10 11 19 0" fill="none" stroke="#b58d62" stroke-width="6" stroke-linecap="round"/>
+              <path d="M6 47h56" stroke="#59846d" stroke-width="4" stroke-linecap="round"/>
+            </g>
+            <g fill="#8db59a" stroke="#628b70" stroke-width="1.4" opacity=".64">
+              <path d="M492 222q-34-27-30-60 35 17 30 60ZM518 225q-2-50 31-67 8 42-31 67ZM1067 206q-25-33-16-65 34 28 16 65ZM1091 201q3-44 32-59 5 38-32 59Z"/>
+              <path d="M336 219q-18-24-9-47 29 22 9 47ZM354 218q2-27 20-42 8 26-20 42Z"/>
+            </g>
+            <g fill="#e5bc7c" opacity=".58"><circle cx="487" cy="125" r="3"/><circle cx="559" cy="110" r="4"/><circle cx="1044" cy="49" r="3"/><circle cx="1216" cy="83" r="4"/></g>
+          </svg>
+        </div>
         <div class="eyebrow-integrated">KHÁM PHÁ / CHIẾN DỊCH CỘNG ĐỒNG</div>
         <h1 id="page-title">Khám phá các sáng kiến cộng đồng</h1>
-        <p>Tìm hiểu nhu cầu, phương án và đơn vị thực hiện của những chiến dịch đang kêu gọi. Nội dung chiến dịch được lấy từ hệ thống khi triển khai thật.</p>
+        <p>Khám phá các sáng kiến cộng đồng đang được mô phỏng trong hệ thống. Nội dung, nhu cầu hỗ trợ và đơn vị thực hiện sẽ được cập nhật từ dữ liệu thực khi triển khai.</p>
       </section>
       <section class="search-area" id="search" aria-label="Tìm kiếm chiến dịch">
         <form class="search-form" id="search-form" role="search">
@@ -728,7 +792,7 @@ a:focus-visible,button:focus-visible,input:focus-visible{outline:3px solid #f0bc
 <svg aria-hidden="true" class="corner-leaves" viewbox="0 0 170 280"><path d="M-14 272Q35 132 119-12" fill="none" stroke="#497548" stroke-width="6"></path><path d="M15 182Q-30 140-8 91Q30 122 15 182ZM36 114Q-1 69 31 30Q66 70 36 114ZM73 74Q56 17 113-8Q120 41 73 74ZM3 234Q-24 214-8 168Q34 186 3 234Z" fill="#91b371" stroke="#5e854a" stroke-width="2"></path><path d="M31 155Q43 109 96 92Q90 151 31 155Z" fill="#c5d480"></path></svg>
 <svg aria-hidden="true" class="corner-leaves right" viewbox="0 0 170 280"><path d="M-14 272Q35 132 119-12" fill="none" stroke="#497548" stroke-width="6"></path><path d="M15 182Q-30 140-8 91Q30 122 15 182ZM36 114Q-1 69 31 30Q66 70 36 114ZM73 74Q56 17 113-8Q120 41 73 74ZM3 234Q-24 214-8 168Q34 186 3 234Z" fill="#91b371" stroke="#5e854a" stroke-width="2"></path></svg>
 <div class="content">
-<header class="section-header"><span class="section-number">05</span><div class="header-copy"><h2>Hồ sơ chiến dịch cộng đồng</h2><p>Bản duyệt thiết kế: 1 hồ sơ chính và tối đa 8 hồ sơ tiếp theo mỗi trang · dữ liệu minh họa.</p></div></header>
+<header class="section-header"><div class="header-copy"><h2>Hồ sơ chiến dịch cộng đồng</h2><p>Các hồ sơ bên dưới sử dụng dữ liệu giả lập để minh họa cách hiển thị trong hệ thống.</p></div></header>
 <div aria-label="Danh sách hồ sơ minh họa" class="dossiers" id="reading-results">
 </div><div class="note-area" aria-live="polite"></div></div><div class="bottom-valley" aria-hidden="true">
   <svg class="journey-river-source" viewBox="0 0 1440 216" preserveAspectRatio="none" focusable="false">

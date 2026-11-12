@@ -22,3 +22,12 @@ Chromium QA adds computed-style mask checks and actual layout seam-gap measureme
 
 ## Journey Landscape Thread v1.2 — candidate for owner review
 Owner suggests a single pattern from the bottom of the small campaign dossiers to the beginning of Footer. The existing valley illustration is retained as a source; a softly lit river trail now carries through Section 06 and ends at the Footer wave. Pagination hill colors are reduced to support—not compete with—the trail. Cards, content, data, and functionality are unmodified. This is a design proposal, **not approved** until real 1440px screenshot review and independent review.
+
+
+## Approved-scope visual adjustments — 2026-11-12 (review implementation)
+- Removed the decorative `05` badge from the Paper Dossier heading; the section remains labeled and accessible.
+- The heading description now explicitly reads: “Các hồ sơ bên dưới sử dụng dữ liệu giả lập để minh họa cách hiển thị trong hệ thống.”
+- Replaced the hero's isolated right-side mountain SVG with a full-width, softly blurred `community-journey-art` panorama: gentle hills, curved walking trail, educational/community spaces, helping figures, leaves and warm light. The art is decorative (`aria-hidden`) and masked behind the readable headline.
+- Adjusted the hero introduction copy to distinguish simulated content from future live Backend data.
+- Four extra browser checks verify badge absence, simulated-data disclosure, artwork structure, and blur/mask/opacity.
+- **Review candidate only** until screenshot inspection, owner visual sign-off and independent review. No Homepage, React, mobile or Backend changes.

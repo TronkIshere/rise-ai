@@ -23,6 +23,34 @@ try{
     return {state,documentWidth:document.documentElement.scrollWidth,viewportWidth:innerWidth,sectionWidth:section?.getBoundingClientRect().width,rows:document.querySelectorAll('#reading-results .dossier').length,arts:document.querySelectorAll('#reading-results .category-artwork svg').length,ctas:document.querySelectorAll('#reading-results .read-profile').length};
   });
   const initial=await facts();result.metrics=initial;
+
+  const approvedAdjustments=await page.evaluate(()=>{
+    const hero=document.querySelector('.introduction');
+    const backdrop=hero.querySelector('.intro-landscape');
+    const svg=backdrop.querySelector('svg.community-journey-art');
+    const css=getComputedStyle(backdrop);
+    return {
+      hasNumberBadge:!!document.querySelector('#paper-section .section-number'),
+      dossierCopy:document.querySelector('#paper-section .header-copy p')?.textContent?.trim(),
+      panoramaNodes:svg?.querySelectorAll('.community-node').length||0,
+      volunteerFigures:svg?.querySelectorAll('.community-hands').length||0,
+      decorative:backdrop.getAttribute('aria-hidden')==='true',
+      spansHero:Math.round(backdrop.getBoundingClientRect().width)>=Math.round(hero.getBoundingClientRect().width),
+      opacity:Number(css.opacity),blur:css.filter,mask:css.maskImage
+    };
+  });
+  result.approvedAdjustments=approvedAdjustments;
+  check('Section 05 number badge removed',!approvedAdjustments.hasNumberBadge,approvedAdjustments);
+  check('Section 05 clearly discloses simulated records',
+    approvedAdjustments.dossierCopy==='Các hồ sơ bên dưới sử dụng dữ liệu giả lập để minh họa cách hiển thị trong hệ thống.',
+    approvedAdjustments.dossierCopy);
+  check('Hero mountain object replaced with full-width community panorama',
+    approvedAdjustments.panoramaNodes>=3&&approvedAdjustments.volunteerFigures===1&&approvedAdjustments.spansHero&&approvedAdjustments.decorative,
+    approvedAdjustments);
+  check('Community panorama is softly blurred and masked below the readable hero text',
+    approvedAdjustments.opacity>0&&approvedAdjustments.opacity<0.7&&approvedAdjustments.blur.includes('blur')&&approvedAdjustments.mask.includes('linear-gradient'),
+    approvedAdjustments);
+
   check('1440px desktop, no horizontal overflow',initial.viewportWidth===1440&&initial.documentWidth<=1440&&initial.sectionWidth===1440,initial);
   check('9 records/page split 1 lead + 8 dossiers',initial.state?.size===9&&initial.state?.leadVisible&&initial.rows===8,initial);
   check('8 dossier illustrations and actions',initial.arts===8&&initial.ctas===8,initial);
