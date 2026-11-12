@@ -86,7 +86,7 @@ try {
     disclaimer: document.querySelector('#paper-section .header-copy p')?.textContent,
     paginationVisible: !!document.querySelector('#pagination-landscape'),
     coverArt: !!document.querySelector('.shape-svg image'),
-    valley: getComputedStyle(document.querySelector('.bottom-valley')).backgroundImage,
+    valley: document.querySelector('.bottom-valley') ? getComputedStyle(document.querySelector('.bottom-valley')).backgroundImage : null,
   }));
   const first = await facts();
   report.initial = first;
