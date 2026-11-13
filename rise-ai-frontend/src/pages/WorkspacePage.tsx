@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { ArrowRight, ArrowUpRight, BookOpenCheck, Building2, HandHeart, ShieldCheck, Sparkles } from 'lucide-react';
 import { adminStatistics } from '@/api/admin';
-import { WorkspaceIllustration } from '@/components/ui/WorkspaceIllustration';
+import { WorkspaceAdminPortrait, WorkspaceHeroIllustration, WorkspaceIllustration } from '@/components/ui/WorkspaceIllustration';
 import { Button } from '@/components/ui/Button';
 import { useB2Desktop } from '@/lib/useB2Desktop';
 import { amountLabel } from '@/lib/campaign-display';
@@ -105,8 +105,8 @@ function AdminWorkspace() {
           <h1>Quản trị <em>nguồn lực</em></h1>
           <p>Giữ vững niềm tin và sự minh bạch cho cộng đồng cùng Rise AI.</p>
         </div>
-        <div className="b2-admin-art" aria-hidden="true"><WorkspaceIllustration kind="ledger" /><WorkspaceIllustration kind="wallet" /><WorkspaceIllustration kind="checklist" /></div>
-        <div className="b2-admin-profile"><WorkspaceIllustration kind="wallet" /><div><strong>{user?.fullName ?? user?.email ?? 'Quản trị viên'}</strong><Link to="/admin">Trung tâm quản trị <ArrowUpRight size={16} aria-hidden="true" /></Link></div></div>
+        <WorkspaceHeroIllustration />
+        <div className="b2-admin-profile"><WorkspaceAdminPortrait /><div><strong>{user?.fullName ?? user?.email ?? 'Quản trị viên'}</strong><Link to="/admin">Trung tâm quản trị <ArrowUpRight size={16} aria-hidden="true" /></Link></div></div>
       </header>
       <section className="b2-admin-finance" aria-labelledby="workspace-finance">
         <div className="b2-admin-panel-head"><WorkspaceIllustration kind="ledger" /><div><h2 id="workspace-finance">Tổng quan tài chính</h2><p>Số liệu mô phỏng · Không chuyển tiền thật</p></div></div>
@@ -136,7 +136,7 @@ function AdminWorkspace() {
         </section>
       </div>
       <section className="b2-admin-transparency" aria-labelledby="workspace-transparency">
-        <h2 id="workspace-transparency"><ShieldCheck size={23} aria-hidden="true" /> Minh bạch và kiểm soát</h2>
+        <h2 id="workspace-transparency"><ShieldCheck size={23} aria-hidden="true" /> Minh bạch &amp; Kiểm soát</h2>
         <div>{shortcuts.map(([to, title, description, kind]) => <Link key={to} to={to}>
           <WorkspaceIllustration kind={kind} /><span><strong>{title}</strong><small>{description}</small></span><ArrowRight size={20} aria-hidden="true" />
         </Link>)}</div>

@@ -14,7 +14,9 @@ export function SiteShell() {
   const [warning, setWarning] = useState('');
   const [menuOpen, setMenuOpen] = useState(false);
   const matches = useMatches();
-  const sample = (matches.at(-1)?.handle as { b2Sample?: 'all' | 'admin' } | undefined)?.b2Sample;
+  const layout = matches.at(-1)?.handle as { b2Sample?: 'all' | 'admin'; footer?: false; b2Footer?: false } | undefined;
+  const sample = layout?.b2Sample;
+  const showFooter = layout?.footer !== false;
   const desktop = useB2Desktop();
 
   function signOut() {
@@ -41,7 +43,7 @@ export function SiteShell() {
       </div>
       {warning ? <Container className="py-3"><p role="alert" className="text-sm text-warning">{warning}</p></Container> : null}
       <main id="main-content" className="b2-sample-main" tabIndex={-1}><Outlet /></main>
-      <div className="b2-homepage b2-shared-chrome"><B2Footer site /></div>
+      {showFooter && layout?.b2Footer !== false && <div className="b2-homepage b2-shared-chrome"><B2Footer site /></div>}
     </div>;
   }
 
@@ -73,7 +75,7 @@ export function SiteShell() {
       </header>
       {warning ? <Container className="py-3"><p role="alert" className="text-sm text-warning">{warning}</p></Container> : null}
       <main id="main-content" className="grow"><Outlet /></main>
-      <footer className="border-t border-border bg-brand-ink text-white">
+      {showFooter && <footer className="border-t border-border bg-brand-ink text-white">
         <Container className="grid gap-8 py-12 sm:grid-cols-[1fr_auto]">
           <div className="max-w-md">
             <Link to="/" className="flex items-center gap-2.5 text-xl font-extrabold"><HeartHandshake size={26} aria-hidden="true"/> Rise AI</Link>
@@ -85,7 +87,7 @@ export function SiteShell() {
           </div>
           <p className="text-xs leading-6 text-white/65 sm:col-span-2">© Rise AI · Mô phỏng nội bộ · Không thanh toán tiền thật · AI chỉ cung cấp cảnh báo hỗ trợ quyết định.</p>
         </Container>
-      </footer>
+      </footer>}
     </div>
   );
 }

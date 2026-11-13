@@ -1,6 +1,6 @@
 import { useRef, useState, type FormEvent } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, AlertTriangle, Eye, MapPin, Save } from 'lucide-react';
+import { ArrowLeft, ArrowRight, AlertTriangle, Eye, ListOrdered, MapPin, Save } from 'lucide-react';
 import { Link, useNavigate, useParams } from 'react-router';
 import { useAuth } from '@/auth/auth-context';
 import { createCreatorCampaign, getCreatorCampaign, myOrganizations, updateCreatorCampaign } from '@/api/creator';
@@ -117,7 +117,11 @@ function EditForm({ initial, id }: {initial?:CampaignResponse;id?:string}) {
   const cover = form.coverImageUrl?.trim();
   const previewUrl = cover?.startsWith('https://') ? safeImageUrl(cover) : undefined;
   return <div className="b2-studio">
-    <nav className="b2-studio-chapters" aria-label="Các phần của hồ sơ">
+    <nav className="b2-studio-chapters" aria-labelledby="creator-chapters-title">
+      <div className="b2-studio-panel-heading">
+        <ListOrdered aria-hidden="true" />
+        <h2 id="creator-chapters-title">Các chương</h2>
+      </div>
       <ol>{chapters.map(([target, label, detail], index) => <li key={target}>
         <button type="button" aria-current={chapter === index ? 'step' : undefined} aria-controls={target} disabled={save.isPending} onClick={() => openChapter(index)}><span aria-hidden="true">{index + 1}</span><span><strong>{label}</strong><small>{detail}</small></span></button>
       </li>)}</ol>
@@ -125,10 +129,16 @@ function EditForm({ initial, id }: {initial?:CampaignResponse;id?:string}) {
     <form ref={formElement} noValidate onSubmit={e=>void submit(e)} className="b2-editor-form grid gap-6">
     <div className="b2-studio-progress">
       <span>Chương {chapter + 1} / {chapters.length}</span>
-      <progress aria-label="Vị trí trong hồ sơ" value={chapter + 1} max={chapters.length} />
+      <progress className="sr-only" aria-label="Vị trí trong hồ sơ" value={chapter + 1} max={chapters.length} />
+      <div className="b2-studio-progress-track" aria-hidden="true">
+        {chapters.map(([target], index) => <span key={target} data-reached={index <= chapter} data-current={index === chapter} />)}
+      </div>
     </div>
     <section hidden={chapter !== 0} id="creator-basics" className="grid gap-5 sm:grid-cols-2">
-      <h2 tabIndex={-1} className="text-lg font-bold text-brand-ink sm:col-span-2">1. Thông tin cơ bản</h2>
+      <div className="b2-studio-form-heading sm:col-span-2">
+        <h2 tabIndex={-1}>1. Thông tin cơ bản</h2>
+        <p>Đặt nền móng cho chiến dịch với thông tin cốt lõi.</p>
+      </div>
       <div className="sm:col-span-2"><Input id="creator-title" label="Tên chiến dịch" required maxLength={200} value={form.title} onChange={e=>change('title',e.target.value)}/></div>
       <div><label className="mb-2 block text-sm font-semibold" htmlFor="creator-category">Lĩnh vực</label>
         <select id="creator-category" className="min-h-11 w-full rounded-xl border border-border bg-surface px-3" value={form.category} onChange={e=>change('category',e.target.value as CampaignCategory)}>{categoryOptions.map(o=><option key={o.value} value={o.value}>{o.label}</option>)}</select>
@@ -185,21 +195,30 @@ function EditForm({ initial, id }: {initial?:CampaignResponse;id?:string}) {
       <div>
         {chapter > 0 && <Button type="button" variant="outline" disabled={save.isPending} onClick={() => openChapter(chapter - 1)}><ArrowLeft size={17} aria-hidden="true" /> Chương trước</Button>}
         <Button type="submit" loading={save.isPending}>
-          {chapter === chapters.length - 1 ? <><Save size={17} aria-hidden="true" /> Lưu bản nháp</> : 'Tiếp theo'}
+          {chapter === chapters.length - 1 ? <><Save size={17} aria-hidden="true" /> Lưu bản nháp</> : <>Tiếp theo <ArrowRight size={17} aria-hidden="true" /></>}
         </Button>
       </div>
     </div>
     </form>
     <aside className="b2-studio-preview" aria-labelledby="creator-preview-title">
-      <h2 id="creator-preview-title"><Eye size={22} aria-hidden="true" /> Xem trước chiến dịch</h2>
-      <p>Nội dung từ bản nháp đang chỉnh sửa.</p>
+      <div className="b2-studio-panel-heading b2-studio-preview-heading">
+        <Eye aria-hidden="true" />
+        <div>
+          <h2 id="creator-preview-title">Xem trước chiến dịch</h2>
+          <p>Cập nhật theo nội dung bạn đang nhập.</p>
+        </div>
+      </div>
       <div className="b2-preview-entry">
-        <CampaignMedia key={previewUrl} src={previewUrl} alt="Ảnh bìa chiến dịch" />
-        <p className="b2-preview-category">{categoryLabel(form.category)}</p>
-        <h3>{form.title.trim() || 'Tên chiến dịch'}</h3>
-        {form.location.trim() && <p><MapPin size={16} aria-hidden="true" /> {form.location}</p>}
-        <p>{form.shortDescription.trim() || 'Tóm tắt sẽ xuất hiện khi bạn nhập nội dung.'}</p>
-        <dl><div><dt>Mục tiêu mô phỏng</dt><dd>{form.targetAmount > 0 ? amountLabel(form.targetAmount, 'VND') : 'Chưa nhập'}</dd></div></dl>
+        <div className="b2-preview-cover">
+          <CampaignMedia key={previewUrl} src={previewUrl} alt="Ảnh bìa chiến dịch" />
+          <span className="b2-preview-category">{categoryLabel(form.category)}</span>
+        </div>
+        <div className="b2-preview-copy">
+          <h3>{form.title.trim() || 'Tên chiến dịch'}</h3>
+          {form.location.trim() && <p className="b2-preview-location"><MapPin size={17} aria-hidden="true" /> {form.location}</p>}
+          <p>{form.shortDescription.trim() || 'Tóm tắt sẽ xuất hiện khi bạn nhập nội dung.'}</p>
+          <dl><div><dt>Mục tiêu mô phỏng</dt><dd>{form.targetAmount > 0 ? amountLabel(form.targetAmount, 'VND') : 'Chưa nhập'}</dd></div></dl>
+        </div>
       </div>
     </aside>
   </div>;
@@ -216,6 +235,9 @@ export function CreatorCampaignEditorPage() {
         <h1>Campaign Creation <em>Studio</em></h1>
         <p>{id ? 'Chỉnh sửa bản nháp chiến dịch.' : 'Tạo chiến dịch mới và kết nối nguồn lực từ cộng đồng.'}</p>
       </div>
+      <svg className="b2-studio-paper-edge" viewBox="0 0 1440 44" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+        <path d="M0 21C155 5 206 38 331 25c110-11 198-24 310-9 119 16 179 19 298 6 119-13 173-15 271 0 87 13 154 7 230-6v28H0Z" />
+      </svg>
     </header>
     <Container className="deep-inner py-10 sm:py-14">
     {id&&campaign.isPending?<div className="mt-6"><StatusMessage title="Đang tải bản nháp…"/></div>:null}

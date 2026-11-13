@@ -21,3 +21,72 @@ export function WorkspaceIllustration({ kind }: { kind: Illustration }) {
     {designs[kind]}
   </svg>;
 }
+
+
+export function WorkspaceHeroIllustration() {
+  return <svg className="b2-admin-hero-illustration" viewBox="0 0 410 180" aria-hidden="true" focusable="false">
+    <ellipse cx="216" cy="157" rx="165" ry="12" className="art-ground" />
+    <g className="art-outline">
+      <path className="art-leaf" d="M109 131C59 125 47 99 48 77c35 1 55 18 61 54Zm4-22C86 88 82 63 95 44c25 15 33 40 18 65Zm199 44c14-26 37-36 66-33-7 25-31 35-66 33Z" />
+      <path className="art-leaf-light" d="M119 137C87 137 65 125 62 108c28-4 50 11 57 29Zm196 11c11-30 28-45 53-45-3 23-19 42-53 45Z" />
+      <path className="art-lines" d="m59 89 42 33m-1-67 15 42m246 14-33 31m33-14-30 17" />
+    </g>
+    <g className="art-outline">
+      <path className="art-navy" d="m151 30 142-17q11-2 11 9l-9 92-146 17-12-11 7-82q1-7 7-8Z" />
+      <path className="art-blue" d="m151 24 136-18q11-1 11 10l-9 91-151 18 7-93q1-6 6-8Z" />
+      <path className="art-screen" d="m156 32 128-17-8 82-127 16 7-81Z" />
+      <path className="art-screen-shine" d="m163 38 112-15-2 18c-42-1-78 17-113 41Z" />
+      <path className="art-white" d="M198 78c-1-17 14-26 31-25-3 15-14 25-28 26m-3 1 21-17" />
+      <path className="art-navy" d="m138 125 150-18 22 20-6 11-140 20q-8 1-15-3l-38-18v-8Z" />
+      <path className="art-metal" d="m139 121 149-17 22 23-143 21q-8 1-13-1l-43-18Z" />
+      <path className="art-blue" d="m159 123 107-13 8 8-106 14Z" />
+      <path className="art-lines" d="m178 137 39-5m-60 18 12 2 132-19" />
+    </g>
+    <g className="art-outline" transform="translate(55 107)">
+      <path className="art-ochre" d="M0 12h38v26c0 9-38 9-38 0Z" />
+      <path className="art-coins" d="M0 12h32v26c-6 7-32 6-32 0Z" />
+      <ellipse className="art-coin-light" cx="19" cy="12" rx="19" ry="7" />
+      <path className="art-lines" d="M2 23c9 5 24 5 34 0M2 32c9 5 24 5 34 0" />
+    </g>
+    <g className="art-outline" transform="translate(29 124)">
+      <path className="art-ochre" d="M0 12h36v20c0 9-36 9-36 0Z" />
+      <path className="art-coins" d="M0 12h28v20c-4 7-28 7-28 0Z" />
+      <ellipse className="art-coin-light" cx="18" cy="12" rx="18" ry="7" />
+      <path className="art-lines" d="M2 24c9 5 22 5 32 0" />
+    </g>
+    <g className="art-outline">
+      <path className="art-ochre" d="M85 92q22-3 39-19 15 10 35 8l-1 25c-1 20-12 37-30 48l-10 2q-30-12-34-41Z" />
+      <path className="art-coins" d="M80 94q22-4 39-18 15 11 35 10l-1 23c-1 20-13 38-35 47q-33-12-37-39Z" />
+      <path className="art-leaf" d="M89 101q17-4 30-14 12 8 26 8l-1 15q-2 23-26 36-23-11-28-31Z" />
+      <path className="art-check" d="m104 115 10 9 17-18" />
+    </g>
+    <g className="art-outline" transform="rotate(9 325 100)">
+      <rect className="art-ochre" x="284" y="53" width="81" height="107" rx="9" />
+      <rect className="art-blue" x="279" y="49" width="81" height="107" rx="9" />
+      <path className="art-white" d="M286 58h66v89h-66Z" />
+      <path className="art-coins" d="M300 56V45h12a8 8 0 0 1 16 0h13v11Z" />
+      <path className="art-ticks" d="m293 77 4 4 7-8m-11 26 4 4 7-8m-11 26 4 4 7-8m8-41h27m-27 22h27m-27 22h24" />
+    </g>
+    <g className="art-outline">
+      <path className="art-ochre" d="m330 145 35-41 8 7-34 41-16 8Z" />
+      <path className="art-coins" d="m330 145 32-37 7 6-32 37Z" />
+      <path className="art-white" d="m330 145 7 6-14 9Z" />
+      <path className="art-leaf" d="m360 108 8-9q5-2 8 4l-8 11Z" />
+      <path className="art-rays" d="m323 23 6-11m11 19 12-5m-4 18 10 1M66 55l-9-6m5 18-12-1" />
+    </g>
+  </svg>;
+}
+
+export function WorkspaceAdminPortrait() {
+  return <svg className="b2-admin-portrait" viewBox="0 0 60 60" aria-hidden="true" focusable="false">
+    <circle cx="30" cy="30" r="28" className="art-coin-light art-outline" />
+    <g className="art-outline">
+      <path className="art-screen" d="M11 50c2-10 8-15 19-15 12 0 19 6 20 15a28 28 0 0 1-39 0Z" />
+      <path className="art-skin" d="M25 38v5l5 4 6-4v-5m-17-16c-5-2-7 7-1 9 2 7 6 11 12 11 7 0 11-5 13-11 6-2 4-10-1-9-2-8-20-12-23 0Z" />
+      <path className="art-navy" d="M18 26c-4-7-2-15 4-17 4-5 16-5 20 2 7 1 8 13 0 15-1-5-4-8-7-10-3 5-11 6-14 4Z" />
+      <path className="art-lines" d="M29 34q2 2 5 0" />
+      <circle cx="25" cy="28" r="1" className="art-ink" />
+      <circle cx="36" cy="28" r="1" className="art-ink" />
+    </g>
+  </svg>;
+}

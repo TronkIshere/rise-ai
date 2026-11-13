@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, Clock3, MessageCircle, Scale, Send, ShieldAlert, UserRound } from 'lucide-react';
+import { ArrowLeft, ArrowUpRight, Check, Clock3, MessageCircle, Scale, Send, ShieldAlert, UserRound } from 'lucide-react';
 import { Link, useParams } from 'react-router';
 import { addDisputeMessage, disputeMessages, getCampaignById, getDispute, withdrawDispute } from '@/api/donor';
 import { useAuth } from '@/auth/auth-context';
@@ -52,6 +52,9 @@ function DisputeDossier({ id }: { id: string }) {
         <h1>Phản ánh &amp; <em>Tranh chấp</em></h1>
         <p>Theo dõi phản ánh và trao đổi thông tin để làm rõ việc thực hiện chiến dịch.</p>
       </div>
+      <svg className="b2-dossier-paper-edge" viewBox="0 0 1440 62" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+        <path d="M0 41C144 12 231 38 332 30c124-10 182-30 267-25 117 6 135 36 251 36 115 0 187-19 295-19 108 0 201 24 295 7v33H0Z" />
+      </svg>
     </header>
     <Container className="deep-inner py-10 sm:py-14">
       {owned.isPending ? <StatusMessage title="Đang xác minh dữ liệu phản ánh…" /> : null}
@@ -68,7 +71,10 @@ function DisputeDossier({ id }: { id: string }) {
                 : <><img src="/b2-home/story-community-pair.jpg" alt="" /><figcaption>Ảnh minh họa · Hồ sơ cộng đồng</figcaption></>}
             </figure>
             <p>Chiến dịch liên quan</p>
-            {campaign.data.slug ? <Link to={'/campaigns/' + encodeURIComponent(campaign.data.slug)}>{campaign.data.title ?? 'Xem chiến dịch'}</Link> : <strong>{campaign.data.title}</strong>}
+            {campaign.data.slug ? <Link to={'/campaigns/' + encodeURIComponent(campaign.data.slug)}>
+              <span>{campaign.data.title ?? 'Xem chiến dịch'}</span><ArrowUpRight size={18} aria-hidden="true" />
+            </Link> : <strong>{campaign.data.title}</strong>}
+            {campaign.data.shortDescription && <p className="b2-case-campaign-description">{campaign.data.shortDescription}</p>}
           </div>}
           <dl>
             <div><UserRound aria-hidden="true" /><dt>Loại phản ánh</dt><dd>{disputeTypeLabel(dispute.disputeType)}</dd></div>
@@ -83,14 +89,22 @@ function DisputeDossier({ id }: { id: string }) {
         <div className="b2-case-content">
           <h2>{dispute.title ?? 'Chi tiết phản ánh'}</h2>
           <p className="whitespace-pre-line">{dispute.description}</p>
-          <div className="b2-case-timeline" aria-label="Tiến trình hồ sơ">
-            <div><span aria-hidden="true" /><strong>Đã tiếp nhận</strong><small>{dateLabel(dispute.createdAt)}</small></div>
-            {dispute.disputeStatus && dispute.disputeStatus !== 'OPEN' ? <div><span aria-hidden="true" /><strong>{disputeLabel(dispute.disputeStatus)}</strong></div> : null}
-          </div>
+          <ol className="b2-case-timeline" aria-label="Tiến trình hồ sơ">
+            <li>
+              <span className="b2-case-timeline-marker" aria-hidden="true"><Check size={15} /></span>
+              <strong>Đã tiếp nhận</strong>
+              {dispute.createdAt && <time dateTime={dispute.createdAt}>{dateLabel(dispute.createdAt)}</time>}
+            </li>
+            {dispute.disputeStatus && <li aria-current="step">
+              <span className="b2-case-timeline-marker" aria-hidden="true" />
+              <strong>{disputeLabel(dispute.disputeStatus)}</strong>
+              <small>Trạng thái hiện tại</small>
+            </li>}
+          </ol>
           {dispute.resolution && <p className="b2-case-resolution whitespace-pre-line"><strong>Kết luận của Admin</strong><br />{dispute.resolution}</p>}
           {notice && <p role="status" className="b2-case-notice">{notice}</p>}
-          <section className="b2-conversation" aria-label="Trao đổi và lịch sử hồ sơ">
-            <h3 id="dispute-history"><MessageCircle size={23} aria-hidden="true" /> Trao đổi{typeof messages.data?.totalElements === 'number' ? ' (' + messages.data.totalElements + ')' : ''}</h3>
+          <section className="b2-conversation" aria-labelledby="dispute-messages">
+            <h3 id="dispute-messages"><MessageCircle size={23} aria-hidden="true" /> Trao đổi{typeof messages.data?.totalElements === 'number' ? ' (' + messages.data.totalElements + ')' : ''}</h3>
             <div className="b2-message-list">
               {messages.isPending && <StatusMessage title="Đang tải trao đổi…" />}
               {messages.isError && <div>
@@ -110,7 +124,7 @@ function DisputeDossier({ id }: { id: string }) {
             </div>
             {(dispute.disputeStatus === 'OPEN' || dispute.disputeStatus === 'UNDER_REVIEW') && <form className="b2-dispute-reply" onSubmit={event => void submit(event)}>
               <label htmlFor="dispute-message">Gửi thông tin bổ sung</label>
-              <div><textarea id="dispute-message" rows={3} maxLength={5000} required value={message} onChange={event => setMessage(event.target.value)} placeholder="Nhập phản hồi của bạn…" />
+              <div><textarea id="dispute-message" rows={2} maxLength={5000} required value={message} onChange={event => setMessage(event.target.value)} placeholder="Nhập phản hồi của bạn…" />
               <Button type="submit" loading={send.isPending}><Send size={18} aria-hidden="true" /> Gửi tin nhắn</Button></div>
               {send.isError && <p role="alert" className="text-danger">{send.error.message}</p>}
             </form>}
