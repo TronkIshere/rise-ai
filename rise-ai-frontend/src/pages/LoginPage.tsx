@@ -46,10 +46,10 @@ export function LoginPage() {
             <li><Sprout aria-hidden="true" /><span><strong>Tạo tác động</strong> bền vững và minh bạch</span></li>
           </ul>
         </div>
-        <div className="b2-login-photo-strip" aria-label="Ảnh minh họa hoạt động thiện nguyện">
-          <img src="/b2-home/story-community-pair.jpg" alt="" />
+        <div className="b2-login-photo-strip" role="img" aria-label="Ảnh minh họa hoạt động thiện nguyện">
+          <img src="/b2-home/campaign-learning.jpg" alt="" />
           <img src="/b2-home/hero-community.jpg" alt="" />
-          <img src="/b2-home/story-human.jpg" alt="" />
+          <img src="/b2-home/campaign-hope.jpg" alt="" />
         </div>
       </section>
       <section className="rise-entry-paper" aria-labelledby="rise-login-title">

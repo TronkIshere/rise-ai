@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from 'react';
+import { useRef, useState, type FormEvent } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { ArrowLeft, AlertTriangle, Eye, MapPin, Save } from 'lucide-react';
 import { Link, useNavigate, useParams } from 'react-router';
@@ -44,6 +44,37 @@ function EditForm({ initial, id }: {initial?:CampaignResponse;id?:string}) {
   const [form,setForm]=useState<Draft>(()=>initialDraft(initial));
   const [orgPage,setOrgPage]=useState(0);
   const [error,setError]=useState('');
+  const [chapter, setChapter] = useState(0);
+  const formElement = useRef<HTMLFormElement>(null);
+
+  function openChapter(index: number, focusTarget?: HTMLElement) {
+    const target = chapters[index]?.[0];
+    if (save.isPending || !target) return;
+    setChapter(index);
+    setError('');
+    requestAnimationFrame(() => {
+      (focusTarget ?? formElement.current?.querySelector<HTMLElement>('#' + target + ' h2'))?.focus();
+    });
+  }
+
+  function invalidField(index: number) {
+    const target = chapters[index]?.[0];
+    if (!target) return;
+    return [...(formElement.current?.querySelectorAll<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>(
+      '#' + target + ' :is(input,select,textarea)',
+    ) ?? [])].find(field => !field.validity.valid || (field.required && !field.value.trim()));
+  }
+
+  function advance() {
+    const invalid = invalidField(chapter);
+    if (invalid) {
+      invalid.focus();
+      invalid.reportValidity();
+      setError('Vui lòng kiểm tra các trường bắt buộc trong chương này.');
+      return;
+    }
+    openChapter(chapter + 1);
+  }
   const organizations=useQuery({queryKey:['creator',user?.id,'orgs',orgPage],queryFn:()=>myOrganizations(orgPage)});
   const save=useMutation({
     mutationFn:(data:CampaignRequest)=>id?updateCreatorCampaign(id,data):createCreatorCampaign(data),
@@ -58,7 +89,17 @@ function EditForm({ initial, id }: {initial?:CampaignResponse;id?:string}) {
     <textarea id={'creator-'+key} required rows={rows} maxLength={maxLength} className="w-full rounded-xl border border-border bg-surface p-3 text-sm" value={String(form[key]??'')} onChange={e=>change(key,e.target.value)}/>
   </div>;
   async function submit(e:FormEvent<HTMLFormElement>){
-    e.preventDefault();if(save.isPending)return;
+    e.preventDefault();
+    if (save.isPending) return;
+    if (chapter !== chapters.length - 1) { advance(); return; }
+    for (const [index] of chapters.entries()) {
+      const invalid = invalidField(index);
+      if (invalid) {
+        openChapter(index, invalid);
+        setError('Vui lòng kiểm tra các trường bắt buộc trước khi lưu.');
+        return;
+      }
+    }
     if(!form.organizationId){setError('Chọn tổ chức thuộc tài khoản của bạn.');return;}
     if(!Number.isSafeInteger(form.targetAmount)||form.targetAmount<1000||!Number.isSafeInteger(form.minimumDonationAmount)||form.minimumDonationAmount<1||form.minimumDonationAmount>form.targetAmount){setError('Mục tiêu phải từ 1.000 VND; khoản tối thiểu từ 1 VND và không vượt mục tiêu.');return;}
     if(!Number.isInteger(form.beneficiaryCount)||form.beneficiaryCount<0){setError('Số người thụ hưởng phải là số nguyên không âm.');return;}
@@ -78,12 +119,16 @@ function EditForm({ initial, id }: {initial?:CampaignResponse;id?:string}) {
   return <div className="b2-studio">
     <nav className="b2-studio-chapters" aria-label="Các phần của hồ sơ">
       <ol>{chapters.map(([target, label, detail], index) => <li key={target}>
-        <a href={'#' + target}><span aria-hidden="true">{index + 1}</span><span><strong>{label}</strong><small>{detail}</small></span></a>
+        <button type="button" aria-current={chapter === index ? 'step' : undefined} aria-controls={target} disabled={save.isPending} onClick={() => openChapter(index)}><span aria-hidden="true">{index + 1}</span><span><strong>{label}</strong><small>{detail}</small></span></button>
       </li>)}</ol>
     </nav>
-    <form onSubmit={e=>void submit(e)} className="b2-editor-form grid gap-6">
-    <section id="creator-basics" className="grid gap-5 sm:grid-cols-2">
-      <h2 className="text-lg font-bold text-brand-ink sm:col-span-2">1. Thông tin cơ bản</h2>
+    <form ref={formElement} noValidate onSubmit={e=>void submit(e)} className="b2-editor-form grid gap-6">
+    <div className="b2-studio-progress">
+      <span>Chương {chapter + 1} / {chapters.length}</span>
+      <progress aria-label="Vị trí trong hồ sơ" value={chapter + 1} max={chapters.length} />
+    </div>
+    <section hidden={chapter !== 0} id="creator-basics" className="grid gap-5 sm:grid-cols-2">
+      <h2 tabIndex={-1} className="text-lg font-bold text-brand-ink sm:col-span-2">1. Thông tin cơ bản</h2>
       <div className="sm:col-span-2"><Input id="creator-title" label="Tên chiến dịch" required maxLength={200} value={form.title} onChange={e=>change('title',e.target.value)}/></div>
       <div><label className="mb-2 block text-sm font-semibold" htmlFor="creator-category">Lĩnh vực</label>
         <select id="creator-category" className="min-h-11 w-full rounded-xl border border-border bg-surface px-3" value={form.category} onChange={e=>change('category',e.target.value as CampaignCategory)}>{categoryOptions.map(o=><option key={o.value} value={o.value}>{o.label}</option>)}</select>
@@ -92,8 +137,8 @@ function EditForm({ initial, id }: {initial?:CampaignResponse;id?:string}) {
       <div className="sm:col-span-2">{requiredText('Tóm tắt', 'shortDescription',500,2)}</div>
       <div className="sm:col-span-2"><Input id="creator-cover" label="URL ảnh bìa HTTPS (tùy chọn)" type="url" pattern="https://.*" maxLength={500} value={form.coverImageUrl} onChange={e=>change('coverImageUrl',e.target.value)}/></div>
     </section>
-    <section id="creator-narrative" className="grid gap-5 sm:grid-cols-2">
-      <h2 className="text-lg font-bold text-brand-ink sm:col-span-2">2. Câu chuyện và mục tiêu</h2>
+    <section hidden={chapter !== 1} id="creator-narrative" className="grid gap-5 sm:grid-cols-2">
+      <h2 tabIndex={-1} className="text-lg font-bold text-brand-ink sm:col-span-2">2. Câu chuyện và mục tiêu</h2>
       <div className="sm:col-span-2">{requiredText('Câu chuyện đầy đủ','fullDescription',20000,5)}</div>
       {requiredText('Vấn đề','problemStatement',5000)}
       {requiredText('Giải pháp','solutionDescription',5000)}
@@ -101,7 +146,7 @@ function EditForm({ initial, id }: {initial?:CampaignResponse;id?:string}) {
       <div className="sm:col-span-2">{requiredText('Đối tượng thụ hưởng','beneficiaryDescription',2000)}</div>
       <Input id="creator-beneficiaries" label="Số người thụ hưởng dự kiến" type="number" required min={0} step={1} value={String(form.beneficiaryCount)} onChange={e=>change('beneficiaryCount',Number(e.target.value))}/>
     </section>
-    <section id="creator-organization"><h2 className="text-lg font-bold text-brand-ink">3. Thông tin tổ chức</h2>
+    <section hidden={chapter !== 2} id="creator-organization"><h2 tabIndex={-1} className="text-lg font-bold text-brand-ink">3. Thông tin tổ chức</h2>
       <label className="mt-4 mb-2 block text-sm font-semibold" htmlFor="creator-org">Tổ chức do bạn quản lý</label>
       <select id="creator-org" required value={form.organizationId} className="min-h-11 w-full rounded-xl border border-border bg-surface px-3" onChange={e=>change('organizationId',e.target.value)}>
         <option value="">Chọn tổ chức</option>
@@ -113,7 +158,7 @@ function EditForm({ initial, id }: {initial?:CampaignResponse;id?:string}) {
       {organizations.isSuccess?<RecordPagination page={orgPage} pages={organizations.data.totalPages??0} onChange={setOrgPage}/>:null}
       <Link to="/creator" className="mt-2 inline-block text-xs font-semibold text-brand underline">Quản lý tổ chức / yêu cầu xác minh</Link>
     </section>
-    <section id="creator-budget" className="grid gap-5 sm:grid-cols-2"><h2 className="text-lg font-bold text-brand-ink sm:col-span-2">4. Thời gian và kế hoạch — VND mô phỏng</h2>
+    <section hidden={chapter !== 3} id="creator-budget" className="grid gap-5 sm:grid-cols-2"><h2 tabIndex={-1} className="text-lg font-bold text-brand-ink sm:col-span-2">4. Thời gian và kế hoạch — VND mô phỏng</h2>
       <Input id="creator-target" label="Mục tiêu tài trợ (VND)" type="number" min={1000} step={1} required value={String(form.targetAmount)} onChange={e=>change('targetAmount',Number(e.target.value))}/>
       <Input id="creator-minimum" label="Khoản đóng góp tối thiểu" type="number" min={1} step={1} required value={String(form.minimumDonationAmount)} onChange={e=>change('minimumDonationAmount',Number(e.target.value))}/>
       <Input id="creator-start" label="Ngày bắt đầu" type="datetime-local" required value={form.startAt} onChange={e=>change('startAt',e.target.value)}/>
@@ -129,13 +174,21 @@ function EditForm({ initial, id }: {initial?:CampaignResponse;id?:string}) {
         <div className="mt-4"><Button type="button" variant="outline" onClick={()=>change('budgetBreakdown',[...(form.budgetBreakdown??[]),{item:'',amount:0}])} disabled={(form.budgetBreakdown?.length??0)>=50}>+ Hạng mục</Button></div>
       </div>
     </section>
-    <section id="creator-review">
-    <h2>5. Rà soát và lưu bản nháp</h2>
+    <section hidden={chapter !== 4} id="creator-review">
+    <h2 tabIndex={-1}>5. Rà soát và lưu bản nháp</h2>
+    <dl className="b2-studio-review"><dt>Tên chiến dịch</dt><dd>{form.title.trim() || "Chưa nhập"}</dd><dt>Khu vực triển khai</dt><dd>{form.location.trim() || "Chưa nhập"}</dd><dt>Mục tiêu mô phỏng</dt><dd>{form.targetAmount > 0 ? amountLabel(form.targetAmount, "VND") : "Chưa nhập"}</dd></dl>
     <p>Bạn có thể gửi xét duyệt từ hồ sơ chiến dịch sau khi hoàn tất các cột mốc và thông tin tổ chức.</p>
-    {error?<p role="alert" className="text-sm text-danger">{error}</p>:null}
-    {save.isError?<p role="alert" className="text-sm text-danger">{save.error.message}</p>:null}
-    <div className="flex flex-wrap gap-3"><Button type="submit" loading={save.isPending}><Save size={17} aria-hidden="true"/> Lưu bản nháp</Button><Link to="/creator" className="inline-flex min-h-11 items-center rounded-xl border border-border px-5 text-sm font-semibold text-brand">Quay lại</Link></div>
     </section>
+    <div className="b2-studio-actions">
+      {error && <p role="alert" className="text-danger">{error}</p>}
+      {save.isError && <p role="alert" className="text-danger">{save.error.message}</p>}
+      <div>
+        {chapter > 0 && <Button type="button" variant="outline" disabled={save.isPending} onClick={() => openChapter(chapter - 1)}><ArrowLeft size={17} aria-hidden="true" /> Chương trước</Button>}
+        <Button type="submit" loading={save.isPending}>
+          {chapter === chapters.length - 1 ? <><Save size={17} aria-hidden="true" /> Lưu bản nháp</> : 'Tiếp theo'}
+        </Button>
+      </div>
+    </div>
     </form>
     <aside className="b2-studio-preview" aria-labelledby="creator-preview-title">
       <h2 id="creator-preview-title"><Eye size={22} aria-hidden="true" /> Xem trước chiến dịch</h2>

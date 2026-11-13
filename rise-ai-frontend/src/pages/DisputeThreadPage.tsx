@@ -5,7 +5,6 @@ import { Link, useParams } from 'react-router';
 import { addDisputeMessage, disputeMessages, getCampaignById, getDispute, withdrawDispute } from '@/api/donor';
 import { useAuth } from '@/auth/auth-context';
 import { Container } from '@/components/layout/Container';
-import { CampaignMedia } from '@/components/ui/CampaignMedia';
 import { Button } from '@/components/ui/Button';
 import { RecordPagination } from '@/components/ui/RecordPagination';
 import { StatusMessage } from '@/components/ui/StatusMessage';
@@ -24,6 +23,7 @@ function DisputeDossier({ id }: { id: string }) {
   const [page,setPage]=useState(0);
   const [message,setMessage]=useState('');
   const [notice,setNotice]=useState('');
+  const [coverFailed, setCoverFailed] = useState(false);
   const owned=useQuery({queryKey:['donor',user?.id,'dispute-owned',id],queryFn:()=>getDispute(id)});
   const messages=useQuery({queryKey:['donor',user?.id,'messages',id,page],queryFn:()=>disputeMessages(id,page),enabled:Boolean(owned.data)});
   const invalidate=()=>{void client.invalidateQueries({queryKey:['donor',user?.id]});};
@@ -43,6 +43,8 @@ function DisputeDossier({ id }: { id: string }) {
     retry: false,
   });
   const dispute = owned.data;
+  const campaignCover = safeImageUrl(campaign.data?.coverImageUrl);
+  const hasCasePhoto = Boolean(campaignCover && new URL(campaignCover).hostname !== 'placehold.co' && !coverFailed);
   return <div className="rise-deep-page deep-donor-dispute">
     <header className="b2-concept-banner b2-dispute-banner">
       <div>
@@ -61,7 +63,10 @@ function DisputeDossier({ id }: { id: string }) {
         <aside className="b2-case-file" aria-label="Tóm tắt hồ sơ">
           <div className="b2-case-code"><span><Scale size={19} aria-hidden="true" /> Hồ sơ tranh chấp</span>{dispute.disputeCode && <strong>{dispute.disputeCode}</strong>}</div>
           {campaign.data && <div className="b2-case-campaign">
-            <CampaignMedia key={campaign.data.coverImageUrl} src={safeImageUrl(campaign.data.coverImageUrl)} alt={campaign.data.title ?? 'Chiến dịch liên quan'} />
+            <figure>
+              {hasCasePhoto ? <img src={campaignCover} alt={campaign.data.title ?? 'Chiến dịch liên quan'} onError={() => setCoverFailed(true)} />
+                : <><img src="/b2-home/story-community-pair.jpg" alt="" /><figcaption>Ảnh minh họa · Hồ sơ cộng đồng</figcaption></>}
+            </figure>
             <p>Chiến dịch liên quan</p>
             {campaign.data.slug ? <Link to={'/campaigns/' + encodeURIComponent(campaign.data.slug)}>{campaign.data.title ?? 'Xem chiến dịch'}</Link> : <strong>{campaign.data.title}</strong>}
           </div>}
@@ -84,7 +89,7 @@ function DisputeDossier({ id }: { id: string }) {
           </div>
           {dispute.resolution && <p className="b2-case-resolution whitespace-pre-line"><strong>Kết luận của Admin</strong><br />{dispute.resolution}</p>}
           {notice && <p role="status" className="b2-case-notice">{notice}</p>}
-          <section className="b2-conversation" aria-labelledby="dispute-history">
+          <section className="b2-conversation" aria-label="Trao đổi và lịch sử hồ sơ">
             <h3 id="dispute-history"><MessageCircle size={23} aria-hidden="true" /> Trao đổi{typeof messages.data?.totalElements === 'number' ? ' (' + messages.data.totalElements + ')' : ''}</h3>
             <div className="b2-message-list">
               {messages.isPending && <StatusMessage title="Đang tải trao đổi…" />}
