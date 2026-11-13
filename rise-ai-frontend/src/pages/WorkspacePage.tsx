@@ -1,10 +1,21 @@
+import { useQuery } from '@tanstack/react-query';
+import { Activity, ArrowRight, ArrowUpRight, BookOpenCheck, Building2, ClipboardList, Coins, Flag, HandHeart, LockKeyhole, RotateCcw, Scale, ShieldCheck, Sparkles, TriangleAlert, Wallet, type LucideIcon } from 'lucide-react';
+import { adminStatistics } from '@/api/admin';
+import { Button } from '@/components/ui/Button';
+import { useB2Desktop } from '@/lib/useB2Desktop';
+import { amountLabel } from '@/lib/campaign-display';
 import { useAuth } from '@/auth/auth-context';
 import { Container } from '@/components/layout/Container';
 import { Link } from 'react-router';
-import { ArrowRight, ArrowUpRight, BookOpenCheck, Building2, HandHeart, ShieldCheck, Sparkles } from 'lucide-react';
 import { StatusMessage } from '@/components/ui/StatusMessage';
 
 export function WorkspacePage() {
+  const { user } = useAuth();
+  const desktop = useB2Desktop();
+  return desktop && user?.roles?.includes('ADMIN') ? <AdminWorkspace /> : <RoleWorkspace />;
+}
+
+function RoleWorkspace() {
   const { user } = useAuth();
   return <div className="rise-deep-page rise-workspace-page">
     <div className="rise-deep-topline" aria-hidden="true"><span>RISE AI / KHÔNG GIAN CÁ NHÂN</span><span>11 · HÀNH TRÌNH CỦA BẠN</span></div>
@@ -43,6 +54,94 @@ export function WorkspacePage() {
         <div><strong>Mô phỏng có kiểm soát</strong><p>Không có thanh toán hay giải ngân tiền thật. Backend xác thực phân quyền cho từng yêu cầu. Các khu vực bạn thấy phản ánh vai trò hiện tại của tài khoản.</p></div>
         <Link to="/campaigns">Khám phá chiến dịch <ArrowUpRight size={16} aria-hidden="true"/></Link>
       </div>
+    </Container>
+  </div>;
+}
+
+const campaignStates = [
+  ['ACTIVE', 'Đang hoạt động'],
+  ['PENDING_REVIEW', 'Chờ xét duyệt'],
+  ['PAUSED', 'Tạm dừng'],
+  ['COMPLETED', 'Đã hoàn thành'],
+] as const;
+
+function WorkspaceIcon({ icon: Icon, tone = 'gold' }: { icon: LucideIcon; tone?: 'gold' | 'green' | 'blue' | 'orange' }) {
+  return <span className={'b2-admin-icon b2-admin-icon-' + tone}><Icon aria-hidden="true" /></span>;
+}
+
+function AdminWorkspace() {
+  const { user } = useAuth();
+  const stats = useQuery({ queryKey: ['admin', user?.id, 'statistics'], queryFn: adminStatistics });
+  const summary = stats.data;
+  const finance = [
+    { label: 'Đóng góp đã xác nhận', value: summary?.totalConfirmedContributions, icon: Coins, tone: 'gold' },
+    { label: 'Số dư khả dụng', value: summary?.totalAvailable, icon: Wallet, tone: 'green' },
+    { label: 'Đã giải ngân', value: summary?.totalDisbursed, icon: HandHeart, tone: 'blue' },
+    { label: 'Đã hoàn tiền', value: summary?.totalRefunded, icon: RotateCcw, tone: 'orange' },
+    { label: 'Đang dành riêng', value: summary?.totalReserved, icon: LockKeyhole, tone: 'gold' },
+  ] as const;
+  const tasks = [
+    ['Đóng góp chờ xác nhận', summary?.pendingDonations],
+    ['Yêu cầu giải ngân mở', summary?.openDisbursementRequests],
+    ['Yêu cầu hoàn tiền mở', summary?.openRefundRequests],
+    ['Tranh chấp đang mở', summary?.openDisputes],
+  ] as const;
+  const shortcuts = [
+    ['/admin/escrow', 'Đối soát nguồn quỹ', 'Đối chiếu số liệu và sổ giao dịch.', Scale, 'green'],
+    ['/admin/monitoring', 'Cảnh báo cần xem xét', 'Tín hiệu tham khảo để người có quyền kiểm tra.', TriangleAlert, 'orange'],
+    ['/admin/audit', 'Nhật ký hoạt động', 'Tra cứu lịch sử thao tác quản trị.', Activity, 'blue'],
+  ] as const;
+  const hasValue = (value?: number): value is number => typeof value === 'number' && Number.isFinite(value);
+  const number = (value?: number) => hasValue(value) ? new Intl.NumberFormat('vi-VN').format(value) : '—';
+
+  return <div className="rise-deep-page rise-workspace-page b2-admin-workspace">
+    <Container className="deep-inner">
+      <header className="b2-admin-intro">
+        <div>
+          <p><ShieldCheck size={17} aria-hidden="true" /> Không gian quản trị</p>
+          <h1>Quản trị <em>nguồn lực</em></h1>
+          <p>Giữ vững niềm tin và sự minh bạch cho cộng đồng cùng Rise AI.</p>
+        </div>
+        <div className="b2-admin-art" aria-hidden="true"><WorkspaceIcon icon={Coins} /><WorkspaceIcon icon={ShieldCheck} tone="green" /><WorkspaceIcon icon={ClipboardList} tone="blue" /></div>
+        <div className="b2-admin-profile"><WorkspaceIcon icon={ShieldCheck} tone="green" /><div><strong>{user?.fullName ?? user?.email ?? 'Quản trị viên'}</strong><Link to="/admin">Trung tâm quản trị <ArrowUpRight size={16} aria-hidden="true" /></Link></div></div>
+      </header>
+      <section className="b2-admin-finance" aria-labelledby="workspace-finance">
+        <div className="b2-admin-panel-head"><WorkspaceIcon icon={Coins} /><div><h2 id="workspace-finance">Tổng quan tài chính</h2><p>Số liệu mô phỏng · Không chuyển tiền thật</p></div></div>
+        {stats.isPending && <StatusMessage title="Đang tải số liệu quản trị…" />}
+        {stats.isError && <div className="b2-admin-feedback"><StatusMessage error title="Không tải được số liệu quản trị" detail={stats.error.message} /><Button variant="outline" loading={stats.isFetching} onClick={() => void stats.refetch()}>Tải lại số liệu</Button></div>}
+        {stats.isSuccess && !Object.keys(summary ?? {}).some(key => key !== 'simulated' && key !== 'currency') && <StatusMessage title="Chưa có số liệu quản trị" />}
+        {stats.isSuccess && <dl className="b2-admin-balances">
+          {finance.map(({ label, value, icon, tone }) => <div key={label}>
+            <WorkspaceIcon icon={icon} tone={tone} />
+            <div><dt>{label}</dt><dd>{hasValue(value) ? amountLabel(value, summary?.currency) : '—'}</dd></div>
+          </div>)}
+        </dl>}
+        {stats.isSuccess && finance.some(item => !hasValue(item.value)) && <p className="b2-unknown-note">— Chưa có số liệu cho chỉ mục này.</p>}
+      </section>
+      <div className="b2-admin-overview">
+        <section aria-labelledby="workspace-tasks">
+          <h2 id="workspace-tasks">Công việc cần xử lý</h2>
+          <div className="b2-admin-list"><WorkspaceIcon icon={ClipboardList} tone="gold" />
+          {stats.isSuccess ? <dl>{tasks.map(([label, total]) => <div key={label}><dt>{label}</dt><dd>{number(total)}</dd></div>)}</dl> : <p>Số liệu sẽ hiển thị khi tổng quan được tải.</p>}</div>
+        </section>
+        <section aria-labelledby="workspace-campaigns">
+          <h2 id="workspace-campaigns">Tình hình chiến dịch</h2>
+          <div className="b2-admin-list"><WorkspaceIcon icon={Flag} tone="blue" />
+          {stats.isSuccess && summary?.campaignsByStatus && Object.keys(summary.campaignsByStatus).length > 0
+            ? <dl>{campaignStates.map(([state, label]) => <div key={state}><dt>{label}</dt><dd>{number(summary.campaignsByStatus?.[state])}</dd></div>)}</dl>
+            : <p>{stats.isSuccess ? 'Chưa có số liệu trạng thái chiến dịch.' : 'Số liệu sẽ hiển thị khi tổng quan được tải.'}</p>}</div>
+        </section>
+      </div>
+      <section className="b2-admin-transparency" aria-labelledby="workspace-transparency">
+        <h2 id="workspace-transparency"><ShieldCheck size={23} aria-hidden="true" /> Minh bạch và kiểm soát</h2>
+        <div>{shortcuts.map(([to, title, description, icon, tone]) => <Link key={to} to={to}>
+          <WorkspaceIcon icon={icon} tone={tone} /><span><strong>{title}</strong><small>{description}</small></span><ArrowRight size={20} aria-hidden="true" />
+        </Link>)}</div>
+      </section>
+      {(user?.roles?.includes('DONOR') || user?.roles?.includes('CAMPAIGN_CREATOR')) && <nav className="b2-admin-roles" aria-label="Không gian theo vai trò">
+        {user.roles.includes('DONOR') && <Link to="/donor">Quản lý đóng góp của tôi <ArrowUpRight size={16} aria-hidden="true" /></Link>}
+        {user.roles.includes('CAMPAIGN_CREATOR') && <Link to="/creator">Quản lý chiến dịch Creator <ArrowUpRight size={16} aria-hidden="true" /></Link>}
+      </nav>}
     </Container>
   </div>;
 }

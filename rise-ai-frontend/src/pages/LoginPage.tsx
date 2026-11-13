@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from 'react';
 import { Navigate, useLocation } from 'react-router';
-import { ArrowRight, HeartHandshake, ShieldCheck, Sprout } from 'lucide-react';
+import { ArrowRight, HandHeart, HeartHandshake, ShieldCheck, Sprout, Users } from 'lucide-react';
 import { useAuth } from '@/auth/auth-context';
 import { ApiError } from '@/api/client';
 import { Container } from '@/components/layout/Container';
@@ -36,30 +36,30 @@ export function LoginPage() {
     <div className="rise-deep-topline" aria-hidden="true"><span>RISE AI / TÀI KHOẢN</span><span>10 · BẮT ĐẦU HÀNH TRÌNH</span></div>
     <Container className="deep-inner rise-entry-layout">
       <section className="rise-entry-art" aria-label="Giới thiệu Rise AI">
-        <div className="rise-entry-seal"><Sprout size={22} aria-hidden="true"/> MỘT CỘNG ĐỒNG · NHIỀU HÀNH TRÌNH</div>
-        <h1>Minh bạch bắt đầu từ <em>niềm tin.</em></h1>
-        <p>Đăng nhập để theo dõi đóng góp, vận hành chiến dịch hoặc kiểm duyệt các bước thực hiện — tất cả trong một không gian chung.</p>
-        <div className="rise-entry-journey" aria-label="Ba chặng trải nghiệm">
-          <div><span>01</span><strong>Khám phá</strong><small>Những sáng kiến cộng đồng</small></div>
-          <div><span>02</span><strong>Đồng hành</strong><small>Ghi nhận đóng góp mô phỏng</small></div>
-          <div><span>03</span><strong>Theo dõi</strong><small>Dữ liệu và tiến độ rõ ràng</small></div>
+        <div className="b2-login-story">
+          <p className="rise-entry-seal">Rise AI</p>
+          <h1>Kết nối lòng tốt<br />Lan tỏa tác động<br /><em>vì cộng đồng</em></h1>
+          <p>Nền tảng thiện nguyện minh bạch, kết nối những tấm lòng nhân ái với các dự án tạo tác động tích cực cho xã hội.</p>
+          <ul className="b2-login-values">
+            <li><HandHeart aria-hidden="true" /><span><strong>Ủng hộ</strong> những dự án ý nghĩa</span></li>
+            <li><Users aria-hidden="true" /><span><strong>Đồng hành</strong> cùng cộng đồng</span></li>
+            <li><Sprout aria-hidden="true" /><span><strong>Tạo tác động</strong> bền vững và minh bạch</span></li>
+          </ul>
         </div>
-        <div className="rise-entry-landscape" aria-hidden="true">
-          <span className="rise-entry-hill one"/><span className="rise-entry-hill two"/>
-          <span className="rise-entry-hill three"/><span className="rise-entry-sun"/>
-          <span className="rise-entry-leaf left"/><span className="rise-entry-leaf right"/>
+        <div className="b2-login-photo-strip" aria-label="Ảnh minh họa hoạt động thiện nguyện">
+          <img src="/b2-home/story-community-pair.jpg" alt="" />
+          <img src="/b2-home/hero-community.jpg" alt="" />
+          <img src="/b2-home/story-human.jpg" alt="" />
         </div>
       </section>
       <section className="rise-entry-paper" aria-labelledby="rise-login-title">
-        <div className="rise-entry-paper-header"><span className="rise-entry-icon"><HeartHandshake size={27} aria-hidden="true"/></span>
-          <span className="rise-entry-side-label">TÀI KHOẢN CỦA BẠN / RISE AI</span></div>
-        <p className="rise-entry-step">CHÀO MỪNG TRỞ LẠI</p>
-        <h2 id="rise-login-title">Đăng nhập Rise AI</h2>
-        <p className="rise-entry-copy">Sử dụng tài khoản do Backend của hệ thống quản lý để tiếp tục hành trình.</p>
+        <HeartHandshake className="b2-login-emblem" size={53} aria-hidden="true" />
+        <h2 id="rise-login-title">Chào mừng trở lại</h2>
+        <p className="rise-entry-copy">Đăng nhập để tiếp tục hành trình thiện nguyện cùng Rise AI.</p>
         <form className="rise-entry-form" onSubmit={(event) => void submit(event)}>
-          <Input id="email" label="Địa chỉ email" type="email" required autoComplete="username"
+          <Input id="email" label="Địa chỉ email" type="email" required autoComplete="username" placeholder="Nhập email của bạn"
             value={email} onChange={(e) => setEmail(e.target.value)} />
-          <Input id="password" label="Mật khẩu" type="password" required autoComplete="current-password"
+          <Input id="password" label="Mật khẩu" type="password" required autoComplete="current-password" placeholder="Nhập mật khẩu"
             value={password} onChange={(e) => setPassword(e.target.value)} />
           {error ? <p role="alert" className="rise-entry-error">{error}</p> : null}
           <Button type="submit" className="rise-entry-submit" loading={busy} disabled={!email.trim() || !password}>
@@ -67,7 +67,7 @@ export function LoginPage() {
           </Button>
         </form>
         <div className="rise-entry-security"><ShieldCheck size={20} aria-hidden="true"/>
-          <p><strong>Bảo vệ phiên đăng nhập.</strong> Token chỉ lưu trong bộ nhớ ứng dụng, không lưu vào Local Storage. Khi tải lại trang, bạn cần đăng nhập lại.</p></div>
+          <p><strong>Phiên đăng nhập.</strong> Khi tải lại trang, bạn cần đăng nhập lại.</p></div>
         <p className="rise-entry-legal">Rise AI là môi trường mô phỏng, không tiếp nhận hoặc chuyển tiền thật.</p>
       </section>
     </Container>

@@ -64,7 +64,7 @@ async function recordPage(page,role,name,path,klass){
         title:content?.querySelector('h1')?.textContent?.trim().slice(0,150)??'',
         errors:[...content.querySelectorAll('[role=alert]')].map(element=>element.textContent?.trim()),
         hasFooter:Boolean(document.querySelector('footer')),
-        loginLandscape:art ? window.getComputedStyle(art).backgroundImage.includes('linear-gradient') : null,
+        loginArtwork:art ? [...art.querySelectorAll('img')].some(img => img.complete && img.naturalWidth > 0) : null,
         workspaceCardRatio:singleCard ? singleCard.clientWidth/grid.clientWidth : null,
       };
     });
@@ -81,7 +81,7 @@ async function recordPage(page,role,name,path,klass){
     }
     const okay=geometry.width===1440 && geometry.height===900 && geometry.dpr===1 &&
       geometry.scroll<=geometry.width && Boolean(geometry.title) && geometry.hasFooter &&
-      geometry.errors.length===0 && geometry.loginLandscape!==false && geometry.keyboardFocus!==false &&
+      geometry.errors.length===0 && geometry.loginArtwork!==false && geometry.keyboardFocus!==false &&
       (geometry.workspaceCardRatio===null || geometry.workspaceCardRatio>=0.95);
     report.checks.push({role,name,path,pass:okay,geometry});
     await page.screenshot({path:join(root,role+'-'+name+'-1440.png'),
