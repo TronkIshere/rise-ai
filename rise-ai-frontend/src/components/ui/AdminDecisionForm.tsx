@@ -22,7 +22,7 @@ export function AdminDecisionForm({
   if(!choices.length)return <p className="text-sm text-muted">Không có thao tác xử lý hợp lệ ở trạng thái hiện tại.</p>;
   return <div className="mt-5">
     <div className="flex flex-wrap gap-2">
-      {choices.map(item=><Button key={item.id} type="button" variant="outline" onClick={()=>{setSelected(selected===item.id?'':item.id);setReason('');setConfirmed(false);}}>
+      {choices.map(item=><Button key={item.id} type="button" variant="outline" data-review-action={item.id} aria-pressed={selected===item.id} onClick={()=>{setSelected(selected===item.id?'':item.id);setReason('');setConfirmed(false);}}>
         {item.label}
       </Button>)}
     </div>

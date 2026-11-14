@@ -1,0 +1,224 @@
+.rise-deep-page.lost-page {
+  --lost-cream: #fff5d9;
+  --lost-amber: #ffd07e;
+  --lost-mint: #a3f6ce;
+  --lost-cyan: #91e7f6;
+  --lost-ink: #092b25;
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  align-items: center;
+  min-height: 100svh;
+  overflow: hidden;
+  padding: 106px clamp(30px, 7.5vw, 112px) 72px;
+  background: #082d25;
+  color: var(--lost-cream);
+}
+.rise-deep-page.lost-page::before, .rise-deep-page.lost-page::after { content: none; }
+.lost-page > .b2-icon-defs { position: absolute; width: 0; height: 0; pointer-events: none; }
+.lost-top {
+  position: absolute;
+  z-index: 2;
+  inset: 28px clamp(26px, 5vw, 76px) auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+.lost-brand { display: inline-flex; align-items: center; gap: 11px; min-height: 44px; font-size: 25px; letter-spacing: -.055em; }
+.lost-brand svg { width: 27px; height: 32px; fill: none; stroke: #d4e98a; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.lost-brand span { color: var(--lost-amber); }
+.lost-skip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 14px;
+  border: 1px solid #a3f6ce79;
+  border-radius: 8px;
+  background: #0a3128;
+  color: var(--lost-cream);
+  font-size: 14px;
+  font-weight: 750;
+}
+.lost-skip:hover { background: #174f42; }
+
+.lost-copy { position: relative; z-index: 1; width: min(100%, 535px); }
+.lost-signal {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--lost-mint);
+  font: 700 15px/1.4 ui-monospace, monospace;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+.lost-signal svg { color: var(--lost-amber); }
+.lost-code {
+  position: relative;
+  width: fit-content;
+  margin: 3px 0 13px;
+  color: var(--lost-cream);
+  font: 900 clamp(122px, 16.5vw, 244px)/.9 'Archivo Black', 'Arial Black', var(--font-sans);
+  letter-spacing: -.085em;
+  text-shadow: 0 5px #59795c, 0 9px #092c25, 0 12px #092c25;
+}
+.lost-code::after {
+  content: attr(data-code);
+  position: absolute;
+  inset: 0;
+  color: var(--lost-cyan);
+  text-shadow: none;
+  opacity: 0;
+  pointer-events: none;
+}
+.lost-copy h1 { margin: 0; color: var(--lost-cream); font-size: clamp(29px, 3.8vw, 56px); font-weight: 820; line-height: 1.08; letter-spacing: -.045em; }
+.lost-description { max-width: 43ch; margin: 18px 0 24px; color: #d4eee3; font-size: 17px; font-weight: 500; line-height: 1.7; }
+.lost-actions { display: flex; flex-wrap: wrap; gap: 12px; }
+.lost-actions a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 53px;
+  padding: 10px 17px;
+  border: 2px solid var(--lost-ink);
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 800;
+  transition: transform .18s ease, background-color .18s ease, box-shadow .18s ease;
+}
+.lost-actions .lost-home { background: var(--lost-amber); color: var(--lost-ink); box-shadow: 3px 4px 0 #071e19; }
+.lost-actions .lost-campaigns { border-color: #6da391; background: #104438; color: var(--lost-cream); box-shadow: 3px 4px 0 #071e19; }
+.lost-actions a:hover { transform: translateY(-3px); }
+.lost-actions .lost-home:hover { background: #ffe49d; box-shadow: 3px 7px 0 #071e19, 0 0 22px #ffd07e52; }
+.lost-actions .lost-campaigns:hover { background: #1b5c4b; box-shadow: 3px 7px 0 #071e19; }
+.lost-page :is(a, button, h1):focus-visible { outline: 2px solid var(--lost-cyan); outline-offset: 5px; }
+
+.lost-scene, .lost-valley, .lost-exit { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.lost-scene { z-index: -1; }
+.lost-scene::after {
+  position: absolute;
+  inset: 0;
+  content: '';
+  background: linear-gradient(90deg, #061f1ae6 0%, #08271fd9 27%, #09282069 46%, transparent 66%);
+}
+.lost-valley { transform: translate3d(calc(var(--lost-x, 0px) * -.3), calc(var(--lost-y, 0px) * -.3), 0) scale(1.035); transition: transform .27s ease-out; }
+.lost-sky { fill: url(#lost-sky); }
+.lost-sky-top { stop-color: #061d19; }
+.lost-sky-bottom { stop-color: #205c50; }
+.lost-stars { fill: url(#lost-stars); }
+#lost-stars { fill: #b1d7b8; opacity: .62; }
+.lost-atmosphere { fill: url(#lost-halo); }
+.lost-halo-color { stop-color: #54f2bf; }
+.lost-ridges path:nth-child(1) { fill: #286052; }
+.lost-ridges path:nth-child(2) { fill: #164a3f; }
+.lost-ridges path:nth-child(3) { fill: #10382f; }
+.lost-contours { stroke: #6fb59a; stroke-width: 1.4; opacity: .27; }
+.lost-trees-far { fill: #17483a; }
+.lost-trees-near { fill: #0a2923; }
+.lost-foreground { fill: #08261f; }
+
+.lost-station {
+  position: absolute;
+  inset: 50% 2.5vw auto auto;
+  width: min(60vw, 830px, 93svh);
+  transform: translate3d(var(--lost-x, 0px), calc(-50% + var(--lost-y, 0px)), 0);
+  transition: transform .27s ease-out;
+}
+.lost-portal-art { display: block; width: 100%; height: auto; overflow: visible; }
+.lost-station-shadow { fill: #061b16; opacity: .72; }
+.lost-debris { fill: #4f9b7d; stroke: #0a362c; stroke-width: 3; }
+.lost-plinth { stroke-linejoin: round; }
+.lost-island { fill: url(#lost-rock); stroke: #081e1c; stroke-width: 6; }
+.lost-rock-top { stop-color: #628467; }
+.lost-rock-bottom { stop-color: #123831; }
+.lost-island-face { fill: #195347; stroke: #0a2f28; stroke-width: 3; }
+.lost-island-seams { fill: none; stroke: #76a28a; stroke-width: 3; opacity: .44; }
+.lost-island-lawn { fill: #58ad82; stroke: #092f27; stroke-width: 4; }
+.lost-island-path { fill: #e9c181; stroke: #18392d; stroke-width: 3; }
+.lost-island-steps { fill: none; stroke: #866d47; stroke-width: 3; }
+.lost-foliage { fill: #b7e596; stroke: #123b30; stroke-width: 3; }
+
+.lost-ring-depth { fill: #155949; stroke: #06281f; stroke-width: 6; }
+.lost-ring-rim { fill: #f4c57b; stroke: #092b25; stroke-width: 6; }
+.lost-ring-metal { fill: #1d7160; stroke: #173b31; stroke-width: 3; }
+.lost-door { fill: url(#lost-door); }
+.lost-door-center { stop-color: #bbffe8; }
+.lost-door-edge { stop-color: #58cdd2; }
+.lost-inner-moon { fill: #fff4cc; }
+.lost-inner-hills { fill: #65bea2; }
+.lost-inner-meadow { fill: #2c9282; }
+.lost-inner-stream { fill: #b9f5e2; }
+.lost-ring-light { fill: none; stroke: #abffe9; stroke-width: 6; }
+.lost-ring-dashes { fill: none; stroke: #e9d192; stroke-width: 2; stroke-dasharray: 3 10 18 9; }
+.lost-ring-cap { fill: #f4c57b; stroke: #13392e; stroke-width: 3; }
+.lost-door-sweep { fill: #f4ffea; opacity: 0; }
+
+.lost-compass-frame { stroke: #092b25; stroke-width: 3.5; }
+.lost-compass-frame > circle:nth-child(1) { fill: #082d24; }
+.lost-compass-frame > circle:nth-child(2) { fill: #e7b870; }
+.lost-compass-frame > circle:nth-child(3) { fill: #114b40; }
+.lost-compass-frame > path { stroke: #f4da9f; stroke-width: 2; }
+.lost-compass-needle > path:nth-child(1) { fill: #8fe9d4; }
+.lost-compass-needle > path:nth-child(2) { fill: #ffda89; }
+.lost-compass-needle circle { fill: #fff4d1; stroke-width: 2; }
+.lost-leaves { fill: #a5eca2; stroke: #143f32; stroke-width: 2; }
+.lost-sparks { fill: #ecf6bc; }
+.lost-map { fill: #f1d995; stroke: #153d30; stroke-width: 4; opacity: 0; }
+.lost-map g > path:nth-child(2) { stroke: #597961; stroke-dasharray: 6 6; }
+.lost-exit { z-index: 3; opacity: 0; background: radial-gradient(ellipse at 73% 50%, #a3f6ce66, #124f42 67%, #082820); }
+
+@media (prefers-reduced-motion: no-preference) {
+  .lost-page[data-intro='true'] .lost-map { animation: lost-map-presence 1.05s both; }
+  .lost-page[data-intro='true'] .lost-map-left { animation: lost-break-left .85s .16s both; }
+  .lost-page[data-intro='true'] .lost-map-right { animation: lost-break-right .85s .16s both; }
+  .lost-page[data-intro='true'] .lost-map-low { animation: lost-break-low .85s .16s both; }
+  .lost-page[data-intro='true'] .lost-ring { transform-origin: 52% 48%; animation: lost-ring-arrive 1.45s .35s both; }
+  .lost-page[data-intro='true'] .lost-door-sweep { animation: lost-scan .78s .72s both; }
+  .lost-page[data-intro='true'] .lost-compass-needle { animation: lost-needle 1.25s .4s both; }
+  .lost-page[data-intro='true'] .lost-scene { animation: lost-camera 2.55s ease-out both; }
+  .lost-page[data-intro='true'] .lost-code { animation: lost-number 2.05s both; }
+  .lost-page[data-intro='true'] .lost-code::after { animation: lost-glitch .28s 1.37s both; }
+  .lost-page[data-intro='false'] .lost-leaves { animation: lost-drift 7s ease-in-out infinite alternate; }
+  .lost-page[data-intro='false'] .lost-sparks { animation: lost-sparks 5s ease-in-out infinite alternate; }
+  .lost-page[data-intro='false'] .lost-ring-light { animation: lost-breathe 6s ease-in-out infinite alternate; }
+  .lost-page[data-exiting='true'] .lost-portal-art { transform-origin: 52% 48%; animation: lost-enter .56s ease-in forwards; }
+  .lost-page[data-exiting='true'] .lost-exit { animation: lost-exit .56s ease-in forwards; }
+}
+@keyframes lost-map-presence { 0% { opacity: .95; } 63% { opacity: .93; } 100% { opacity: 0; } }
+@keyframes lost-break-left { 0%, 33% { transform: none; } 100% { transform: translate(-105px, -49px) rotate(-7deg); } }
+@keyframes lost-break-right { 0%, 33% { transform: none; } 100% { transform: translate(93px, -61px) rotate(8deg); } }
+@keyframes lost-break-low { 0%, 33% { transform: none; } 100% { transform: translate(-24px, 99px) rotate(3deg); } }
+@keyframes lost-ring-arrive { 0% { transform: scale(.91); opacity: .18; } 100% { transform: none; opacity: 1; } }
+@keyframes lost-scan { 0% { opacity: 0; transform: translateY(-60px); } 25% { opacity: .25; } 100% { opacity: 0; transform: translateY(300px); } }
+@keyframes lost-needle { 0% { transform: rotate(-70deg); } 82% { transform: rotate(374deg); } 100% { transform: rotate(360deg); } }
+@keyframes lost-camera { 0% { transform: scale(1.055); } 100% { transform: none; } }
+@keyframes lost-number { 0%, 48% { opacity: .16; transform: translateY(9px); } 80%, 100% { opacity: 1; transform: none; } }
+@keyframes lost-glitch {
+  0%, 100% { opacity: 0; }
+  22% { opacity: .37; transform: translateX(6px); clip-path: inset(19% 0 58% 0); }
+  65% { opacity: .26; transform: translateX(-4px); clip-path: inset(64% 0 20% 0); }
+}
+@keyframes lost-drift { from { transform: translate(0, 2px); } to { transform: translate(-10px, -18px); } }
+@keyframes lost-sparks { from { opacity: .49; transform: translateY(5px); } to { opacity: 1; transform: translateY(-11px); } }
+@keyframes lost-breathe { from { opacity: .66; } to { opacity: 1; } }
+@keyframes lost-enter { from { transform: none; } to { transform: scale(2.2); } }
+@keyframes lost-exit { 0%, 22% { opacity: 0; } 100% { opacity: 1; } }
+
+@media (max-width: 850px) {
+  .lost-station { right: -9%; top: 44%; width: min(80vw, 650px); }
+  .lost-scene::after { background: linear-gradient(90deg, #061f1af2, #08271fc9 42%, transparent 92%); }
+}
+@media (max-width: 540px) {
+  .rise-deep-page.lost-page { align-items: end; padding: 285px 24px 35px; }
+  .lost-top { inset: 12px 24px auto; }
+  .lost-station { inset: 46px 0 auto auto; width: min(88vw, 350px); transform: none; }
+  .lost-scene::after { background: linear-gradient(0deg, #061f1a 0%, #061f1af0 40%, transparent 82%); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .lost-page *, .lost-page *::before, .lost-page *::after { animation: none !important; transition: none !important; }
+  .lost-actions a:hover { transform: none; }
+  .lost-skip { display: none; }
+}
