@@ -242,6 +242,83 @@ class CampaignGatewayApiTest {
         assertEquals("30000", get("/campaigns/" + r[0]).get("disbursed"));
     }
 
+    private String asGuardian(String data) throws InterruptedException {
+        String hash = ContractFixtures.sendFrom(LocalStack.anvilUrl(), ContractFixtures.GUARDIAN, STACK.escrow(), data);
+        for (int i = 0; i < 100; i++) {
+            Map<String, Object> status = get("/transactions/by-hash/" + hash);
+            String state = (String) status.get("state");
+            if (!state.equals("PENDING") && !state.equals("UNKNOWN")) {
+                return state;
+            }
+            Thread.sleep(100);
+        }
+        return "TIMEOUT";
+    }
+
+    private static Bytes32 b32(String hex) {
+        return new Bytes32(Numeric.hexStringToByteArray(hex));
+    }
+
+    @Test
+    void aGuardianHoldStopsTheReleaseUntilTheGuardianLiftsIt() throws Exception {
+        String[] r = reserved();
+        acceptEvidence(r[0], r[1]);
+        assertOk(run(r[0], "queue-release", "\"requestId\":\"" + r[2] + "\""));
+        String hold = fresh();
+        String placed = asGuardian(FunctionEncoder.encode(new Function("placeHold", List.of(b32(r[0]), b32(r[1]), b32(hold), b32(fresh())), List.of())));
+        assertEquals(true, ok(placed), "the guardian placed the hold directly on-chain: " + placed);
+        assertEquals(1, ((Number) get("/campaigns/" + r[0] + "/milestones/" + r[1]).get("openHolds")).intValue());
+
+        passObjectionWindow();
+        assertEquals("REVERTED", run(r[0], "execute-release", "\"requestId\":\"" + r[2] + "\""), "the platform cannot release a held milestone");
+        assertEquals("0", get("/campaigns/" + r[0]).get("disbursed"));
+
+        assertOk(asGuardian(FunctionEncoder.encode(new Function("liftHold", List.of(b32(r[0]), b32(hold)), List.of()))));
+        assertEquals(0, ((Number) get("/campaigns/" + r[0] + "/milestones/" + r[1]).get("openHolds")).intValue());
+        assertOk(run(r[0], "execute-release", "\"requestId\":\"" + r[2] + "\""));
+        assertEquals("30000", get("/campaigns/" + r[0]).get("disbursed"));
+    }
+
+    @Test
+    void aReleasedRequestGetsAPayoutRecordThatOnlyTheBeneficiaryConfirms() throws Exception {
+        String[] r = reserved();
+        acceptEvidence(r[0], r[1]);
+        String bankReference = fresh();
+        assertEquals("REVERTED", run(r[0], "record-payout", "\"requestId\":\"" + r[2] + "\",\"bankReferenceHash\":\"" + bankReference + "\""),
+                "nothing was released yet");
+        assertOk(run(r[0], "queue-release", "\"requestId\":\"" + r[2] + "\""));
+        passObjectionWindow();
+        assertOk(run(r[0], "execute-release", "\"requestId\":\"" + r[2] + "\""));
+        assertEquals(false, get("/campaigns/" + r[0] + "/payouts/" + r[2]).get("recorded"));
+
+        assertOk(run(r[0], "record-payout", "\"requestId\":\"" + r[2] + "\",\"bankReferenceHash\":\"" + bankReference + "\""));
+        Map<String, Object> payout = get("/campaigns/" + r[0] + "/payouts/" + r[2]);
+        assertEquals(true, payout.get("recorded"));
+        assertEquals(bankReference, payout.get("bankReferenceHash"));
+        assertEquals(null, payout.get("confirmedAt"), "the beneficiary has not confirmed yet");
+    }
+
+    @Test
+    void reservesShowTheHeldTotalAndTheGuardiansAttestation() throws Exception {
+        reserved();
+        Map<String, Object> config = get("/config");
+        assertEquals(ContractFixtures.GUARDIAN, config.get("guardianAddress"));
+        assertEquals(14 * 24 * 3600, ((Number) config.get("guardianHoldMaxSeconds")).intValue());
+        Map<String, Object> before = get("/reserves");
+        java.math.BigInteger held = new java.math.BigInteger((String) before.get("currentHeld"));
+        long period = 1_000_000L + (System.nanoTime() % 1_000_000L);
+        java.math.BigInteger bank = held.subtract(java.math.BigInteger.ONE);
+        String statement = fresh();
+        assertOk(asGuardian(FunctionEncoder.encode(new Function("attestReserves", List.of(new org.web3j.abi.datatypes.generated.Uint64(period),
+                new org.web3j.abi.datatypes.generated.Uint256(bank), b32(statement)), List.of()))));
+        Map<String, Object> after = get("/reserves");
+        assertEquals(true, after.get("attested"));
+        assertEquals(ContractFixtures.GUARDIAN, after.get("attester"));
+        assertEquals(bank.toString(), after.get("bankBalance"));
+        assertEquals("1", after.get("gap"), "the bank held one base unit less than the escrow");
+        assertEquals(statement, after.get("statementHash"));
+    }
+
     @Test
     void aReleaseCannotBeQueuedWithoutAcceptedEvidence() throws Exception {
         String[] r = reserved();

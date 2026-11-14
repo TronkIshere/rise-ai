@@ -40,11 +40,12 @@ abstract contract CampaignEscrowBase is Test {
     address internal treasury = makeAddr("treasury");
     address internal beneficiary = makeAddr("beneficiary");
     address internal stranger = makeAddr("stranger");
+    address internal guardian = makeAddr("guardian");
 
     function setUp() public virtual {
         vm.warp(T0);
         token = new RiseVND(admin);
-        escrow = new CampaignEscrow(admin, token, treasury, MIN_DELAY);
+        escrow = new CampaignEscrow(admin, token, treasury, MIN_DELAY, guardian);
         vm.startPrank(admin);
         escrow.grantRole(OPERATOR_ROLE, operator);
         escrow.grantRole(APPROVER_ROLE, approver);
@@ -709,6 +710,6 @@ contract ConstructorTest is Test {
     function test_constructor_rejectsDelayFloorAboveMaximum() public {
         RiseVND token = new RiseVND(address(this));
         vm.expectRevert(CampaignEscrow.BadTerms.selector);
-        new CampaignEscrow(address(this), token, address(0xBEEF), 31 days);
+        new CampaignEscrow(address(this), token, address(0xBEEF), 31 days, address(0x6A4D));
     }
 }

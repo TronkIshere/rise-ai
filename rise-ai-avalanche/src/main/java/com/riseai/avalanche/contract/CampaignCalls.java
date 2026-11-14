@@ -96,6 +96,30 @@ public final class CampaignCalls {
         return encode("recordAdjustment", b32(campaignId), b32(adjustmentId), new Bool(credit), new Uint256(amount));
     }
 
+    public static String recordPayout(String campaignId, String requestId, String bankReferenceHash) {
+        return encode("recordPayout", b32(campaignId), b32(requestId), b32(bankReferenceHash));
+    }
+
+    public static String openHoldCount(String campaignId, String milestoneId) {
+        return encode("openHoldCount", b32(campaignId), b32(milestoneId));
+    }
+
+    public static String getPayout(String campaignId, String requestId) {
+        return encode("getPayout", b32(campaignId), b32(requestId));
+    }
+
+    public static String getReserveAttestation() {
+        return encode("getReserveAttestation");
+    }
+
+    public static String totalHeld() {
+        return encode("totalHeld");
+    }
+
+    public static String hasRole(String role, String account) {
+        return encode("hasRole", b32(role), new Address(account));
+    }
+
     public static String anchor(String kind, String root, String previousRoot, long recordCount) {
         return encode("anchor", b32(kind), b32(root), b32(previousRoot), new Uint64(recordCount));
     }

@@ -147,6 +147,8 @@ public class ChainCommandRelay {
                         command.getReferenceId(), command.getActorId(), Instant.now().plus(properties.releaseDelay()));
             } else if (ChainActions.EXECUTE_RELEASE.equals(command.getAction())) {
                 disbursementService.completeChainRelease(command.getReferenceId(), command.getActorId());
+                writer.enqueue(command.getCampaignId(), ChainActions.RECORD_PAYOUT, Map.of("requestId", ChainValues.bytes32(command.getReferenceId()),
+                        "bankReferenceHash", ChainValues.simulatedPayoutReference(command.getReferenceId())), command.getReferenceId(), command.getActorId());
             }
         });
     }

@@ -579,6 +579,36 @@
         },
         "type" : "object"
       },
+      "ChainActivityResponse" : {
+        "properties" : {
+          "available" : {
+            "type" : "boolean"
+          },
+          "escrowContract" : {
+            "type" : "string"
+          },
+          "items" : {
+            "items" : {
+              "$ref" : "#/components/schemas/Item"
+            },
+            "type" : "array"
+          },
+          "nextPageToken" : {
+            "type" : "string"
+          },
+          "onChain" : {
+            "type" : "boolean"
+          },
+          "source" : {
+            "type" : "string"
+          },
+          "unrecordedCount" : {
+            "format" : "int64",
+            "type" : "integer"
+          }
+        },
+        "type" : "object"
+      },
       "ChainConfigResponse" : {
         "properties" : {
           "anchorContract" : {
@@ -605,6 +635,13 @@
           },
           "explorerTxUrl" : {
             "type" : "string"
+          },
+          "guardianAddress" : {
+            "type" : "string"
+          },
+          "guardianHoldMaxSeconds" : {
+            "format" : "int64",
+            "type" : "integer"
           },
           "network" : {
             "type" : "string"
@@ -723,7 +760,18 @@
             "format" : "uuid",
             "type" : "string"
           },
+          "openGuardianHolds" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "payoutTxHash" : {
+            "type" : "string"
+          },
           "queueTxHash" : {
+            "type" : "string"
+          },
+          "receiptConfirmedAt" : {
+            "format" : "date-time",
             "type" : "string"
           },
           "releaseAt" : {
@@ -1265,6 +1313,43 @@
           },
           "totalReserved" : {
             "type" : "number"
+          }
+        },
+        "type" : "object"
+      },
+      "Item" : {
+        "properties" : {
+          "blockNumber" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "check" : {
+            "type" : "string"
+          },
+          "explorerUrl" : {
+            "type" : "string"
+          },
+          "from" : {
+            "type" : "string"
+          },
+          "method" : {
+            "type" : "string"
+          },
+          "rvndToBeneficiary" : {
+            "type" : "number"
+          },
+          "signer" : {
+            "type" : "string"
+          },
+          "success" : {
+            "type" : "boolean"
+          },
+          "timestamp" : {
+            "format" : "date-time",
+            "type" : "string"
+          },
+          "txHash" : {
+            "type" : "string"
           }
         },
         "type" : "object"
@@ -2411,6 +2496,46 @@
         "required" : [ "reason" ],
         "type" : "object"
       },
+      "ReservesResponse" : {
+        "properties" : {
+          "attested" : {
+            "type" : "boolean"
+          },
+          "attestedAt" : {
+            "format" : "date-time",
+            "type" : "string"
+          },
+          "attester" : {
+            "type" : "string"
+          },
+          "available" : {
+            "type" : "boolean"
+          },
+          "bankBalance" : {
+            "type" : "number"
+          },
+          "currentHeld" : {
+            "type" : "number"
+          },
+          "gap" : {
+            "type" : "number"
+          },
+          "heldAtAttestation" : {
+            "type" : "number"
+          },
+          "onChain" : {
+            "type" : "boolean"
+          },
+          "period" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "statementHash" : {
+            "type" : "string"
+          }
+        },
+        "type" : "object"
+      },
       "ResolveDisputeRequest" : {
         "properties" : {
           "outcome" : {
@@ -2509,6 +2634,21 @@
           },
           "data" : {
             "$ref" : "#/components/schemas/CampaignStatistics"
+          },
+          "message" : {
+            "type" : "string"
+          }
+        },
+        "type" : "object"
+      },
+      "ResponseAPIChainActivityResponse" : {
+        "properties" : {
+          "code" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "data" : {
+            "$ref" : "#/components/schemas/ChainActivityResponse"
           },
           "message" : {
             "type" : "string"
@@ -3076,6 +3216,21 @@
           },
           "data" : {
             "$ref" : "#/components/schemas/RefundResponse"
+          },
+          "message" : {
+            "type" : "string"
+          }
+        },
+        "type" : "object"
+      },
+      "ResponseAPIReservesResponse" : {
+        "properties" : {
+          "code" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "data" : {
+            "$ref" : "#/components/schemas/ReservesResponse"
           },
           "message" : {
             "type" : "string"
@@ -7614,6 +7769,33 @@
         "tags" : [ "Refunds (simulated)" ]
       }
     },
+    "/api/v1/transparency/activity" : {
+      "get" : {
+        "operationId" : "activity",
+        "parameters" : [ {
+          "in" : "query",
+          "name" : "pageToken",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ResponseAPIChainActivityResponse"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "The escrow's transactions as indexed by the Avalanche Data API, checked against the platform's own records",
+        "tags" : [ "Transparency (on-chain anchors)" ]
+      }
+    },
     "/api/v1/transparency/anchors" : {
       "get" : {
         "operationId" : "anchors",
@@ -7677,6 +7859,25 @@
           }
         },
         "summary" : "The chain, contract addresses and explorer the escrow mirror uses (onChain=false with the simulated engine)",
+        "tags" : [ "Transparency (on-chain anchors)" ]
+      }
+    },
+    "/api/v1/transparency/reserves" : {
+      "get" : {
+        "operationId" : "reserves",
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ResponseAPIReservesResponse"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "Proof of reserves: the independent guardian's latest bank-balance attestation next to what the escrow holds (VND, simulated)",
         "tags" : [ "Transparency (on-chain anchors)" ]
       }
     },

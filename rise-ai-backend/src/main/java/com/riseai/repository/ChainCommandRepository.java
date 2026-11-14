@@ -16,6 +16,9 @@ public interface ChainCommandRepository extends JpaRepository<ChainCommand, UUID
     @Query(value = "select * from chain_commands where campaign_id = :campaignId order by seq", nativeQuery = true)
     List<ChainCommand> findByCampaignInOrder(String campaignId);
 
+    @Query(value = "select lower(tx_hash) from chain_commands where lower(tx_hash) in (:hashes)", nativeQuery = true)
+    List<String> findRecordedTxHashes(Collection<String> hashes);
+
     boolean existsByReferenceIdAndActionInAndStatusIn(UUID referenceId, Collection<String> actions, Collection<ChainCommandStatus> statuses);
 
     long deleteByReferenceIdAndActionAndStatus(UUID referenceId, String action, ChainCommandStatus status);

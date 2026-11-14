@@ -10,7 +10,8 @@ import {RiseVND} from "../src/RiseVND.sol";
 /// The script holds NO key material: the broadcaster is whatever signer forge is given on the command line (an unlocked Anvil
 /// account locally; a human-operated wallet for Fuji). The broadcaster becomes admin and simulation treasury.
 /// It refuses every chain except 31337 and 43113 and names Mainnet explicitly.
-/// Required environment: DEPLOY_ENVIRONMENT (LOCAL_SIMULATION or AVALANCHE_FUJI), OPERATOR, APPROVER, MIN_RELEASE_DELAY (seconds).
+/// Required environment: DEPLOY_ENVIRONMENT (LOCAL_SIMULATION or AVALANCHE_FUJI), OPERATOR, APPROVER, GUARDIAN, MIN_RELEASE_DELAY (seconds).
+/// GUARDIAN is an independent wallet outside the platform; it must differ from every platform signer and from the broadcaster.
 /// Optional: ANCHORER (defaults to OPERATOR), PAUSER, TREASURY_SUPPLY (base units, two decimals).
 contract Deploy is Script {
     bytes32 internal constant LOCAL = keccak256("LOCAL_SIMULATION");
@@ -21,6 +22,7 @@ contract Deploy is Script {
     error UnsupportedChain(uint256 chainId);
     error UnknownEnvironment(string environment);
     error RolesMustDiffer();
+    error GuardianMustBeIndependent();
 
     struct Deployment {
         RiseVND token;
@@ -47,16 +49,19 @@ contract Deploy is Script {
         address operator = vm.envAddress("OPERATOR");
         address approver = vm.envAddress("APPROVER");
         if (operator == approver) revert RolesMustDiffer();
+        address guardian = vm.envAddress("GUARDIAN");
         uint64 minReleaseDelay = uint64(vm.envUint("MIN_RELEASE_DELAY"));
         address anchorer = vm.envOr("ANCHORER", operator);
         address pauser = vm.envOr("PAUSER", address(0));
         uint256 supply = vm.envOr("TREASURY_SUPPLY", DEFAULT_SUPPLY);
         uint256 startBlock = block.number;
+        if (guardian == operator || guardian == approver || guardian == anchorer || guardian == pauser) revert GuardianMustBeIndependent();
 
         vm.startBroadcast();
         (, address broadcaster,) = vm.readCallers();
+        if (guardian == broadcaster) revert GuardianMustBeIndependent();
         d.token = new RiseVND(broadcaster);
-        d.escrow = new CampaignEscrow(broadcaster, d.token, broadcaster, minReleaseDelay);
+        d.escrow = new CampaignEscrow(broadcaster, d.token, broadcaster, minReleaseDelay, guardian);
         d.anchor = new RiseAnchor(broadcaster);
         d.escrow.grantRole(d.escrow.OPERATOR_ROLE(), operator);
         d.escrow.grantRole(d.escrow.APPROVER_ROLE(), approver);
@@ -68,7 +73,7 @@ contract Deploy is Script {
         d.token.approve(address(d.escrow), type(uint256).max);
         vm.stopBroadcast();
 
-        _writeManifest(environment, d, broadcaster, operator, approver, anchorer, minReleaseDelay, startBlock);
+        _writeManifest(environment, d, broadcaster, operator, approver, anchorer, guardian, minReleaseDelay, startBlock);
     }
 
     function _writeManifest(
@@ -78,6 +83,7 @@ contract Deploy is Script {
         address operator,
         address approver,
         address anchorer,
+        address guardian,
         uint64 minReleaseDelay,
         uint256 startBlock
     ) private {
@@ -94,8 +100,9 @@ contract Deploy is Script {
         vm.serializeAddress(key, "operator", operator);
         vm.serializeAddress(key, "approver", approver);
         vm.serializeAddress(key, "anchorer", anchorer);
+        vm.serializeAddress(key, "guardian", guardian);
         vm.serializeUint(key, "minReleaseDelay", minReleaseDelay);
-        vm.serializeString(key, "contractVersion", "1");
+        vm.serializeString(key, "contractVersion", "2");
         string memory json = vm.serializeUint(key, "startBlock", startBlock);
         vm.writeJson(json, string.concat("./deployments/", environment, ".json"));
     }

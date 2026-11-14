@@ -60,6 +60,8 @@ rise:
     internal-api-key: ${RISE_AVALANCHE_INTERNAL_API_KEY:}
     beneficiary-address: ${RISE_AVALANCHE_BENEFICIARY_ADDRESS:}
     release-delay: ${RISE_AVALANCHE_RELEASE_DELAY:PT24H}
+    data-api-url: ${RISE_AVALANCHE_DATA_API_URL:https://data-api.avax.network/v1}
+    data-api-key: ${RISE_AVALANCHE_DATA_API_KEY:}
   simulation:
     donation-confirmation-enabled: true
   seed:

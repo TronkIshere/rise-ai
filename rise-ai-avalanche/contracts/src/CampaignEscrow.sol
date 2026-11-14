@@ -11,15 +11,20 @@ import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol
 /// The backend orchestrates through OPERATOR_ROLE, which cannot move funds out. Value leaves only through APPROVER_ROLE
 /// (human-held multisig or KMS, ADR-005) and only to the campaign's fixed beneficiary or the simulation treasury.
 /// Monitoring and AI hold no role. Amounts are simulated; identifiers are backend UUIDs encoded as bytes32.
+/// GUARDIAN_ROLE is an independent party outside the platform: it can hold a milestone's releases directly on-chain, attest the
+/// bank reserves backing the escrow, and nothing else. The platform can neither lift its holds early nor revoke it.
 contract CampaignEscrow is AccessControl, Pausable, ReentrancyGuard {
     using SafeERC20 for IERC20;
 
     bytes32 public constant OPERATOR_ROLE = keccak256("OPERATOR_ROLE");
     bytes32 public constant APPROVER_ROLE = keccak256("APPROVER_ROLE");
     bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
+    bytes32 public constant GUARDIAN_ROLE = keccak256("GUARDIAN_ROLE");
 
     uint64 public constant MAX_RELEASE_DELAY = 30 days;
     uint256 public constant MAX_MILESTONES = 64;
+    /// @notice After this long anyone may lift a guardian hold, so a lost guardian key cannot freeze a milestone forever.
+    uint64 public constant GUARDIAN_HOLD_MAX = 14 days;
 
     enum EscrowStatus {
         None,
@@ -105,6 +110,30 @@ contract CampaignEscrow is AccessControl, Pausable, ReentrancyGuard {
         bytes32 milestoneId;
     }
 
+    struct GuardianHold {
+        bool open;
+        bool exists;
+        bytes32 milestoneId;
+        uint64 placedAt;
+    }
+
+    /// @dev bankBalance is what the guardian saw on the escrow bank account; heldAtAttestation is totalHeld at that moment.
+    struct ReserveAttestation {
+        uint64 period;
+        uint64 attestedAt;
+        address attester;
+        uint256 bankBalance;
+        uint256 heldAtAttestation;
+        bytes32 statementHash;
+    }
+
+    /// @dev bankReferenceHash identifies the off-chain bank transfer that paid out a release; the beneficiary confirms receiving it.
+    struct Payout {
+        bytes32 bankReferenceHash;
+        uint64 recordedAt;
+        uint64 confirmedAt;
+    }
+
     event CampaignOpened(bytes32 indexed campaignId, address indexed beneficiary, uint256 target, uint64 releaseDelay, uint256 milestoneCount);
     event EscrowStatusChanged(bytes32 indexed campaignId, EscrowStatus previous, EscrowStatus current);
     event ContributionConfirmed(bytes32 indexed campaignId, bytes32 indexed donationId, uint256 amount);
@@ -124,6 +153,14 @@ contract CampaignEscrow is AccessControl, Pausable, ReentrancyGuard {
         bytes32 indexed campaignId, bytes32 indexed milestoneId, bytes32 indexed evidenceId, bytes32 contentHash, bytes32 priorEvidenceId
     );
     event EvidenceDecided(bytes32 indexed campaignId, bytes32 indexed milestoneId, bytes32 indexed evidenceId, bool accepted);
+    /// @dev `reasonHash` points to the guardian's public statement, kept off-chain.
+    event GuardianHoldPlaced(
+        bytes32 indexed campaignId, bytes32 indexed milestoneId, bytes32 indexed holdId, address guardian, bytes32 reasonHash, uint64 expiresAt
+    );
+    event GuardianHoldLifted(bytes32 indexed campaignId, bytes32 indexed milestoneId, bytes32 indexed holdId, address by, bool expired);
+    event ReservesAttested(uint64 indexed period, address indexed attester, uint256 bankBalance, uint256 held, bytes32 statementHash);
+    event PayoutRecorded(bytes32 indexed campaignId, bytes32 indexed requestId, bytes32 bankReferenceHash);
+    event ReceiptConfirmed(bytes32 indexed campaignId, bytes32 indexed requestId, address indexed beneficiary);
 
     error BadTerms();
     error BadAmount();
@@ -143,6 +180,10 @@ contract CampaignEscrow is AccessControl, Pausable, ReentrancyGuard {
     error SameActor();
     error ReleaseNotDue(uint64 releaseAt);
     error InvariantViolated();
+    error MilestoneHeld();
+    error HoldNotExpired(uint64 expiresAt);
+    error GuardianConflict();
+    error NotBeneficiary();
 
     IERC20 public immutable token;
     address public immutable treasury;
@@ -162,14 +203,23 @@ contract CampaignEscrow is AccessControl, Pausable, ReentrancyGuard {
     mapping(bytes32 campaignId => mapping(bytes32 key => bool)) private settlementRecorded;
     mapping(bytes32 campaignId => mapping(bytes32 adjustmentId => bool)) private adjustmentRecorded;
     mapping(bytes32 contentHash => bytes32 evidenceId) private firstEvidenceForHash;
+    mapping(bytes32 campaignId => mapping(bytes32 holdId => GuardianHold)) private holds;
+    mapping(bytes32 campaignId => mapping(bytes32 milestoneId => uint32)) private openHolds;
+    mapping(bytes32 campaignId => mapping(bytes32 requestId => Payout)) private payouts;
 
-    constructor(address admin, IERC20 token_, address treasury_, uint64 minReleaseDelay_) {
+    ReserveAttestation private latestReserves;
+
+    /// @notice The guardian administers its own role: the platform's admin can neither grant nor revoke it.
+    constructor(address admin, IERC20 token_, address treasury_, uint64 minReleaseDelay_, address guardian) {
         if (admin == address(0) || address(token_) == address(0) || treasury_ == address(0)) revert BadTerms();
+        if (guardian == address(0) || guardian == admin || guardian == treasury_) revert GuardianConflict();
         if (minReleaseDelay_ > MAX_RELEASE_DELAY) revert BadTerms();
         token = token_;
         treasury = treasury_;
         minReleaseDelay = minReleaseDelay_;
         _grantRole(DEFAULT_ADMIN_ROLE, admin);
+        _setRoleAdmin(GUARDIAN_ROLE, GUARDIAN_ROLE);
+        _grantRole(GUARDIAN_ROLE, guardian);
     }
 
     // ---------------------------------------------------------------------------------------------------------------
@@ -356,6 +406,7 @@ contract CampaignEscrow is AccessControl, Pausable, ReentrancyGuard {
         Milestone storage m = milestones[campaignId][r.milestoneId];
         if (m.acceptedEvidence == 0) revert MissingAcceptedEvidence();
         if (m.openDisputes != 0) revert MilestoneDisputed();
+        if (openHolds[campaignId][r.milestoneId] != 0) revert MilestoneHeld();
 
         r.status = ReservationStatus.Queued;
         r.releaseAt = uint64(block.timestamp) + c.releaseDelay;
@@ -371,6 +422,7 @@ contract CampaignEscrow is AccessControl, Pausable, ReentrancyGuard {
         if (block.timestamp < r.releaseAt) revert ReleaseNotDue(r.releaseAt);
         Milestone storage m = milestones[campaignId][r.milestoneId];
         if (m.openDisputes != 0) revert MilestoneDisputed();
+        if (openHolds[campaignId][r.milestoneId] != 0) revert MilestoneHeld();
 
         uint256 amount = r.amount;
         address to = c.beneficiary;
@@ -383,6 +435,73 @@ contract CampaignEscrow is AccessControl, Pausable, ReentrancyGuard {
         _checkIdentity(c);
         emit FundsReleased(campaignId, r.milestoneId, requestId, amount, to);
         token.safeTransfer(to, amount);
+    }
+
+    // ---------------------------------------------------------------------------------------------------------------
+    // Payout receipts: the platform records the bank transfer of a release, and only the beneficiary can confirm receiving it
+    // ---------------------------------------------------------------------------------------------------------------
+
+    function recordPayout(bytes32 campaignId, bytes32 requestId, bytes32 bankReferenceHash) external onlyRole(OPERATOR_ROLE) {
+        _campaign(campaignId);
+        if (bankReferenceHash == bytes32(0)) revert ZeroHash();
+        Reservation storage r = reservations[campaignId][requestId];
+        if (r.status == ReservationStatus.None) revert UnknownRecord();
+        if (r.status != ReservationStatus.Released) revert InvalidRecordStatus();
+        Payout storage p = payouts[campaignId][requestId];
+        if (p.recordedAt != 0) revert AlreadyRecorded();
+        p.bankReferenceHash = bankReferenceHash;
+        p.recordedAt = uint64(block.timestamp);
+        emit PayoutRecorded(campaignId, requestId, bankReferenceHash);
+    }
+
+    function confirmReceipt(bytes32 campaignId, bytes32 requestId) external {
+        Campaign storage c = _campaign(campaignId);
+        if (msg.sender != c.beneficiary) revert NotBeneficiary();
+        Payout storage p = payouts[campaignId][requestId];
+        if (p.recordedAt == 0) revert UnknownRecord();
+        if (p.confirmedAt != 0) revert AlreadyRecorded();
+        p.confirmedAt = uint64(block.timestamp);
+        emit ReceiptConfirmed(campaignId, requestId, msg.sender);
+    }
+
+    // ---------------------------------------------------------------------------------------------------------------
+    // Guardian: an independent party that can hold releases and attest reserves, and cannot move funds
+    // ---------------------------------------------------------------------------------------------------------------
+
+    /// @notice Holds every release of a milestone until the guardian lifts it, or until GUARDIAN_HOLD_MAX has passed.
+    function placeHold(bytes32 campaignId, bytes32 milestoneId, bytes32 holdId, bytes32 reasonHash) external onlyRole(GUARDIAN_ROLE) {
+        _campaign(campaignId);
+        _milestone(campaignId, milestoneId);
+        if (holdId == bytes32(0)) revert BadTerms();
+        GuardianHold storage h = holds[campaignId][holdId];
+        if (h.exists) revert AlreadyRecorded();
+        h.exists = true;
+        h.open = true;
+        h.milestoneId = milestoneId;
+        h.placedAt = uint64(block.timestamp);
+        openHolds[campaignId][milestoneId] += 1;
+        emit GuardianHoldPlaced(campaignId, milestoneId, holdId, msg.sender, reasonHash, h.placedAt + GUARDIAN_HOLD_MAX);
+    }
+
+    /// @notice A guardian may lift a hold at any time; anyone may lift it once it has expired.
+    function liftHold(bytes32 campaignId, bytes32 holdId) external {
+        GuardianHold storage h = holds[campaignId][holdId];
+        if (!h.exists) revert UnknownRecord();
+        if (!h.open) revert InvalidRecordStatus();
+        uint64 expiresAt = h.placedAt + GUARDIAN_HOLD_MAX;
+        bool expired = block.timestamp >= expiresAt;
+        if (!expired && !hasRole(GUARDIAN_ROLE, msg.sender)) revert HoldNotExpired(expiresAt);
+        h.open = false;
+        openHolds[campaignId][h.milestoneId] -= 1;
+        emit GuardianHoldLifted(campaignId, h.milestoneId, holdId, msg.sender, expired);
+    }
+
+    /// @notice The guardian states what it saw on the escrow bank account. A balance below totalHeld is a public reserve gap.
+    function attestReserves(uint64 period, uint256 bankBalance, bytes32 statementHash) external onlyRole(GUARDIAN_ROLE) {
+        if (statementHash == bytes32(0)) revert ZeroHash();
+        if (period <= latestReserves.period) revert BadTerms();
+        latestReserves = ReserveAttestation(period, uint64(block.timestamp), msg.sender, bankBalance, totalHeld, statementHash);
+        emit ReservesAttested(period, msg.sender, bankBalance, totalHeld, statementHash);
     }
 
     // ---------------------------------------------------------------------------------------------------------------
@@ -534,6 +653,22 @@ contract CampaignEscrow is AccessControl, Pausable, ReentrancyGuard {
         return evidence[campaignId][evidenceId];
     }
 
+    function getGuardianHold(bytes32 campaignId, bytes32 holdId) external view returns (GuardianHold memory) {
+        return holds[campaignId][holdId];
+    }
+
+    function openHoldCount(bytes32 campaignId, bytes32 milestoneId) external view returns (uint32) {
+        return openHolds[campaignId][milestoneId];
+    }
+
+    function getPayout(bytes32 campaignId, bytes32 requestId) external view returns (Payout memory) {
+        return payouts[campaignId][requestId];
+    }
+
+    function getReserveAttestation() external view returns (ReserveAttestation memory) {
+        return latestReserves;
+    }
+
     function heldBalance(bytes32 campaignId) public view returns (uint256) {
         Campaign storage c = campaigns[campaignId];
         return c.available + c.reserved + c.refundReserved;
@@ -562,6 +697,19 @@ contract CampaignEscrow is AccessControl, Pausable, ReentrancyGuard {
         rf = refunds[campaignId][refundId];
         if (rf.status == RefundStatus.None) revert UnknownRecord();
         if (rf.status != RefundStatus.Reserved) revert InvalidRecordStatus();
+    }
+
+    /// @dev The guardian never holds a platform role, and no platform signer can become guardian.
+    function _grantRole(bytes32 role, address account) internal override returns (bool) {
+        if (role == GUARDIAN_ROLE) {
+            if (
+                hasRole(OPERATOR_ROLE, account) || hasRole(APPROVER_ROLE, account) || hasRole(PAUSER_ROLE, account)
+                    || hasRole(DEFAULT_ADMIN_ROLE, account)
+            ) revert GuardianConflict();
+        } else if (hasRole(GUARDIAN_ROLE, account)) {
+            revert GuardianConflict();
+        }
+        return super._grantRole(role, account);
     }
 
     /// @dev Same identity as the backend's verifyInvariants and the ck_escrow_balance_identity CHECK.

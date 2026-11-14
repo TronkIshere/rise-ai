@@ -21,6 +21,11 @@
         "name": "minReleaseDelay_",
         "type": "uint64",
         "internalType": "uint64"
+      },
+      {
+        "name": "guardian",
+        "type": "address",
+        "internalType": "address"
       }
     ],
     "stateMutability": "nonpayable"
@@ -41,6 +46,32 @@
   {
     "type": "function",
     "name": "DEFAULT_ADMIN_ROLE",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "GUARDIAN_HOLD_MAX",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint64",
+        "internalType": "uint64"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "GUARDIAN_ROLE",
     "inputs": [],
     "outputs": [
       {
@@ -133,6 +164,29 @@
   },
   {
     "type": "function",
+    "name": "attestReserves",
+    "inputs": [
+      {
+        "name": "period",
+        "type": "uint64",
+        "internalType": "uint64"
+      },
+      {
+        "name": "bankBalance",
+        "type": "uint256",
+        "internalType": "uint256"
+      },
+      {
+        "name": "statementHash",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
     "name": "cancelReservation",
     "inputs": [
       {
@@ -178,6 +232,24 @@
       },
       {
         "name": "disputeId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "confirmReceipt",
+    "inputs": [
+      {
+        "name": "campaignId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "requestId",
         "type": "bytes32",
         "internalType": "bytes32"
       }
@@ -391,6 +463,52 @@
   },
   {
     "type": "function",
+    "name": "getGuardianHold",
+    "inputs": [
+      {
+        "name": "campaignId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "holdId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "tuple",
+        "internalType": "struct CampaignEscrow.GuardianHold",
+        "components": [
+          {
+            "name": "open",
+            "type": "bool",
+            "internalType": "bool"
+          },
+          {
+            "name": "exists",
+            "type": "bool",
+            "internalType": "bool"
+          },
+          {
+            "name": "milestoneId",
+            "type": "bytes32",
+            "internalType": "bytes32"
+          },
+          {
+            "name": "placedAt",
+            "type": "uint64",
+            "internalType": "uint64"
+          }
+        ]
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
     "name": "getMilestone",
     "inputs": [
       {
@@ -434,6 +552,47 @@
             "name": "acceptedEvidence",
             "type": "uint32",
             "internalType": "uint32"
+          }
+        ]
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "getPayout",
+    "inputs": [
+      {
+        "name": "campaignId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "requestId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "tuple",
+        "internalType": "struct CampaignEscrow.Payout",
+        "components": [
+          {
+            "name": "bankReferenceHash",
+            "type": "bytes32",
+            "internalType": "bytes32"
+          },
+          {
+            "name": "recordedAt",
+            "type": "uint64",
+            "internalType": "uint64"
+          },
+          {
+            "name": "confirmedAt",
+            "type": "uint64",
+            "internalType": "uint64"
           }
         ]
       }
@@ -534,6 +693,51 @@
   },
   {
     "type": "function",
+    "name": "getReserveAttestation",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "tuple",
+        "internalType": "struct CampaignEscrow.ReserveAttestation",
+        "components": [
+          {
+            "name": "period",
+            "type": "uint64",
+            "internalType": "uint64"
+          },
+          {
+            "name": "attestedAt",
+            "type": "uint64",
+            "internalType": "uint64"
+          },
+          {
+            "name": "attester",
+            "type": "address",
+            "internalType": "address"
+          },
+          {
+            "name": "bankBalance",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "heldAtAttestation",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          {
+            "name": "statementHash",
+            "type": "bytes32",
+            "internalType": "bytes32"
+          }
+        ]
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
     "name": "getRoleAdmin",
     "inputs": [
       {
@@ -614,6 +818,24 @@
   },
   {
     "type": "function",
+    "name": "liftHold",
+    "inputs": [
+      {
+        "name": "campaignId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "holdId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
     "name": "minReleaseDelay",
     "inputs": [],
     "outputs": [
@@ -688,6 +910,30 @@
   },
   {
     "type": "function",
+    "name": "openHoldCount",
+    "inputs": [
+      {
+        "name": "campaignId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "milestoneId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint32",
+        "internalType": "uint32"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
     "name": "pause",
     "inputs": [],
     "outputs": [],
@@ -705,6 +951,34 @@
       }
     ],
     "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "placeHold",
+    "inputs": [
+      {
+        "name": "campaignId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "milestoneId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "holdId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "reasonHash",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
   },
   {
     "type": "function",
@@ -770,6 +1044,29 @@
         "name": "amount",
         "type": "uint256",
         "internalType": "uint256"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "recordPayout",
+    "inputs": [
+      {
+        "name": "campaignId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "requestId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "bankReferenceHash",
+        "type": "bytes32",
+        "internalType": "bytes32"
       }
     ],
     "outputs": [],
@@ -1302,12 +1599,142 @@
   },
   {
     "type": "event",
+    "name": "GuardianHoldLifted",
+    "inputs": [
+      {
+        "name": "campaignId",
+        "type": "bytes32",
+        "indexed": true,
+        "internalType": "bytes32"
+      },
+      {
+        "name": "milestoneId",
+        "type": "bytes32",
+        "indexed": true,
+        "internalType": "bytes32"
+      },
+      {
+        "name": "holdId",
+        "type": "bytes32",
+        "indexed": true,
+        "internalType": "bytes32"
+      },
+      {
+        "name": "by",
+        "type": "address",
+        "indexed": false,
+        "internalType": "address"
+      },
+      {
+        "name": "expired",
+        "type": "bool",
+        "indexed": false,
+        "internalType": "bool"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "GuardianHoldPlaced",
+    "inputs": [
+      {
+        "name": "campaignId",
+        "type": "bytes32",
+        "indexed": true,
+        "internalType": "bytes32"
+      },
+      {
+        "name": "milestoneId",
+        "type": "bytes32",
+        "indexed": true,
+        "internalType": "bytes32"
+      },
+      {
+        "name": "holdId",
+        "type": "bytes32",
+        "indexed": true,
+        "internalType": "bytes32"
+      },
+      {
+        "name": "guardian",
+        "type": "address",
+        "indexed": false,
+        "internalType": "address"
+      },
+      {
+        "name": "reasonHash",
+        "type": "bytes32",
+        "indexed": false,
+        "internalType": "bytes32"
+      },
+      {
+        "name": "expiresAt",
+        "type": "uint64",
+        "indexed": false,
+        "internalType": "uint64"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
     "name": "Paused",
     "inputs": [
       {
         "name": "account",
         "type": "address",
         "indexed": false,
+        "internalType": "address"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "PayoutRecorded",
+    "inputs": [
+      {
+        "name": "campaignId",
+        "type": "bytes32",
+        "indexed": true,
+        "internalType": "bytes32"
+      },
+      {
+        "name": "requestId",
+        "type": "bytes32",
+        "indexed": true,
+        "internalType": "bytes32"
+      },
+      {
+        "name": "bankReferenceHash",
+        "type": "bytes32",
+        "indexed": false,
+        "internalType": "bytes32"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "ReceiptConfirmed",
+    "inputs": [
+      {
+        "name": "campaignId",
+        "type": "bytes32",
+        "indexed": true,
+        "internalType": "bytes32"
+      },
+      {
+        "name": "requestId",
+        "type": "bytes32",
+        "indexed": true,
+        "internalType": "bytes32"
+      },
+      {
+        "name": "beneficiary",
+        "type": "address",
+        "indexed": true,
         "internalType": "address"
       }
     ],
@@ -1470,6 +1897,43 @@
         "type": "uint256",
         "indexed": false,
         "internalType": "uint256"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "ReservesAttested",
+    "inputs": [
+      {
+        "name": "period",
+        "type": "uint64",
+        "indexed": true,
+        "internalType": "uint64"
+      },
+      {
+        "name": "attester",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "bankBalance",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      },
+      {
+        "name": "held",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      },
+      {
+        "name": "statementHash",
+        "type": "bytes32",
+        "indexed": false,
+        "internalType": "bytes32"
       }
     ],
     "anonymous": false
@@ -1651,6 +2115,22 @@
   },
   {
     "type": "error",
+    "name": "GuardianConflict",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "HoldNotExpired",
+    "inputs": [
+      {
+        "name": "expiresAt",
+        "type": "uint64",
+        "internalType": "uint64"
+      }
+    ]
+  },
+  {
+    "type": "error",
     "name": "InsufficientAvailable",
     "inputs": []
   },
@@ -1682,7 +2162,17 @@
   },
   {
     "type": "error",
+    "name": "MilestoneHeld",
+    "inputs": []
+  },
+  {
+    "type": "error",
     "name": "MissingAcceptedEvidence",
+    "inputs": []
+  },
+  {
+    "type": "error",
+    "name": "NotBeneficiary",
     "inputs": []
   },
   {

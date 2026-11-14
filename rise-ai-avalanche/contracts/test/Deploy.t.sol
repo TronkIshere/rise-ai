@@ -8,6 +8,7 @@ contract DeployGuardTest is Test {
     Deploy internal script;
     address internal operator = makeAddr("operator");
     address internal approver = makeAddr("approver");
+    address internal guardian = makeAddr("guardian");
 
     function setUp() public {
         script = new Deploy();
@@ -17,6 +18,7 @@ contract DeployGuardTest is Test {
         vm.setEnv("DEPLOY_ENVIRONMENT", "LOCAL_SIMULATION");
         vm.setEnv("OPERATOR", vm.toString(op));
         vm.setEnv("APPROVER", vm.toString(app));
+        vm.setEnv("GUARDIAN", vm.toString(guardian));
         vm.setEnv("MIN_RELEASE_DELAY", "300");
     }
 
@@ -53,6 +55,7 @@ contract DeployGuardTest is Test {
     function test_environmentDrivenRuns() public {
         _runOnTheWrongChainRevertsBeforeDeployingAnything();
         _operatorAndApproverMustDiffer();
+        _guardianMustBeIndependent();
         _localRunDeploysGrantsRolesFundsTreasuryAndWritesTheManifest();
     }
 
@@ -70,6 +73,14 @@ contract DeployGuardTest is Test {
         script.run();
     }
 
+    function _guardianMustBeIndependent() internal {
+        _env(operator, approver);
+        vm.setEnv("GUARDIAN", vm.toString(operator));
+        vm.chainId(31337);
+        vm.expectRevert(Deploy.GuardianMustBeIndependent.selector);
+        script.run();
+    }
+
     function _localRunDeploysGrantsRolesFundsTreasuryAndWritesTheManifest() internal {
         _env(operator, approver);
         vm.chainId(31337);
@@ -77,6 +88,8 @@ contract DeployGuardTest is Test {
         assertTrue(d.escrow.hasRole(d.escrow.OPERATOR_ROLE(), operator));
         assertTrue(d.escrow.hasRole(d.escrow.APPROVER_ROLE(), approver));
         assertFalse(d.escrow.hasRole(d.escrow.APPROVER_ROLE(), operator));
+        assertTrue(d.escrow.hasRole(d.escrow.GUARDIAN_ROLE(), guardian));
+        assertEq(d.escrow.getRoleAdmin(d.escrow.GUARDIAN_ROLE()), d.escrow.GUARDIAN_ROLE());
         assertTrue(d.anchor.hasRole(d.anchor.ANCHORER_ROLE(), operator));
         assertEq(address(d.escrow.token()), address(d.token));
         assertEq(d.escrow.minReleaseDelay(), 300);

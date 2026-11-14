@@ -12,8 +12,8 @@ import java.util.regex.Pattern;
 
 /** What a deployment produced (written by Deploy.s.sol). Carries addresses only, never key material. */
 public record DeploymentManifest(int schemaVersion, String environment, long chainId, String escrow, String token, String tokenKind,
-                                 String anchor, String admin, String treasury, String operator, String approver, long minReleaseDelay,
-                                 String contractVersion, long startBlock) {
+                                 String anchor, String admin, String treasury, String operator, String approver, String guardian,
+                                 long minReleaseDelay, String contractVersion, long startBlock) {
 
     private static final ObjectMapper JSON = new ObjectMapper();
     private static final Pattern ADDRESS = Pattern.compile("0x[0-9a-fA-F]{40}");
@@ -36,7 +36,7 @@ public record DeploymentManifest(int schemaVersion, String environment, long cha
         if (n == null || !n.isObject() || n.path("schemaVersion").asInt(-1) != 2) {
             throw new EnvironmentGuardException("MANIFEST_INVALID", "unsupported or missing schemaVersion");
         }
-        for (String field : new String[]{"escrow", "token", "anchor", "admin", "treasury", "operator", "approver"}) {
+        for (String field : new String[]{"escrow", "token", "anchor", "admin", "treasury", "operator", "approver", "guardian"}) {
             if (!ADDRESS.matcher(n.path(field).asText("")).matches()) {
                 throw new EnvironmentGuardException("MANIFEST_INVALID", field + " must be a 20-byte address");
             }
@@ -47,7 +47,7 @@ public record DeploymentManifest(int schemaVersion, String environment, long cha
         }
         return new DeploymentManifest(2, n.path("environment").asText(), n.path("chainId").asLong(), lower(n, "escrow"), lower(n, "token"),
                 n.path("tokenKind").asText(), lower(n, "anchor"), lower(n, "admin"), lower(n, "treasury"), lower(n, "operator"), lower(n, "approver"),
-                n.path("minReleaseDelay").asLong(), n.path("contractVersion").asText(""), n.path("startBlock").asLong(0));
+                lower(n, "guardian"), n.path("minReleaseDelay").asLong(), n.path("contractVersion").asText(""), n.path("startBlock").asLong(0));
     }
 
     private static String lower(JsonNode n, String field) {

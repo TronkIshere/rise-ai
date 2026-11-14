@@ -37,6 +37,10 @@ class TransparencyIntegrationTest extends AbstractMySqlIntegrationTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.data.onChain").value(false))
                 .andExpect(jsonPath("$.data.escrowContract").doesNotExist());
+        mvc.perform(get("/api/v1/transparency/reserves"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.onChain").value(false))
+                .andExpect(jsonPath("$.data.attested").value(false));
     }
 
     @Test
