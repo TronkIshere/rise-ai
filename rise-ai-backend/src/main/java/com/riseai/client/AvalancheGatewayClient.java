@@ -86,7 +86,8 @@ public class AvalancheGatewayClient {
     }
 
     public record DeploymentInfo(String environment, long chainId, String escrow, String token, String tokenKind, String anchor,
-                                 String contractVersion, boolean paused, String guardian, Long guardianHoldMaxSeconds) {
+                                 String contractVersion, boolean paused, String guardian, Long guardianHoldMaxSeconds, String operator,
+                                 String approver) {
     }
 
     /** The verified deployment the gateway runs against. Throws when the gateway cannot answer. */
@@ -95,7 +96,8 @@ public class AvalancheGatewayClient {
         return new DeploymentInfo(json.path("environment").asText(null), json.path("chainId").asLong(0), json.path("escrow").asText(null),
                 json.path("token").asText(null), json.path("tokenKind").asText(null), json.path("anchor").asText(null),
                 json.path("contractVersion").asText(null), json.path("paused").asBoolean(false), json.path("guardianAddress").asText(null),
-                json.hasNonNull("guardianHoldMaxSeconds") ? json.get("guardianHoldMaxSeconds").asLong() : null);
+                json.hasNonNull("guardianHoldMaxSeconds") ? json.get("guardianHoldMaxSeconds").asLong() : null,
+                json.path("operatorAddress").asText(null), json.path("approverAddress").asText(null));
     }
 
     /** Open guardian holds on a milestone. Throws when the gateway cannot answer. */

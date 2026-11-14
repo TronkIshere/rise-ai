@@ -41,6 +41,12 @@ class AvalancheEscrowEngineIntegrationTest extends AbstractMySqlIntegrationTest 
     private static final String KEY = "gateway-test-key";
     private static final String BENEFICIARY = "0x" + "b0".repeat(20);
     private static final HttpServer GATEWAY;
+    private static final HttpServer DATA_API;
+    private static final List<String> DATA_API_PATHS = new CopyOnWriteArrayList<>();
+    private static volatile String dataApiBody = "{\"transactions\":[]}";
+    private static final String OPERATOR = "0x" + "0a".repeat(20);
+    private static final String APPROVER = "0x" + "0b".repeat(20);
+    private static final String GUARDIAN = "0x" + "6a".repeat(20);
     private static final List<Sent> SENT = new CopyOnWriteArrayList<>();
     private static final Map<String, String> REVERT_ACTIONS = new ConcurrentHashMap<>();
     private static final Map<String, String> KEY_TO_ACTION = new ConcurrentHashMap<>();
@@ -95,8 +101,9 @@ class AvalancheEscrowEngineIntegrationTest extends AbstractMySqlIntegrationTest 
                 return;
             }
             if ("config".equals(path[4])) {
-                respond(exchange, 200, "{\"environment\":\"AVALANCHE_FUJI\",\"chainId\":43113,\"escrow\":\"0xe5\",\"token\":\"0x70\",\"tokenKind\":\"RISE_VND\","
-                        + "\"anchor\":\"0xa1\",\"contractVersion\":\"2\",\"paused\":false,\"guardianAddress\":\"0x6a\",\"guardianHoldMaxSeconds\":1209600}");
+                respond(exchange, 200, "{\"environment\":\"AVALANCHE_FUJI\",\"chainId\":43113,\"escrow\":\"0xe5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5\",\"token\":\"0x70\",\"tokenKind\":\"RISE_VND\","
+                        + "\"anchor\":\"0xa1\",\"contractVersion\":\"2\",\"paused\":false,\"guardianAddress\":\"" + GUARDIAN + "\",\"guardianHoldMaxSeconds\":1209600,"
+                        + "\"operatorAddress\":\"" + OPERATOR + "\",\"approverAddress\":\"" + APPROVER + "\"}");
                 return;
             }
             if ("campaigns".equals(path[4]) && "GET".equals(exchange.getRequestMethod())) {
@@ -135,6 +142,20 @@ class AvalancheEscrowEngineIntegrationTest extends AbstractMySqlIntegrationTest 
             respond(exchange, 200, "{\"state\":\"" + state + "\",\"txHash\":\"0xabc\"}");
         });
         GATEWAY.start();
+        try {
+            DATA_API = HttpServer.create(new InetSocketAddress("127.0.0.1", 0), 0);
+        } catch (IOException ex) {
+            throw new UncheckedIOException(ex);
+        }
+        DATA_API.createContext("/v1/", exchange -> {
+            DATA_API_PATHS.add(exchange.getRequestURI().toString());
+            if (exchange.getRequestURI().getQuery() != null && exchange.getRequestURI().getQuery().contains("pageToken=broken")) {
+                respond(exchange, 503, "{}");
+                return;
+            }
+            respond(exchange, 200, dataApiBody);
+        });
+        DATA_API.start();
     }
 
     private static void respond(HttpExchange exchange, int status, String body) throws IOException {
@@ -158,6 +179,7 @@ class AvalancheEscrowEngineIntegrationTest extends AbstractMySqlIntegrationTest 
         registry.add("rise.avalanche.relay-initial-delay", () -> "PT1H");
         registry.add("rise.avalanche.anchor-initial-delay", () -> "PT1H");
         registry.add("rise.avalanche.anchor-lag", () -> "PT0S");
+        registry.add("rise.avalanche.data-api-url", () -> "http://127.0.0.1:" + DATA_API.getAddress().getPort() + "/v1");
     }
 
     @Autowired
@@ -168,6 +190,8 @@ class AvalancheEscrowEngineIntegrationTest extends AbstractMySqlIntegrationTest 
     com.riseai.service.TransparencyService transparencyService;
     @Autowired
     EscrowLedgerRepository ledgerRepository;
+    @Autowired
+    com.riseai.service.ChainActivityService chainActivityService;
 
     AuthUser creator;
     AuthUser admin;
@@ -544,6 +568,44 @@ class AvalancheEscrowEngineIntegrationTest extends AbstractMySqlIntegrationTest 
         assertThat(transparencyService.reserves().available()).isFalse();
     }
 
+    private static String indexed(String hash, String from, String selector, boolean success, String transfers) {
+        return "{\"nativeTransaction\":{\"chainId\":\"43113\",\"blockNumber\":\"60816125\",\"txHash\":\"" + hash + "\",\"txStatus\":\""
+                + (success ? "1" : "0") + "\",\"blockTimestamp\":1794284747,\"from\":{\"address\":\"" + from + "\"},\"to\":{\"address\":\"0xE5\"},"
+                + "\"method\":{\"callType\":\"CONTRACT_CALL\",\"methodHash\":\"" + selector + "\"},\"value\":\"0\"},\"erc20Transfers\":[" + transfers + "]}";
+    }
+
+    @Test
+    void theDataApiActivityIsCheckedAgainstThePlatformsRecords() {
+        funded(3_000_000);
+        drain();
+        String toBeneficiary = "{\"from\":{\"address\":\"0xE5\"},\"to\":{\"address\":\"" + BENEFICIARY.toUpperCase().replace("0X", "0x")
+                + "\"},\"value\":\"1000000000\",\"erc20Token\":{\"symbol\":\"rVND\",\"decimals\":2}}";
+        dataApiBody = "{\"transactions\":["
+                + indexed("0xABC", OPERATOR, "0x7c466f55", true, "") + ","
+                + indexed("0x" + "11".repeat(32), GUARDIAN, "0x069a31ba", true, "") + ","
+                + indexed("0x" + "22".repeat(32), OPERATOR, "0x2197d12c", false, "") + ","
+                + indexed("0x" + "33".repeat(32), APPROVER, "0x2197d12c", true, toBeneficiary)
+                + "],\"nextPageToken\":\"next-1\"}";
+
+        com.riseai.dto.response.ChainActivityResponse activity = chainActivityService.activity(null);
+        assertThat(activity.available()).isTrue();
+        assertThat(activity.source()).isEqualTo("AVALANCHE_DATA_API");
+        assertThat(activity.escrowContract()).isEqualTo("0xe5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5");
+        assertThat(activity.nextPageToken()).isEqualTo("next-1");
+        assertThat(activity.items()).extracting(com.riseai.dto.response.ChainActivityResponse.Item::check)
+                .containsExactly("RECORDED", "INDEPENDENT", "REVERTED", "UNRECORDED");
+        assertThat(activity.items()).extracting(com.riseai.dto.response.ChainActivityResponse.Item::method)
+                .containsExactly("recordContribution", "placeHold", "executeRelease", "executeRelease");
+        assertThat(activity.items()).extracting(com.riseai.dto.response.ChainActivityResponse.Item::signer)
+                .containsExactly("PLATFORM", "GUARDIAN", "PLATFORM", "PLATFORM");
+        assertThat(activity.unrecordedCount()).isEqualTo(1);
+        assertThat(activity.items().get(3).rvndToBeneficiary()).isEqualByComparingTo("10000000");
+        assertThat(activity.items().get(0).explorerUrl()).isEqualTo("https://testnet.snowtrace.io/tx/0xabc");
+        assertThat(DATA_API_PATHS).anySatisfy(path -> assertThat(path).startsWith("/v1/chains/43113/addresses/0xe5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5/transactions?pageSize=25"));
+
+        assertThat(chainActivityService.activity("broken").available()).as("a Data API outage is reported, never guessed").isFalse();
+    }
+
     @Test
     void theChainConfigNamesTheNetworkContractsAndExplorer() {
         com.riseai.dto.response.ChainConfigResponse config = transparencyService.chainConfig();
@@ -551,11 +613,11 @@ class AvalancheEscrowEngineIntegrationTest extends AbstractMySqlIntegrationTest 
         assertThat(config.available()).isTrue();
         assertThat(config.network()).isEqualTo("AVALANCHE_FUJI");
         assertThat(config.chainId()).isEqualTo(43113L);
-        assertThat(config.escrowContract()).isEqualTo("0xe5");
+        assertThat(config.escrowContract()).isEqualTo("0xe5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5e5");
         assertThat(config.anchorContract()).isEqualTo("0xa1");
         assertThat(config.beneficiaryAddress()).isEqualTo(BENEFICIARY);
         assertThat(config.explorerAddressUrl()).isEqualTo("https://testnet.snowtrace.io/address/");
-        assertThat(config.guardianAddress()).isEqualTo("0x6a");
+        assertThat(config.guardianAddress()).isEqualTo(GUARDIAN);
         assertThat(config.guardianHoldMaxSeconds()).isEqualTo(14L * 24 * 3600);
     }
 

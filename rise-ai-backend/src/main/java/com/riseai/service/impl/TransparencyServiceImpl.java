@@ -25,7 +25,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -37,7 +36,6 @@ import java.util.UUID;
 /** Recomputes each anchored root from the database and compares it with the chain, and shows each campaign's mirror. Works without any login. */
 @Service
 public class TransparencyServiceImpl implements TransparencyService {
-    private static final Duration CONFIG_CACHE = Duration.ofMinutes(1);
     private static final Set<String> RELEASE_FLOW = Set.of(ChainActions.RESERVE, ChainActions.CANCEL_RESERVATION, ChainActions.QUEUE_RELEASE,
             ChainActions.EXECUTE_RELEASE, ChainActions.RECORD_PAYOUT);
     private static final Set<String> HOLDABLE = Set.of("QUEUING", "IN_OBJECTION_WINDOW", "RESERVED_ON_CHAIN");
@@ -49,14 +47,11 @@ public class TransparencyServiceImpl implements TransparencyService {
     private final DisbursementRepository disbursements;
     private final CampaignService campaignService;
     private final AvalancheEscrowProperties properties;
-    private volatile CachedDeployment cachedDeployment;
-
-    private record CachedDeployment(DeploymentInfo info, Instant fetchedAt) {
-    }
+    private final GatewayDeploymentCache deployments;
 
     public TransparencyServiceImpl(ObjectProvider<AvalancheGatewayClient> gateway, AnchorRecords records, ChainAnchorRepository anchors,
                                    ChainCommandRepository commands, DisbursementRepository disbursements, CampaignService campaignService,
-                                   AvalancheEscrowProperties properties) {
+                                   AvalancheEscrowProperties properties, GatewayDeploymentCache deployments) {
         this.gateway = gateway.getIfAvailable();
         this.records = records;
         this.anchors = anchors;
@@ -64,6 +59,7 @@ public class TransparencyServiceImpl implements TransparencyService {
         this.disbursements = disbursements;
         this.campaignService = campaignService;
         this.properties = properties;
+        this.deployments = deployments;
     }
 
     @Transactional(readOnly = true)
@@ -103,7 +99,7 @@ public class TransparencyServiceImpl implements TransparencyService {
             return ChainConfigResponse.offChain();
         }
         String addressUrl = properties.explorerTxUrl().replaceFirst("/tx/?$", "/address/");
-        DeploymentInfo info = deployment();
+        DeploymentInfo info = deployments.get();
         if (info == null) {
             return new ChainConfigResponse(true, false, null, null, null, null, null, null, null, null, properties.beneficiaryAddress(),
                     properties.explorerTxUrl(), addressUrl, null, null);
@@ -111,20 +107,6 @@ public class TransparencyServiceImpl implements TransparencyService {
         return new ChainConfigResponse(true, true, info.environment(), info.chainId(), info.escrow(), info.token(), info.tokenKind(), info.anchor(),
                 info.contractVersion(), info.paused(), properties.beneficiaryAddress(), properties.explorerTxUrl(), addressUrl, info.guardian(),
                 info.guardianHoldMaxSeconds());
-    }
-
-    private DeploymentInfo deployment() {
-        CachedDeployment cached = cachedDeployment;
-        if (cached != null && cached.fetchedAt().plus(CONFIG_CACHE).isAfter(Instant.now())) {
-            return cached.info();
-        }
-        try {
-            DeploymentInfo info = gateway.deployment();
-            cachedDeployment = new CachedDeployment(info, Instant.now());
-            return info;
-        } catch (RuntimeException ex) {
-            return null;
-        }
     }
 
     @Transactional(readOnly = true)

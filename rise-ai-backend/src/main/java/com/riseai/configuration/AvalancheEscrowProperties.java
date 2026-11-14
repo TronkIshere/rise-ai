@@ -5,11 +5,15 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 import java.net.URI;
 import java.time.Duration;
 
-/** Used only with rise.escrow.engine=avalanche. The default engine is simulated and never contacts a chain gateway. */
+/**
+ * Used only with rise.escrow.engine=avalanche. The default engine is simulated and never contacts a chain gateway.
+ * dataApiUrl is the Avalanche Data API, an indexer independent of the platform, read for the public activity check; dataApiKey is
+ * optional (without one the Data API applies its anonymous rate limit).
+ */
 @ConfigurationProperties(prefix = "rise.avalanche")
 public record AvalancheEscrowProperties(URI gatewayUrl, String internalApiKey, String beneficiaryAddress, Duration releaseDelay,
                                         Duration connectTimeout, Duration readTimeout, Duration retryInterval, Integer batchSize,
-                                        Duration anchorLag, String explorerTxUrl) {
+                                        Duration anchorLag, String explorerTxUrl, URI dataApiUrl, String dataApiKey) {
     public AvalancheEscrowProperties {
         anchorLag = anchorLag == null ? Duration.ofMinutes(1) : anchorLag;
         explorerTxUrl = explorerTxUrl == null || explorerTxUrl.isBlank() ? "https://testnet.snowtrace.io/tx/" : explorerTxUrl;
@@ -19,5 +23,6 @@ public record AvalancheEscrowProperties(URI gatewayUrl, String internalApiKey, S
         readTimeout = readTimeout == null ? Duration.ofSeconds(30) : readTimeout;
         retryInterval = retryInterval == null ? Duration.ofSeconds(15) : retryInterval;
         batchSize = batchSize == null || batchSize < 1 ? 200 : batchSize;
+        dataApiUrl = dataApiUrl == null ? URI.create("https://data-api.avax.network/v1") : dataApiUrl;
     }
 }

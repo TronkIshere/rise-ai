@@ -579,6 +579,36 @@
         },
         "type" : "object"
       },
+      "ChainActivityResponse" : {
+        "properties" : {
+          "available" : {
+            "type" : "boolean"
+          },
+          "escrowContract" : {
+            "type" : "string"
+          },
+          "items" : {
+            "items" : {
+              "$ref" : "#/components/schemas/Item"
+            },
+            "type" : "array"
+          },
+          "nextPageToken" : {
+            "type" : "string"
+          },
+          "onChain" : {
+            "type" : "boolean"
+          },
+          "source" : {
+            "type" : "string"
+          },
+          "unrecordedCount" : {
+            "format" : "int64",
+            "type" : "integer"
+          }
+        },
+        "type" : "object"
+      },
       "ChainConfigResponse" : {
         "properties" : {
           "anchorContract" : {
@@ -1283,6 +1313,43 @@
           },
           "totalReserved" : {
             "type" : "number"
+          }
+        },
+        "type" : "object"
+      },
+      "Item" : {
+        "properties" : {
+          "blockNumber" : {
+            "format" : "int64",
+            "type" : "integer"
+          },
+          "check" : {
+            "type" : "string"
+          },
+          "explorerUrl" : {
+            "type" : "string"
+          },
+          "from" : {
+            "type" : "string"
+          },
+          "method" : {
+            "type" : "string"
+          },
+          "rvndToBeneficiary" : {
+            "type" : "number"
+          },
+          "signer" : {
+            "type" : "string"
+          },
+          "success" : {
+            "type" : "boolean"
+          },
+          "timestamp" : {
+            "format" : "date-time",
+            "type" : "string"
+          },
+          "txHash" : {
+            "type" : "string"
           }
         },
         "type" : "object"
@@ -2567,6 +2634,21 @@
           },
           "data" : {
             "$ref" : "#/components/schemas/CampaignStatistics"
+          },
+          "message" : {
+            "type" : "string"
+          }
+        },
+        "type" : "object"
+      },
+      "ResponseAPIChainActivityResponse" : {
+        "properties" : {
+          "code" : {
+            "format" : "int32",
+            "type" : "integer"
+          },
+          "data" : {
+            "$ref" : "#/components/schemas/ChainActivityResponse"
           },
           "message" : {
             "type" : "string"
@@ -7685,6 +7767,33 @@
           }
         },
         "tags" : [ "Refunds (simulated)" ]
+      }
+    },
+    "/api/v1/transparency/activity" : {
+      "get" : {
+        "operationId" : "activity",
+        "parameters" : [ {
+          "in" : "query",
+          "name" : "pageToken",
+          "required" : false,
+          "schema" : {
+            "type" : "string"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "content" : {
+              "*/*" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ResponseAPIChainActivityResponse"
+                }
+              }
+            },
+            "description" : "OK"
+          }
+        },
+        "summary" : "The escrow's transactions as indexed by the Avalanche Data API, checked against the platform's own records",
+        "tags" : [ "Transparency (on-chain anchors)" ]
       }
     },
     "/api/v1/transparency/anchors" : {
