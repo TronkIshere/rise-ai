@@ -126,6 +126,24 @@ Verify a contract again (no key needed):
       --verifier-url https://api.routescan.io/v2/network/testnet/evm/43113/etherscan --etherscan-api-key verifyContract \
       --constructor-args $(cast abi-encode "constructor(address,address,address,uint64,address)" <admin> <token> <treasury> 60 <guardian>)
 
+### Fuji guardian run, contract version 2 (2026-11-14)
+
+A 12,000,000 VND release of a demo campaign was queued with a 10-minute objection window. The guardian, the beneficiary and the platform each acted from their own wallet; the guardian and the beneficiary used MetaMask on the verified contract's "Write Contract" tab.
+
+| Time (UTC) | Who | What | Transaction |
+|---|---|---|---|
+| 09:01:21 | Platform (approver) | release queued | [0x3368…927a](https://testnet.snowtrace.io/tx/0x336856f6c868cd2465bbac40c62b24ae724d8942d8b4bfeb62daf683d706927a) |
+| 09:08:47 | Guardian | `placeHold` on the milestone | [0x3d7a…6deb](https://testnet.snowtrace.io/tx/0x3d7af22aac6d0234df7c4806a50261ebafb2d50529c20ab64bc100860236fdeb) |
+| 09:08:51 | Guardian | the same hold again: refused with `AlreadyRecorded()` | [0xd966…40d3](https://testnet.snowtrace.io/tx/0xd966972e790a73ef4ad28d3a348d6ef61033a44e540aa7fe794326eb9c6e40d3) |
+| 09:11–09:15 | Platform (relayer) | `executeRelease` after the window, repeatedly refused with `MilestoneHeld()`; the backend showed HELD_BY_GUARDIAN | for example [0x15aa…a303](https://testnet.snowtrace.io/tx/0x15aac4db30fb266703d52efaaa36aff3a484209a675764c613a8e7214e00a303) |
+| 09:15:51 | Guardian | `liftHold` | [0xd4b9…c0f0](https://testnet.snowtrace.io/tx/0xd4b95716d2f5e40c421f1447127b3676999e5757f606131359d507c6e842c0f0) |
+| 09:15:58 | Platform (relayer) | release executed; the request became RELEASED | [0x69e5…5da2](https://testnet.snowtrace.io/tx/0x69e54ef0269b430a55661667abc531fe80e1be2eebc63cc30bfd075c19f75da2) |
+| 09:16:10 | Platform (operator) | payout recorded with a simulated bank reference | [0x7692…14a0](https://testnet.snowtrace.io/tx/0x76929a8219e30d3446b57594eb7537faa897f10a5c48ed5bd8c88ad5732d14a0) |
+| 09:18:36 | Guardian | `attestReserves`, period 202611: bank 135,000,000 VND against 135,000,000 held, gap 0 | [0x42c9…3e68](https://testnet.snowtrace.io/tx/0x42c94e1b11c52acc24436b048b6546fa073eb660601148c4085557acb1a03e68) |
+| 09:29:40 | Beneficiary | `confirmReceipt` from its own wallet | [0xbe08…78d8](https://testnet.snowtrace.io/tx/0xbe08d1fa3cdc3747e1c0eed2fff9f2531496eda512b13efc3817e711197378d8) |
+
+`GET /api/v1/transparency/activity` listed these from the Avalanche Data API with the expected checks: the guardian's and the beneficiary's transactions as INDEPENDENT, the refused calls as REVERTED, every successful platform transaction as RECORDED, and zero UNRECORDED. The 32 commands of the demo seed (six campaigns) were relayed to the same deployment before this run, all confirmed; the seeded library release stays blocked by its open dispute.
+
 ### Fuji end-to-end run (2026-11-10)
 
 These runs used contract version 1, before the guardian, reserve attestation and payout receipts. Deployment: escrow `0xBfD3BcEc6A23b5107c7AEb13F601c4B39719652A`, rVND `0x1e5F693e787AB7556846fE6A41545F5D6CBd2980`, anchor `0xc89c4de6b0fd19db8ff236A55eeD84e9ea17B0b5`.
