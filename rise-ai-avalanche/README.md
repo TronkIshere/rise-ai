@@ -108,6 +108,24 @@ The guardian and the beneficiary act from their own wallets, for example MetaMas
 
 3. Start the backend with `RISE_ESCROW_ENGINE=avalanche`, `RISE_AVALANCHE_INTERNAL_API_KEY` (same key), `RISE_AVALANCHE_BENEFICIARY_ADDRESS` and `RISE_AVALANCHE_RELEASE_DELAY` (for example `PT2M` for a demo, `PT24H` otherwise).
 
+### Fuji deployment, contract version 2 (2026-11-14)
+
+Deployed from the deployer keystore with `GUARDIAN=0x02d577F92f332Ce258F42E561e1BBF28196b6240`; all three contracts are source-verified on Snowtrace (Routescan).
+
+| Contract | Address |
+|---|---|
+| CampaignEscrow | [`0x183600b4392E2344df90e8d24b9e925832E32031`](https://testnet.snowtrace.io/address/0x183600b4392E2344df90e8d24b9e925832E32031) |
+| RiseVND (rVND) | [`0x4Fd2ba7be8DfE084b5b8A78f67f45F781e40e80A`](https://testnet.snowtrace.io/address/0x4Fd2ba7be8DfE084b5b8A78f67f45F781e40e80A) |
+| RiseAnchor | [`0x57C043B4830EfFF02A752476d77Ce45A21c14f4f`](https://testnet.snowtrace.io/address/0x57C043B4830EfFF02A752476d77Ce45A21c14f4f) |
+
+Read back from the chain after deployment: the guardian holds `GUARDIAN_ROLE` and is that role's own admin; the platform admin does not hold it; operator and approver hold their roles; `GUARDIAN_HOLD_MAX` is 1,209,600 seconds (14 days); `minReleaseDelay` is 60; the escrow pins the deployed rVND.
+
+Verify a contract again (no key needed):
+
+    forge verify-contract <address> src/CampaignEscrow.sol:CampaignEscrow --chain 43113 \
+      --verifier-url https://api.routescan.io/v2/network/testnet/evm/43113/etherscan --etherscan-api-key verifyContract \
+      --constructor-args $(cast abi-encode "constructor(address,address,address,uint64,address)" <admin> <token> <treasury> 60 <guardian>)
+
 ### Fuji end-to-end run (2026-11-10)
 
 These runs used contract version 1, before the guardian, reserve attestation and payout receipts. Deployment: escrow `0xBfD3BcEc6A23b5107c7AEb13F601c4B39719652A`, rVND `0x1e5F693e787AB7556846fE6A41545F5D6CBd2980`, anchor `0xc89c4de6b0fd19db8ff236A55eeD84e9ea17B0b5`.
