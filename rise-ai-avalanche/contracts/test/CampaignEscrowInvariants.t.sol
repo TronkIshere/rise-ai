@@ -15,19 +15,24 @@ contract CampaignEscrowHandler is Test {
     address public operator;
     address public approver;
     address public beneficiary;
+    address public guardian;
 
     uint256 internal nonce;
     bytes32[] public requests;
     bytes32[] public refunds;
     bytes32[] public disputes;
     bytes32[] public donations;
+    bytes32[] public holds;
     uint256 public refundReservationsMade;
+    /// Releases that executed while their milestone had an open guardian hold. Must stay zero.
+    uint256 public releasesDuringHold;
 
-    constructor(CampaignEscrow e, address operator_, address approver_, address beneficiary_) {
+    constructor(CampaignEscrow e, address operator_, address approver_, address beneficiary_, address guardian_) {
         escrow = e;
         operator = operator_;
         approver = approver_;
         beneficiary = beneficiary_;
+        guardian = guardian_;
     }
 
     function campaignId(uint256 i) public pure returns (bytes32) {
@@ -73,7 +78,24 @@ contract CampaignEscrowHandler is Test {
 
     function execute(uint256 c, uint256 r) external {
         if (requests.length == 0) return;
-        escrow.executeRelease(campaignId(c), requests[r % requests.length]);
+        bytes32 request = requests[r % requests.length];
+        bytes32 milestone = escrow.getReservation(campaignId(c), request).milestoneId;
+        bool held = milestone != bytes32(0) && escrow.openHoldCount(campaignId(c), milestone) != 0;
+        escrow.executeRelease(campaignId(c), request);
+        if (held) releasesDuringHold++;
+    }
+
+    function placeHold(uint256 c, uint256 m) external {
+        bytes32 id = _next();
+        holds.push(id);
+        vm.prank(guardian);
+        escrow.placeHold(campaignId(c), milestoneId(m), id, keccak256("reason"));
+    }
+
+    function liftHold(uint256 c, uint256 h, bool asOperator) external {
+        if (holds.length == 0) return;
+        vm.prank(asOperator ? operator : guardian);
+        escrow.liftHold(campaignId(c), holds[h % holds.length]);
     }
 
     function dispute(uint256 c, uint256 m) external {
@@ -145,17 +167,18 @@ contract CampaignEscrowInvariantTest is StdInvariant, Test {
     address internal operator = makeAddr("operator");
     address internal approver = makeAddr("approver");
     address internal beneficiary = makeAddr("beneficiary");
+    address internal guardian = makeAddr("guardian");
 
     function setUp() public {
         token = new RiseVND(address(this));
-        escrow = new CampaignEscrow(address(this), token, treasury, 1 hours);
+        escrow = new CampaignEscrow(address(this), token, treasury, 1 hours, guardian);
         escrow.grantRole(escrow.OPERATOR_ROLE(), operator);
         escrow.grantRole(escrow.APPROVER_ROLE(), approver);
         token.mint(treasury, SUPPLY);
         vm.prank(treasury);
         token.approve(address(escrow), type(uint256).max);
 
-        handler = new CampaignEscrowHandler(escrow, operator, approver, beneficiary);
+        handler = new CampaignEscrowHandler(escrow, operator, approver, beneficiary, guardian);
 
         bytes32[] memory ids = new bytes32[](COUNT);
         uint256[] memory planned = new uint256[](COUNT);
@@ -206,6 +229,17 @@ contract CampaignEscrowInvariantTest is StdInvariant, Test {
             disbursed += escrow.getCampaign(handler.campaignId(c)).disbursed;
         }
         assertEq(token.balanceOf(beneficiary), disbursed);
+    }
+
+    function invariant_noReleaseExecutesWhileAGuardianHoldIsOpen() public view {
+        assertEq(handler.releasesDuringHold(), 0);
+    }
+
+    function invariant_theGuardianNeverHoldsFundsOrAPlatformRole() public view {
+        assertEq(token.balanceOf(guardian), 0);
+        assertFalse(escrow.hasRole(escrow.OPERATOR_ROLE(), guardian));
+        assertFalse(escrow.hasRole(escrow.APPROVER_ROLE(), guardian));
+        assertTrue(escrow.hasRole(escrow.GUARDIAN_ROLE(), guardian));
     }
 
     function invariant_milestoneNeverExceedsPlanned() public view {
