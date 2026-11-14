@@ -6,6 +6,31 @@ Avalanche C-Chain gateway and Solidity escrow for Rise AI backend Phase 3. Origi
 
 **Simulation only:** `LOCAL_SIMULATION` (Anvil, chain 31337) and `AVALANCHE_FUJI` (chain 43113). Startup refuses anything else. Mainnet is out of scope.
 
+## Trust model: what the chain guarantees, and what it does not
+
+**rVND is a receipt, not money.** Donations are real-world payments into an escrow bank account (simulated in this project). Each confirmed donation mints nothing new: it moves rVND from the treasury into `CampaignEscrow`, one rVND base unit per 0.01 VND. The chain is the **ledger of record with rules that enforce themselves**, not a wallet.
+
+What the contract enforces, even against the platform's own keys:
+
+| Rule | Where |
+|---|---|
+| A release needs accepted evidence on the milestone, waits out a public objection window, and stops while a dispute or a guardian hold is open | `queueRelease`, `executeRelease` |
+| Value leaves only to the campaign's fixed beneficiary (release) or the treasury (refund) | `executeRelease`, refunds |
+| A milestone never releases more than its planned budget | `reserve` |
+| An **independent guardian** can hold a milestone's releases directly on-chain. The platform cannot lift the hold early (only the guardian can, or anyone after 14 days) and cannot revoke or appoint the guardian | `placeHold`, `liftHold`, `GUARDIAN_ROLE` |
+| The guardian attests the escrow bank balance; a balance below `totalHeld` is a public reserve gap | `attestReserves` |
+| After a release, the platform records the bank transfer reference, and only the beneficiary's own wallet can confirm receiving it | `recordPayout`, `confirmReceipt` |
+| The ledger, audit log and monitoring history are anchored as chained Merkle roots; editing, deleting or back-dating a row shows as MISMATCH | `RiseAnchor`, `GET /api/v1/transparency/anchors` |
+
+What the chain does **not** guarantee:
+
+- **That evidence is true.** A hash proves a file was not changed after anchoring, not that its content is real.
+- **That the bank balance is real** beyond the guardian's word. Proof of reserves is as good as the guardian's independence and the bank statement it hashes.
+- **That a donor's dispute reaches the chain.** Donors hold no wallet, so the backend relays disputes. The guardian is the counterweight: it can hold a milestone without the platform.
+- **Key custody.** Fuji uses operator-held keystores (ADR-009). Production needs KMS/HSM and a multisig approver (ADR-005), plus an external contract review (`docs/decisions-pending.md`, P6).
+
+Independent checks anyone can run without trusting the platform: read the verified contract on Snowtrace, call its views (`getCampaign`, `openHoldCount`, `getReserveAttestation`, `getPayout`), and compare `GET /api/v1/transparency/activity`, which lists the escrow's transactions as the **Avalanche Data API** indexed them and flags any successful platform-signed transaction the backend never recorded.
+
 ## Layout
 
 | Path | Content |
@@ -60,12 +85,15 @@ Keys and passwords stay on the owner's machine. Nothing here is ever committed.
 | Operator (backend writes; also relays releases) | `0x5F90Fbe1b75C99000d504e2Cb44D7dacE4ae8444` |
 | Approver (queues releases, records refunds) | `0xdFae3BB55D4aEF68b645964806Ab1dCc6366553F` |
 | Beneficiary (receives simulated rVND releases; no key needed by the system) | `0x017b6F8Fc223f02cC4CCc4433cdb26C408454cD0` |
+| Guardian (independent: holds releases, attests reserves; never a platform key) | `0x02d577F92f332Ce258F42E561e1BBF28196b6240` |
+
+The guardian and the beneficiary act from their own wallets, for example MetaMask on the verified contract's "Write Contract" tab. The platform never holds their keys.
 
 1. Deploy with the deployer keystore. `MIN_RELEASE_DELAY` is the contract floor; the backend chooses the actual window, which must not be shorter.
 
        cd contracts && bash scripts/install-deps.sh
        DEPLOY_ENVIRONMENT=AVALANCHE_FUJI OPERATOR=0x5F90Fbe1b75C99000d504e2Cb44D7dacE4ae8444 \
-         APPROVER=0xdFae3BB55D4aEF68b645964806Ab1dCc6366553F MIN_RELEASE_DELAY=60 \
+         APPROVER=0xdFae3BB55D4aEF68b645964806Ab1dCc6366553F GUARDIAN=0x02d577F92f332Ce258F42E561e1BBF28196b6240 MIN_RELEASE_DELAY=60 \
          forge script script/Deploy.s.sol --rpc-url https://api.avax-test.network/ext/bc/C/rpc \
          --account <deployer keystore name> --sender 0xB62CA2602De72DC1edf5f6A7B614ba6376E14889 --broadcast
 
@@ -82,7 +110,7 @@ Keys and passwords stay on the owner's machine. Nothing here is ever committed.
 
 ### Fuji end-to-end run (2026-11-10)
 
-Deployment: escrow `0xBfD3BcEc6A23b5107c7AEb13F601c4B39719652A`, rVND `0x1e5F693e787AB7556846fE6A41545F5D6CBd2980`, anchor `0xc89c4de6b0fd19db8ff236A55eeD84e9ea17B0b5`.
+These runs used contract version 1, before the guardian, reserve attestation and payout receipts. Deployment: escrow `0xBfD3BcEc6A23b5107c7AEb13F601c4B39719652A`, rVND `0x1e5F693e787AB7556846fE6A41545F5D6CBd2980`, anchor `0xc89c4de6b0fd19db8ff236A55eeD84e9ea17B0b5`.
 
 A campaign of 30,000,000 VND in two milestones ran through the real backend (`RISE_ESCROW_ENGINE=avalanche`) and the gateway in keystore mode, with a 2-minute objection window. Seven transactions, all with receipt status success:
 
