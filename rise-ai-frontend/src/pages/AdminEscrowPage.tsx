@@ -1,7 +1,7 @@
 import { AdminMasthead, AdminState } from '@/components/ui/AdminOperations';
 import { useState, type FormEvent } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, BookOpenCheck, Landmark, ShieldAlert } from 'lucide-react';
+import { ArrowLeft, BookOpenCheck, Landmark, RefreshCcw, ShieldAlert } from 'lucide-react';
 import { Link } from 'react-router';
 import {
   campaignEscrow, campaignReconciliation, getReconciliationRun, globalReconciliation, ledgerEntries,
@@ -107,6 +107,7 @@ export function AdminEscrowPage(){
     </div>
     <Container className="deep-inner py-10 sm:py-14">
     <Link to="/admin" className="inline-flex min-h-11 items-center gap-2 text-sm font-bold text-brand"><ArrowLeft size={17} aria-hidden="true"/> Trung tâm quản trị</Link>
+    <Button type="button" variant="outline" className="admin-escrow-refresh" onClick={invalidate}><RefreshCcw size={17} aria-hidden="true"/> Làm mới</Button>
     <AdminMasthead title="Escrow & đối soát" eyebrow="Sổ cái mô phỏng" art="wallet"><p>Đối chiếu số dư, kiểm tra sai lệch và truy vết bút toán. Mọi khoản tiền trên trang thuộc sổ mô phỏng.</p></AdminMasthead>
     <section className="admin-ledger-section" aria-labelledby="all-reconciliation">
       <h2 id="all-reconciliation" className="flex items-center gap-2 text-2xl font-extrabold text-brand-ink"><BookOpenCheck className="text-brand" size={23} aria-hidden="true"/> Tính nhất quán của các tài khoản</h2>
