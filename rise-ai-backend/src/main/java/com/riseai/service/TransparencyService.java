@@ -2,6 +2,7 @@ package com.riseai.service;
 
 import com.riseai.dto.response.CampaignChainResponse;
 import com.riseai.dto.response.ChainConfigResponse;
+import com.riseai.dto.response.ReservesResponse;
 import com.riseai.dto.response.TransparencyReport;
 import com.riseai.security.AuthUser;
 
@@ -13,4 +14,6 @@ public interface TransparencyService {
     ChainConfigResponse chainConfig();
 
     CampaignChainResponse campaignChain(AuthUser actor, UUID campaignId);
+
+    ReservesResponse reserves();
 }

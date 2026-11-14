@@ -86,7 +86,7 @@ public class AvalancheGatewayClient {
     }
 
     public record DeploymentInfo(String environment, long chainId, String escrow, String token, String tokenKind, String anchor,
-                                 String contractVersion, boolean paused) {
+                                 String contractVersion, boolean paused, String guardian, Long guardianHoldMaxSeconds) {
     }
 
     /** The verified deployment the gateway runs against. Throws when the gateway cannot answer. */
@@ -94,7 +94,36 @@ public class AvalancheGatewayClient {
         JsonNode json = getJson(BASE + "/config");
         return new DeploymentInfo(json.path("environment").asText(null), json.path("chainId").asLong(0), json.path("escrow").asText(null),
                 json.path("token").asText(null), json.path("tokenKind").asText(null), json.path("anchor").asText(null),
-                json.path("contractVersion").asText(null), json.path("paused").asBoolean(false));
+                json.path("contractVersion").asText(null), json.path("paused").asBoolean(false), json.path("guardianAddress").asText(null),
+                json.hasNonNull("guardianHoldMaxSeconds") ? json.get("guardianHoldMaxSeconds").asLong() : null);
+    }
+
+    /** Open guardian holds on a milestone. Throws when the gateway cannot answer. */
+    public int openHolds(String campaignBytes32, String milestoneBytes32) {
+        return getJson(BASE + "/campaigns/" + campaignBytes32 + "/milestones/" + milestoneBytes32).path("openHolds").asInt(0);
+    }
+
+    /** Times are epoch seconds; null until the payout is recorded or the beneficiary confirms it. */
+    public record Payout(boolean recorded, String bankReferenceHash, Long recordedAt, Long confirmedAt) {
+    }
+
+    public Payout payout(String campaignBytes32, String requestBytes32) {
+        JsonNode json = getJson(BASE + "/campaigns/" + campaignBytes32 + "/payouts/" + requestBytes32);
+        return new Payout(json.path("recorded").asBoolean(false), json.path("bankReferenceHash").asText(null),
+                json.hasNonNull("recordedAt") ? json.get("recordedAt").asLong() : null, json.hasNonNull("confirmedAt") ? json.get("confirmedAt").asLong() : null);
+    }
+
+    /** Amounts are rVND base units (two decimals). */
+    public record Reserves(String escrow, String currentHeld, boolean attested, Long period, Long attestedAt, String attester, String bankBalance,
+                           String heldAtAttestation, String gap, String statementHash) {
+    }
+
+    public Reserves reserves() {
+        JsonNode j = getJson(BASE + "/reserves");
+        return new Reserves(j.path("escrow").asText(null), j.path("currentHeld").asText(null), j.path("attested").asBoolean(false),
+                j.hasNonNull("period") ? j.get("period").asLong() : null, j.hasNonNull("attestedAt") ? j.get("attestedAt").asLong() : null,
+                j.path("attester").asText(null), j.path("bankBalance").asText(null), j.path("heldAtAttestation").asText(null), j.path("gap").asText(null),
+                j.path("statementHash").asText(null));
     }
 
     /** When a queued release may execute on-chain, in epoch seconds, or null when the chain has no queued release for it. Throws when unreachable. */

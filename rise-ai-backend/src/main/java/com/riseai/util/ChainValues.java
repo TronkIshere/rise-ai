@@ -20,6 +20,14 @@ public final class ChainValues {
         return amount.movePointRight(2).toBigIntegerExact().toString();
     }
 
+    /**
+     * The bank reference recorded on-chain after a release. No real transfer exists in this simulation, so the reference is a hash of a
+     * label that says so; a bank integration would put the hash of the real transfer reference here instead.
+     */
+    public static String simulatedPayoutReference(UUID disbursementId) {
+        return sha256Hex("SIMULATED-PAYOUT|" + disbursementId);
+    }
+
     public static String sha256Hex(String value) {
         try {
             return "0x" + HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(value.getBytes(StandardCharsets.UTF_8)));

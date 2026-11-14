@@ -45,6 +45,9 @@ class AvalancheEscrowEngineIntegrationTest extends AbstractMySqlIntegrationTest 
     private static final Map<String, String> REVERT_ACTIONS = new ConcurrentHashMap<>();
     private static final Map<String, String> KEY_TO_ACTION = new ConcurrentHashMap<>();
     private static volatile boolean down;
+    private static volatile int openHolds;
+    private static volatile Long receiptConfirmedAt;
+    private static volatile boolean reservesAttested;
     private static final String ZERO = "0x" + "0".repeat(64);
     private static final Map<String, List<String[]>> ANCHORS = new ConcurrentHashMap<>();
     private static final List<JsonNode> ANCHOR_REQUESTS = new CopyOnWriteArrayList<>();
@@ -93,11 +96,27 @@ class AvalancheEscrowEngineIntegrationTest extends AbstractMySqlIntegrationTest 
             }
             if ("config".equals(path[4])) {
                 respond(exchange, 200, "{\"environment\":\"AVALANCHE_FUJI\",\"chainId\":43113,\"escrow\":\"0xe5\",\"token\":\"0x70\",\"tokenKind\":\"RISE_VND\","
-                        + "\"anchor\":\"0xa1\",\"contractVersion\":\"1\",\"paused\":false}");
+                        + "\"anchor\":\"0xa1\",\"contractVersion\":\"2\",\"paused\":false,\"guardianAddress\":\"0x6a\",\"guardianHoldMaxSeconds\":1209600}");
                 return;
             }
             if ("campaigns".equals(path[4]) && "GET".equals(exchange.getRequestMethod())) {
-                respond(exchange, 200, "{\"status\":\"QUEUED\",\"releaseAt\":1900000000}");
+                String kind = path.length > 6 ? path[6] : "";
+                if ("milestones".equals(kind)) {
+                    respond(exchange, 200, "{\"openHolds\":" + openHolds + "}");
+                } else if ("payouts".equals(kind)) {
+                    respond(exchange, 200, "{\"recorded\":true,\"bankReferenceHash\":\"0xbb\",\"recordedAt\":1700000000,\"confirmedAt\":"
+                            + receiptConfirmedAt + "}");
+                } else {
+                    respond(exchange, 200, "{\"status\":\"QUEUED\",\"releaseAt\":1900000000}");
+                }
+                return;
+            }
+            if ("reserves".equals(path[4])) {
+                respond(exchange, 200, reservesAttested
+                        ? "{\"escrow\":\"0xe5\",\"currentHeld\":\"500000000\",\"attested\":true,\"period\":3,\"attestedAt\":1700000000,"
+                        + "\"attester\":\"0x6a\",\"bankBalance\":\"490000000\",\"heldAtAttestation\":\"500000000\",\"gap\":\"10000000\","
+                        + "\"statementHash\":\"0x5a\"}"
+                        : "{\"escrow\":\"0xe5\",\"currentHeld\":\"500000000\",\"attested\":false}");
                 return;
             }
             if ("transactions".equals(path[4]) && REVERTED_KEYS.contains(path[5])) {
@@ -165,6 +184,9 @@ class AvalancheEscrowEngineIntegrationTest extends AbstractMySqlIntegrationTest 
         REVERT_ACTIONS.clear();
         KEY_TO_ACTION.clear();
         down = false;
+        openHolds = 0;
+        receiptConfirmedAt = null;
+        reservesAttested = false;
         creator = user(Role.CAMPAIGN_CREATOR);
         admin = user(Role.ADMIN);
         donor = user(Role.DONOR);
@@ -465,6 +487,64 @@ class AvalancheEscrowEngineIntegrationTest extends AbstractMySqlIntegrationTest 
     }
 
     @Test
+    void aGuardianHoldShowsInTheChainViewAndKeepsTheReleaseWaiting() {
+        ActiveCampaign campaign = funded(3_000_000);
+        UUID request = approved(campaign);
+        drain();
+        REVERT_ACTIONS.put("execute-release", "held");
+        openHolds = 1;
+        disbursementService.release(admin, request);
+        for (int i = 0; i < 4; i++) {
+            relay.relayOnce();
+        }
+        com.riseai.dto.response.CampaignChainResponse.Disbursement held = chainView(campaign, request);
+        assertThat(held.chainStatus()).isEqualTo("HELD_BY_GUARDIAN");
+        assertThat(held.openGuardianHolds()).isEqualTo(1);
+        assertThat(held.requestStatus()).as("a hold is chain-side; the backend request stays approved").isEqualTo(DisbursementStatus.APPROVED);
+        assertThat(statusOf(request)).isEqualTo(DisbursementStatus.APPROVED);
+    }
+
+    @Test
+    void afterAReleaseThePayoutIsRecordedAndTheBeneficiarysConfirmationShows() {
+        ActiveCampaign campaign = funded(3_000_000);
+        UUID request = approved(campaign);
+        drain();
+        disbursementService.release(admin, request);
+        drain();
+
+        assertThat(actions()).containsSubsequence("queue-release", "execute-release", "record-payout");
+        Sent payout = sent("record-payout");
+        assertThat(payout.body().path("requestId").asText()).isEqualTo(ChainValues.bytes32(request));
+        assertThat(payout.body().path("bankReferenceHash").asText()).isEqualTo(ChainValues.simulatedPayoutReference(request));
+        com.riseai.dto.response.CampaignChainResponse.Disbursement unconfirmed = chainView(campaign, request);
+        assertThat(unconfirmed.payoutTxHash()).isEqualTo("0xabc");
+        assertThat(unconfirmed.receiptConfirmedAt()).isNull();
+
+        receiptConfirmedAt = 1_700_000_500L;
+        assertThat(chainView(campaign, request).receiptConfirmedAt()).isEqualTo(java.time.Instant.ofEpochSecond(1_700_000_500L));
+    }
+
+    @Test
+    void reservesShowTheGuardiansAttestationInVnd() {
+        com.riseai.dto.response.ReservesResponse none = transparencyService.reserves();
+        assertThat(none.onChain()).isTrue();
+        assertThat(none.attested()).isFalse();
+        assertThat(none.currentHeld()).isEqualByComparingTo("5000000");
+
+        reservesAttested = true;
+        com.riseai.dto.response.ReservesResponse attested = transparencyService.reserves();
+        assertThat(attested.attested()).isTrue();
+        assertThat(attested.period()).isEqualTo(3L);
+        assertThat(attested.bankBalance()).isEqualByComparingTo("4900000");
+        assertThat(attested.heldAtAttestation()).isEqualByComparingTo("5000000");
+        assertThat(attested.gap()).isEqualByComparingTo("100000");
+        assertThat(attested.attestedAt()).isEqualTo(java.time.Instant.ofEpochSecond(1_700_000_000L));
+
+        down = true;
+        assertThat(transparencyService.reserves().available()).isFalse();
+    }
+
+    @Test
     void theChainConfigNamesTheNetworkContractsAndExplorer() {
         com.riseai.dto.response.ChainConfigResponse config = transparencyService.chainConfig();
         assertThat(config.onChain()).isTrue();
@@ -475,6 +555,8 @@ class AvalancheEscrowEngineIntegrationTest extends AbstractMySqlIntegrationTest 
         assertThat(config.anchorContract()).isEqualTo("0xa1");
         assertThat(config.beneficiaryAddress()).isEqualTo(BENEFICIARY);
         assertThat(config.explorerAddressUrl()).isEqualTo("https://testnet.snowtrace.io/address/");
+        assertThat(config.guardianAddress()).isEqualTo("0x6a");
+        assertThat(config.guardianHoldMaxSeconds()).isEqualTo(14L * 24 * 3600);
     }
 
     @Test

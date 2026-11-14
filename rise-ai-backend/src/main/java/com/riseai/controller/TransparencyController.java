@@ -2,6 +2,7 @@ package com.riseai.controller;
 
 import com.riseai.dto.response.CampaignChainResponse;
 import com.riseai.dto.response.ChainConfigResponse;
+import com.riseai.dto.response.ReservesResponse;
 import com.riseai.dto.response.ResponseAPI;
 import com.riseai.dto.response.TransparencyReport;
 import com.riseai.security.AuthUser;
@@ -34,6 +35,12 @@ public class TransparencyController {
     @Operation(summary = "The chain, contract addresses and explorer the escrow mirror uses (onChain=false with the simulated engine)")
     public ResponseAPI<ChainConfigResponse> chain() {
         return ResponseAPI.ok(transparencyService.chainConfig());
+    }
+
+    @GetMapping("/reserves")
+    @Operation(summary = "Proof of reserves: the independent guardian's latest bank-balance attestation next to what the escrow holds (VND, simulated)")
+    public ResponseAPI<ReservesResponse> reserves() {
+        return ResponseAPI.ok(transparencyService.reserves());
     }
 
     @GetMapping("/campaigns/{campaignId}")

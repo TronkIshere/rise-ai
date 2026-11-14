@@ -6,6 +6,7 @@ import com.riseai.client.AvalancheGatewayClient.LatestAnchor;
 import com.riseai.configuration.AvalancheEscrowProperties;
 import com.riseai.dto.response.CampaignChainResponse;
 import com.riseai.dto.response.ChainConfigResponse;
+import com.riseai.dto.response.ReservesResponse;
 import com.riseai.dto.response.TransparencyReport;
 import com.riseai.entity.ChainAnchor;
 import com.riseai.entity.ChainCommand;
@@ -23,6 +24,7 @@ import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -37,7 +39,8 @@ import java.util.UUID;
 public class TransparencyServiceImpl implements TransparencyService {
     private static final Duration CONFIG_CACHE = Duration.ofMinutes(1);
     private static final Set<String> RELEASE_FLOW = Set.of(ChainActions.RESERVE, ChainActions.CANCEL_RESERVATION, ChainActions.QUEUE_RELEASE,
-            ChainActions.EXECUTE_RELEASE);
+            ChainActions.EXECUTE_RELEASE, ChainActions.RECORD_PAYOUT);
+    private static final Set<String> HOLDABLE = Set.of("QUEUING", "IN_OBJECTION_WINDOW", "RESERVED_ON_CHAIN");
 
     private final AvalancheGatewayClient gateway;
     private final AnchorRecords records;
@@ -103,10 +106,11 @@ public class TransparencyServiceImpl implements TransparencyService {
         DeploymentInfo info = deployment();
         if (info == null) {
             return new ChainConfigResponse(true, false, null, null, null, null, null, null, null, null, properties.beneficiaryAddress(),
-                    properties.explorerTxUrl(), addressUrl);
+                    properties.explorerTxUrl(), addressUrl, null, null);
         }
         return new ChainConfigResponse(true, true, info.environment(), info.chainId(), info.escrow(), info.token(), info.tokenKind(), info.anchor(),
-                info.contractVersion(), info.paused(), properties.beneficiaryAddress(), properties.explorerTxUrl(), addressUrl);
+                info.contractVersion(), info.paused(), properties.beneficiaryAddress(), properties.explorerTxUrl(), addressUrl, info.guardian(),
+                info.guardianHoldMaxSeconds());
     }
 
     private DeploymentInfo deployment() {
@@ -148,13 +152,24 @@ public class TransparencyServiceImpl implements TransparencyService {
             }
         }
         List<CampaignChainResponse.Disbursement> result = new ArrayList<>();
+        Map<UUID, Integer> holdsByMilestone = new HashMap<>();
         for (DisbursementRequest request : disbursements.findByCampaignIdOrderByCreatedAtAsc(campaignId)) {
             Map<String, ChainCommand> flow = releaseFlow.getOrDefault(request.getId(), Map.of());
             String chainStatus = chainStatus(flow, request.getRequestStatus());
-            Instant releaseAt = "IN_OBJECTION_WINDOW".equals(chainStatus) || "BLOCKED_BY_DISPUTE".equals(chainStatus) ? releaseAt(campaignId, request.getId()) : null;
+            Integer holds = null;
+            if (HOLDABLE.contains(chainStatus)) {
+                holds = holdsByMilestone.computeIfAbsent(request.getMilestoneId(), milestone -> openHolds(campaignId, milestone));
+                if (holds != null && holds > 0 && !"RESERVED_ON_CHAIN".equals(chainStatus)) {
+                    chainStatus = "HELD_BY_GUARDIAN";
+                }
+            }
+            Instant releaseAt = Set.of("IN_OBJECTION_WINDOW", "BLOCKED_BY_DISPUTE", "HELD_BY_GUARDIAN").contains(chainStatus)
+                    ? releaseAt(campaignId, request.getId()) : null;
+            String payoutTx = confirmedHash(flow.get(ChainActions.RECORD_PAYOUT));
+            Instant receiptConfirmedAt = payoutTx == null ? null : receiptConfirmedAt(campaignId, request.getId());
             result.add(new CampaignChainResponse.Disbursement(request.getId(), request.getRequestCode(), request.getRequestStatus(), chainStatus, releaseAt,
                     confirmedHash(flow.get(ChainActions.RESERVE)), confirmedHash(flow.get(ChainActions.QUEUE_RELEASE)),
-                    confirmedHash(flow.get(ChainActions.EXECUTE_RELEASE))));
+                    confirmedHash(flow.get(ChainActions.EXECUTE_RELEASE)), holds, payoutTx, receiptConfirmedAt));
         }
         return new CampaignChainResponse(true, campaignId, ChainValues.bytes32(campaignId), openStatus, properties.explorerTxUrl(), result, transactions);
     }
@@ -198,6 +213,47 @@ public class TransparencyServiceImpl implements TransparencyService {
 
     private static String confirmedHash(ChainCommand command) {
         return is(command, ChainCommandStatus.CONFIRMED) ? command.getTxHash() : null;
+    }
+
+    @Override
+    public ReservesResponse reserves() {
+        if (gateway == null) {
+            return ReservesResponse.offChain();
+        }
+        AvalancheGatewayClient.Reserves r;
+        try {
+            r = gateway.reserves();
+        } catch (RuntimeException ex) {
+            return ReservesResponse.unavailable();
+        }
+        BigDecimal held = vnd(r.currentHeld());
+        if (!r.attested()) {
+            return new ReservesResponse(true, true, false, null, null, null, null, null, null, held, null);
+        }
+        return new ReservesResponse(true, true, true, r.period(), r.attestedAt() == null ? null : Instant.ofEpochSecond(r.attestedAt()), r.attester(),
+                vnd(r.bankBalance()), vnd(r.heldAtAttestation()), vnd(r.gap()), held, r.statementHash());
+    }
+
+    /** rVND has the ledger's two decimals, so base units are hundredths of a VND. */
+    private static BigDecimal vnd(String baseUnits) {
+        return baseUnits == null ? null : new BigDecimal(baseUnits).movePointLeft(2);
+    }
+
+    private Integer openHolds(UUID campaignId, UUID milestoneId) {
+        try {
+            return gateway.openHolds(ChainValues.bytes32(campaignId), ChainValues.bytes32(milestoneId));
+        } catch (RuntimeException ex) {
+            return null;
+        }
+    }
+
+    private Instant receiptConfirmedAt(UUID campaignId, UUID requestId) {
+        try {
+            Long confirmedAt = gateway.payout(ChainValues.bytes32(campaignId), ChainValues.bytes32(requestId)).confirmedAt();
+            return confirmedAt == null ? null : Instant.ofEpochSecond(confirmedAt);
+        } catch (RuntimeException ex) {
+            return null;
+        }
     }
 
     private Instant releaseAt(UUID campaignId, UUID requestId) {

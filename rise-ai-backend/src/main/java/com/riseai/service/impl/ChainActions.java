@@ -18,6 +18,7 @@ final class ChainActions {
     static final String DECIDE_EVIDENCE = "decide-evidence";
     static final String OPEN_DISPUTE = "open-dispute";
     static final String CLOSE_DISPUTE = "close-dispute";
+    static final String RECORD_PAYOUT = "record-payout";
 
     private ChainActions() {
     }
