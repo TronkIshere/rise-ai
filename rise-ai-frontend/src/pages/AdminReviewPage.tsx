@@ -1,3 +1,6 @@
+import { WorkspaceIllustration } from '@/components/ui/WorkspaceIllustration';
+import { evidenceState, evidenceTypes } from '@/lib/creator-display';
+import { AdminMasthead, AdminState } from '@/components/ui/AdminOperations';
 import { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { ArrowLeft, FileCheck2, MessagesSquare, ShieldAlert } from 'lucide-react';
@@ -14,6 +17,24 @@ import { amountLabel, dateLabel } from '@/lib/campaign-display';
 import { reviewChoices,shortId } from '@/lib/admin-display';
 
 const kinds=new Set<string>(['organizations','campaigns','donations','refunds','disbursements','disputes','adjustments','settlements']);
+const reviewStatusLabels: Record<string,string> = {
+  PENDING_REVIEW:'Chờ xét duyệt', UNDER_REVIEW:'Đang xét duyệt', SUBMITTED:'Đã gửi hồ sơ', PENDING:'Đang chờ',
+  APPROVED:'Đã phê duyệt', VERIFIED:'Đã xác minh', CONFIRMED:'Đã xác nhận', REJECTED:'Bị từ chối',
+  OPEN:'Đang mở', REQUESTED:'Đã đề nghị', PROPOSED:'Đã đề xuất', NEEDS_MORE_EVIDENCE:'Cần thêm minh chứng',
+  RELEASED:'Đã ghi giải ngân mô phỏng', RECORDED:'Đã ghi sổ', CANCELLED:'Đã hủy', ACTIVE:'Đang hoạt động',
+};
+const reviewFields: Record<string,string> = {
+  id:'Mã hồ sơ', campaignId:'Mã chiến dịch', organizationId:'Mã tổ chức', milestoneId:'Mã cột mốc',
+  donorId:'Mã người đóng góp', openedBy:'Người mở hồ sơ', assignedTo:'Người xử lý', requestedBy:'Người đề nghị',
+  proposedBy:'Người đề xuất', createdBy:'Người tạo', verificationNotes:'Ghi chú xác minh', reviewNote:'Ghi chú xét duyệt',
+  shortDescription:'Tóm tắt', fullDescription:'Mô tả đầy đủ', problemStatement:'Vấn đề', solutionDescription:'Giải pháp',
+  reason:'Lý do', requestReason:'Lý do đề nghị', description:'Mô tả', decisionReason:'Căn cứ quyết định', resolution:'Kết luận',
+  externalPaymentStatus:'Trạng thái thanh toán ngoài hệ thống', simulatedReference:'Tham chiếu mô phỏng',
+  direction:'Chiều điều chỉnh', adjustmentStatus:'Trạng thái điều chỉnh', settlementType:'Loại tất toán',
+  fundsReserved:'Khoản dành riêng', simulated:'Mô phỏng', createdAt:'Tạo lúc', submittedAt:'Gửi lúc',
+  confirmedAt:'Xác nhận lúc', recordedAt:'Ghi sổ lúc', releasedAt:'Ghi giải ngân lúc', endAt:'Kết thúc',
+};
+
 function readValue(record:Record<string,unknown>,key:string):string{
   const value=record[key];
   return value===undefined||value===null||typeof value==='object'?'':String(value);
@@ -23,20 +44,29 @@ function AdminEvidenceRow({item,onChanged}:{item:EvidenceResponse;onChanged:()=>
     mutationFn:({approve,note}:{approve:boolean;note:string})=>reviewAdminEvidence(item.id!,approve,note),
     onSuccess:onChanged,
   });
-  return <article className="rounded-xl border border-border bg-surface p-5">
-    <div className="flex flex-wrap items-center justify-between gap-3"><h3 className="font-bold text-brand-ink">{item.title??shortId(item.id)}</h3><span className="text-xs font-semibold text-warning">{item.evidenceStatus??'Chưa rõ'}</span></div>
-    <p className="mt-2 text-xs text-muted">Loại: {item.evidenceType??'—'} · Người gửi: {shortId(item.submittedBy)}</p>
-    {item.description?<p className="mt-3 whitespace-pre-wrap text-sm text-muted">{item.description}</p>:null}
-    {item.externalReference?<p className="mt-2 break-all text-xs text-muted">Tham chiếu: {item.externalReference}</p>:null}
-    {item.fileUrl?<p className="mt-2 break-all text-xs text-muted">URL khai báo: {item.fileUrl}</p>:null}
-    {item.fileHash?<p className="mt-2 break-all text-xs text-muted">SHA-256 khai báo: {item.fileHash} (chưa tự động xác thực tệp)</p>:null}
-    {item.reviewNote?<p className="mt-2 text-xs text-muted">Phản hồi: {item.reviewNote}</p>:null}
+  const typeLabel=evidenceTypes.find(type=>type.value===item.evidenceType)?.label;
+  const hasProvenance=item.submittedBy||item.externalReference||item.fileUrl||item.fileHash;
+  return <article className="review-document" data-state={item.evidenceStatus}>
+    <div className="review-document-art"><WorkspaceIllustration kind="history" /></div>
+    <div className="review-document-copy">
+      <header className="review-document-heading">
+        <div>{typeLabel && <p>{typeLabel}</p>}<h3>{item.title??shortId(item.id)}</h3></div>
+        <AdminState value={item.evidenceStatus}>{item.evidenceStatus ? evidenceState(item.evidenceStatus) : 'Chưa rõ trạng thái'}</AdminState>
+      </header>
+      {item.description && <p className="review-document-description">{item.description}</p>}
+      {hasProvenance && <dl className="review-document-source">
+        {item.submittedBy && <div><dt>Người gửi</dt><dd title={item.submittedBy}>{shortId(item.submittedBy)}</dd></div>}
+        {item.externalReference && <div><dt>Tham chiếu nguồn</dt><dd>{item.externalReference}</dd></div>}
+        {item.fileUrl && <div><dt>URL khai báo</dt><dd>{item.fileUrl}</dd></div>}
+        {item.fileHash && <div><dt>SHA-256 khai báo</dt><dd>{item.fileHash} (chưa tự động xác thực tệp)</dd></div>}
+      </dl>}
+      {item.reviewNote && <p className="review-document-description"><strong>Phản hồi</strong> {item.reviewNote}</p>}
     {item.evidenceStatus==='SUBMITTED'&&item.id?<AdminDecisionForm
       choices={[{id:'accept',label:'Chấp thuận minh chứng',required:false,critical:true},{id:'reject',label:'Từ chối minh chứng',required:true,critical:true}]}
       onExecute={(operation,reason)=>mut.mutateAsync({approve:operation==='accept',note:reason})}
       onComplete={onChanged}/>:null}
     {mut.isError?<p role="alert" className="mt-2 text-sm text-danger">{mut.error.message}</p>:null}
-  </article>;
+  </div></article>;
 }
 function DisbursementEvidence({recordId,milestoneId,onChanged}:{recordId:string;milestoneId?:string;onChanged:()=>void}) {
   const {user}=useAuth();
@@ -90,7 +120,7 @@ export function AdminReviewPage(){
     actions=actions.filter(x=>x.id!=='approve');
   }
   const refresh=()=>{setNotice('Backend đã ghi nhận thay đổi.');void client.invalidateQueries({queryKey:['admin',user?.id]});};
-  return <div className="rise-deep-page deep-admin-review">
+  return <div className="rise-deep-page deep-admin-review admin-ops">
     <div className="rise-deep-topline" aria-hidden="true">
       <span>ADMIN / KIỂM DUYỆT</span><span>04 · HỒ SƠ XÉT DUYỆT</span>
     </div>
@@ -98,30 +128,38 @@ export function AdminReviewPage(){
     <Link to="/admin" className="inline-flex min-h-11 items-center gap-2 text-sm font-bold text-brand"><ArrowLeft size={17} aria-hidden="true"/> Về trung tâm xét duyệt</Link>
     {query.isPending?<div className="mt-6"><StatusMessage title="Đang tải hồ sơ…" /></div>:null}
     {query.isError?<div className="mt-6"><StatusMessage error title="Không thể tải hồ sơ" detail={query.error.message}/></div>:null}
-    {record?<div className="mt-5 grid gap-8 lg:grid-cols-[minmax(0,1fr)_320px]">
+    {record?<div className="review-workbench mt-5 grid gap-8 lg:grid-cols-[minmax(0,1fr)_320px]">
       <div>
-        <p className="text-xs font-extrabold uppercase tracking-widest text-brand">{adminQueues.find(x=>x.id===kind)?.label} · {shortId(id)}</p>
-        <h1 className="mt-3 break-words text-3xl font-extrabold text-brand-ink">{heading}</h1>
-        <span className="mt-5 inline-flex rounded-full bg-soft-sand px-4 py-2 text-sm font-semibold text-warning">Backend: {status||'Chưa rõ trạng thái'}</span>
+        <AdminMasthead eyebrow={adminQueues.find(item=>item.id===kind)?.label ?? 'Hồ sơ xét duyệt'} title={heading} art="checklist">
+          <div className="admin-review-priority">
+            <AdminState value={status}>{reviewStatusLabels[status] ?? (status || 'Chưa rõ trạng thái')}</AdminState>
+            {amount!==undefined && <strong>{amountLabel(amount,readValue(r,'currency')||'VND')}</strong>}
+          </div>
+        </AdminMasthead>
         {notice?<p role="status" className="mt-5 rounded-xl bg-soft-mint p-4 text-sm text-brand-ink">{notice}</p>:null}
-        <div className="mt-7 rounded-card border border-border bg-surface p-6">
+        <div className="admin-review-record">
           <h2 className="text-xl font-bold text-brand-ink">Thông tin hồ sơ</h2>
-          {amount!==undefined?<p className="mt-4 text-lg font-extrabold text-brand">{amountLabel(amount,readValue(r,'currency')||'VND')}</p>:null}
+
           {kind==='adjustments'?<div className="mt-4 rounded-xl border border-border bg-soft-sand p-4" role="note">
             <p className="text-sm font-extrabold text-brand-ink">Chiều điều chỉnh: {direction||'THIẾU DỮ LIỆU'}</p>
             <p className="mt-2 text-sm font-semibold text-warning">{direction==='CREDIT'?'TĂNG số dư escrow mô phỏng':direction==='DEBIT'?'GIẢM số dư escrow mô phỏng':direction==='NEUTRAL'?'Điều chỉnh trung tính — không cộng/trừ số dư':'Không thể phê duyệt khi Backend chưa cung cấp chiều điều chỉnh hợp lệ.'}</p>
             {amount!==undefined?<p className="mt-2 text-sm">Giá trị đề nghị: {amountLabel(amount,readValue(r,'currency')||'VND')}</p>:null}
           </div>:null}
-          <dl className="mt-5 grid gap-4 text-sm">
-            {(['id','campaignId','organizationId','milestoneId','donorId','openedBy','assignedTo','requestedBy','proposedBy','createdBy',
-              'verificationNotes','reviewNote','shortDescription','fullDescription','problemStatement','solutionDescription',
+          <dl className="admin-review-fields">
+            {['verificationNotes','reviewNote','shortDescription','fullDescription','problemStatement','solutionDescription',
               'reason','requestReason','description','decisionReason','resolution','externalPaymentStatus','simulatedReference',
-              'direction','adjustmentStatus','settlementType','fundsReserved','simulated','createdAt','submittedAt','confirmedAt','recordedAt','releasedAt','endAt'] as const)
-            .filter(key=>r[key]!==null&&r[key]!==undefined&&r[key]!=='')
-            .map(key=><div key={key} className="grid gap-1 border-b border-border pb-3 sm:grid-cols-[160px_1fr]">
-              <dt className="text-xs font-semibold text-muted">{key}</dt><dd className="break-all whitespace-pre-wrap text-sm text-copy">{readValue(r,key)}</dd>
-            </div>)}
+              'direction','adjustmentStatus','settlementType','fundsReserved','simulated','createdAt','submittedAt','confirmedAt','recordedAt','releasedAt','endAt']
+              .filter(key=>readValue(r,key)!=='').map(key=><div key={key}>
+                <dt>{reviewFields[key]}</dt><dd>{key.endsWith('At') ? dateLabel(readValue(r,key)) : key==='simulated' ? (r[key]===true?'Có':r[key]===false?'Không':readValue(r,key)) : readValue(r,key)}</dd>
+              </div>)}
           </dl>
+          <details className="admin-review-identifiers">
+            <summary>Định danh hồ sơ và các bên liên quan</summary>
+            <dl className="admin-review-fields">
+              {['id','campaignId','organizationId','milestoneId','donorId','openedBy','assignedTo','requestedBy','proposedBy','createdBy']
+                .filter(key=>readValue(r,key)!=='').map(key=><div key={key}><dt>{reviewFields[key]}</dt><dd>{readValue(r,key)}</dd></div>)}
+            </dl>
+          </details>
         </div>
         {kind==='disbursements'?<DisbursementEvidence recordId={id} milestoneId={readValue(r,'milestoneId')} onChanged={refresh}/>:null}
         {kind==='disputes'?<section className="mt-8 rounded-card border border-border bg-surface p-6" aria-label="Minh chứng và trao đổi tranh chấp">
@@ -147,9 +185,9 @@ export function AdminReviewPage(){
         </section>:null}
         {kind==='disputes'&&status==='OPEN'?<p className="mt-6 rounded-xl bg-soft-mint p-4 text-sm text-brand-ink">Cần phân công người xử lý trước khi kết luận. Nút “Nhận xử lý” chỉ gán Admin đang đăng nhập; Backend kiểm tra xung đột lợi ích.</p>:null}
       </div>
-      <aside className="h-fit space-y-5 lg:sticky lg:top-28">
+      <aside className="review-dock admin-ops-decision h-fit space-y-5 lg:sticky lg:top-28">
         <div className="rounded-card border border-border bg-surface p-6">
-          <h2 className="text-xl font-bold text-brand-ink">Quyết định của Admin</h2>
+          <h2>Quyết định của Admin</h2>
           <p className="mt-2 text-xs leading-6 text-muted">Không tự phê duyệt hồ sơ liên quan đến bạn. Kiểm tra chứng cứ, quyền và điều kiện nghiệp vụ trước khi xác nhận.</p>
           {kind==='disputes'&&!thread.isSuccess?<p role="alert" className="mt-3 text-sm font-semibold text-warning">Chưa thể kết luận: cần tải được các trao đổi của tranh chấp.</p>:null}
           <AdminDecisionForm choices={actions} onExecute={(operation,reason)=>performAdminAction(kind,id,operation as AdminOperation,reason,user?.id)} onComplete={refresh}/>

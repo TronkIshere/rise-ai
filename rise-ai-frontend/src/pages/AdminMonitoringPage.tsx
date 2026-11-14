@@ -1,3 +1,4 @@
+import { AdminMasthead, AdminState } from '@/components/ui/AdminOperations';
 import { useState, type FormEvent } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { ArrowRight, RefreshCcw, ScanSearch } from 'lucide-react';
@@ -27,16 +28,17 @@ export function AdminMonitoringPage(){
     if(draft.campaignId?.trim()&&!uuid.test(draft.campaignId.trim())){setValidation('Mã chiến dịch phải là UUID hợp lệ.');return;}
     setValidation('');setFilter({...draft,category:draft.category?.trim()??'',campaignId:draft.campaignId?.trim()??''});setPage(0);
   }
-  return <div className="rise-deep-page deep-admin-monitoring">
+  return <div className="rise-deep-page deep-admin-monitoring admin-ops">
     <div className="rise-deep-topline" aria-hidden="true">
       <span>ADMIN / GIÁM SÁT</span><span>06 · PHÁT HIỆN CẦN XEM XÉT</span>
     </div>
     <Container className="deep-inner py-10 sm:py-14">
-    <p className="text-xs font-extrabold uppercase tracking-widest text-brand">FE-05 · DÀNH CHO ADMIN</p>
-    <h1 className="mt-3 text-3xl font-extrabold text-brand-ink sm:text-4xl">Cảnh báo giám sát thiện nguyện</h1>
-    <p className="mt-3 max-w-3xl text-sm leading-7 text-muted">Các phát hiện do Monitoring gửi đến Backend để Admin kiểm tra. Mỗi cảnh báo chỉ là tín hiệu tham khảo, không phải kết luận hành vi sai phạm và không tự dừng chiến dịch hay giải ngân.</p>
+    <AdminMasthead title="Tín hiệu cần kiểm tra" eyebrow="Giám sát thiện nguyện" art="alert">
+      <p>Theo dõi mức độ và trạng thái đánh giá. Cảnh báo chỉ là tín hiệu tham khảo cho người kiểm tra.</p>
+    </AdminMasthead>
     <AdminMonitoringNav/>
-    <section className="mt-10" aria-labelledby="finding-list">
+    <div className="admin-risk-board">
+    <section className="admin-risk-list" aria-labelledby="finding-list">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h2 id="finding-list" className="flex items-center gap-2 text-xl font-bold text-brand-ink"><ScanSearch aria-hidden="true" size={22} className="text-brand"/> Các phát hiện cần xem xét</h2>
         <Button variant="outline" onClick={()=>void findings.refetch()}><RefreshCcw size={16} aria-hidden="true"/> Làm mới</Button>
@@ -59,37 +61,50 @@ export function AdminMonitoringPage(){
         {findings.isPending?<StatusMessage title="Đang tải các phát hiện…"/>:null}
         {findings.isError?<StatusMessage error title="Không thể tải phát hiện" detail={findings.error.message}/>:null}
         {findings.isSuccess&&!findings.data.data?.length?<StatusMessage title="Không có phát hiện phù hợp" detail="Thử bộ lọc khác hoặc kiểm tra luồng sự kiện. Không có cảnh báo giả được tạo trên Frontend."/>:null}
-        {findings.data?.data?.map((item,index)=><article key={item.id??index} className="min-w-0 rounded-card border border-border bg-surface p-5">
-          <div className="flex flex-wrap items-start justify-between gap-3">
-            <div className="min-w-0 flex-1">
-              <p className="break-words text-xs font-semibold text-brand">{item.category??'Chưa phân loại'} · {item.ruleId??'Chưa có rule'} · {shortRef(item.id)}</p>
-              <h3 className="mt-2 break-words text-lg font-extrabold text-brand-ink">{item.explanation??'Chưa có mô tả phát hiện'}</h3>
-              <p className="mt-3 text-xs text-muted">Chiến dịch {shortRef(item.campaignId)} · {timeText(item.lastSeenAt)} · {countText(item.occurrenceCount)} lần ghi nhận</p>
-            </div>
-            <div className="flex flex-wrap gap-2 text-xs font-bold">
-              <span className="rounded-full bg-soft-sand px-3 py-2 text-warning">{item.severity?severityText[item.severity]:'Chưa xác định mức độ'}</span>
-              <span className="rounded-full bg-soft-mint px-3 py-2 text-brand-ink">{item.reviewStatus?findingStatusText[item.reviewStatus]:'Chưa xác định trạng thái'}</span>
-            </div>
+        {findings.data?.data?.map((item,index)=><article key={item.id??index} className="admin-risk-row" data-severity={item.severity}>
+          <div className="monitoring-finding-state">
+            <AdminState value={item.severity}>{item.severity?severityText[item.severity]:'Chưa xác định mức độ'}</AdminState>
+            <AdminState value={item.reviewStatus}>{item.reviewStatus?findingStatusText[item.reviewStatus]:'Chưa xác định trạng thái'}</AdminState>
           </div>
-          {item.newOccurrencesSinceReview? <p className="mt-3 text-xs font-semibold text-warning">{item.newOccurrencesSinceReview} lần xuất hiện mới từ lần đánh giá trước</p>:null}
-          {item.id?<Link to={'/admin/monitoring/findings/'+encodeURIComponent(item.id)} className="mt-4 inline-flex min-h-11 items-center gap-2 text-sm font-bold text-brand hover:underline">Xem giải thích, bằng chứng và lịch sử <ArrowRight size={17} aria-hidden="true"/></Link>:null}
+          <h3 className="monitoring-finding-title">{item.explanation??'Chưa có mô tả phát hiện'}</h3>
+          {item.recommendedAction && <div className="monitoring-finding-guidance">
+            <p className="monitoring-finding-guidance-label">Hướng kiểm tra đề xuất</p>
+            <p className="monitoring-finding-copy">{item.recommendedAction}</p>
+          </div>}
+          <div className="monitoring-finding-meta">
+            <dl className="monitoring-finding-related">
+              <div><dt>Chiến dịch</dt><dd>{shortRef(item.campaignId)}</dd></div>
+              <div><dt>Ghi nhận gần nhất</dt><dd>{timeText(item.lastSeenAt)}</dd></div>
+              <div><dt>Số lần ghi nhận</dt><dd>{countText(item.occurrenceCount)}</dd></div>
+            </dl>
+            {item.newOccurrencesSinceReview ? <p className="monitoring-finding-new">{item.newOccurrencesSinceReview} lần xuất hiện mới từ lần đánh giá trước</p>:null}
+            <details>
+              <summary>Quy tắc và định danh tín hiệu</summary>
+              <p>{item.category??'Chưa phân loại'} · {item.ruleId??'Chưa có quy tắc'} · {item.id??'—'}</p>
+              {item.campaignId && <p>Mã chiến dịch: {item.campaignId}</p>}
+            </details>
+          </div>
+          {item.id && <div className="monitoring-finding-action">
+            <Link className="monitoring-finding-link" to={'/admin/monitoring/findings/'+encodeURIComponent(item.id)}>Mở hồ sơ <ArrowRight size={18} aria-hidden="true"/></Link>
+          </div>}
         </article>)}
       </div>
       {findings.isSuccess?<><p className="mt-3 text-xs text-muted">Tổng số phù hợp: {countText(findings.data.totalElements)}</p><RecordPagination page={page} pages={findings.data.totalPages??0} onChange={setPage}/></>:null}
     </section>
-    <section className="mt-12" aria-labelledby="rule-precision">
+    <section className="admin-risk-rules" aria-labelledby="rule-precision">
       <h2 id="rule-precision" className="text-xl font-bold text-brand-ink">Phân loại theo quy tắc đã được Admin đánh giá</h2>
       <p className="mt-2 text-xs leading-6 text-muted">Tỷ lệ dưới đây chỉ dựa trên các cảnh báo đã có kết luận xác nhận/bác bỏ; không phải xác suất AI đúng cho mọi trường hợp.</p>
       {precision.isPending?<div className="mt-5"><StatusMessage title="Đang tải thống kê quy tắc…"/></div>:null}
       {precision.isError?<div className="mt-5"><StatusMessage error title="Không tải được thống kê rule" detail={precision.error.message}/></div>:null}
       {precision.isSuccess&&!precision.data.length?<div className="mt-5"><StatusMessage title="Chưa có quy tắc được thống kê"/></div>:null}
-      <div className="mt-5 grid gap-3 sm:grid-cols-2">{precision.data?.map((rule,index)=><article key={rule.ruleId??index} className="min-w-0 rounded-card border border-border bg-surface p-5">
+      <div className="admin-risk-rule-list">{precision.data?.map((rule,index)=><article key={rule.ruleId??index} className="admin-risk-rule">
         <h3 className="break-all text-sm font-bold text-brand-ink">{rule.ruleId??'Rule chưa xác định'}</h3>
         <p className="mt-2 text-sm">Xác nhận: {countText(rule.concernConfirmed)} · Không đủ căn cứ: {countText(rule.dismissed)}</p>
-        <p className="mt-2 text-sm font-semibold text-brand">{typeof rule.precision==='number'?(rule.precision*100).toFixed(1)+'% trên các ca đã kết luận':'Chưa đủ dữ liệu kết luận'}</p>
+        <p className="monitoring-rate">{typeof rule.precision==='number'?(rule.precision*100).toFixed(1)+'% trên các ca đã kết luận':'Chưa đủ dữ liệu kết luận'}</p>
         <p className="mt-2 text-xs text-muted">Tổng {countText(rule.total)} · Đang mở {countText(rule.open)} · Đã ghi nhận {countText(rule.acknowledged)}</p>
       </article>)}</div>
     </section>
+    </div>
     </Container>
   </div>;
 }
