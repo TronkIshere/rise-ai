@@ -31,6 +31,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class AvalancheController {
 
     private static final String FUJI_EXPLORER = "https://explorer-test.avax.network/c-chain";
+    private static final long GUARDIAN_HOLD_MAX_SECONDS = 14L * 24 * 60 * 60;
 
     private final CampaignCommandService service;
 
@@ -51,7 +52,8 @@ public class AvalancheController {
         DeploymentManifest m = service.deployment().manifest();
         return new ConfigResponse(envName(), true, chainId(), m.escrow(), m.token(), m.tokenKind(), m.anchor(), m.contractVersion(), service.reader().paused(),
                 service.backendSignersAvailable(), service.signerAddress(SignerRole.OPERATOR), service.signerAddress(SignerRole.APPROVER),
-                service.environment().environment() == AvalancheEnvironment.AVALANCHE_FUJI ? FUJI_EXPLORER : null);
+                service.environment().environment() == AvalancheEnvironment.AVALANCHE_FUJI ? FUJI_EXPLORER : null, m.guardian(),
+                GUARDIAN_HOLD_MAX_SECONDS);
     }
 
     @GetMapping("/addresses/validate")
@@ -84,7 +86,30 @@ public class AvalancheController {
         String milestone = CampaignCommandService.requireId(milestoneId, "milestoneId");
         CampaignReader.Milestone m = service.reader().milestone(id, milestone);
         return new MilestoneResponse(envName(), true, id, milestone, m.planned().toString(), m.reserved().toString(), m.released().toString(),
-                m.openDisputes(), m.acceptedEvidence());
+                m.openDisputes(), m.acceptedEvidence(), service.reader().openHoldCount(id, milestone));
+    }
+
+    @GetMapping("/campaigns/{campaignId}/payouts/{requestId}")
+    public Dtos.PayoutResponse payout(@PathVariable("campaignId") String campaignId, @PathVariable("requestId") String requestId) {
+        String id = CampaignCommandService.requireId(campaignId, "campaignId");
+        String request = CampaignCommandService.requireId(requestId, "requestId");
+        CampaignReader.Payout p = service.reader().payout(id, request);
+        boolean recorded = p.recordedAt() != 0;
+        return new Dtos.PayoutResponse(envName(), true, id, request, recorded, recorded ? p.bankReferenceHash() : null, recorded ? p.recordedAt() : null,
+                p.confirmedAt() == 0 ? null : p.confirmedAt());
+    }
+
+    @GetMapping("/reserves")
+    public Dtos.ReservesResponse reserves() {
+        CampaignReader reader = service.reader();
+        CampaignReader.ReserveAttestation a = reader.reserveAttestation();
+        String escrow = service.deployment().manifest().escrow();
+        String held = reader.totalHeld().toString();
+        if (a.period() == 0) {
+            return new Dtos.ReservesResponse(envName(), true, escrow, held, false, null, null, null, null, null, null, null);
+        }
+        return new Dtos.ReservesResponse(envName(), true, escrow, held, true, a.period(), a.attestedAt(), a.attester(), a.bankBalance().toString(),
+                a.heldAtAttestation().toString(), a.heldAtAttestation().subtract(a.bankBalance()).toString(), a.statementHash());
     }
 
     @GetMapping("/campaigns/{campaignId}/reservations/{requestId}")

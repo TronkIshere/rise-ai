@@ -151,6 +151,8 @@ public class CampaignCommandService {
             case "cancel-reservation" -> operator(CampaignCalls.cancelReservation(id, requireId(r.requestId(), "requestId")));
             case "reserve-refund" -> operator(CampaignCalls.reserveRefund(id, requireId(r.donationId(), "donationId"), requireId(r.refundId(), "refundId"), amount(r.amount(), "amount")));
             case "release-refund-reservation" -> operator(CampaignCalls.releaseRefundReservation(id, requireId(r.refundId(), "refundId")));
+            case "record-payout" -> operator(CampaignCalls.recordPayout(id, requireId(r.requestId(), "requestId"),
+                    requireId(r.bankReferenceHash(), "bankReferenceHash")));
             case "queue-release" -> approver(CampaignCalls.queueRelease(id, requireId(r.requestId(), "requestId")));
             case "record-refund" -> approver(CampaignCalls.recordRefund(id, requireId(r.refundId(), "refundId")));
             case "settlement-refund" -> approver(CampaignCalls.recordSettlementRefund(id, requireId(r.settlementId(), "settlementId"), requireId(r.donationId(), "donationId"), amount(r.amount(), "amount")));

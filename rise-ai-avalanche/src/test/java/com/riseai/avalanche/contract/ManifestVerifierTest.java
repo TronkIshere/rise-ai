@@ -23,7 +23,7 @@ class ManifestVerifierTest {
     private static final ValidatedEnvironment FUJI = new ValidatedEnvironment(AvalancheEnvironment.AVALANCHE_FUJI, 43113, "avalanchego", "api.avax-test.network");
 
     private static DeploymentManifest manifest(String environment, long chainId, String token, String kind) {
-        return new DeploymentManifest(2, environment, chainId, ESCROW, token, kind, TOKEN, TOKEN, TOKEN, TOKEN, TOKEN, 60, "1", 0);
+        return new DeploymentManifest(2, environment, chainId, ESCROW, token, kind, TOKEN, TOKEN, TOKEN, TOKEN, TOKEN, TOKEN, 60, "2", 0);
     }
 
     private static String code(DeploymentManifest m, ValidatedEnvironment v) {
@@ -64,11 +64,12 @@ class ManifestVerifierTest {
     void parsingRejectsIncompleteOrMalformedManifests() {
         String good = "{\"schemaVersion\":2,\"environment\":\"LOCAL_SIMULATION\",\"chainId\":31337,\"escrow\":\"" + ESCROW + "\",\"token\":\"" + TOKEN
                 + "\",\"tokenKind\":\"RISE_VND\",\"anchor\":\"" + TOKEN + "\",\"admin\":\"" + TOKEN + "\",\"treasury\":\"" + TOKEN + "\",\"operator\":\"" + TOKEN
-                + "\",\"approver\":\"" + TOKEN + "\",\"minReleaseDelay\":60,\"startBlock\":7}";
+                + "\",\"approver\":\"" + TOKEN + "\",\"guardian\":\"" + TOKEN + "\",\"minReleaseDelay\":60,\"startBlock\":7}";
         assertEquals(7, DeploymentManifest.parse(good).startBlock());
         for (String bad : new String[]{"not json", "{}", good.replace("\"schemaVersion\":2", "\"schemaVersion\":1"),
                 good.replace(ESCROW, "0x123"), good.replace("\"tokenKind\":\"RISE_VND\",", ""), good.replace("\"chainId\":31337,", ""),
-                good.replace("\"minReleaseDelay\":60,", ""), good.replace("\"anchor\":\"" + TOKEN + "\",", "")}) {
+                good.replace("\"minReleaseDelay\":60,", ""), good.replace("\"anchor\":\"" + TOKEN + "\",", ""),
+                good.replace("\"guardian\":\"" + TOKEN + "\",", "")}) {
             assertEquals("MANIFEST_INVALID", assertThrows(EnvironmentGuardException.class, () -> DeploymentManifest.parse(bad)).code(), bad);
         }
     }

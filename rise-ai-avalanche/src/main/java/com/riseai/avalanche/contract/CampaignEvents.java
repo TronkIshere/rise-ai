@@ -24,7 +24,12 @@ public final class CampaignEvents {
             "DisputeOpened(bytes32,bytes32,bytes32)",
             "DisputeClosed(bytes32,bytes32,bytes32)",
             "EvidenceAnchored(bytes32,bytes32,bytes32,bytes32,bytes32)",
-            "EvidenceDecided(bytes32,bytes32,bytes32,bool)");
+            "EvidenceDecided(bytes32,bytes32,bytes32,bool)",
+            "GuardianHoldPlaced(bytes32,bytes32,bytes32,address,bytes32,uint64)",
+            "GuardianHoldLifted(bytes32,bytes32,bytes32,address,bool)",
+            "ReservesAttested(uint64,address,uint256,uint256,bytes32)",
+            "PayoutRecorded(bytes32,bytes32,bytes32)",
+            "ReceiptConfirmed(bytes32,bytes32,address)");
 
     private CampaignEvents() {
     }

@@ -29,6 +29,15 @@ public class CampaignReader {
     public record Reservation(String status, String milestoneId, BigInteger amount, String reservedBy, long releaseAt) {
     }
 
+    /** recordedAt and confirmedAt are zero until the operator records the payout and the beneficiary confirms it. */
+    public record Payout(String bankReferenceHash, long recordedAt, long confirmedAt) {
+    }
+
+    /** period is zero until the guardian attests for the first time. */
+    public record ReserveAttestation(long period, long attestedAt, String attester, BigInteger bankBalance, BigInteger heldAtAttestation,
+                                     String statementHash) {
+    }
+
     private final ChainClient client;
     private final String contract;
 
@@ -52,6 +61,29 @@ public class CampaignReader {
         String hex = read(CampaignCalls.getReservation(campaignId, requestId), 5);
         return new Reservation(RESERVATION_STATUS.get(number(hex, 0).intValueExact()), "0x" + word(hex, 1), number(hex, 2), address(hex, 3),
                 number(hex, 4).longValueExact());
+    }
+
+    public int openHoldCount(String campaignId, String milestoneId) {
+        return number(read(CampaignCalls.openHoldCount(campaignId, milestoneId), 1), 0).intValueExact();
+    }
+
+    public Payout payout(String campaignId, String requestId) {
+        String hex = read(CampaignCalls.getPayout(campaignId, requestId), 3);
+        return new Payout("0x" + word(hex, 0), number(hex, 1).longValueExact(), number(hex, 2).longValueExact());
+    }
+
+    public ReserveAttestation reserveAttestation() {
+        String hex = read(CampaignCalls.getReserveAttestation(), 6);
+        return new ReserveAttestation(number(hex, 0).longValueExact(), number(hex, 1).longValueExact(), address(hex, 2), number(hex, 3), number(hex, 4),
+                "0x" + word(hex, 5));
+    }
+
+    public BigInteger totalHeld() {
+        return number(read(CampaignCalls.totalHeld(), 1), 0);
+    }
+
+    public boolean hasRole(String role, String account) {
+        return number(read(CampaignCalls.hasRole(role, account), 1), 0).signum() != 0;
     }
 
     public record Anchor(long sequence, String root, long recordCount, long anchoredAt) {

@@ -12,7 +12,7 @@ public final class Dtos {
 
     public record ConfigResponse(String environment, boolean isSimulated, long chainId, String escrow, String token, String tokenKind, String anchor,
                                  String contractVersion, boolean paused, boolean backendSignersAvailable, String operatorAddress,
-                                 String approverAddress, String explorerBaseUrl) {
+                                 String approverAddress, String explorerBaseUrl, String guardianAddress, long guardianHoldMaxSeconds) {
     }
 
     public record BalanceResponse(String environment, boolean isSimulated, String address, String token, String balanceBaseUnits, int decimals) {
@@ -27,7 +27,16 @@ public final class Dtos {
     }
 
     public record MilestoneResponse(String environment, boolean isSimulated, String campaignId, String milestoneId, String planned, String reserved,
-                                    String released, int openDisputes, int acceptedEvidence) {
+                                    String released, int openDisputes, int acceptedEvidence, int openHolds) {
+    }
+
+    public record PayoutResponse(String environment, boolean isSimulated, String campaignId, String requestId, boolean recorded, String bankReferenceHash,
+                                 Long recordedAt, Long confirmedAt) {
+    }
+
+    /** gap is the held total minus the attested bank balance at attestation time; positive means the bank held less. */
+    public record ReservesResponse(String environment, boolean isSimulated, String escrow, String currentHeld, boolean attested, Long period,
+                                   Long attestedAt, String attester, String bankBalance, String heldAtAttestation, String gap, String statementHash) {
     }
 
     public record ReservationResponse(String environment, boolean isSimulated, String campaignId, String requestId, String status, String milestoneId,
@@ -54,6 +63,6 @@ public final class Dtos {
     public record CommandRequest(String operationKey, String beneficiary, String target, Long releaseDelay, List<String> milestoneIds,
                                  List<String> plannedAmounts, String status, String milestoneId, String donationId, String requestId,
                                  String refundId, String evidenceId, String disputeId, String settlementId, String adjustmentId,
-                                 String contentHash, String amount, Boolean accepted, Boolean credit) {
+                                 String contentHash, String amount, Boolean accepted, Boolean credit, String bankReferenceHash) {
     }
 }

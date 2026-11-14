@@ -20,6 +20,8 @@ import java.util.regex.Pattern;
 final class ContractFixtures {
 
     static final String ANVIL_ACCOUNT_0 = "0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266";
+    /** Anvil's unlocked account 4 plays the independent guardian; it never holds a platform role. */
+    static final String GUARDIAN = "0x15d34aaf54267db7d7c367839aaf71a00a2c6a65";
     /** A view function callable as a transaction: any successful call to a manifest contract. */
     static final String PAUSED_SELECTOR = "0x5c975abb";
     static final long MIN_RELEASE_DELAY = 60;
@@ -39,7 +41,11 @@ final class ContractFixtures {
     }
 
     static String sendFromAdmin(String url, String to, String data) {
-        String params = "{\"from\":\"" + ANVIL_ACCOUNT_0 + "\"" + (to == null ? "" : ",\"to\":\"" + to + "\"") + ",\"data\":\"" + data + "\",\"gas\":\"0x1c9c380\"}";
+        return sendFrom(url, ANVIL_ACCOUNT_0, to, data);
+    }
+
+    static String sendFrom(String url, String from, String to, String data) {
+        String params = "{\"from\":\"" + from + "\"" + (to == null ? "" : ",\"to\":\"" + to + "\"") + ",\"data\":\"" + data + "\",\"gas\":\"0x1c9c380\"}";
         Matcher m = Pattern.compile("\"result\":\"(0x[0-9a-fA-F]{64})\"").matcher(AnvilRpc.call(url, "eth_sendTransaction", params));
         if (!m.find()) {
             throw new IllegalStateException("transaction not accepted");
@@ -68,7 +74,8 @@ final class ContractFixtures {
     static Stack deployStack(String url) {
         Address admin = new Address(ANVIL_ACCOUNT_0);
         String token = deploy(url, resource("RiseVND.bin") + FunctionEncoder.encodeConstructor(List.of(admin)));
-        String escrow = deploy(url, resource("CampaignEscrow.bin") + FunctionEncoder.encodeConstructor(List.of(admin, new Address(token), admin, new Uint64(MIN_RELEASE_DELAY))));
+        String escrow = deploy(url, resource("CampaignEscrow.bin") + FunctionEncoder.encodeConstructor(List.of(admin, new Address(token), admin, new Uint64(MIN_RELEASE_DELAY),
+                new Address(GUARDIAN))));
         String anchor = deploy(url, resource("RiseAnchor.bin") + FunctionEncoder.encodeConstructor(List.of(admin)));
         sendFromAdmin(url, token, FunctionEncoder.encode(new Function("mint", List.of(admin, new Uint256(BigInteger.valueOf(1_000_000_000_000L))), List.of())));
         sendFromAdmin(url, token, FunctionEncoder.encode(new Function("approve", List.of(new Address(escrow), new Uint256(BigInteger.valueOf(1_000_000_000_000L))), List.of())));
@@ -79,7 +86,7 @@ final class ContractFixtures {
         String json = "{\"schemaVersion\":2,\"environment\":\"" + environment + "\",\"chainId\":" + chainId + ",\"escrow\":\"" + stack.escrow()
                 + "\",\"token\":\"" + stack.token() + "\",\"tokenKind\":\"RISE_VND\",\"anchor\":\"" + stack.anchor() + "\",\"admin\":\"" + ANVIL_ACCOUNT_0
                 + "\",\"treasury\":\"" + ANVIL_ACCOUNT_0 + "\",\"operator\":\"" + ANVIL_ACCOUNT_0 + "\",\"approver\":\"" + ANVIL_ACCOUNT_0
-                + "\",\"minReleaseDelay\":" + MIN_RELEASE_DELAY + ",\"contractVersion\":\"1\",\"startBlock\":" + startBlock + "}";
+                + "\",\"guardian\":\"" + GUARDIAN + "\",\"minReleaseDelay\":" + MIN_RELEASE_DELAY + ",\"contractVersion\":\"2\",\"startBlock\":" + startBlock + "}";
         Files.writeString(file, json);
         return file;
     }

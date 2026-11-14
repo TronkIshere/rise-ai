@@ -19,13 +19,14 @@ import java.util.Set;
 /**
  * Fail-closed check of a deployment manifest before the gateway uses it: environment and chain id equal the verified endpoint,
  * the asset is the simulated rVND and no deny-listed real token, the contracts have code, the escrow pins the manifest's token
- * and treasury, and the token reports 2 decimals and the rVND symbol.
+ * and treasury, the manifest's guardian holds the escrow's GUARDIAN_ROLE, and the token reports 2 decimals and the rVND symbol.
  */
 public final class ManifestVerifier {
 
     public static final String TOKEN_KIND = "RISE_VND";
     public static final int TOKEN_DECIMALS = 2;
     public static final String TOKEN_SYMBOL = "rVND";
+    public static final String GUARDIAN_ROLE = Hash.sha3String("GUARDIAN_ROLE");
     /** Real or bridged USDC on Avalanche: never accepted, the escrow only ever holds simulated value. */
     static final Set<String> DENY_LISTED = Set.of("0xb97ef9ef8734c71904d8002f8b6bc66dd9c48a6e", "0xa7d7079b0fead91f3e65f86e8915cb59c1a4c664",
             "0x5425890298aed601595a70ab815c96711a31bc65");
@@ -46,6 +47,9 @@ public final class ManifestVerifier {
         }
         if (number(call(client, m.escrow(), "minReleaseDelay()")).longValue() != m.minReleaseDelay()) {
             throw new EnvironmentGuardException("MANIFEST_DELAY_MISMATCH", "the escrow has a different release delay floor than the manifest");
+        }
+        if (!new CampaignReader(client, m.escrow()).hasRole(GUARDIAN_ROLE, m.guardian())) {
+            throw new EnvironmentGuardException("MANIFEST_GUARDIAN_MISMATCH", "the manifest's guardian does not hold the escrow's guardian role");
         }
         if (number(call(client, m.token(), "decimals()")).intValue() != TOKEN_DECIMALS) {
             throw new EnvironmentGuardException("ASSET_DECIMALS", "the token must have " + TOKEN_DECIMALS + " decimals");
