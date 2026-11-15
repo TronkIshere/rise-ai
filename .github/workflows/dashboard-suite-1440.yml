@@ -1,0 +1,38 @@
+name: Dashboard Suite — Donor Creator Admin 1440 QA
+on:
+  push:
+    branches:
+      - feat/dashboard-suite-donor-creator-admin-20261112
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  role-dashboards:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    defaults:
+      run:
+        working-directory: rise-ai-frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: rise-ai-frontend/package-lock.json
+      - name: Frontend dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Full frontend verification
+        run: npm run verify
+      - name: Install Chromium browser QA
+        run: |
+          npm install --no-save --no-package-lock --no-audit --no-fund playwright@1.56.1
+          npx playwright install --with-deps chromium
+      - name: Role Dashboard Chromium 1440 QA
+        run: node scripts/qa-dashboard-suite-1440.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: rise-ai-role-dashboards-1440-evidence
+          path: rise-ai-frontend/qa-evidence/dashboard-suite/
+          if-no-files-found: warn

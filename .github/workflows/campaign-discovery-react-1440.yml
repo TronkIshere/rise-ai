@@ -1,0 +1,38 @@
+name: Campaign Discovery React Desktop 1440 QA
+on:
+  push:
+    branches:
+      - feat/campaign-discovery-react-1440-20261112
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  react-desktop-1440:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    defaults:
+      run:
+        working-directory: rise-ai-frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: rise-ai-frontend/package-lock.json
+      - name: Install frontend dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Production build and checks
+        run: npm run verify
+      - name: Install Chromium browser
+        run: |
+          npm install --no-save --no-package-lock --no-audit --no-fund playwright@1.56.1
+          npx playwright install --with-deps chromium
+      - name: Run real React /campaigns route browser QA at 1440
+        run: node scripts/qa-campaign-discovery-react-1440.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: campaign-react-1440-evidence
+          path: rise-ai-frontend/qa-evidence/campaign-discovery-react/
+          if-no-files-found: warn
