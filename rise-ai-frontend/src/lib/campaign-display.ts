@@ -77,3 +77,10 @@ export function safeImageUrl(value?: string): string | undefined {
   } catch { return undefined; }
   return undefined;
 }
+
+export function usableCampaignImageUrl(value?: string): string | undefined {
+  const url = safeImageUrl(value);
+  // DemoDataSeeder uses this dedicated placeholder provider for campaign media.
+  if (url && new URL(url).hostname.replace(/\.$/, '') !== 'placehold.co') return url;
+  return undefined;
+}

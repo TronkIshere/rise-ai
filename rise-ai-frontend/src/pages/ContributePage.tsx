@@ -1,110 +1,170 @@
 import { useRef, useState, type FormEvent } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { ArrowLeft, CheckCircle2, ShieldAlert } from 'lucide-react';
+import { ArrowLeft, ArrowUpRight, CheckCircle2, HeartHandshake, LockKeyhole, ShieldAlert } from 'lucide-react';
 import { Link, useParams } from 'react-router';
 import { useAuth } from '@/auth/auth-context';
+import { ApiError } from '@/api/client';
 import { createDonation } from '@/api/donor';
 import { getCampaignBySlug } from '@/api/campaigns';
 import type { CreateDonationRequest, DonationResponse, PaymentMethod } from '@/api/contracts';
 import { Container } from '@/components/layout/Container';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
+import { FundingProgress } from '@/components/ui/FundingProgress';
 import { StatusMessage } from '@/components/ui/StatusMessage';
-import { amountLabel } from '@/lib/campaign-display';
+import { amountLabel, categoryLabel } from '@/lib/campaign-display';
 import { donationLabel, paymentMethods } from '@/lib/donor-display';
 
-export function ContributePage() {
-  const { slug } = useParams();
+function ContributionFlow({ slug }: { slug: string }) {
   const { user } = useAuth();
   const cache = useQueryClient();
   const campaign = useQuery({
-    queryKey: ['campaign', slug], queryFn: () => getCampaignBySlug(slug!), enabled: Boolean(slug),
+    queryKey: ['campaign', slug], queryFn: () => getCampaignBySlug(slug), enabled: Boolean(slug),
   });
   const [amount, setAmount] = useState('100000');
   const [method, setMethod] = useState<PaymentMethod>('SIMULATED_BANK_TRANSFER');
   const [message, setMessage] = useState('');
   const [anonymous, setAnonymous] = useState(false);
+  const [acknowledged, setAcknowledged] = useState(false);
   const [result, setResult] = useState<DonationResponse | null>(null);
   const [validation, setValidation] = useState('');
-  // Preserve idempotency key across retries of the same payload (e.g. after a connection loss).
-  const pending = useRef<{ signature: string; key: string } | null>(null);
+  // Keep keys for submitted payloads while the outcome is uncertain, even if the donor edits and reverts.
+  const pendingKeys = useRef(new Map<string, string>());
   const create = useMutation({
     mutationFn: ({ campaignId, payload, key }: { campaignId: string; payload: CreateDonationRequest; key: string }) =>
       createDonation(campaignId, payload, key),
+    retry: false,
     onSuccess(data) {
       setResult(data);
-      pending.current = null;
+      pendingKeys.current.clear();
       void cache.invalidateQueries({ queryKey: ['donor', user?.id] });
       void cache.invalidateQueries({ queryKey: ['campaign', slug] });
       void cache.invalidateQueries({ queryKey: ['public-campaigns'] });
     },
   });
+  const current = campaign.data;
+  const allowed = current?.campaignStatus === 'ACTIVE' && current.acceptingDonations === true;
+  const rawMinimum = current?.minimumDonationAmount ?? 1;
+  const minimum = Number.isFinite(rawMinimum) && rawMinimum > 0 ? Math.ceil(rawMinimum) : 1;
+
+  function updateForm(callback: () => void) {
+    setValidation('');
+    if (create.isError) create.reset();
+    callback();
+  }
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (!campaign.data?.id || !campaign.data.acceptingDonations || create.isPending) return;
+    if (!current?.id || !allowed || !user?.roles?.includes('DONOR') || create.isPending || result) return;
     const value = Number(amount);
-    const minimum = campaign.data.minimumDonationAmount ?? 1;
     if (!Number.isSafeInteger(value) || value < minimum || value <= 0) {
-      setValidation('Số tiền mô phỏng phải là số nguyên, tối thiểu ' + amountLabel(minimum, campaign.data.currency) + '.');
+      setValidation('Số tiền mô phỏng phải là số nguyên, tối thiểu ' + amountLabel(minimum, current.currency) + '.');
+      return;
+    }
+    if (!acknowledged) {
+      setValidation('Vui lòng xác nhận bạn hiểu đây chỉ là đóng góp mô phỏng.');
       return;
     }
     setValidation('');
     const payload: CreateDonationRequest = {
-      amount: value, anonymous, currency: campaign.data.currency ?? 'VND',
+      amount: value, anonymous, currency: current.currency ?? 'VND',
       donorMessage: message.trim(), paymentMethod: method,
     };
-    const signature = campaign.data.id + JSON.stringify(payload);
-    if (!pending.current || pending.current.signature !== signature) pending.current = { signature, key: crypto.randomUUID() };
+    const signature = current.id + JSON.stringify(payload);
+    let key = pendingKeys.current.get(signature);
+    if (!key) {
+      key = crypto.randomUUID();
+      pendingKeys.current.set(signature, key);
+    }
     try {
-      await create.mutateAsync({ campaignId: campaign.data.id, payload, key: pending.current.key });
-    } catch { /* Error panel below; retry reuses idempotency key. */ }
+      await create.mutateAsync({ campaignId: current.id, payload, key });
+    } catch { /* Preserve the idempotency key. Error is visible below the form. */ }
   }
-  return <Container className="py-10 sm:py-14">
-    <Link to={slug ? '/campaigns/' + encodeURIComponent(slug) : '/campaigns'} className="inline-flex items-center gap-2 text-sm font-bold text-brand hover:underline"><ArrowLeft size={17} aria-hidden="true"/> Về chiến dịch</Link>
-    <div className="mt-8 max-w-3xl">
-      <p className="text-xs font-extrabold uppercase tracking-widest text-brand">DONOR · BẢN DEMO</p>
-      <h1 className="mt-3 text-3xl font-extrabold text-brand-ink sm:text-4xl">Đóng góp mô phỏng</h1>
-      <p className="mt-4 text-sm leading-7 text-muted">Đây không phải trang thanh toán. Không chuyển tiền, không lưu thông tin thẻ; khoản đóng góp mới chỉ được ghi ở trạng thái chờ Admin xác nhận.</p>
-    </div>
-    <div className="mt-8 grid gap-8 lg:grid-cols-[minmax(0,1fr)_320px]">
-      <div className="rounded-card border border-border bg-surface p-6 sm:p-8">
-        {campaign.isPending ? <StatusMessage title="Đang tải chiến dịch…"/> : null}
-        {campaign.isError ? <StatusMessage error title="Không tải được chiến dịch" detail={campaign.error.message}/> : null}
-        {campaign.isSuccess ? <>
-          <h2 className="text-xl font-bold text-brand-ink">{campaign.data.title ?? 'Chiến dịch'}</h2>
-          <p className="mt-2 text-xs text-muted">Mục tiêu: {amountLabel(campaign.data.targetAmount, campaign.data.currency)}</p>
-          {campaign.data.campaignStatus !== 'ACTIVE' || !campaign.data.acceptingDonations ? <div className="mt-6"><StatusMessage title="Chiến dịch hiện không nhận đóng góp" detail="Backend xác định điều kiện tiếp nhận. Không thể gửi yêu cầu mới." /></div>
-          : result ? <div className="mt-7 rounded-xl border border-border bg-soft-mint p-6" role="status">
-            <CheckCircle2 size={28} className="text-brand" aria-hidden="true"/>
-            <h3 className="mt-3 text-lg font-bold text-brand-ink">Đã ghi nhận yêu cầu mô phỏng</h3>
-            <p className="mt-3 text-sm leading-7">Mã: {result.donationCode ?? result.id ?? 'Đang cập nhật'}</p>
-            <p className="text-sm">Trạng thái Backend: <strong>{donationLabel(result.donationStatus)}</strong></p>
-            <p className="mt-3 text-xs leading-6 text-muted">Không có khoản thanh toán thực tế nào được thực hiện. Việc xác nhận chỉ do Admin thao tác trên Backend.</p>
-            <div className="mt-5"><Link to="/donor" className="inline-flex min-h-11 items-center rounded-xl bg-brand px-5 text-sm font-semibold text-white">Xem lịch sử đóng góp</Link></div>
-          </div> : <form className="mt-7 grid gap-5" onSubmit={(event) => void submit(event)}>
-            <Input id="donation-amount" label="Số tiền ghi nhận (VND)" type="number" inputMode="numeric" min={campaign.data.minimumDonationAmount ?? 1} step="1" required value={amount} onChange={e=>setAmount(e.target.value)}/>
-            <div>
-              <label className="mb-2 block text-sm font-semibold" htmlFor="donation-method">Phương thức giả lập</label>
-              <select id="donation-method" value={method} onChange={e=>setMethod(e.target.value as PaymentMethod)} className="min-h-11 w-full rounded-xl border border-border bg-surface px-3 text-sm">
-                {paymentMethods.map(item=><option key={item.value} value={item.value}>{item.label}</option>)}
-              </select>
-            </div>
-            <div>
-              <label className="mb-2 block text-sm font-semibold" htmlFor="donation-message">Lời nhắn (tùy chọn)</label>
-              <textarea id="donation-message" maxLength={1000} rows={3} value={message} onChange={e=>setMessage(e.target.value)} className="w-full rounded-xl border border-border bg-surface p-3 text-sm"/>
-            </div>
-            <label className="flex items-start gap-3 text-sm text-copy"><input type="checkbox" checked={anonymous} onChange={e=>setAnonymous(e.target.checked)} className="mt-1 accent-brand" /> Ẩn tên người đóng góp trên danh sách công khai</label>
-            {validation ? <p role="alert" className="text-sm text-danger">{validation}</p> : null}
-            {create.isError ? <p role="alert" className="text-sm text-danger">{create.error.message} — có thể thử lại cùng yêu cầu.</p> : null}
-            <Button type="submit" loading={create.isPending} disabled={!user?.roles?.includes('DONOR')}>Ghi nhận đóng góp mô phỏng</Button>
-          </form>}
-        </> : null}
+
+  return <div className="campaign-flow campaign-contribution-flow">
+    <div className="campaign-flow-topband"><Container>
+      <Link className="campaign-flow-back" to={'/campaigns/' + encodeURIComponent(slug)}>
+        <ArrowLeft size={17} aria-hidden="true"/> Về hồ sơ chiến dịch
+      </Link>
+    </Container></div>
+    <Container className="campaign-flow-container">
+      <div className="campaign-flow-status-tags"><span>GHI NHẬN MÔ PHỎNG</span><span className="campaign-flow-tag-warm">KHÔNG THANH TOÁN THẬT</span></div>
+      <h1 className="campaign-flow-title">Đồng hành cùng một sáng kiến</h1>
+      <p className="campaign-flow-intro">Tạo yêu cầu đóng góp mô phỏng để theo dõi tiến độ trên Rise AI. Không nhập thông tin thẻ, không chuyển tiền và không phát sinh giao dịch thực tế.</p>
+      <div className="campaign-flow-contribution-grid">
+        <div className="campaign-flow-donation-paper">
+          <div className="campaign-flow-eyebrow">BƯỚC 01 / KIỂM TRA CHIẾN DỊCH</div>
+          {!result && campaign.isPending ? <StatusMessage title="Đang tải thông tin chiến dịch…" /> : null}
+          {!result && campaign.isError ? <div className="campaign-flow-retry" role="alert">
+            <StatusMessage error title="Không thể tải chiến dịch" detail={campaign.error.message}/>
+            <button type="button" onClick={() => void campaign.refetch()}>Thử tải lại</button>
+          </div> : null}
+          {(campaign.isSuccess || result) && current ?
+            <div className="campaign-flow-contribution-heading">
+              <span className="campaign-flow-category">{categoryLabel(current.category)}</span>
+              <h2>{current.title?.trim() || 'Chiến dịch đang cập nhật tên'}</h2>
+              <p>Mục tiêu mô phỏng: {amountLabel(current.targetAmount, current.currency)}</p>
+            </div> : null}
+          {result ? <div className="campaign-flow-success" role="status">
+              <CheckCircle2 size={33} aria-hidden="true" />
+              <h2>Đã gửi yêu cầu đóng góp mô phỏng</h2>
+              <p>Mã yêu cầu: <strong>{result.donationCode ?? result.id ?? 'Chưa cập nhật'}</strong></p>
+              <p>Trạng thái Backend: <strong>{donationLabel(result.donationStatus)}</strong></p>
+              <p>Yêu cầu không đồng nghĩa đã xác nhận. Chỉ quản trị viên được xử lý và xác nhận trên Backend.</p>
+              <div className="campaign-flow-actions"><Link to="/donor">Xem lịch sử đóng góp <ArrowUpRight size={16} aria-hidden="true"/></Link>
+                <Link to={'/campaigns/' + encodeURIComponent(slug)}>Về hồ sơ chiến dịch</Link></div>
+            </div> : null}
+          {!result && campaign.isSuccess && current ? (!allowed ? <div className="campaign-flow-retry" role="status"><StatusMessage
+              title="Chiến dịch hiện không nhận đóng góp"
+              detail="Backend không cho phép tạo yêu cầu tại trạng thái này. Hãy chọn một chiến dịch ACTIVE đang tiếp nhận đóng góp."/>
+              <Link to="/campaigns">Xem chiến dịch khác</Link></div>
+            : <form className="campaign-flow-donation-form" onSubmit={(event) => void submit(event)}>
+              <div className="campaign-flow-eyebrow">BƯỚC 02 / GHI NHẬN YÊU CẦU</div>
+              <Input id="donation-amount" label={'Số tiền mô phỏng (' + (current.currency ?? 'VND') + ')'}
+                type="number" inputMode="numeric" min={minimum} max={Number.MAX_SAFE_INTEGER} step="1"
+                required value={amount} onChange={(e) => updateForm(() => setAmount(e.target.value))}/>
+              <p className="campaign-flow-field-help">Tối thiểu: {amountLabel(minimum, current.currency)}. Đây là con số ghi nhận trong mô phỏng.</p>
+              <div><label className="campaign-flow-label" htmlFor="donation-method">Phương thức giả lập</label>
+                <select id="donation-method" value={method} onChange={(e) => updateForm(() => setMethod(e.target.value as PaymentMethod))} className="campaign-flow-field">
+                  {paymentMethods.map(item => <option key={item.value} value={item.value}>{item.label}</option>)}
+                </select></div>
+              <div><label className="campaign-flow-label" htmlFor="donation-message">Lời nhắn (không bắt buộc)</label>
+                <textarea id="donation-message" rows={3} maxLength={1000} value={message}
+                  onChange={(e) => updateForm(() => setMessage(e.target.value))} className="campaign-flow-field"/>
+                <p className="campaign-flow-field-help">{message.length} / 1000 ký tự</p></div>
+              <label className="campaign-flow-checkbox"><input type="checkbox" checked={anonymous} onChange={(e) => updateForm(() => setAnonymous(e.target.checked))}/>
+                <span>Ẩn tên trên danh sách đóng góp công khai.</span></label>
+              <label className="campaign-flow-checkbox campaign-flow-consent"><input type="checkbox" checked={acknowledged}
+                onChange={(e) => updateForm(() => setAcknowledged(e.target.checked))}/>
+                <span>Tôi hiểu đây là yêu cầu mô phỏng, không chuyển tiền thật và cần Admin xác nhận trên Backend.</span></label>
+              {validation ? <p role="alert" className="campaign-flow-error">{validation}</p> : null}
+              {create.isError ? <div role="alert" className="campaign-flow-error">
+                <p>Không ghi nhận được yêu cầu: {create.error instanceof ApiError && create.error.status === 401
+                  ? 'Phiên đăng nhập đã hết hạn. Hãy đăng nhập lại.'
+                  : create.error.message}</p>
+                <p>Bạn có thể thử lại với cùng mã yêu cầu để tránh tạo trùng.</p></div> : null}
+              <Button type="submit" className="campaign-flow-submit"
+                loading={create.isPending} disabled={!user?.roles?.includes('DONOR') || !acknowledged || Boolean(result)}>
+                <LockKeyhole size={17} aria-hidden="true"/> Gửi yêu cầu mô phỏng
+              </Button>
+              <p className="campaign-flow-field-help" role="note">Không nhập dữ liệu ngân hàng, thẻ hoặc thông tin thanh toán thực.</p>
+            </form>) : null}
+        </div>
+        <aside className="campaign-flow-contribution-aside" aria-label="Tóm tắt và lưu ý an toàn">
+          <span className="campaign-flow-heading-icon" aria-hidden="true"><HeartHandshake size={23}/></span>
+          <h2>Hành trình đóng góp minh bạch</h2>
+          {current ? <div className="campaign-flow-aside-progress"><FundingProgress raised={current.funding?.netRaised} target={current.targetAmount} currency={current.currency}/></div> : null}
+          <div className="campaign-flow-safety"><ShieldAlert size={23} aria-hidden="true"/><p>Đây không phải cổng thanh toán. Khoản đóng góp sẽ ở trạng thái chờ Admin xác nhận. Có thể hủy khi còn PENDING; yêu cầu hoàn tiền chỉ áp dụng theo chính sách với khoản đã xác nhận.</p></div>
+          <Link className="campaign-flow-cta-secondary" to="/campaigns">Xem thêm sáng kiến cộng đồng</Link>
+        </aside>
       </div>
-      <aside className="h-fit rounded-card bg-soft-sand p-6">
-        <ShieldAlert className="text-warning" size={27} aria-hidden="true"/>
-        <h2 className="mt-3 text-lg font-bold text-brand-ink">Lưu ý quan trọng</h2>
-        <p className="mt-3 text-sm leading-7 text-muted">Không có giao dịch ngân hàng, thẻ hay ví điện tử thật. Sau khi gửi, khoản đóng góp sẽ ở trạng thái chờ xác nhận. Bạn có thể hủy khi vẫn còn PENDING; yêu cầu hoàn tiền chỉ dành cho khoản đã được xác nhận.</p>
-      </aside>
-    </div>
-  </Container>;
+    </Container>
+  </div>;
+}
+
+/** Keyed by slug so result/idempotency state never leaks across campaigns. */
+export function ContributePage() {
+  const { slug } = useParams();
+  if (!slug) return <Container className="py-16"><StatusMessage error title="Đường dẫn chiến dịch không hợp lệ"/>
+    <Link to="/campaigns" className="mt-6 inline-block text-brand underline">Xem chiến dịch khác</Link></Container>;
+  return <ContributionFlow key={slug} slug={slug}/>;
 }

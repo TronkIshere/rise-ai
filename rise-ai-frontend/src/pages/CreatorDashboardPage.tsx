@@ -28,7 +28,11 @@ export function CreatorDashboardPage() {
   const campaigns=useQuery({queryKey:[...key,'campaigns',campaignPage],queryFn:()=>myCreatorCampaigns(campaignPage)});
   const invalidate=()=>void queryClient.invalidateQueries({queryKey:key});
   const save=useMutation({
-    mutationFn:()=>editing?updateOrganization(editing,form):createOrganization(form),
+    mutationFn:()=>{
+      const payload={...form,name:form.name.trim(),contactEmail:form.contactEmail.trim(),
+        contactPhone:form.contactPhone?.trim(),address:form.address?.trim(),description:form.description?.trim()};
+      return editing ? updateOrganization(editing,payload) : createOrganization(payload);
+    },
     onSuccess(){setFormVisible(false);setEditing(null);setForm(blank);setNotice('Đã lưu tổ chức trong Backend.');invalidate();},
   });
   const verify=useMutation({
@@ -37,19 +41,20 @@ export function CreatorDashboardPage() {
   });
   function editOrg(organization:OrganizationResponse){
     if(!organization.id)return;
+    save.reset();
     setEditing(organization.id);setForm({
       name:organization.name,organizationType:organization.organizationType,contactEmail:organization.contactEmail,
       contactPhone:organization.contactPhone??'',address:organization.address??'',description:organization.description??'',
     });setNotice('');setFormVisible(true);
   }
-  function createOrg(){setForm(blank);setEditing(null);setFormVisible(true);setNotice('');}
+  function createOrg(){save.reset();setForm(blank);setEditing(null);setFormVisible(true);setNotice('');}
   async function submit(event:FormEvent<HTMLFormElement>){
     event.preventDefault();
     if(save.isPending)return;
     try {await save.mutateAsync();} catch {/* Backend message below. */}
   }
-  return <Container className="py-10 sm:py-14">
-    <div className="flex flex-wrap items-end justify-between gap-4">
+  return <div className="rise-dashboard creator-dashboard"><Container className="dashboard-inner py-10 sm:py-14">
+    <div className="dashboard-hero flex flex-wrap items-end justify-between gap-4">
       <div>
         <p className="text-xs font-bold uppercase tracking-widest text-brand">CREATOR WORKSPACE</p>
         <h1 className="mt-3 text-3xl font-extrabold text-brand-ink sm:text-4xl">Quản lý hành trình thiện nguyện</h1>
@@ -57,11 +62,16 @@ export function CreatorDashboardPage() {
       </div>
       <Link to="/creator/campaigns/new" className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-brand px-5 text-sm font-bold text-white"><PlusCircle size={18} aria-hidden="true"/> Tạo chiến dịch</Link>
     </div>
+    <section className="dashboard-metrics" aria-label="Tổng quan không gian Creator">
+      <div className="dashboard-metric"><span>Tổ chức của bạn</span><strong>{organizations.isSuccess && typeof organizations.data.totalElements === 'number' ? new Intl.NumberFormat('vi-VN').format(organizations.data.totalElements) : '—'}</strong><small>Tổng số trong Backend</small></div>
+      <div className="dashboard-metric"><span>Chiến dịch đã tạo</span><strong>{campaigns.isSuccess && typeof campaigns.data.totalElements === 'number' ? new Intl.NumberFormat('vi-VN').format(campaigns.data.totalElements) : '—'}</strong><small>Gồm bản nháp và đang xét duyệt</small></div>
+      <div className="dashboard-metric"><span>Đã xác minh</span><strong>{organizations.isSuccess ? (organizations.data.data ?? []).filter(o=>o.verificationStatus==='VERIFIED').length : '—'}</strong><small>Tổ chức trên trang đang xem</small></div>
+    </section>
     {notice?<p role="status" className="mt-6 rounded-xl bg-soft-mint p-4 text-sm text-brand-ink">{notice}</p>:null}
-    <section className="mt-10" aria-labelledby="creator-organizations">
+    <section className="dashboard-section mt-10" aria-labelledby="creator-organizations">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h2 id="creator-organizations" className="flex items-center gap-2 text-2xl font-extrabold text-brand-ink"><Building2 className="text-brand" aria-hidden="true"/> Tổ chức của tôi</h2>
-        <Button variant="outline" onClick={createOrg}>+ Thêm tổ chức</Button>
+        <Button variant="outline" disabled={save.isPending} onClick={createOrg}>+ Thêm tổ chức</Button>
       </div>
       {formVisible?<form className="mt-5 grid gap-5 rounded-card border border-border bg-surface p-6 sm:grid-cols-2" onSubmit={e=>void submit(e)}>
         <h3 className="text-lg font-bold text-brand-ink sm:col-span-2">{editing?'Chỉnh sửa tổ chức':'Tạo tổ chức mới'}</h3>
@@ -72,15 +82,15 @@ export function CreatorDashboardPage() {
         <div className="sm:col-span-2"><Input id="org-address" label="Địa chỉ (nếu có)" maxLength={500} value={form.address} onChange={e=>setForm({...form,address:e.target.value})}/></div>
         <div className="sm:col-span-2"><label htmlFor="org-description" className="mb-2 block text-sm font-semibold">Mô tả hoạt động</label><textarea id="org-description" className="w-full rounded-xl border border-border bg-surface p-3 text-sm" rows={3} maxLength={5000} value={form.description} onChange={e=>setForm({...form,description:e.target.value})}/></div>
         {save.isError?<p role="alert" className="text-sm text-danger sm:col-span-2">{save.error.message}</p>:null}
-        <div className="flex flex-wrap gap-3 sm:col-span-2"><Button type="submit" loading={save.isPending}>Lưu tổ chức</Button><Button type="button" variant="outline" onClick={()=>setFormVisible(false)}>Đóng</Button></div>
+        <div className="flex flex-wrap gap-3 sm:col-span-2"><Button type="submit" loading={save.isPending}>Lưu tổ chức</Button><Button type="button" variant="outline" disabled={save.isPending} onClick={()=>{setFormVisible(false);save.reset();}}>Đóng</Button></div>
       </form>:null}
       <div className="mt-5 grid gap-4 md:grid-cols-2">
         {organizations.isSuccess && organizations.data.data?.length ? organizations.data.data.map(org=><article key={org.id} className="rounded-card border border-border bg-surface p-6">
           <div className="flex flex-wrap justify-between gap-3"><h3 className="text-lg font-bold text-brand-ink">{org.name}</h3><span className="h-fit rounded-full bg-soft-sand px-3 py-1.5 text-xs text-warning">{verificationState(org.verificationStatus)}</span></div>
           <p className="mt-2 text-sm text-muted">{org.contactEmail}</p>
           {org.verificationNotes?<p className="mt-3 text-xs text-muted">Ghi chú duyệt: {org.verificationNotes}</p>:null}
-          <div className="mt-5 flex flex-wrap gap-2"><Button variant="outline" onClick={()=>editOrg(org)}>Chỉnh sửa</Button>
-            {org.id && (org.verificationStatus==='UNVERIFIED'||org.verificationStatus==='REJECTED')?<Button variant="outline" loading={verify.isPending} onClick={()=>{if(window.confirm('Gửi tổ chức để Admin xem xét xác minh?'))verify.mutate(org.id!);}}>Gửi xác minh</Button>:null}
+          <div className="mt-5 flex flex-wrap gap-2"><Button variant="outline" disabled={save.isPending} onClick={()=>editOrg(org)}>Chỉnh sửa</Button>
+            {org.id && (org.verificationStatus==='UNVERIFIED'||org.verificationStatus==='REJECTED')?<Button variant="outline" loading={verify.isPending} disabled={save.isPending} onClick={()=>{if(window.confirm('Gửi tổ chức để Admin xem xét xác minh?'))verify.mutate(org.id!);}}>Gửi xác minh</Button>:null}
           </div>
         </article>):null}
       </div>
@@ -90,7 +100,7 @@ export function CreatorDashboardPage() {
       {organizations.isSuccess && !organizations.data.data?.length?<div className="mt-5"><StatusMessage title="Chưa có tổ chức" detail="Tạo tổ chức trước khi lập dự án; xác minh được Admin xử lý riêng." /></div>:null}
       {organizations.isSuccess?<RecordPagination page={orgPage} pages={organizations.data.totalPages??0} onChange={setOrgPage}/>:null}
     </section>
-    <section className="mt-14" aria-labelledby="creator-campaigns">
+    <section className="dashboard-section mt-14" aria-labelledby="creator-campaigns">
       <h2 id="creator-campaigns" className="flex items-center gap-2 text-2xl font-extrabold text-brand-ink"><ClipboardList className="text-brand" aria-hidden="true"/> Chiến dịch của tôi</h2>
       <p className="mt-2 text-sm text-muted">Các bản nháp và chiến dịch đã gửi duyệt chỉ xuất hiện trong không gian Creator, không tự động công khai.</p>
       <div className="mt-5 space-y-4">
@@ -105,5 +115,5 @@ export function CreatorDashboardPage() {
       {campaigns.isSuccess?<RecordPagination page={campaignPage} pages={campaigns.data.totalPages??0} onChange={setCampaignPage}/>:null}
     </section>
     <div className="mt-10 flex items-start gap-3 rounded-card bg-soft-mint p-5 text-sm text-brand-ink"><ShieldCheck className="shrink-0 text-brand" size={20} aria-hidden="true"/> Creator không tự duyệt tổ chức, chiến dịch hay giải ngân. Mọi bước phê duyệt thuộc Admin.</div>
-  </Container>;
+  </Container></div>;
 }

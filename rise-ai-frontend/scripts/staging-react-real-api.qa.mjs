@@ -149,8 +149,39 @@ try {
   await page.waitForURL('**/campaigns');
   check('Footer navigation preserves React SPA document',
     await page.evaluate(() => window.__riseQaDocument === true));
-  check('Campaign listing route loads', (await page.locator('body').innerText()).length > 100);
-  await page.screenshot({ path: resolve(output, '03-campaigns-route-1440.png'), fullPage: true });
+  // The SPA can publish /campaigns while the Homepage still owns the document height.
+  const discovery = page.locator('.campaign-discovery');
+  await discovery.locator('footer#footer').waitFor();
+  await discovery.locator('.lead-section, .cd-empty, .cd-error').first().waitFor();
+  check('Campaign listing route loads', (await discovery.locator('.cd-error').count()) === 0);
+  await page.evaluate(() => document.fonts.ready.then(() => undefined));
+  await page.waitForFunction(() => [...document.querySelectorAll('.campaign-discovery img')]
+    .every(image => image.complete && image.naturalWidth > 0));
+  const getGeometry = () => page.evaluate(() => {
+    const footer = document.querySelector('.campaign-discovery footer#footer');
+    const documentHeight = Math.max(document.documentElement.scrollHeight, document.body.scrollHeight);
+    const footerBottom = Math.round(footer.getBoundingClientRect().bottom + window.scrollY);
+    return { documentHeight, footerBottom, trailingGap: documentHeight - footerBottom,
+      documentWidth: document.documentElement.scrollWidth };
+  });
+  let geometry = await getGeometry();
+  let stableSamples = 0;
+  for (let sample = 0; sample < 20 && stableSamples < 2; sample++) {
+    await page.waitForTimeout(180);
+    const current = await getGeometry();
+    stableSamples = current.documentHeight === geometry.documentHeight &&
+      current.footerBottom === geometry.footerBottom ? stableSamples + 1 : 0;
+    geometry = current;
+  }
+  report.discoveryGeometry = geometry;
+  check('Campaign Discovery layout settles before capture', stableSamples >= 2, geometry);
+  check('Campaign Discovery footer ends document without overflow',
+    geometry.trailingGap >= -2 && geometry.trailingGap <= 4 && geometry.documentWidth <= 1440, geometry);
+  const png = await page.screenshot({ path: resolve(output, '03-campaigns-route-1440.png'), fullPage: true });
+  const screenshot = { width: png.readUInt32BE(16), height: png.readUInt32BE(20) };
+  report.discoveryScreenshot = screenshot;
+  check('Campaign Discovery PNG dimensions match settled document',
+    screenshot.width === 1440 && Math.abs(screenshot.height - geometry.documentHeight) <= 3, screenshot);
   report.screenshots.push('03-campaigns-route-1440.png');
   report.pass = true;
 } catch (error) {

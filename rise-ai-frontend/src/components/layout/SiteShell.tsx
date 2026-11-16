@@ -1,14 +1,52 @@
 import { Building2, HandHeart, HeartHandshake, LogOut, Menu, ShieldCheck } from 'lucide-react';
 import { useState } from 'react';
-import { Link, NavLink, Outlet } from 'react-router';
+import { Link, NavLink, Outlet, useMatches } from 'react-router';
 import { useAuth } from '@/auth/auth-context';
 import { Button } from '@/components/ui/Button';
+import { B2Footer } from '@/components/ui/B2Footer';
+import { B2IconSymbols } from '@/components/ui/B2IconSymbols';
+import { B2TopNavigation } from '@/components/ui/B2TopNavigation';
+import { useB2Desktop } from '@/lib/useB2Desktop';
 import { Container } from './Container';
 
 export function SiteShell() {
   const { user, logout } = useAuth();
   const [warning, setWarning] = useState('');
   const [menuOpen, setMenuOpen] = useState(false);
+  const matches = useMatches();
+  const layout = matches.at(-1)?.handle as { b2Sample?: 'all' | 'admin'; footer?: false; b2Footer?: false } | undefined;
+  const sample = layout?.b2Sample;
+  const showFooter = layout?.footer !== false;
+  const desktop = useB2Desktop();
+
+  function signOut() {
+    setMenuOpen(false);
+    void logout().catch(() => setWarning('Đã kết thúc phiên trên máy nhưng chưa xác minh thu hồi phiên ở Backend.'));
+  }
+
+  if (desktop && (sample === 'all' || (sample === 'admin' && user?.roles?.includes('ADMIN')))) {
+    return <div className="b2-sample-shell">
+      <div id="top" className="b2-homepage b2-shared-chrome">
+        <a href="#main-content" className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:bg-surface focus:p-3">Bỏ qua điều hướng</a>
+        <B2IconSymbols />
+        <div className="preview-ribbon" role="note"><span className="ribbon-dot" aria-hidden="true" />Rise AI · Mô phỏng, không tiếp nhận hoặc chuyển tiền thật</div>
+        <header className="b2-sample-header">
+          <B2TopNavigation site showLogin={!user} />
+          {user ? <nav className="content b2-sample-account" aria-label="Điều hướng tài khoản">
+            {user.roles?.includes('DONOR') ? <NavLink to="/donor">Đóng góp của tôi</NavLink> : null}
+            {user.roles?.includes('CAMPAIGN_CREATOR') ? <NavLink to="/creator">Quản lý dự án</NavLink> : null}
+            {user.roles?.includes('ADMIN') ? <NavLink to="/admin">Quản trị</NavLink> : null}
+            <NavLink to="/workspace">Cá nhân</NavLink>
+            <button type="button" onClick={signOut}><LogOut size={16} aria-hidden="true" /> Đăng xuất</button>
+          </nav> : null}
+        </header>
+      </div>
+      {warning ? <Container className="py-3"><p role="alert" className="text-sm text-warning">{warning}</p></Container> : null}
+      <main id="main-content" className="b2-sample-main" tabIndex={-1}><Outlet /></main>
+      {showFooter && layout?.b2Footer !== false && <div className="b2-homepage b2-shared-chrome"><B2Footer site /></div>}
+    </div>;
+  }
+
   return (
     <div className="flex min-h-screen flex-col bg-canvas text-copy">
       <a href="#main-content" className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-xl focus:bg-surface focus:p-3 focus:text-brand">Bỏ qua điều hướng</a>
@@ -29,7 +67,7 @@ export function SiteShell() {
             {user?.roles?.includes('CAMPAIGN_CREATOR') ? <NavLink to="/creator" onClick={() => setMenuOpen(false)} className={({isActive}) => 'inline-flex min-h-11 items-center gap-2 text-sm font-semibold hover:text-brand ' + (isActive ? 'text-brand' : 'text-copy')}><Building2 size={16} aria-hidden="true"/> Quản lý dự án</NavLink> : null}
             {user?.roles?.includes('ADMIN') ? <NavLink to="/admin" onClick={() => setMenuOpen(false)} className={({isActive}) => 'inline-flex min-h-11 items-center gap-2 text-sm font-semibold hover:text-brand ' + (isActive ? 'text-brand' : 'text-copy')}><ShieldCheck size={16} aria-hidden="true"/> Quản trị</NavLink> : null}
             {user ? <NavLink to="/workspace" onClick={() => setMenuOpen(false)} className={({isActive}) => 'inline-flex min-h-11 items-center text-sm font-semibold hover:text-brand ' + (isActive ? 'text-brand' : 'text-copy')}>Cá nhân</NavLink> : <Link to="/login" onClick={() => setMenuOpen(false)} className="inline-flex min-h-11 items-center rounded-xl bg-brand px-5 text-sm font-bold text-white hover:bg-brand-hover">Đăng nhập</Link>}
-            {user ? <Button variant="outline" onClick={() => { setMenuOpen(false); void logout().catch(() => setWarning('Đã kết thúc phiên trên máy nhưng chưa xác minh thu hồi phiên ở Backend.')); }}>
+            {user ? <Button variant="outline" onClick={signOut}>
               <LogOut size={16} aria-hidden="true"/> Đăng xuất
             </Button> : null}
           </nav>
@@ -37,7 +75,7 @@ export function SiteShell() {
       </header>
       {warning ? <Container className="py-3"><p role="alert" className="text-sm text-warning">{warning}</p></Container> : null}
       <main id="main-content" className="grow"><Outlet /></main>
-      <footer className="border-t border-border bg-brand-ink text-white">
+      {showFooter && <footer className="border-t border-border bg-brand-ink text-white">
         <Container className="grid gap-8 py-12 sm:grid-cols-[1fr_auto]">
           <div className="max-w-md">
             <Link to="/" className="flex items-center gap-2.5 text-xl font-extrabold"><HeartHandshake size={26} aria-hidden="true"/> Rise AI</Link>
@@ -49,7 +87,7 @@ export function SiteShell() {
           </div>
           <p className="text-xs leading-6 text-white/65 sm:col-span-2">© Rise AI · Mô phỏng nội bộ · Không thanh toán tiền thật · AI chỉ cung cấp cảnh báo hỗ trợ quyết định.</p>
         </Container>
-      </footer>
+      </footer>}
     </div>
   );
 }
