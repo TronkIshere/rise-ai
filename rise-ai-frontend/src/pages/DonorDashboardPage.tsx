@@ -7,6 +7,7 @@ import type { CreateRefundRequest, DisputeType, DonationResponse } from '@/api/c
 import { useAuth } from '@/auth/auth-context';
 import { Container } from '@/components/layout/Container';
 import { Button } from '@/components/ui/Button';
+import { DonationReceiptNote } from '@/pages/OnchainViews';
 import { Input } from '@/components/ui/Input';
 import { RecordPagination } from '@/components/ui/RecordPagination';
 import { StatusMessage } from '@/components/ui/StatusMessage';
@@ -157,6 +158,7 @@ export function DonorDashboardPage() {
               <p className="text-xs text-muted">{item.donationCode ?? 'Khoản đóng góp'} · {dateLabel(item.createdAt)}</p>
               <h3 className="mt-2 text-lg font-bold text-brand-ink">{campaignMap.get(item.campaignId ?? '')?.title ?? 'Chiến dịch ' + (item.campaignId?.slice(0,8) ?? 'chưa rõ')}</h3>
               <p className="mt-2 text-sm font-bold text-brand">{amountLabel(item.amount,item.currency)}</p>
+              <DonationReceiptNote code={item.donationCode} />
             </div>
             <span className="h-fit rounded-full bg-soft-sand px-3 py-2 text-xs font-semibold text-warning">{donationLabel(item.donationStatus)}</span>
           </div>

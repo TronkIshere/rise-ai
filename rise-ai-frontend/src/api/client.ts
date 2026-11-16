@@ -53,6 +53,7 @@ type ApiPath =
   | `/api/v1/disbursements/${string}/cancel`
   | `/api/v1/admin/${string}`
   | `/api/v1/escrow/${string}`
+  | `/api/v1/transparency/${string}`
   | `/api/v1/campaigns/${string}/escrow`
   | `/api/v1/disbursements/${string}/start-review`
   | `/api/v1/disbursements/${string}/request-evidence`

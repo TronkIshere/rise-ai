@@ -1,0 +1,44 @@
+.chain-panel{margin:28px 0;padding:26px 30px;border:1px solid #bfd9cd;background:#f4faf5;border-radius:24px;color:#1a4539;box-shadow:0 12px 32px #1043340a}
+.chain-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:18px;flex-wrap:wrap;margin-bottom:14px}
+.chain-heading h2,.chain-heading h3{font-size:clamp(20px,2vw,27px);line-height:1.23;color:#163b33;font-weight:800;margin:0}
+.chain-eyebrow{font-size:11px;font-weight:800;letter-spacing:.16em;color:#4c7d6f;margin:0 0 8px}
+.chain-badge{display:inline-flex;align-items:center;gap:7px;padding:7px 12px;border:1px solid #b1d6c5;border-radius:999px;background:#e9f5ec;color:#1d684b;font-size:12px;font-weight:800;line-height:1.4}
+.chain-badge-muted{border-color:#dcded1;background:#f7f5ed;color:#685f4e}
+.chain-flow-list{margin:18px 0 0;padding:0;list-style:none;display:grid;gap:12px}
+.chain-flow-step{border:1px solid #d5e6db;background:white;border-radius:16px;padding:16px 20px}
+.chain-flow-step-top{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;margin-bottom:8px;font-size:14px}
+.chain-flow-step p{font-size:13px;line-height:1.7;margin:5px 0;color:#45645a}
+.chain-state{font-size:12px;font-weight:800;background:#e4f3e7;border-radius:30px;padding:5px 10px;color:#206a4a}
+.chain-state-warning{background:#fff1db;color:#985b1a}
+.chain-flow-timer{font-weight:800!important;color:#8a6437!important}
+.chain-flow-received{color:#246b4a!important;font-weight:800}
+.chain-link{display:inline-flex;align-items:center;gap:6px;min-height:32px;color:#1a7460;font-size:13px;font-weight:800;text-decoration:underline;text-underline-offset:3px}
+.chain-link:hover{color:#104e41}
+.chain-muted,.chain-footnote{color:#567166;font-size:13px;line-height:1.8}
+.chain-footnote{margin:18px 0 0;border-top:1px solid #d8e9de;padding-top:12px}
+.chain-error{color:#a23434;font-size:13px}.chain-error button{text-decoration:underline;font-weight:800}
+.chain-receipt{margin:14px 0 0;padding:12px 14px;border-radius:12px;border:1px dashed #bfd6cb;background:#f7fbf6;font-size:12px;line-height:1.65;color:#365e51}
+.chain-receipt strong{display:block;font-size:12px;color:#1c5745}.chain-receipt p{margin:3px 0}
+.chain-summary{padding:10px 14px;border-radius:12px;background:#fff4df;color:#785124;font-size:13px}
+.chain-refresh{display:inline-flex;align-items:center;gap:6px;border:1px solid #a7cbbb;border-radius:10px;padding:9px 13px;font-size:12px;font-weight:800}
+.chain-transactions{margin-top:20px}.chain-transactions h4{font-size:14px;font-weight:800;margin-bottom:8px}
+.chain-transaction{padding:11px 0;border-top:1px solid #d4e6da;display:flex;justify-content:space-between;align-items:center;gap:12px;font-size:12px}
+.chain-transaction span{overflow-wrap:anywhere}
+.chain-public-page{background:#f5f8f2;color:#214338;min-height:70vh;padding:42px 0 80px}
+.chain-public-page .chain-container{max-width:1150px;margin:auto;padding:0 24px}
+.chain-public-hero{padding:38px 42px;border-radius:24px;color:#f8fff9;background:linear-gradient(120deg,#164e40,#245f4c 62%,#448068)}
+.chain-public-hero h1{font-weight:900;font-size:clamp(26px,3vw,43px);margin:9px 0 14px;line-height:1.16}
+.chain-public-hero p{max-width:750px;line-height:1.75;color:#e1f4e8;font-size:14px}
+.chain-public-hero .chain-eyebrow{color:#f0d49a}
+.chain-public-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px;margin-top:24px}
+.chain-public-grid .chain-panel{margin:0;min-width:0}
+.chain-public-value{font-weight:800;font-size:16px;overflow-wrap:anywhere;margin:10px 0}
+.chain-public-row{border-top:1px solid #d6e5da;padding:12px 0;font-size:13px;line-height:1.7}
+.chain-public-row:first-of-type{border-top:0}
+.chain-public-row strong{display:block;margin-bottom:3px}
+.chain-public-full{margin-top:24px}
+.chain-public-foot{font-size:12px;color:#6d806f;line-height:1.7;margin-top:12px}
+.chain-pagination{display:flex;gap:12px;margin-top:20px}
+.chain-pagination button{border:1px solid #89b9a1;padding:9px 13px;border-radius:10px;font-size:13px;font-weight:800}
+.chain-pagination button:disabled{opacity:.45;cursor:not-allowed}
+@media(max-width:850px){.chain-public-grid{grid-template-columns:1fr}.chain-public-hero{padding:26px}.chain-public-page{padding:20px 0}.chain-panel{padding:20px}.chain-public-page .chain-container{padding:0 14px}}

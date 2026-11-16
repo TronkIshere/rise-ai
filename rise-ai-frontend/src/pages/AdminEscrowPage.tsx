@@ -10,6 +10,7 @@ import {
 import { useAuth } from '@/auth/auth-context';
 import { Container } from '@/components/layout/Container';
 import { Button } from '@/components/ui/Button';
+import { AdminChainPanel } from '@/pages/OnchainViews';
 import { Input } from '@/components/ui/Input';
 import { RecordPagination } from '@/components/ui/RecordPagination';
 import { StatusMessage } from '@/components/ui/StatusMessage';
@@ -153,6 +154,7 @@ export function AdminEscrowPage(){
           <div className="admin-ledger-result"><AdminState value={reconciliationState(reconciliation.data.consistent)}>{reconciliationLabel(reconciliation.data.consistent)}</AdminState><span>{reconciliation.data.ledgerEntryCount??'—'} bút toán</span></div>
           <ReconciliationBalances report={reconciliation.data}/>
         </div>:null}
+        <AdminChainPanel campaignId={activeId} />
         <h3 className="mt-8 text-lg font-bold text-brand-ink">Bút toán sổ cái</h3>
         {ledger.isPending?<div className="mt-4"><StatusMessage title="Đang tải bút toán…"/></div>:null}
         {ledger.isError?<div className="mt-4"><StatusMessage error title="Không tải được bút toán" detail={ledger.error.message}/></div>:null}

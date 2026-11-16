@@ -5,6 +5,7 @@ import { ApiError } from '@/api/client';
 import { getCampaignBySlug, listCampaignMilestones } from '@/api/campaigns';
 import type { CampaignResponse } from '@/api/contracts';
 import { Container } from '@/components/layout/Container';
+import { CampaignChainPanel, ChainBadge } from '@/pages/OnchainViews';
 import { CampaignMedia } from '@/components/ui/CampaignMedia';
 import { FundingProgress } from '@/components/ui/FundingProgress';
 import { StatusMessage } from '@/components/ui/StatusMessage';
@@ -77,6 +78,7 @@ function DetailContent({ campaign, slug }: { campaign: CampaignResponse; slug: s
       <span>{categoryLabel(campaign.category)}</span>
       <span>{statusLabel(campaign.campaignStatus)}</span>
       <span className="campaign-flow-tag-warm">GIAO DỊCH MÔ PHỎNG</span>
+      <ChainBadge />
     </div>
     <h1 className="campaign-flow-title">{title}</h1>
     {campaign.shortDescription ? <p className="campaign-flow-intro">{campaign.shortDescription}</p> : null}
@@ -109,6 +111,7 @@ function DetailContent({ campaign, slug }: { campaign: CampaignResponse; slug: s
         </div>
         <DetailGallery campaign={campaign} />
         <DetailMilestones campaign={campaign} />
+        {campaign.id ? <CampaignChainPanel campaignId={campaign.id} /> : null}
       </div>
       <aside className="campaign-flow-aside" aria-label="Tiến độ và hành động">
         <div className="campaign-flow-summary">
