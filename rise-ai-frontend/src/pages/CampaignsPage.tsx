@@ -5,7 +5,7 @@ import { RotateCcw, Search } from 'lucide-react';
 import type { CampaignCategory, CampaignResponse } from '@/api/contracts';
 import { listActiveCampaigns } from '@/api/campaigns';
 import { CampaignMedia } from '@/components/ui/CampaignMedia';
-import { amountLabel, categoryLabel, categoryOptions, safeImageUrl } from '@/lib/campaign-display';
+import { amountLabel, categoryLabel, categoryOptions, usableCampaignImageUrl } from '@/lib/campaign-display';
 import {
   campaignHeroArt, campaignLeadArt, campaignMeadowArt,
   campaignPaperTopArt, campaignPaperBottomArt, campaignPagerArt,
@@ -149,18 +149,21 @@ function CampaignLead({ campaign }: { campaign: CampaignResponse }) {
 
 function CampaignDossier({ campaign }: { campaign: CampaignResponse }) {
   const slug = campaign.slug;
-  const image = safeImageUrl(campaign.coverImageUrl);
   const title = campaign.title?.trim() || 'Chiến dịch chưa có tiêu đề';
   return <article className="dossier dossier-v11" data-vibe={categoryVibes[campaign.category ?? 'OTHER']}
     aria-label={'Hồ sơ chiến dịch ' + title}>
     <div className="dossier-paper">
       <div className="paper-fibers" aria-hidden="true" /><div className="holes" aria-hidden="true" />
       <div className="photo-frame">
-        {image ? <CampaignMedia src={image} alt={'Ảnh đại diện do chiến dịch cung cấp: ' + title} className="cd-media" />
-          : <div className="cd-art-fallback" role="img" aria-label={'Minh họa lĩnh vực ' + categoryLabel(campaign.category)}>
+        <CampaignMedia
+          src={usableCampaignImageUrl(campaign.coverImageUrl)}
+          alt={'Ảnh đại diện do chiến dịch cung cấp: ' + title}
+          className="cd-media"
+          fallback={<div className="cd-art-fallback" role="img" aria-label={'Minh họa lĩnh vực ' + categoryLabel(campaign.category)}>
             <StaticArt html={campaignCategoryArt[campaign.category ?? 'OTHER']} />
           </div>}
-        <span className="photo-caption">{image ? 'ẢNH TỪ HỒ SƠ' : 'MINH HỌA LĨNH VỰC'}</span>
+          renderCaption={(hasImage) => <span className="photo-caption">{hasImage ? 'ẢNH TỪ HỒ SƠ' : 'MINH HỌA LĨNH VỰC'}</span>}
+        />
       </div>
       <span className="washi-tape" aria-hidden="true" />
       <div className="dossier-copy">

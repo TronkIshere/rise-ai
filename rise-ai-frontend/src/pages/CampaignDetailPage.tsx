@@ -8,7 +8,7 @@ import { Container } from '@/components/layout/Container';
 import { CampaignMedia } from '@/components/ui/CampaignMedia';
 import { FundingProgress } from '@/components/ui/FundingProgress';
 import { StatusMessage } from '@/components/ui/StatusMessage';
-import { amountLabel, categoryLabel, dateLabel, milestoneLabel, safeImageUrl, statusLabel } from '@/lib/campaign-display';
+import { amountLabel, categoryLabel, dateLabel, milestoneLabel, usableCampaignImageUrl, statusLabel } from '@/lib/campaign-display';
 
 function DetailSection({ heading, children }: { heading: string; children?: string }) {
   if (!children?.trim()) return null;
@@ -20,7 +20,7 @@ function DetailSection({ heading, children }: { heading: string; children?: stri
 
 function DetailGallery({ campaign }: { campaign: CampaignResponse }) {
   const images = (campaign.galleryImageUrls ?? [])
-    .map(safeImageUrl).filter((url): url is string => Boolean(url))
+    .map(usableCampaignImageUrl).filter((url): url is string => Boolean(url))
     .filter((url, index, all) => all.indexOf(url) === index).slice(0, 6);
   if (!images.length) return null;
   return <section className="campaign-flow-gallery" aria-labelledby="detail-gallery-heading">
@@ -88,9 +88,14 @@ function DetailContent({ campaign, slug }: { campaign: CampaignResponse; slug: s
     <div className="campaign-flow-columns">
       <div className="campaign-flow-primary">
         <div className="campaign-flow-cover">
-          <CampaignMedia src={safeImageUrl(campaign.coverImageUrl)} alt={'Ảnh đại diện: ' + title} className="campaign-flow-cover-image" />
-          <span className="campaign-flow-cover-caption campaign-flow-cover-source">ẢNH TỪ HỒ SƠ / KHÔNG THAY THẾ MINH CHỨNG</span>
-          <span className="campaign-flow-cover-caption campaign-flow-cover-unavailable">CHƯA CÓ ẢNH ĐẠI DIỆN</span>
+          <CampaignMedia
+            src={usableCampaignImageUrl(campaign.coverImageUrl)}
+            alt={'Ảnh đại diện: ' + title}
+            className="campaign-flow-cover-image"
+            renderCaption={(hasImage) => <span className="campaign-flow-cover-caption">
+              {hasImage ? 'ẢNH TỪ HỒ SƠ / KHÔNG THAY THẾ MINH CHỨNG' : 'MINH HỌA / CHƯA CÓ ẢNH ĐẠI DIỆN'}
+            </span>}
+          />
         </div>
         <div className="campaign-flow-story">
           <div className="campaign-flow-eyebrow">CÂU CHUYỆN &amp; TÁC ĐỘNG</div>
