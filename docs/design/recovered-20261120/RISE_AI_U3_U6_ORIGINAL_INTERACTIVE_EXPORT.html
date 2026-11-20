@@ -1,0 +1,1226 @@
+<!doctype html><html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Rise AI · Export Source U3–U6</title>
+<style>*{box-sizing:border-box}body{margin:0;background:#f2f5eb;color:#123e32;font:14px "Be Vietnam Pro",system-ui,sans-serif}header{background:#123e32;color:#fff8e8;padding:24px 30px}h1{margin:0;font-size:25px}header p{margin:8px 0 0;line-height:1.7;max-width:1100px;color:#dce8df}main{padding:18px 22px 70px;max-width:1500px;margin:auto}nav,.actions{display:flex;flex-wrap:wrap;gap:10px;margin:12px 0}button{font:700 13px system-ui;cursor:pointer;background:#fffdf7;border:2px solid #123e32;color:#123e32;box-shadow:3px 4px 0 #bacdb8;border-radius:11px;padding:10px 14px}button.on{background:#49e1a7}.download{background:#ffba74}article{padding:15px 20px;margin:12px 0 16px;border:2px solid #123e32;border-radius:15px;background:white}article h2{margin:0 0 6px;font-size:19px}article p{margin:5px 0;font-size:13px;line-height:1.7}iframe{width:100%;height:1900px;background:#fff;border:2px solid #123e32;border-radius:16px}small{font-size:12px;line-height:1.7;display:block;margin-top:12px;color:#48665a}</style></head>
+<body><header><h1>Rise AI · Phục hồi mã gốc U3–U6</h1><p>Trích xuất nguyên văn các khối HTML/CSS/JS từ bản xuất ChatGPT chính thức. Không dựng gần giống; không thay đổi mã React. Chọn một màn, xem thử và tải file HTML riêng. U6 card cuối là tài sản tách khỏi full-page V1.2.2.</p></header><main><nav id="nav"></nav><article><h2 id="name"></h2><p id="note"></p><p id="info"></p></article><div class="actions"><button id="dl" class="download">Tải HTML của màn đang chọn</button><button id="open">Mở xem trong tab riêng</button></div><iframe title="Preview" id="view" sandbox="allow-scripts allow-popups allow-modals" referrerpolicy="no-referrer"></iframe><small><b>Chú ý:</b> U3 đã sửa font nhưng CSS bản xuất vẫn khai báo fallback Arial/Noto, chưa có bằng chứng đồng bộ Be Vietnam Pro khi chạy React. U6 full-page cần ghép card đã chốt để trở thành final composite. U1/U2 dựa vào mã React và bằng chứng PR #42, không bị giả mạo bằng AppBlock này. Tất cả số liệu preview là mô phỏng.</small></main><textarea id="src-U3" hidden>
+&lt;div id="u3font3" class="w-full"&gt;
+&lt;style&gt;
+#u3font3{--ink:#123d30;--mint:#4fe6ab;--mintlight:#f0fff5;--apricot:#ffb96c;--apricotlight:#fff6e8;--sky:#72d4fa;--skylight:#eef9ff;font-family:Arial,"Noto Sans","Segoe UI",Tahoma,sans-serif;color:var(--ink);background:#f8f8ef;border:2px solid var(--ink);border-radius:16px;overflow:hidden;font-size:13px;font-synthesis:weight}
+#u3font3 *,#u3font3 *:before,#u3font3 *:after{box-sizing:border-box}
+#u3font3 button,#u3font3 input,#u3font3 select,#u3font3 textarea{font-family:inherit;line-height:1.5}
+#u3font3 button{cursor:pointer}
+#u3font3 button:focus-visible,#u3font3 input:focus-visible,#u3font3 select:focus-visible,#u3font3 textarea:focus-visible{outline:3px solid #a9682a;outline-offset:3px}
+#u3font3 h1,#u3font3 h2,#u3font3 h3,#u3font3 p{margin:0;letter-spacing:0;overflow:visible}
+#u3font3 h1{font-family:inherit;font-size:clamp(29px,4.1vw,46px);font-weight:800;line-height:1.3}
+#u3font3 h2{font-family:inherit;font-size:23px;font-weight:800;line-height:1.38}
+#u3font3 h3{font-family:inherit;font-size:16px;font-weight:800;line-height:1.45}
+#u3font3 p{line-height:1.7}
+#u3font3 .ribbon{background:#ffb96c;border-bottom:2px solid var(--ink);padding:9px 14px;text-align:center;color:#673410;font-size:10px;font-weight:800;letter-spacing:.35px}
+#u3font3 .nav{background:#103e31;color:#fff;padding:15px 23px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+#u3font3 .brand{font-size:23px;line-height:1.3;font-weight:800;display:flex;align-items:center;gap:10px}
+#u3font3 .brandmark{width:35px;height:35px;border:2px solid #eafff0;background:var(--mint);color:var(--ink);border-radius:9px;box-shadow:3px 3px 0 #081e17;transform:rotate(-6deg);display:grid;place-items:center;font-size:20px}
+#u3font3 .navchip{padding:8px 11px;border:2px solid #8ce7ba;background:#1c644b;border-radius:22px;font-size:11px;font-weight:800}
+#u3font3 .body{padding:24px;max-width:1180px;margin:auto}
+#u3font3 .hero{display:grid;grid-template-columns:1.12fr .88fr;align-items:center;gap:8px;border:3px solid var(--ink);border-radius:20px;background:linear-gradient(110deg,#e9ffef,#b0f3ce);box-shadow:6px 7px 0 #174735;overflow:hidden}
+#u3font3 .herocopy{padding:32px 4px 36px 31px}
+#u3font3 .eyebrow{display:inline-block;background:var(--apricot);border:2px solid var(--ink);box-shadow:3px 3px 0 var(--ink);border-radius:8px;padding:7px 10px;font-size:10px;line-height:1.5;font-weight:850;margin-bottom:16px}
+#u3font3 .hero h1 span{display:block;color:#ac5421}
+#u3font3 .hero p{font-size:12px;color:#315b46;font-weight:600;max-width:470px;margin:15px 0 20px}
+#u3font3 .heroart{display:block;justify-self:center;max-width:350px;width:100%;height:auto}
+#u3font3 .btn{border:2px solid var(--ink);background:var(--mint);color:var(--ink);font-size:12px;font-weight:800;border-radius:10px;padding:10px 15px;box-shadow:4px 4px 0 var(--ink)}
+#u3font3 .btn:hover{transform:translate(1px,1px);box-shadow:3px 3px 0 var(--ink)}
+#u3font3 .metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:13px;margin-top:25px}
+#u3font3 .metric{border:2.5px solid var(--ink);border-radius:14px;box-shadow:4px 5px 0 #174735;overflow:hidden;background:var(--mintlight)}
+#u3font3 .metric:nth-child(2){background:var(--apricotlight)}
+#u3font3 .metric:nth-child(3){background:var(--skylight)}
+#u3font3 .metric:nth-child(4){background:#fff0ea}
+#u3font3 .methead{display:flex;justify-content:space-between;gap:6px;align-items:center;background:var(--mint);border-bottom:2px solid var(--ink);font-size:10px;font-weight:800;padding:9px 10px;line-height:1.45}
+#u3font3 .metric:nth-child(2) .methead{background:var(--apricot)}
+#u3font3 .metric:nth-child(3) .methead{background:var(--sky)}
+#u3font3 .metric:nth-child(4) .methead{background:#ffa38d}
+#u3font3 .metbody{padding:14px}
+#u3font3 .metbody strong{display:block;font-size:32px;line-height:1.3;font-weight:800}
+#u3font3 .metbody small{display:block;font-size:10px;line-height:1.55;color:#516e5b;margin-top:4px;font-weight:700}
+#u3font3 .sectionhead{margin:31px 0 15px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px}
+#u3font3 .sectionhead small{display:block;font-size:10px;font-weight:800;color:#20845b;margin-bottom:7px}
+#u3font3 .pill{border:2px solid var(--ink);border-radius:20px;background:#ffdea8;padding:7px 12px;font-size:10px;font-weight:800;color:#78431c}
+#u3font3 .tabs{display:flex;gap:9px;flex-wrap:wrap;padding-bottom:17px;margin-bottom:20px;border-bottom:2px dashed #a5c8ae}
+#u3font3 .tabs button{border:2px solid var(--ink);background:white;border-radius:10px;padding:10px 14px;font-size:12px;font-weight:800;color:var(--ink);box-shadow:3px 3px 0 #a4bcad}
+#u3font3 .tabs button.on{background:var(--mint);box-shadow:4px 4px 0 var(--ink)}
+#u3font3 .panel{display:none}
+#u3font3 .panel.on{display:block}
+#u3font3 .columns{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(260px,.87fr);gap:16px;align-items:start}
+#u3font3 .list{display:flex;flex-direction:column;gap:9px}
+#u3font3 .item{display:grid;grid-template-columns:35px minmax(0,1fr) auto;gap:10px;align-items:center;width:100%;text-align:left;color:var(--ink);padding:12px;border:2px solid #315f48;border-radius:12px;background:#fffefa}
+#u3font3 .item.on{background:var(--apricotlight);border-color:var(--ink);box-shadow:4px 4px 0 #e7aa61}
+#u3font3 .item:hover{background:#f0fff5}
+#u3font3 .num{border:2px solid var(--ink);background:var(--mint);border-radius:9px;width:33px;height:33px;display:grid;place-items:center;font-size:11px;font-weight:800}
+#u3font3 .item.on .num{background:var(--apricot)}
+#u3font3 .itemname{font-size:11px;font-weight:800;line-height:1.55;overflow-wrap:anywhere}
+#u3font3 .itemcode{font-size:10px;font-weight:650;color:#648070;margin-top:5px;overflow-wrap:anywhere}
+#u3font3 .amount{text-align:right;min-width:90px;font-size:12px;line-height:1.45;font-weight:800}
+#u3font3 .status{display:inline-block;margin-top:6px;padding:4px 7px;border-radius:15px;background:#c5f5d7;border:1.5px solid #177145;color:#135f3a;font-size:10px;font-weight:800;line-height:1.45}
+#u3font3 .status.pending{background:#ffe0a3;border-color:#97601e;color:#7b4c15}
+#u3font3 .status.failed{background:#ffd2cd;border-color:#ad5248;color:#973d34}
+#u3font3 .receipt{border:3px solid var(--ink);border-radius:16px;background:var(--apricotlight);box-shadow:6px 7px 0 #174735;overflow:hidden}
+#u3font3 .receiptbar{display:flex;align-items:center;justify-content:space-between;gap:12px;background:var(--apricot);padding:13px 16px;border-bottom:3px dashed var(--ink);font-size:11px;line-height:1.5;font-weight:800;color:#673410}
+#u3font3 .receiptbody{padding:19px}
+#u3font3 .receiptbody h3{color:#673410;margin:12px 0}
+#u3font3 .receiptprice{font-size:26px;font-weight:800;line-height:1.4;color:#753e16;margin-bottom:13px}
+#u3font3 .field{background:#fffdf7;border:2px solid #b18b63;border-radius:9px;margin:9px 0;padding:9px 11px}
+#u3font3 .field small{display:block;font-size:10px;line-height:1.5;color:#866037;font-weight:800;margin-bottom:4px}
+#u3font3 .field strong{font-size:11px;line-height:1.6;overflow-wrap:anywhere}
+#u3font3 .notice{padding:11px;margin-top:13px;border-left:5px solid #9d5824;border-radius:6px;background:#ffe2b3;color:#673d1b;font-size:11px;font-weight:600;line-height:1.65}
+#u3font3 .smallbtn{background:#fffdf5;color:var(--ink);border:2px solid var(--ink);box-shadow:3px 3px 0 var(--ink);border-radius:9px;padding:10px 12px;font-size:11px;font-weight:800;margin-top:13px}
+#u3font3 .sheet{background:#fffdf7;border:3px solid var(--ink);border-radius:16px;box-shadow:5px 6px 0 #174735;padding:22px}
+#u3font3 .sheet h2{margin:9px 0}
+#u3font3 .sheet p{font-size:12px}
+#u3font3 .empty{text-align:center;display:grid;place-items:center;gap:12px;background:var(--mintlight);border:3px dashed var(--ink);border-radius:16px;padding:30px 17px}
+#u3font3 .emptyicon{display:grid;place-items:center;width:70px;height:70px;background:var(--apricot);border:3px solid var(--ink);border-radius:18px;box-shadow:4px 4px 0 #174735;transform:rotate(-6deg);font-size:32px}
+#u3font3 .review{background:var(--skylight);border:3px solid var(--ink);border-radius:16px;box-shadow:5px 6px 0 #174735;padding:22px}
+#u3font3 .step{display:flex;align-items:start;gap:11px;margin-top:16px}
+#u3font3 .stepnum{flex:none;background:var(--sky);width:30px;height:30px;display:grid;place-items:center;border:2px solid var(--ink);border-radius:9px;font-weight:800}
+#u3font3 label{display:block;font-size:11px;line-height:1.6;font-weight:750;margin-top:12px}
+#u3font3 input,#u3font3 select,#u3font3 textarea{width:100%;border:2px solid #285b43;border-radius:9px;background:white;color:var(--ink);padding:10px;margin-top:5px}
+#u3font3 textarea{min-height:78px}
+#u3font3 .formgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+#u3font3 .foot{background:#103e31;color:#dff8e9;text-align:center;padding:17px;font-size:10px;margin-top:27px;line-height:1.6}
+#u3font3 .modalback{display:none;position:fixed;inset:0;background:#092f28b3;z-index:50;align-items:center;justify-content:center;padding:15px}
+#u3font3 .modalback.on{display:flex}
+#u3font3 .modal{width:min(400px,100%);padding:23px;border:3px solid var(--ink);border-radius:17px;box-shadow:7px 8px 0 #103e31;background:var(--apricotlight)}
+#u3font3 .modal p{font-size:11px;margin-top:8px}
+#u3font3 .toast{display:none;position:fixed;bottom:20px;right:20px;z-index:51;background:#103e31;border:2px solid var(--mint);color:white;border-radius:10px;padding:12px;max-width:300px;font-size:11px}
+#u3font3 .toast.on{display:block}
+@media(max-width:740px){#u3font3 .hero{grid-template-columns:1fr}#u3font3 .herocopy{padding:25px 24px 0}#u3font3 .heroart{max-width:225px}#u3font3 .metrics{grid-template-columns:repeat(2,1fr)}#u3font3 .columns{grid-template-columns:1fr}#u3font3 .body{padding:15px}#u3font3 .item{grid-template-columns:33px minmax(0,1fr)}#u3font3 .amount{grid-column:2;text-align:left}#u3font3 .formgrid{grid-template-columns:1fr}}
+&lt;/style&gt;
+&lt;div class="ribbon"&gt;CARTOON OUTLINE × PASTEL SEMANTIC 01–02–03 · FONT TIẾNG VIỆT V2.1&lt;/div&gt;
+&lt;header class="nav"&gt;&lt;div class="brand"&gt;&lt;span class="brandmark"&gt;❧&lt;/span&gt;&lt;span&gt;Riser &lt;span style="color:#4fe6ab"&gt;AI&lt;/span&gt;&lt;/span&gt;&lt;/div&gt;&lt;div class="navchip"&gt;♡ Không gian người đóng góp&lt;/div&gt;&lt;/header&gt;
+&lt;main class="body"&gt;
+&lt;section class="hero"&gt;
+&lt;div class="herocopy"&gt;
+&lt;div class="eyebrow"&gt;✦ Hành trình thiện nguyện&lt;/div&gt;
+&lt;h1&gt;Mỗi điều tốt,&lt;span&gt;một dấu ấn riêng.&lt;/span&gt;&lt;/h1&gt;
+&lt;p&gt;Nơi bạn theo dõi những đóng góp, lưu giữ biên nhận và đồng hành cùng các sáng kiến tạo tác động tích cực.&lt;/p&gt;
+&lt;button type="button" class="btn" data-scroll="1"&gt;Khám phá đóng góp ↗&lt;/button&gt;
+&lt;/div&gt;
+&lt;svg class="heroart" viewBox="0 0 350 280" role="img" aria-label="Hộp đóng góp cartoon với trái tim và đồng xu"&gt;
+&lt;ellipse cx="180" cy="250" rx="115" ry="15" fill="#63a784" opacity=".35"/&gt;
+&lt;circle cx="277" cy="58" r="33" fill="#fff2ac" stroke="#123d30" stroke-width="4"/&gt;
+&lt;path d="m277 40 5 12 13 5-13 4-5 14-5-14-13-4 13-5Z" fill="#ffb96c" stroke="#123d30" stroke-width="2"/&gt;
+&lt;path d="M54 214Q20 152 53 118q33 44 23 107M67 206q36-72 59-49-2 53-50 72" fill="#4fe6ab" stroke="#123d30" stroke-width="4"/&gt;
+&lt;g transform="rotate(-8 178 159)"&gt;
+&lt;path d="M110 103q0-13 15-13h113q16 0 16 13l-8 124q-1 15-17 15h-98q-16 0-17-15Z" fill="#ffb96c" stroke="#123d30" stroke-width="5"/&gt;
+&lt;path d="M106 101h150v25H106Z" fill="#4fe6ab" stroke="#123d30" stroke-width="5"/&gt;
+&lt;path d="M155 111h52" stroke="#123d30" stroke-width="7" stroke-linecap="round"/&gt;
+&lt;path d="M180 157c-13-21-34-7-31 10 3 19 31 34 31 34s29-17 31-35c2-18-23-30-31-9Z" fill="#fffaf1" stroke="#123d30" stroke-width="4"/&gt;
+&lt;path d="M154 218q6 7 12 0M199 218q6 7 12 0M176 229q8 7 16 0" fill="none" stroke="#123d30" stroke-width="3.5" stroke-linecap="round"/&gt;
+&lt;/g&gt;
+&lt;g transform="rotate(13 181 72)"&gt;&lt;circle cx="181" cy="72" r="28" fill="#ffe08a" stroke="#123d30" stroke-width="4"/&gt;&lt;circle cx="181" cy="72" r="18" fill="none" stroke="#ac6c1f" stroke-width="2"/&gt;&lt;path d="M181 59v27m-9-19q9-8 17 0-1 8-16 8-7 8 17 8" stroke="#935b18" stroke-width="3" fill="none"/&gt;&lt;/g&gt;
+&lt;g transform="translate(244 124) rotate(8)"&gt;&lt;rect width="95" height="39" rx="10" fill="#eef9ff" stroke="#123d30" stroke-width="3"/&gt;&lt;text x="47" y="25" text-anchor="middle" font-family="Arial,sans-serif" font-size="14" font-weight="700" fill="#123d30"&gt;+1 ♥ tốt&lt;/text&gt;&lt;/g&gt;
+&lt;/svg&gt;
+&lt;/section&gt;
+&lt;section class="metrics" aria-label="Tổng quan khoản đóng góp mô phỏng"&gt;
+&lt;div class="metric"&gt;&lt;div class="methead"&gt;Tổng khoản &lt;span&gt;🌱&lt;/span&gt;&lt;/div&gt;&lt;div class="metbody"&gt;&lt;strong&gt;06&lt;/strong&gt;&lt;small&gt;Lịch sử đóng góp&lt;/small&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;div class="metric"&gt;&lt;div class="methead"&gt;Đã xác nhận &lt;span&gt;♥&lt;/span&gt;&lt;/div&gt;&lt;div class="metbody"&gt;&lt;strong&gt;04&lt;/strong&gt;&lt;small&gt;Ghi nhận mô phỏng&lt;/small&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;div class="metric"&gt;&lt;div class="methead"&gt;Đang chờ &lt;span&gt;✉&lt;/span&gt;&lt;/div&gt;&lt;div class="metbody"&gt;&lt;strong&gt;01&lt;/strong&gt;&lt;small&gt;Chờ quản trị viên&lt;/small&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;div class="metric"&gt;&lt;div class="methead"&gt;Chưa xác nhận &lt;span&gt;✕&lt;/span&gt;&lt;/div&gt;&lt;div class="metbody"&gt;&lt;strong&gt;01&lt;/strong&gt;&lt;small&gt;Khoản chưa hoàn tất&lt;/small&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;/section&gt;
+&lt;div id="u3font3-anchor" class="sectionhead"&gt;&lt;div&gt;&lt;small&gt;✦ Góc nhỏ của bạn&lt;/small&gt;&lt;h2&gt;Hành trình đóng góp&lt;/h2&gt;&lt;/div&gt;&lt;span class="pill"&gt;Dữ liệu mô phỏng&lt;/span&gt;&lt;/div&gt;
+&lt;div class="tabs" role="tablist" aria-label="Khu vực người đóng góp"&gt;
+&lt;button type="button" role="tab" aria-selected="true" data-tab="donations" class="on"&gt;♡ Đóng góp&lt;/button&gt;
+&lt;button type="button" role="tab" aria-selected="false" data-tab="refunds"&gt;▤ Hoàn tiền&lt;/button&gt;
+&lt;button type="button" role="tab" aria-selected="false" data-tab="disputes"&gt;✧ Phản ánh&lt;/button&gt;
+&lt;/div&gt;
+&lt;section data-pane="donations" class="panel on"&gt;
+&lt;div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:12px"&gt;&lt;strong&gt;Những đóng góp của tôi · 06 khoản&lt;/strong&gt;&lt;span style="font-size:11px;color:#617767"&gt;Chọn một khoản để xem biên nhận&lt;/span&gt;&lt;/div&gt;
+&lt;div class="columns"&gt;
+&lt;div id="u3font3-list" class="list"&gt;&lt;/div&gt;
+&lt;aside class="receipt" aria-label="Biên nhận được chọn"&gt;
+&lt;div class="receiptbar"&gt;&lt;span&gt;02 / RECORD · BIÊN NHẬN&lt;/span&gt;&lt;span style="font-size:22px"&gt;♡&lt;/span&gt;&lt;/div&gt;
+&lt;div class="receiptbody"&gt;
+&lt;span class="status" id="u3font3-status"&gt;Đã xác nhận&lt;/span&gt;
+&lt;h3 id="u3font3-name"&gt;Green Village Community Centre Repairs&lt;/h3&gt;
+&lt;div class="receiptprice" id="u3font3-amount"&gt;20.000.000 ₫&lt;/div&gt;
+&lt;div class="field"&gt;&lt;small&gt;Mã đóng góp&lt;/small&gt;&lt;strong id="u3font3-code"&gt;DON-H8GZTQ28M44D&lt;/strong&gt;&lt;/div&gt;
+&lt;div class="field"&gt;&lt;small&gt;Ngày tạo&lt;/small&gt;&lt;strong&gt;31/10/2026&lt;/strong&gt;&lt;/div&gt;
+&lt;div class="field" id="u3font3-confirmed-row"&gt;&lt;small&gt;Ngày xác nhận&lt;/small&gt;&lt;strong&gt;01/11/2026&lt;/strong&gt;&lt;/div&gt;
+&lt;div class="field" id="u3font3-ref-row"&gt;&lt;small&gt;Tham chiếu mô phỏng&lt;/small&gt;&lt;strong id="u3font3-ref"&gt;SIM-JE2HMUF4MMYB&lt;/strong&gt;&lt;/div&gt;
+&lt;div class="notice"&gt;Đây là biên nhận mô phỏng, không phải chứng từ thanh toán thật hoặc biên nhận on-chain riêng.&lt;/div&gt;
+&lt;button type="button" class="smallbtn" id="u3font3-refund"&gt;Yêu cầu hoàn tiền ↗&lt;/button&gt;
+&lt;button type="button" class="smallbtn" id="u3font3-cancel" style="display:none"&gt;Hủy khoản chờ&lt;/button&gt;
+&lt;/div&gt;
+&lt;/aside&gt;
+&lt;/div&gt;
+&lt;/section&gt;
+&lt;section data-pane="refunds" class="panel"&gt;
+&lt;div class="columns"&gt;
+&lt;div class="empty"&gt;&lt;div class="emptyicon"&gt;▤&lt;/div&gt;&lt;h2&gt;Chưa có yêu cầu hoàn tiền.&lt;/h2&gt;&lt;p&gt;Thông tin và trạng thái xử lý sẽ được hiển thị tại đây khi có dữ liệu.&lt;/p&gt;&lt;button type="button" data-switch="donations" class="btn"&gt;Xem đóng góp ↗&lt;/button&gt;&lt;/div&gt;
+&lt;div class="sheet" style="background:#fff6e8"&gt;&lt;div style="font-size:11px;font-weight:800;color:#925b25"&gt;02 / RECORD&lt;/div&gt;&lt;h2&gt;Rõ ràng từng yêu cầu.&lt;/h2&gt;&lt;p&gt;Số tiền, lý do, trạng thái và thời gian xử lý sẽ được ghi nhận minh bạch. Không chuyển tiền thật.&lt;/p&gt;&lt;div class="notice"&gt;Gửi yêu cầu → Xem xét → Phản hồi&lt;/div&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;/section&gt;
+&lt;section data-pane="disputes" class="panel"&gt;
+&lt;div class="columns"&gt;
+&lt;div class="sheet"&gt;&lt;div style="font-size:11px;font-weight:800;color:#277b54"&gt;01 / PLAN · Gửi phản ánh&lt;/div&gt;&lt;h2&gt;Có điều cần chia sẻ?&lt;/h2&gt;
+&lt;div class="formgrid"&gt;&lt;label&gt;Chiến dịch&lt;select&gt;&lt;option&gt;Hope Kitchen Weekly Meals&lt;/option&gt;&lt;option&gt;Green Village Community Centre&lt;/option&gt;&lt;/select&gt;&lt;/label&gt;&lt;label&gt;Loại vấn đề&lt;select&gt;&lt;option&gt;Thiếu minh chứng&lt;/option&gt;&lt;option&gt;Chậm tiến độ&lt;/option&gt;&lt;option&gt;Vấn đề khác&lt;/option&gt;&lt;/select&gt;&lt;/label&gt;&lt;/div&gt;
+&lt;label&gt;Tiêu đề&lt;input placeholder="Vấn đề bạn muốn phản ánh"/&gt;&lt;/label&gt;
+&lt;label&gt;Nội dung&lt;textarea placeholder="Mô tả thông tin bạn muốn được xem xét..."&gt;&lt;/textarea&gt;&lt;/label&gt;
+&lt;button type="button" class="btn" style="margin-top:14px" data-toast="Bản xem trước không gửi phản ánh lên Backend"&gt;Gửi phản ánh ↗&lt;/button&gt;&lt;/div&gt;
+&lt;div class="review"&gt;&lt;div style="font-size:11px;font-weight:800;color:#18465d"&gt;03 / REVIEW · Theo dõi&lt;/div&gt;&lt;h2 style="margin-top:12px;color:#18465d"&gt;Lắng nghe &amp; đối chiếu.&lt;/h2&gt;
+&lt;div class="step"&gt;&lt;div class="stepnum"&gt;1&lt;/div&gt;&lt;p&gt;&lt;strong&gt;Ghi nhận&lt;/strong&gt; — Tiếp nhận nội dung phản ánh.&lt;/p&gt;&lt;/div&gt;
+&lt;div class="step"&gt;&lt;div class="stepnum"&gt;2&lt;/div&gt;&lt;p&gt;&lt;strong&gt;Đánh giá&lt;/strong&gt; — Kiểm tra thông tin liên quan.&lt;/p&gt;&lt;/div&gt;
+&lt;div class="step"&gt;&lt;div class="stepnum"&gt;3&lt;/div&gt;&lt;p&gt;&lt;strong&gt;Phản hồi&lt;/strong&gt; — Theo dõi kết quả và trao đổi.&lt;/p&gt;&lt;/div&gt;
+&lt;/div&gt;&lt;/div&gt;
+&lt;/section&gt;
+&lt;/main&gt;
+&lt;footer class="foot"&gt;❧ Rise AI · Cartoon Pastel V2.1 · Sửa font tiếng Việt · Bản xem trước UI, không kết nối Backend&lt;/footer&gt;
+&lt;div class="modalback" id="u3font3-modal"&gt;&lt;div class="modal" role="dialog" aria-modal="true" aria-label="Yêu cầu hoàn tiền mô phỏng"&gt;
+&lt;h2&gt;Yêu cầu hoàn tiền&lt;/h2&gt;&lt;p&gt;Biểu mẫu minh họa, không thực hiện giao dịch thật.&lt;/p&gt;
+&lt;label&gt;Số tiền đề nghị&lt;input type="number" value="100000" min="1"/&gt;&lt;/label&gt;
+&lt;label&gt;Lý do&lt;textarea placeholder="Nhập lý do..."&gt;&lt;/textarea&gt;&lt;/label&gt;
+&lt;div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:14px"&gt;&lt;button type="button" class="smallbtn" style="margin:0" data-close="1"&gt;Đóng&lt;/button&gt;&lt;button type="button" class="btn" data-toast="Đây chỉ là bản xem trước giao diện"&gt;Gửi (demo)&lt;/button&gt;&lt;/div&gt;
+&lt;/div&gt;&lt;/div&gt;
+&lt;div id="u3font3-toast" class="toast" role="status"&gt;&lt;/div&gt;
+&lt;script&gt;
+(()=&gt;{const root=document.getElementById("u3font3");if(!root||root.dataset.init)return;root.dataset.init="1";
+const data=[
+["Green Village Community Centre Repairs","20.000.000 ₫","DON-H8GZTQ28M44D","SIM-JE2HMUF4MMYB","Đã xác nhận","ok"],
+["Hope Kitchen Weekly Meals","1.000.000 ₫","DON-6953Y6VYUEX9","","Không xác nhận","failed"],
+["Hope Kitchen Weekly Meals","10.000.000 ₫","DON-MNYUH8K8K6NM","SIM-D4KPPADY4FD7","Đã xác nhận","ok"],
+["Riverside Community Library","10.000.000 ₫","DON-7DEXEHU9M8NE","SIM-A4MFG28UYEGG","Đã xác nhận","ok"],
+["Laptops and Learning Kits for Highland Pupils","5.000.000 ₫","DON-9UALBRUACAU9","","Đang chờ","pending"],
+["Laptops and Learning Kits for Highland Pupils","30.000.000 ₫","DON-G35BHDEGU54","SIM-8XFNDRS3B6N2","Đã xác nhận","ok"]];
+const list=root.querySelector("#u3font3-list");
+data.forEach((r,i)=&gt;{const b=document.createElement("button");b.type="button";b.className="item"+(i===0?" on":"");b.dataset.record=String(i);b.setAttribute("aria-pressed",String(i===0));const n=document.createElement("div");n.className="num";n.textContent=String(i+1).padStart(2,"0");const mid=document.createElement("div");const nm=document.createElement("div");nm.className="itemname";nm.textContent=r[0];const code=document.createElement("div");code.className="itemcode";code.textContent=r[2];mid.append(nm,code);const right=document.createElement("div");right.className="amount";const price=document.createElement("div");price.textContent=r[1];const badge=document.createElement("div");badge.className="status"+(r[5]==="pending"?" pending":r[5]==="failed"?" failed":"");badge.textContent=r[4];right.append(price,badge);b.append(n,mid,right);list.append(b)});
+function pick(i){const r=data[i];root.querySelectorAll("[data-record]").forEach(b=&gt;{const on=Number(b.dataset.record)===i;b.classList.toggle("on",on);b.setAttribute("aria-pressed",String(on))});root.querySelector("#u3font3-name").textContent=r[0];root.querySelector("#u3font3-amount").textContent=r[1];root.querySelector("#u3font3-code").textContent=r[2];root.querySelector("#u3font3-ref").textContent=r[3];const badge=root.querySelector("#u3font3-status");badge.className="status"+(r[5]==="pending"?" pending":r[5]==="failed"?" failed":"");badge.textContent=r[4];root.querySelector("#u3font3-ref-row").style.display=r[3]?"block":"none";root.querySelector("#u3font3-confirmed-row").style.display=r[5]==="ok"?"block":"none";root.querySelector("#u3font3-refund").style.display=r[5]==="ok"?"inline-block":"none";root.querySelector("#u3font3-cancel").style.display=r[5]==="pending"?"inline-block":"none"}
+function tab(t){root.querySelectorAll("[data-tab]").forEach(b=&gt;{const on=b.dataset.tab===t;b.classList.toggle("on",on);b.setAttribute("aria-selected",String(on))});root.querySelectorAll("[data-pane]").forEach(el=&gt;el.classList.toggle("on",el.dataset.pane===t))}
+let timer;function toast(t){const el=root.querySelector("#u3font3-toast");el.textContent=t;el.classList.add("on");clearTimeout(timer);timer=setTimeout(()=&gt;el.classList.remove("on"),2800)}
+const modal=root.querySelector("#u3font3-modal");
+root.addEventListener("click",e=&gt;{const b=e.target.closest("button");if(!b)return;if(b.dataset.record!==undefined){pick(Number(b.dataset.record));return}if(b.dataset.tab){tab(b.dataset.tab);return}if(b.dataset.switch){tab(b.dataset.switch);return}if(b.dataset.scroll){root.querySelector("#u3font3-anchor").scrollIntoView({behavior:"smooth",block:"start"});return}if(b.id==="u3font3-refund"){modal.classList.add("on");return}if(b.dataset.close){modal.classList.remove("on");return}if(b.id==="u3font3-cancel"){toast("Chỉ xem trước UI, không hủy dữ liệu thật");return}if(b.dataset.toast){modal.classList.remove("on");toast(b.dataset.toast)}});
+modal.addEventListener("click",e=&gt;{if(e.target===modal)modal.classList.remove("on")});root.addEventListener("keydown",e=&gt;{if(e.key==="Escape")modal.classList.remove("on")});
+})();
+&lt;/script&gt;
+&lt;/div&gt;
+</textarea>
+<textarea id="src-U4" hidden>
+&lt;div id="rise-u4-v11" class="w-full"&gt;
+&lt;style&gt;
+#rise-u4-v11{--forest:#0c3529;--ink:#153e32;--cream:#fff8e9;--mint:#49e1a7;--orange:#ffba74;--blue:#71d0f3;--sage:#e3e9c6;--line:#153e32;--muted:#58796c;font-family:"Be Vietnam Pro",system-ui,sans-serif;color:var(--ink);font-size:13px}
+#rise-u4-v11 *{box-sizing:border-box}
+#rise-u4-v11 .frame{border:1.5px solid var(--line);border-radius:17px;overflow:hidden;background:#f8f9f1}
+#rise-u4-v11 .notice{padding:8px;text-align:center;background:#e8bc78;color:#523918;font-size:10px;font-weight:850;letter-spacing:.045em}
+#rise-u4-v11 .topnav{background:#082f24;color:#fff6e8;display:flex;align-items:center;gap:20px;padding:18px 24px}
+#rise-u4-v11 .brand{font-size:22px;font-weight:950;letter-spacing:-.045em;color:#fff7e8;white-space:nowrap}
+#rise-u4-v11 .brand em{color:#ffd08a;font-style:normal}
+#rise-u4-v11 .links{display:flex;gap:17px;justify-content:center;flex:1;flex-wrap:wrap;font-size:11px;font-weight:800}
+#rise-u4-v11 .links span.active{color:#ffcf85;border-bottom:2px solid #ffcf85;padding-bottom:4px}
+#rise-u4-v11 .navcta{padding:10px 13px;border-radius:24px;background:#d77d4c;color:white;font-size:10px;font-weight:850;white-space:nowrap}
+#rise-u4-v11 .content{max-width:1040px;margin:auto;padding:29px 24px 52px}
+#rise-u4-v11 .back{font-size:12px;text-decoration:underline;color:#11674d;font-weight:800;margin-bottom:14px}
+#rise-u4-v11 .hero{background:linear-gradient(115deg,#113f32,#276c54);border:2px solid #143e32;border-radius:22px;padding:33px 32px;display:grid;grid-template-columns:minmax(0,1.55fr) minmax(180px,.65fr);align-items:center;gap:12px;box-shadow:5px 6px 0 #b7cbb7;color:#fff5e6}
+#rise-u4-v11 .hero .kicker{color:#baf4a5;font-size:11px;font-weight:950;letter-spacing:.09em}
+#rise-u4-v11 .hero h2{color:#fff4dc;font-size:clamp(27px,4.1vw,43px);letter-spacing:-.045em;line-height:1.16;font-weight:950;margin:15px 0}
+#rise-u4-v11 .hero h2 em{font-style:normal;color:#ffd08a}
+#rise-u4-v11 .hero p{line-height:1.8;color:#f1fff4;font-size:12px;max-width:550px}
+#rise-u4-v11 .pill{display:inline-flex;align-items:center;gap:5px;border:1px solid #30745c;border-radius:30px;background:#eaffef;color:#174b3d;padding:6px 11px;font-size:10px;font-weight:850}
+#rise-u4-v11 .hero-art{display:flex;align-items:center;justify-content:center}
+#rise-u4-v11 .mode-panel{display:flex;justify-content:space-between;align-items:center;gap:14px;padding:15px 17px;background:#fffdf4;border:2px solid var(--line);border-radius:17px;box-shadow:4px 5px 0 #bfd1bb;margin:25px 0 21px;flex-wrap:wrap}
+#rise-u4-v11 .mode-title{font-size:11px;font-weight:950;letter-spacing:.04em}
+#rise-u4-v11 .mode-sub{color:var(--muted);font-size:10px;margin-top:6px}
+#rise-u4-v11 .mode-buttons{display:flex;gap:7px;flex-wrap:wrap}
+#rise-u4-v11 button{font-family:inherit;cursor:pointer;transition:transform .12s,background .15s;border:2px solid var(--line);font-weight:850;color:var(--ink)}
+#rise-u4-v11 button:hover:not(:disabled){transform:translateY(-2px)}
+#rise-u4-v11 button:focus-visible{outline:3px solid #d98a4e;outline-offset:3px}
+#rise-u4-v11 .mode-buttons button{font-size:11px;padding:11px 12px;background:#fffdf8;border-radius:10px;box-shadow:2px 3px 0 #c0d1bd}
+#rise-u4-v11 .mode-buttons button.on{background:var(--mint);box-shadow:3px 4px 0 var(--forest)}
+#rise-u4-v11 .statebanner{display:flex;align-items:center;gap:14px;padding:17px 20px;border:2px solid var(--line);border-radius:18px;box-shadow:4px 5px 0 #bfd6c7;background:#e8fff0;margin-bottom:26px}
+#rise-u4-v11 .statebanner.warn{background:#fff1d9;box-shadow:4px 5px 0 #ead0a9}
+#rise-u4-v11 .statebanner.error{background:#fff0ec;box-shadow:4px 5px 0 #e9c3b8}
+#rise-u4-v11 .stateicon{width:58px;height:58px;display:grid;place-items:center;flex:none;border:2px solid var(--line);border-radius:17px;background:#ffd08b;font-size:29px;font-weight:900;transform:rotate(-6deg);box-shadow:4px 4px 0 #b3d6c4}
+#rise-u4-v11 .statebanner.error .stateicon{background:#ffb9aa;box-shadow:4px 4px 0 #e9c6bb}
+#rise-u4-v11 .statebanner.warn .stateicon{background:#72d4f4}
+#rise-u4-v11 .statebanner strong{font-size:14px;color:var(--ink)}
+#rise-u4-v11 .statebanner p{font-size:11px;line-height:1.75;color:#675c47;margin:5px 0 0}
+#rise-u4-v11 .section-label{display:flex;align-items:center;gap:14px;font-size:12px;letter-spacing:.065em;font-weight:950;color:#146c50;margin:24px 0 15px}
+#rise-u4-v11 .section-label:after{content:"";height:2px;background:#d3dfce;flex:1}
+#rise-u4-v11 .twocol{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:22px}
+#rise-u4-v11 .p-card{border:2.5px solid var(--line);border-radius:21px;overflow:hidden;box-shadow:5px 6px 0 var(--shadow);background:var(--bg);min-width:0}
+#rise-u4-v11 .mintcard{--band:#49e1a7;--bg:#effff5;--shadow:#a9c9b2}
+#rise-u4-v11 .orangecard{--band:#ffba74;--bg:#fff5e7;--shadow:#e2bd94}
+#rise-u4-v11 .bluecard{--band:#71d0f3;--bg:#edf9ff;--shadow:#a9d5e4}
+#rise-u4-v11 .sagecard{--band:#e3e9c6;--bg:#fffdf4;--shadow:#cad3ae}
+#rise-u4-v11 .cardband{display:flex;align-items:center;justify-content:space-between;background:var(--band);border-bottom:2px solid var(--line);padding:16px 19px;font-size:11px;letter-spacing:.025em;font-weight:950;color:#123e32}
+#rise-u4-v11 .cardbody{padding:24px 21px 25px;min-height:256px}
+#rise-u4-v11 .cardbody h3{font-size:23px;line-height:1.3;font-weight:950;color:#153e32;letter-spacing:-.04em;margin:0 0 19px}
+#rise-u4-v11 .infobox{background:rgba(255,255,255,.56);border:1px dashed #8acdae;border-radius:14px;padding:19px;margin-top:8px;min-height:120px}
+#rise-u4-v11 .orangecard .infobox{border-color:#eeb576}
+#rise-u4-v11 .bluecard .infobox{border-color:#91cce8}
+#rise-u4-v11 .infobox strong{font-weight:900;color:#153e32;display:block;margin-bottom:11px}
+#rise-u4-v11 .infobox p{margin:0;color:#668174;font-size:12px;line-height:1.85}
+#rise-u4-v11 .fine{color:#587d70;line-height:1.85;font-size:11px;margin-top:18px}
+#rise-u4-v11 .data-row{display:flex;align-items:center;justify-content:space-between;gap:12px;border-bottom:1px solid #cadccf;padding:15px 0;font-size:11px}
+#rise-u4-v11 .data-row:last-child{border-bottom:0}
+#rise-u4-v11 .data-row .key{font-weight:800;color:#4d7569;min-width:0}
+#rise-u4-v11 .data-row .val{font-weight:900;color:#153e32;text-align:right;overflow-wrap:anywhere}
+#rise-u4-v11 .tag{display:inline-flex;align-items:center;justify-content:center;padding:6px 10px;border-radius:20px;border:1px solid #368465;background:#d6fae6;color:#175a43;font-size:10px;font-weight:900;white-space:nowrap}
+#rise-u4-v11 .tag.amber{background:#ffe3b2;border-color:#c98532;color:#8a4b0d}
+#rise-u4-v11 .tag.coral{background:#ffe0d8;border-color:#d56d56;color:#a64331}
+#rise-u4-v11 .tag.sky{background:#dff3ff;border-color:#64b7d4;color:#135873}
+#rise-u4-v11 .rules{display:grid;gap:0}
+#rise-u4-v11 .rule{display:flex;align-items:flex-start;gap:10px;border-bottom:1px solid #c0d2bf;padding:13px 0}
+#rise-u4-v11 .rule:first-child{padding-top:0}
+#rise-u4-v11 .rule:last-child{border-bottom:0}
+#rise-u4-v11 .rule p{margin:5px 0 0;font-size:10px;color:#5c8174;line-height:1.6}
+#rise-u4-v11 .rule strong{font-size:11px;color:#153e32}
+#rise-u4-v11 .history{border:2.5px solid var(--line);border-radius:20px;background:#fffdf6;overflow:hidden;box-shadow:5px 6px 0 #bacdb8;margin-top:20px}
+#rise-u4-v11 .history-head{background:#e5f1e6;border-bottom:2px solid var(--line);padding:20px 23px;display:flex;justify-content:space-between;align-items:center;gap:12px}
+#rise-u4-v11 .history-head .kicker{font-size:11px;font-weight:950;color:#126d51;letter-spacing:.05em}
+#rise-u4-v11 .history-head h3{font-weight:950;font-size:24px;letter-spacing:-.035em;margin:8px 0 0;color:#153e32}
+#rise-u4-v11 .refresh{background:#4de0aa;border-radius:12px;padding:11px 16px;font-size:11px;box-shadow:3px 4px 0 #153e32}
+#rise-u4-v11 .history-main{padding:25px 23px 17px;min-height:230px}
+#rise-u4-v11 .empty{padding:10px 15px 25px;display:flex;align-items:center;flex-direction:column;text-align:center}
+#rise-u4-v11 .emptyicon{width:83px;height:83px;border:2px solid var(--line);border-radius:20px;background:#e8f8ff;display:grid;place-items:center;font-size:39px;transform:rotate(-5deg);box-shadow:5px 5px 0 #b6d7c7;margin-bottom:18px;color:#174b3d}
+#rise-u4-v11 .emptyicon.err{background:#ffe0d6}
+#rise-u4-v11 .empty h4{font-size:18px;font-weight:950;margin:0 0 12px;color:#153e32}
+#rise-u4-v11 .empty p{max-width:560px;line-height:1.85;font-size:12px;color:#658173;margin:0}
+#rise-u4-v11 .tx{display:flex;align-items:center;gap:15px;padding:17px 0;border-bottom:1px solid #d3ded1}
+#rise-u4-v11 .tx:last-child{border-bottom:0}
+#rise-u4-v11 .txnum{border:2px solid var(--line);background:#ffbf75;border-radius:12px;flex:none;width:41px;height:41px;display:grid;place-items:center;font-weight:950}
+#rise-u4-v11 .tx .desc{flex:1;min-width:0}
+#rise-u4-v11 .tx .desc strong{font-size:12px;line-height:1.6}
+#rise-u4-v11 .tx .desc p{color:#668275;font-size:11px;margin:6px 0 0}
+#rise-u4-v11 .history-meta{display:flex;justify-content:space-between;gap:10px;border-top:1px solid #d4dfd3;margin:0 23px;padding:17px 0;flex-wrap:wrap;font-size:10px;color:#658174}
+#rise-u4-v11 .history-note{font-size:11px;line-height:1.8;color:#59786e;padding:13px 0}
+#rise-u4-v11 .extra-btn{background:transparent;border:0;border-bottom:1px solid #14694f;border-radius:0;color:#14694f;padding:0 0 3px;font-size:11px;margin-top:16px;font-weight:950;box-shadow:none}
+#rise-u4-v11 .audit-detail{border-radius:10px;border:1px solid #9dbfd0;padding:12px;background:#fff;margin-top:12px;line-height:1.75;font-size:11px}
+#rise-u4-v11 .preview-footer{background:#0b3428;color:#fff5df;padding:25px 26px 19px;border-top:5px solid #e4c78f}
+#rise-u4-v11 .footergrid{display:grid;grid-template-columns:1.5fr 1fr 1fr 1.15fr;gap:20px}
+#rise-u4-v11 .preview-footer h4{font-size:13px;margin:4px 0 14px;color:#fff3dd;font-weight:900}
+#rise-u4-v11 .preview-footer p{color:#deefe4;font-size:11px;line-height:1.8}
+#rise-u4-v11 .preview-footer .fsmall{font-size:10px;line-height:2.1;color:#deefe4}
+#rise-u4-v11 .foot-feature{border:1px solid #658b74;border-radius:12px;padding:14px;background:#17493a}
+#rise-u4-v11 .foot-feature strong{color:#ffd08a;font-size:10px}
+#rise-u4-v11 .bottomline{border-top:1px solid #46705b;margin-top:26px;padding-top:14px;display:flex;justify-content:space-between;gap:10px;font-size:10px;color:#e5e9d6;flex-wrap:wrap}
+#rise-u4-v11 .toast{margin-top:10px;font-size:11px;color:#14694f;font-weight:700}
+@media(max-width:760px){#rise-u4-v11 .topnav{flex-wrap:wrap;padding:15px}#rise-u4-v11 .links{justify-content:flex-start;gap:10px}#rise-u4-v11 .hero{grid-template-columns:1fr;padding:23px}#rise-u4-v11 .hero-art{display:none}#rise-u4-v11 .content{padding:22px 13px 40px}#rise-u4-v11 .twocol{grid-template-columns:1fr}#rise-u4-v11 .footergrid{grid-template-columns:1fr 1fr}#rise-u4-v11 .cardbody{min-height:auto}}
+@media(max-width:450px){#rise-u4-v11 .footergrid{grid-template-columns:1fr}#rise-u4-v11 .mode-buttons{width:100%}#rise-u4-v11 .mode-buttons button{flex:1 1 120px}#rise-u4-v11 .history-head h3{font-size:20px}#rise-u4-v11 .navcta{display:none}}
+&lt;/style&gt;
+&lt;div class="frame"&gt;
+  &lt;div class="notice"&gt;● &amp;nbsp; Rise AI · Mô phỏng giao diện · Không tiếp nhận hoặc chuyển tiền thật&lt;/div&gt;
+  &lt;header class="topnav"&gt;
+    &lt;div class="brand"&gt;&lt;span style="color:#c0ec86"&gt;♧&lt;/span&gt; Riser &lt;em&gt;AI&lt;/em&gt;&lt;/div&gt;
+    &lt;div class="links"&gt;&lt;span&gt;Khám phá&lt;/span&gt;&lt;span&gt;Chiến dịch&lt;/span&gt;&lt;span&gt;Câu chuyện&lt;/span&gt;&lt;span&gt;Tiến độ&lt;/span&gt;&lt;span class="active"&gt;Minh bạch&lt;/span&gt;&lt;/div&gt;
+    &lt;div class="navcta"&gt;Khám phá chiến dịch ↗&lt;/div&gt;
+  &lt;/header&gt;
+  &lt;main class="content"&gt;
+    &lt;div class="back"&gt;← Trở về chiến dịch&lt;/div&gt;
+    &lt;section class="hero"&gt;
+      &lt;div&gt;
+        &lt;div class="kicker"&gt;✦ 04 / MINH BẠCH VÀ ĐỐI CHIẾU&lt;/div&gt;
+        &lt;h2&gt;Mỗi dữ liệu,&lt;br&gt;&lt;em&gt;một cơ sở xác minh.&lt;/em&gt;&lt;/h2&gt;
+        &lt;p&gt;Tra cứu tình trạng ký quỹ, chứng thực số dư, dấu ghi lịch sử và kết quả đối chiếu. Phân biệt dữ liệu đã xác minh với thông tin chưa khả dụng.&lt;/p&gt;
+        &lt;div style="margin-top:17px"&gt;&lt;span class="pill"&gt;♧ Chỉ đọc · Không kết nối ví trong ứng dụng&lt;/span&gt;&lt;/div&gt;
+      &lt;/div&gt;
+      &lt;div class="hero-art"&gt;
+        &lt;svg viewBox="0 0 230 210" width="100%" style="max-width:220px" role="img" aria-label="Minh họa sổ ghi chép và khiên xác minh"&gt;
+          &lt;ellipse cx="122" cy="190" rx="105" ry="10" fill="#113e31" opacity=".4"/&gt;
+          &lt;g stroke="#103c30" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"&gt;
+            &lt;path d="M38 169q-17 -28 0 -55q30 19 15 55" fill="#8fe0b3"/&gt;
+            &lt;path d="M39 166l4 -28" fill="none"/&gt;
+            &lt;rect x="48" y="19" width="131" height="161" rx="13" fill="#ffca8a" transform="rotate(-8 114 100)"/&gt;
+            &lt;rect x="65" y="40" width="100" height="121" rx="7" fill="#fff8e6" transform="rotate(-8 114 100)"/&gt;
+            &lt;rect x="92" y="12" width="48" height="22" rx="7" fill="#56e0a8" transform="rotate(-8 116 23)"/&gt;
+            &lt;path d="M84 81l58 -8M84 100l35 -5M83 132l55 -8M85 146l35 -5" fill="none"/&gt;
+            &lt;path d="M107 113l10 7 15 -22" fill="none" stroke="#15976b" stroke-width="6"/&gt;
+            &lt;path d="M171 58l43 17v26q-4 35 -43 52 -40 -17 -43 -52V75z" fill="#78d4f6"/&gt;
+            &lt;path d="M149 103l17 13 27 -33" stroke-width="6" fill="none"/&gt;
+            &lt;circle cx="174" cy="160" r="29" fill="#fff1c8"/&gt;
+            &lt;circle cx="174" cy="160" r="18" fill="#ffdfa2" stroke="none"/&gt;
+            &lt;path d="M195 182l14 23" stroke-width="9"/&gt;
+          &lt;/g&gt;
+          &lt;path d="M30 54l5 12 12 5 -12 5 -5 12 -5 -12 -12 -5 12 -5z" fill="#ffd184" stroke="#103c30" stroke-width="2"/&gt;
+        &lt;/svg&gt;
+      &lt;/div&gt;
+    &lt;/section&gt;
+    &lt;section class="mode-panel"&gt;
+      &lt;div&gt;&lt;div class="mode-title"&gt;✦ CHẾ ĐỘ XEM TRƯỚC UI&lt;/div&gt;&lt;div class="mode-sub"&gt;Chọn một trạng thái để kiểm tra toàn bộ năm khối nghiệp vụ.&lt;/div&gt;&lt;/div&gt;
+      &lt;div class="mode-buttons" role="group" aria-label="Chọn trạng thái minh bạch"&gt;
+        &lt;button type="button" data-mode="off" class="on" aria-pressed="true"&gt;Off-chain hiện tại&lt;/button&gt;
+        &lt;button type="button" data-mode="fuji" aria-pressed="false"&gt;Fuji · QA fixture&lt;/button&gt;
+        &lt;button type="button" data-mode="error" aria-pressed="false"&gt;Không khả dụng&lt;/button&gt;
+      &lt;/div&gt;
+    &lt;/section&gt;
+    &lt;div class="statebanner" id="u4-banner"&gt;
+      &lt;div class="stateicon" id="u4-banner-icon"&gt;▤&lt;/div&gt;
+      &lt;div&gt;&lt;strong id="u4-banner-title"&gt;Chưa có dữ liệu Fuji để xác minh&lt;/strong&gt;&lt;p id="u4-banner-desc"&gt;Backend đang sử dụng ký quỹ mô phỏng (off-chain). Không tạo địa chỉ, số dư, transaction hash hoặc liên kết Snowtrace giả.&lt;/p&gt;&lt;/div&gt;
+    &lt;/div&gt;
+    &lt;div class="section-label"&gt;01—04 / NGUỒN DỮ LIỆU VÀ QUY TẮC&lt;/div&gt;
+    &lt;div class="twocol"&gt;
+      &lt;article class="p-card mintcard"&gt;
+        &lt;div class="cardband"&gt;&lt;span&gt;01 / PLAN · HỢP ĐỒNG&lt;/span&gt;&lt;span&gt;▧&lt;/span&gt;&lt;/div&gt;
+        &lt;div class="cardbody"&gt;
+          &lt;h3&gt;Trạng thái ký quỹ&lt;/h3&gt;
+          &lt;div id="u4-contract"&gt;&lt;div class="infobox"&gt;&lt;strong&gt;Chưa xác minh Fuji&lt;/strong&gt;&lt;p&gt;Hợp đồng và mạng blockchain chưa được công bố ở trạng thái hiện tại.&lt;/p&gt;&lt;/div&gt;&lt;/div&gt;
+          &lt;p class="fine"&gt;Guardian và người nhận sử dụng công cụ ngoài ứng dụng.&lt;/p&gt;
+        &lt;/div&gt;
+      &lt;/article&gt;
+      &lt;article class="p-card orangecard"&gt;
+        &lt;div class="cardband"&gt;&lt;span&gt;02 / RECORD · DỰ TRỮ&lt;/span&gt;&lt;span&gt;◇&lt;/span&gt;&lt;/div&gt;
+        &lt;div class="cardbody"&gt;
+          &lt;h3&gt;Chứng thực số dư&lt;/h3&gt;
+          &lt;div id="u4-balance"&gt;&lt;div class="infobox"&gt;&lt;strong&gt;Chưa có chứng thực số dư&lt;/strong&gt;&lt;p&gt;Không tự hiển thị số tiền ký quỹ hoặc chênh lệch khi chưa có dữ liệu Fuji.&lt;/p&gt;&lt;/div&gt;&lt;/div&gt;
+        &lt;/div&gt;
+      &lt;/article&gt;
+      &lt;article class="p-card bluecard"&gt;
+        &lt;div class="cardband"&gt;&lt;span&gt;03 / REVIEW · BẰNG CHỨNG&lt;/span&gt;&lt;span&gt;♧&lt;/span&gt;&lt;/div&gt;
+        &lt;div class="cardbody"&gt;
+          &lt;h3&gt;Dấu ghi lịch sử&lt;/h3&gt;
+          &lt;div id="u4-ledger"&gt;&lt;div class="infobox"&gt;&lt;strong&gt;Chưa có dấu ghi on-chain&lt;/strong&gt;&lt;p&gt;Chưa thể so sánh số lượng bản ghi từ Blockchain với Backend.&lt;/p&gt;&lt;/div&gt;&lt;/div&gt;
+          &lt;button type="button" class="extra-btn" id="u4-audit-btn" hidden aria-expanded="false"&gt;Vì sao AUDIT cần xem xét?&lt;/button&gt;
+          &lt;div id="u4-audit-detail" class="audit-detail" hidden&gt;Trong dữ liệu QA minh họa, AUDIT có 10/12 bản ghi khớp, nên không được gắn nhãn đã xác minh hoàn toàn. Cần xem xét hai bản ghi chênh lệch trước khi kết luận.&lt;/div&gt;
+        &lt;/div&gt;
+      &lt;/article&gt;
+      &lt;article class="p-card sagecard"&gt;
+        &lt;div class="cardband"&gt;&lt;span&gt;04 / REVIEW · XÁC MINH&lt;/span&gt;&lt;span&gt;✳&lt;/span&gt;&lt;/div&gt;
+        &lt;div class="cardbody"&gt;
+          &lt;h3&gt;Hiểu đúng các trạng thái&lt;/h3&gt;
+          &lt;div class="rules"&gt;
+            &lt;div class="rule"&gt;&lt;span class="tag"&gt;Khớp&lt;/span&gt;&lt;div&gt;&lt;strong&gt;Đã đối chiếu&lt;/strong&gt;&lt;p&gt;Hash và dữ liệu Backend trùng khớp theo quy tắc.&lt;/p&gt;&lt;/div&gt;&lt;/div&gt;
+            &lt;div class="rule"&gt;&lt;span class="tag amber"&gt;Xem xét&lt;/span&gt;&lt;div&gt;&lt;strong&gt;Có dấu hiệu sai lệch&lt;/strong&gt;&lt;p&gt;MISMATCH hoặc giao dịch PLATFORM ngoài sổ.&lt;/p&gt;&lt;/div&gt;&lt;/div&gt;
+            &lt;div class="rule"&gt;&lt;span class="tag sky"&gt;Chưa rõ&lt;/span&gt;&lt;div&gt;&lt;strong&gt;Không thể xác minh&lt;/strong&gt;&lt;p&gt;API hoặc Gateway không khả dụng.&lt;/p&gt;&lt;/div&gt;&lt;/div&gt;
+          &lt;/div&gt;
+          &lt;p class="fine" style="border-top:1px solid #bbcfb9;padding-top:14px"&gt;Trạng thái không khả dụng không đồng nghĩa với sai phạm.&lt;/p&gt;
+        &lt;/div&gt;
+      &lt;/article&gt;
+    &lt;/div&gt;
+    &lt;section class="history"&gt;
+      &lt;div class="history-head"&gt;
+        &lt;div&gt;&lt;div class="kicker"&gt;05 / DATA API · NHẬT KÝ ĐỐI CHIẾU&lt;/div&gt;&lt;h3&gt;Lịch sử giao dịch&lt;/h3&gt;&lt;/div&gt;
+        &lt;button class="refresh" id="u4-refresh" type="button"&gt;↻ Làm mới&lt;/button&gt;
+      &lt;/div&gt;
+      &lt;div class="history-main" id="u4-history-main"&gt;
+        &lt;div class="empty"&gt;&lt;div class="emptyicon"&gt;▤&lt;/div&gt;&lt;h4&gt;Chưa có giao dịch Fuji để hiển thị&lt;/h4&gt;&lt;p&gt;Đây là trạng thái off-chain thực tế được ghi nhận ở G0. Danh sách chỉ xuất hiện khi Backend cung cấp dữ liệu phù hợp.&lt;/p&gt;&lt;/div&gt;
+      &lt;/div&gt;
+      &lt;div class="history-meta"&gt;&lt;span&gt;Thiết kế tích hợp: dữ liệu Backend · Chu kỳ làm mới 30 giây&lt;/span&gt;&lt;span&gt;Preview UI · Không thực hiện yêu cầu mạng&lt;/span&gt;&lt;/div&gt;
+    &lt;/section&gt;
+    &lt;div id="u4-toast" class="toast" role="status" aria-live="polite"&gt;&lt;/div&gt;
+  &lt;/main&gt;
+  &lt;footer class="preview-footer"&gt;
+    &lt;div class="footergrid"&gt;
+      &lt;div&gt;&lt;div class="brand"&gt;&lt;span style="color:#c0ec86"&gt;♧&lt;/span&gt; Riser &lt;em&gt;AI&lt;/em&gt;&lt;/div&gt;&lt;p&gt;Khám phá các sáng kiến cộng đồng&lt;br&gt;và theo dõi từng cột mốc thực hiện.&lt;/p&gt;&lt;div style="border-left:2px solid #ffd08a;padding-left:9px;color:#ffd08a;font-size:10px;font-weight:850"&gt;Community Signature / Hướng thiết kế B2&lt;/div&gt;&lt;/div&gt;
+      &lt;div&gt;&lt;h4&gt;Khám phá&lt;/h4&gt;&lt;div class="fsmall"&gt;Trang chủ&lt;br&gt;Tất cả chiến dịch&lt;br&gt;Cách hoạt động&lt;/div&gt;&lt;/div&gt;
+      &lt;div&gt;&lt;h4&gt;Tài khoản&lt;/h4&gt;&lt;div class="fsmall"&gt;Đăng nhập&lt;br&gt;Khu vực cá nhân&lt;br&gt;Cần có phiên đăng nhập&lt;/div&gt;&lt;/div&gt;
+      &lt;div class="foot-feature"&gt;&lt;strong&gt;BẢN TRÌNH DIỄN MÔ PHỎNG&lt;/strong&gt;&lt;p&gt;Không nhận hoặc chuyển tiền thật. Dữ liệu QA minh họa không phải bằng chứng thực tế.&lt;/p&gt;&lt;div style="font-size:11px;font-weight:900;color:#ffcf85"&gt;Hiểu cách đọc trạng thái ↗&lt;/div&gt;&lt;/div&gt;
+    &lt;/div&gt;
+    &lt;div class="bottomline"&gt;&lt;span&gt;© 2026 Riser AI&lt;/span&gt;&lt;span&gt;Minh bạch là giải thích điều đã và chưa được xác minh&lt;/span&gt;&lt;span&gt;Community Signature B2 ✦&lt;/span&gt;&lt;/div&gt;
+  &lt;/footer&gt;
+&lt;/div&gt;
+&lt;script&gt;
+(function(){
+const root=document.getElementById('rise-u4-v11');
+if(!root||root.dataset.initialized)return;
+root.dataset.initialized='1';
+const $=s=&gt;root.querySelector(s);
+const row=(k,v)=&gt;'&lt;div class="data-row"&gt;&lt;span class="key"&gt;'+k+'&lt;/span&gt;&lt;span class="val"&gt;'+v+'&lt;/span&gt;&lt;/div&gt;';
+const note=(heading,body)=&gt;'&lt;div class="infobox"&gt;&lt;strong&gt;'+heading+'&lt;/strong&gt;&lt;p&gt;'+body+'&lt;/p&gt;&lt;/div&gt;';
+const tx=(n,title,sub,label,cls)=&gt;'&lt;div class="tx"&gt;&lt;span class="txnum"&gt;'+n+'&lt;/span&gt;&lt;div class="desc"&gt;&lt;strong&gt;'+title+'&lt;/strong&gt;&lt;p&gt;'+sub+'&lt;/p&gt;&lt;/div&gt;&lt;span class="tag '+cls+'"&gt;'+label+'&lt;/span&gt;&lt;/div&gt;';
+const modes={
+off:{
+ banner:'Chưa có dữ liệu Fuji để xác minh',
+ desc:'Backend đang sử dụng ký quỹ mô phỏng (off-chain). Không tạo địa chỉ, số dư, transaction hash hoặc liên kết Snowtrace giả.',
+ icon:'▤',tone:'',
+ contract:note('Chưa xác minh Fuji','Hợp đồng và mạng blockchain chưa được công bố ở trạng thái hiện tại.'),
+ balance:note('Chưa có chứng thực số dư','Không tự hiển thị số tiền ký quỹ hoặc chênh lệch khi chưa có dữ liệu Fuji.'),
+ ledger:note('Chưa có dấu ghi on-chain','Chưa thể so sánh số lượng bản ghi từ Blockchain với Backend.'),
+ history:'&lt;div class="empty"&gt;&lt;div class="emptyicon"&gt;▤&lt;/div&gt;&lt;h4&gt;Chưa có giao dịch Fuji để hiển thị&lt;/h4&gt;&lt;p&gt;Đây là trạng thái off-chain thực tế được ghi nhận ở G0. Danh sách chỉ xuất hiện khi Backend cung cấp dữ liệu phù hợp.&lt;/p&gt;&lt;/div&gt;',
+ refresh:false
+},
+fuji:{
+ banner:'AVALANCHE FUJI · CHAIN ID 43113',
+ desc:'QA FIXTURE — toàn bộ địa chỉ, số liệu và giao dịch dưới đây là dữ liệu giả lập phục vụ duyệt giao diện, không phải chứng thực thực tế.',
+ icon:'✓',tone:'warn',
+ contract:row('Mạng','Avalanche Fuji / 43113')+row('Hợp đồng ký quỹ','0x1111...1111 (fixture)')+row('Token mô phỏng','0x2222...2222 (fixture)')+row('Trạng thái','&lt;span class="tag"&gt;Đang hoạt động · Fixture&lt;/span&gt;'),
+ balance:row('Ngân hàng theo chứng thực','940.000 VND mô phỏng')+row('Ký quỹ tại chứng thực','950.000 VND mô phỏng')+row('Chênh lệch','10.000 VND mô phỏng')+row('Đánh dấu','&lt;span class="tag amber"&gt;Cần đối chiếu&lt;/span&gt;'),
+ ledger:row('LEDGER · 14/14 bản ghi','&lt;span class="tag"&gt;Đối chiếu khớp&lt;/span&gt;')+row('AUDIT · 10/12 bản ghi','&lt;span class="tag coral"&gt;Không khớp&lt;/span&gt;')+row('FINDINGS · 0/3 bản ghi','&lt;span class="tag amber"&gt;Chưa ghi dấu&lt;/span&gt;'),
+ history:tx('01','reserve · Dự trữ trong sổ hệ thống','Block #12345 · Ví dụ giao dịch thành công · Fixture QA','Có trong sổ','')+tx('02','recordPayout · Giao dịch ngoài sổ','Block #12346 · Ví dụ giao dịch thành công · Fixture QA','Cần xem xét','coral')+'&lt;div class="history-note"&gt;Liên kết Snowtrace chỉ xuất hiện trong React thực tế khi Backend cung cấp URL hợp lệ. Bản xem trước không có transaction hash thật.&lt;/div&gt;',
+ refresh:true
+},
+error:{
+ banner:'Không thể xác minh dữ liệu từ Backend',
+ desc:'API tạm thời không khả dụng. Không kết luận rằng giao dịch sai phạm và không hiển thị dữ liệu xác minh giả.',
+ icon:'!',tone:'error',
+ contract:note('Không tải được cấu hình chain','Địa chỉ và trạng thái hợp đồng được ẩn vì chưa nhận được nguồn hợp lệ.'),
+ balance:note('Chưa thể lấy chứng thực','Không coi trạng thái không khả dụng là số dư bằng 0.'),
+ ledger:note('Chưa thể đối chiếu dấu ghi','Tạm thời không xác minh hash hoặc lịch sử ghi dấu.'),
+ history:'&lt;div class="empty"&gt;&lt;div class="emptyicon err"&gt;!&lt;/div&gt;&lt;h4&gt;Không thể tải lịch sử giao dịch&lt;/h4&gt;&lt;p&gt;Giữ nguyên trạng thái chưa xác minh. Không tái sử dụng số liệu cũ như dữ liệu mới.&lt;/p&gt;&lt;button type="button" class="refresh" id="u4-retry" style="margin-top:22px"&gt;↻ Thử tải lại (demo)&lt;/button&gt;&lt;/div&gt;',
+ refresh:false
+}
+};
+let current='off';
+function setMode(k){
+ current=k;
+ const m=modes[k];
+ root.querySelectorAll('[data-mode]').forEach(b=&gt;{const on=b.dataset.mode===k;b.classList.toggle('on',on);b.setAttribute('aria-pressed',String(on))});
+ $('#u4-banner').className='statebanner '+m.tone;
+ $('#u4-banner-icon').textContent=m.icon;
+ $('#u4-banner-title').textContent=m.banner;
+ $('#u4-banner-desc').textContent=m.desc;
+ $('#u4-contract').innerHTML=m.contract;
+ $('#u4-balance').innerHTML=m.balance;
+ $('#u4-ledger').innerHTML=m.ledger;
+ $('#u4-history-main').innerHTML=m.history;
+ $('#u4-audit-btn').hidden=k!=='fuji';
+ $('#u4-audit-btn').setAttribute('aria-expanded','false');
+ $('#u4-audit-detail').hidden=true;
+ $('#u4-refresh').disabled=!m.refresh;
+ $('#u4-refresh').style.opacity=m.refresh?'1':'.48';
+ $('#u4-refresh').style.boxShadow=m.refresh?'3px 4px 0 #153e32':'none';
+ $('#u4-refresh').style.cursor=m.refresh?'pointer':'not-allowed';
+ $('#u4-toast').textContent='';
+}
+root.querySelectorAll('[data-mode]').forEach(b=&gt;b.addEventListener('click',()=&gt;setMode(b.dataset.mode)));
+$('#u4-refresh').addEventListener('click',()=&gt;{$('#u4-toast').textContent='Đã mô phỏng thao tác làm mới. Không có yêu cầu Backend nào được gửi.'});
+$('#u4-audit-btn').addEventListener('click',()=&gt;{let el=$('#u4-audit-detail');el.hidden=!el.hidden;$('#u4-audit-btn').setAttribute('aria-expanded',String(!el.hidden))});
+root.addEventListener('click',e=&gt;{if(e.target.closest('#u4-retry')){$('#u4-toast').textContent='Đã mô phỏng thử lại. API vẫn được giả lập là không khả dụng; không có yêu cầu mạng nào được gửi.'}});
+setMode('off');
+})();
+&lt;/script&gt;
+&lt;/div&gt;
+</textarea>
+<textarea id="src-U5" hidden>
+&lt;div id="rise-u5-v12-selective" class="w-full"&gt;
+&lt;style&gt;
+#rise-u5-v12-selective{--ink:#123e32;--forest:#0d372b;--mint:#49e1a7;--mint-bg:#d9f8e6;--apricot:#ffba74;--apricot-bg:#ffe5c3;--sky:#71d0f3;--sky-bg:#dcf2ff;--sage:#dce7b3;--sage-bg:#edf1d5;--muted:#567667;font-family:"Be Vietnam Pro",system-ui,sans-serif;font-size:12px;color:var(--ink);line-height:1.55}
+#rise-u5-v12-selective *{box-sizing:border-box}
+#rise-u5-v12-selective [hidden]{display:none!important}
+#rise-u5-v12-selective button,#rise-u5-v12-selective input,#rise-u5-v12-selective select,#rise-u5-v12-selective textarea{font:inherit}
+#rise-u5-v12-selective button{cursor:pointer}
+#rise-u5-v12-selective button:disabled{opacity:.45;cursor:not-allowed;box-shadow:none}
+#rise-u5-v12-selective button:focus-visible,#rise-u5-v12-selective input:focus-visible,#rise-u5-v12-selective select:focus-visible,#rise-u5-v12-selective textarea:focus-visible{outline:3px solid #e18a54;outline-offset:2px}
+#rise-u5-v12-selective .shell{border:2px solid var(--ink);border-radius:18px;overflow:hidden;background:#f7f8ef}
+#rise-u5-v12-selective .ribbon{background:#ecc58c;color:#664116;text-align:center;font-weight:900;font-size:10px;letter-spacing:.05em;padding:9px}
+#rise-u5-v12-selective .top{background:var(--forest);color:#fff4dc;padding:20px 26px;display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap}
+#rise-u5-v12-selective .brand{font-size:23px;font-weight:950;letter-spacing:-.06em;color:#fff4dc;white-space:nowrap}
+#rise-u5-v12-selective .brand em{font-style:normal;color:#ffd08a}
+#rise-u5-v12-selective .navlinks{display:flex;align-items:center;gap:22px;flex-wrap:wrap;font-size:11px;font-weight:850}
+#rise-u5-v12-selective .navlinks .current{color:#ffd08a;border-bottom:2px solid #ffd08a;padding-bottom:5px}
+#rise-u5-v12-selective .adminpill{border:1px solid #80ad86;color:#e1ffe8;border-radius:30px;padding:7px 12px;font-weight:900;font-size:10px}
+#rise-u5-v12-selective .page{padding:25px 24px 43px;max-width:1160px;margin:auto;display:grid;gap:23px}
+#rise-u5-v12-selective .back{font-size:11px;color:#177253;font-weight:900;display:flex;justify-content:space-between;gap:10px}
+#rise-u5-v12-selective .hero{background:linear-gradient(115deg,#103b2d,#286b52);color:#fff4dc;border:2px solid var(--ink);border-radius:21px;box-shadow:5px 6px 0 #adc9ac;padding:27px 30px;display:grid;grid-template-columns:minmax(0,1.8fr) 175px;gap:15px;align-items:center}
+#rise-u5-v12-selective .hero h2{font-size:clamp(27px,4.2vw,43px);line-height:1.18;letter-spacing:-.045em;font-weight:950;margin:13px 0;color:#fff4dc}
+#rise-u5-v12-selective .hero h2 em{font-style:normal;color:#ffd08a}
+#rise-u5-v12-selective .hero p{color:#e5f8eb;font-size:12px;line-height:1.85;max-width:590px}
+#rise-u5-v12-selective .hero .kicker{color:#b9efa8;font-size:10px;font-weight:950;letter-spacing:.1em}
+#rise-u5-v12-selective .hero .pill{display:inline-block;background:#e4ffeb;color:#174d3d;border:1px solid #6ba580;border-radius:50px;font-size:10px;font-weight:850;padding:7px 11px;margin-top:12px}
+#rise-u5-v12-selective .controls{background:#fffdf6;border:2px solid var(--ink);border-radius:16px;box-shadow:4px 5px 0 #bfceba;padding:15px 17px;display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}
+#rise-u5-v12-selective .eyebrow{font-size:10px;font-weight:950;letter-spacing:.075em;color:#137255}
+#rise-u5-v12-selective .muted{font-size:11px;color:#547466;line-height:1.75}
+#rise-u5-v12-selective .switches{display:flex;gap:7px;flex-wrap:wrap}
+#rise-u5-v12-selective .switches button{border:2px solid var(--ink);border-radius:10px;background:#fffdf7;color:var(--ink);padding:10px 13px;font-weight:900;font-size:11px}
+#rise-u5-v12-selective .switches button.active{background:var(--mint);box-shadow:3px 4px 0 var(--ink)}
+#rise-u5-v12-selective .banner{border:2px solid var(--ink);background:#dcf9e7;border-radius:15px;box-shadow:4px 5px 0 #95c5a5;padding:15px 18px;display:flex;align-items:center;gap:13px}
+#rise-u5-v12-selective .banner.mismatch{background:#ffe6c6;box-shadow:4px 5px 0 #d4a875}
+#rise-u5-v12-selective .banner.error{background:#ffe5df;box-shadow:4px 5px 0 #d4aaa2}
+#rise-u5-v12-selective .bannericon{height:46px;width:46px;display:grid;place-items:center;border:2px solid var(--ink);border-radius:12px;background:var(--mint);font-weight:950;font-size:22px;flex:none}
+#rise-u5-v12-selective .banner.mismatch .bannericon{background:var(--apricot)}
+#rise-u5-v12-selective .banner.error .bannericon{background:#ffad9c}
+#rise-u5-v12-selective .banner strong{font-size:14px;font-weight:900}
+#rise-u5-v12-selective .banner p{margin:4px 0 0;font-size:11px;color:#5d7467;line-height:1.75}
+#rise-u5-v12-selective .sectitle{display:flex;align-items:center;gap:12px;color:#166e51;font-size:11px;font-weight:950;letter-spacing:.055em;margin:0 0 13px}
+#rise-u5-v12-selective .sectitle:after{content:"";height:2px;background:#d0dece;flex:1}
+#rise-u5-v12-selective .stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:15px}
+#rise-u5-v12-selective .panel{--head:#dce7b3;--body:#edf1d5;--shadow:#b2c59b;--inner:#f9fbed;border:2.5px solid var(--ink);border-radius:18px;background:var(--body);box-shadow:5px 6px 0 var(--shadow);overflow:hidden;min-width:0}
+#rise-u5-v12-selective .panel.mint{--head:#49e1a7;--body:#d9f8e6;--shadow:#83bda0;--inner:#effff5}
+#rise-u5-v12-selective .panel.apricot{--head:#ffba74;--body:#ffe5c3;--shadow:#d8aa79;--inner:#fff5e5}
+#rise-u5-v12-selective .panel.sky{--head:#71d0f3;--body:#dcf2ff;--shadow:#8fbfd2;--inner:#effaff}
+#rise-u5-v12-selective .panel.sage{--head:#dce7b3;--body:#edf1d5;--shadow:#b6c69b;--inner:#f9fbed}
+#rise-u5-v12-selective .panelhead{background:var(--head);border-bottom:2px solid var(--ink);padding:15px 17px;min-height:50px;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;color:#123e32}
+#rise-u5-v12-selective .panelhead strong{font-size:12px;font-weight:950}
+#rise-u5-v12-selective .panelbody{padding:18px 17px}
+#rise-u5-v12-selective .stat .panelbody{min-height:133px}
+#rise-u5-v12-selective .statval{font-size:36px;font-weight:950;letter-spacing:-.055em;color:#123e32;font-variant-numeric:tabular-nums;margin:8px 0 4px;line-height:1.2}
+#rise-u5-v12-selective .badge{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:900;border:1px solid #4a9871;color:#1a6347;background:#ccf7df;border-radius:99px;padding:5px 10px;white-space:nowrap}
+#rise-u5-v12-selective .badge.warn{background:#ffdbab;border-color:#bc813b;color:#82500e}
+#rise-u5-v12-selective .badge.danger{background:#ffd5ca;border-color:#d47862;color:#a53f2b}
+#rise-u5-v12-selective .badge.sky{background:#d5f0ff;border-color:#70afcb;color:#195f7b}
+#rise-u5-v12-selective .badge.gray{background:#edf1eb;border-color:#b3c1b7;color:#4e6b5d}
+#rise-u5-v12-selective .masterdetail{display:grid;grid-template-columns:minmax(0,35fr) minmax(0,65fr);gap:19px;align-items:stretch}
+#rise-u5-v12-selective .account{width:100%;background:#fff8e9;border:1.5px solid #abc2aa;border-radius:12px;padding:13px 12px;display:flex;justify-content:space-between;align-items:center;gap:10px;text-align:left;color:var(--ink);margin-bottom:10px}
+#rise-u5-v12-selective .account.chosen{background:#d9f8e6;border:2px solid #207553;box-shadow:2px 3px 0 #9aba9c}
+#rise-u5-v12-selective .account strong{display:block;font-size:12px}
+#rise-u5-v12-selective .account small{display:block;margin-top:5px;font-size:10px;color:#537265}
+#rise-u5-v12-selective .tiny{font-size:10px;font-weight:850}
+#rise-u5-v12-selective .searchrow{display:flex;gap:7px;margin:0 0 14px}
+#rise-u5-v12-selective input:not([type="checkbox"]),#rise-u5-v12-selective textarea,#rise-u5-v12-selective select{width:100%;min-width:0;border:1.5px solid #8fb39f;border-radius:10px;padding:10px 11px;background:#fffdf7;color:#123e32;font-size:12px}
+#rise-u5-v12-selective input::placeholder,#rise-u5-v12-selective textarea::placeholder{color:#7a9486}
+#rise-u5-v12-selective textarea{resize:vertical}
+#rise-u5-v12-selective .btn{background:#fffdf7;color:var(--ink);font-size:11px;font-weight:950;border:2px solid var(--ink);border-radius:10px;padding:10px 13px;white-space:nowrap}
+#rise-u5-v12-selective .btn.primary{background:var(--mint);box-shadow:3px 4px 0 var(--ink)}
+#rise-u5-v12-selective .btn:hover:not(:disabled){transform:translateY(-1px)}
+#rise-u5-v12-selective .balances{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:17px}
+#rise-u5-v12-selective .bal{border:1.5px solid #9ec9ac;background:var(--inner);border-radius:12px;padding:13px;min-width:0}
+#rise-u5-v12-selective .bal small{display:block;font-size:10px;color:#517466;font-weight:800;min-height:27px}
+#rise-u5-v12-selective .bal strong{display:block;font-size:clamp(13px,1.1vw,16px);color:var(--ink);font-weight:900;font-variant-numeric:tabular-nums;white-space:nowrap;overflow-wrap:normal;word-break:normal;line-height:1.5}
+#rise-u5-v12-selective .tablewrap{overflow-x:auto;border-radius:11px;border:1.5px solid #a6c5b3;background:#f3fff6}
+#rise-u5-v12-selective table{border-collapse:collapse;width:100%;min-width:650px;font-size:11px;font-variant-numeric:tabular-nums}
+#rise-u5-v12-selective table th,#rise-u5-v12-selective table td{padding:12px 14px;border-bottom:1px solid #bfd6c5;text-align:left;vertical-align:middle}
+#rise-u5-v12-selective table th{font-weight:900;color:#123e32}
+#rise-u5-v12-selective table tbody td:nth-child(2),#rise-u5-v12-selective table tbody td:nth-child(3){font-size:12px;font-weight:800;white-space:nowrap}
+#rise-u5-v12-selective table thead{background:#b6efd1}
+#rise-u5-v12-selective table tbody tr:nth-child(even){background:#e5f7eb}
+#rise-u5-v12-selective table tbody tr.alert{background:#ffe4cf}
+#rise-u5-v12-selective table tbody tr:last-child&gt;*{border-bottom:0}
+#rise-u5-v12-selective .under{font-size:10px;color:#567667;margin-top:4px}
+#rise-u5-v12-selective .split{display:grid;grid-template-columns:minmax(0,3fr) minmax(0,2fr);gap:19px;align-items:start}
+#rise-u5-v12-selective .tabs{display:flex;gap:7px;flex-wrap:wrap;margin:0 0 8px}
+#rise-u5-v12-selective .tabs button{background:#f3fbff;border:1.5px solid #78b0c7;border-radius:8px;padding:7px 12px;font-weight:850;font-size:10px;color:var(--ink)}
+#rise-u5-v12-selective .tabs button.active{background:#78d2f5;border-color:var(--ink)}
+#rise-u5-v12-selective .entry{display:flex;align-items:center;gap:12px;border-bottom:1px solid #b3d2e1;padding:13px 0}
+#rise-u5-v12-selective .entry:last-child{border:0}
+#rise-u5-v12-selective .entrynum{height:38px;width:38px;flex:none;display:grid;place-items:center;border:2px solid var(--ink);border-radius:10px;background:#ffd099;font-weight:950}
+#rise-u5-v12-selective .entry .info{flex:1;min-width:0}
+#rise-u5-v12-selective .entry .info strong{font-size:11px}
+#rise-u5-v12-selective .entry .info small{display:block;color:#607d72;font-size:10px;margin-top:4px}
+#rise-u5-v12-selective .entry .value{text-align:right;font-size:12px;font-weight:900;white-space:nowrap}
+#rise-u5-v12-selective .pager{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-top:17px;padding-top:14px;border-top:1px solid #a8cad5}
+#rise-u5-v12-selective .pager small{color:#557565;font-size:10px}
+#rise-u5-v12-selective .formgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+#rise-u5-v12-selective .field{display:grid;gap:6px;min-width:0}
+#rise-u5-v12-selective .field.full{grid-column:1/-1}
+#rise-u5-v12-selective .field label{font-size:11px;font-weight:900}
+#rise-u5-v12-selective .ack{display:flex;align-items:flex-start;gap:9px;font-size:11px;line-height:1.7;font-weight:750}
+#rise-u5-v12-selective .ack input{margin-top:4px;accent-color:#138760}
+#rise-u5-v12-selective .infonote{border:1.5px dashed #bb9c70;background:#fff2d9;border-radius:12px;padding:13px;line-height:1.7;font-size:11px}
+#rise-u5-v12-selective .feedback{font-size:11px;line-height:1.7;font-weight:850;color:#14684c;margin-top:9px}
+#rise-u5-v12-selective .feedback.err{color:#a23a28}
+#rise-u5-v12-selective .historyrow{padding:14px 0;border-bottom:1px solid #becaa8;display:flex;justify-content:space-between;align-items:center;gap:12px}
+#rise-u5-v12-selective .historyrow:last-child{border:0}
+#rise-u5-v12-selective .historyrow strong{font-size:12px}
+#rise-u5-v12-selective .historyrow p{font-size:10px;color:#657a68;margin:5px 0 0}
+#rise-u5-v12-selective .runinfo{background:#f9fbed;border:1.5px solid #b4c19a;border-radius:12px;padding:16px;margin-top:14px}
+#rise-u5-v12-selective .runfinding{display:flex;justify-content:space-between;align-items:center;gap:12px;border-top:1px solid #c5d0af;padding:11px 0}
+#rise-u5-v12-selective .empty{text-align:center;padding:32px 15px}
+#rise-u5-v12-selective .emptyicon{width:66px;height:66px;display:grid;place-items:center;margin:0 auto 14px;border:2px solid var(--ink);border-radius:15px;background:#ffdfd4;color:#123e32;font-size:30px;font-weight:950;box-shadow:4px 4px 0 #c9c6b5}
+#rise-u5-v12-selective .empty strong{display:block;font-size:15px}
+#rise-u5-v12-selective .empty p{color:#657b70;font-size:11px;line-height:1.8;margin:8px auto 0;max-width:370px}
+#rise-u5-v12-selective .footnote{border:2px solid var(--ink);border-radius:13px;background:#ffe1cf;padding:16px;font-size:11px;line-height:1.8;font-weight:750;color:#674b33}
+#rise-u5-v12-selective .footer{background:#0d372b;border-top:4px solid #efc58a;padding:23px 26px;color:#fff4dc;display:flex;align-items:center;justify-content:space-between;gap:15px;flex-wrap:wrap}
+#rise-u5-v12-selective .footer small{font-size:10px;color:#d9ebdb}
+#rise-u5-v12-selective .modalbackdrop{position:fixed;inset:0;z-index:50;display:grid;place-items:center;background:rgba(13,43,32,.62);padding:18px}
+#rise-u5-v12-selective .modal{background:#fff8e9;border:3px solid var(--ink);box-shadow:7px 8px 0 #84a98f;border-radius:18px;padding:24px;max-width:420px;width:100%;color:var(--ink)}
+#rise-u5-v12-selective .modal h3{font-size:19px;margin:0 0 10px}
+#rise-u5-v12-selective .modal p{font-size:12px;line-height:1.8}
+#rise-u5-v12-selective .modalactions{display:flex;justify-content:flex-end;gap:10px;margin-top:21px}
+@media(max-width:780px){#rise-u5-v12-selective .page{padding:18px 13px 34px;gap:20px}#rise-u5-v12-selective .hero{grid-template-columns:1fr;padding:24px}#rise-u5-v12-selective .hero svg{display:none}#rise-u5-v12-selective .masterdetail,#rise-u5-v12-selective .split{grid-template-columns:1fr}#rise-u5-v12-selective .navlinks{gap:11px}#rise-u5-v12-selective .balances{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:490px){#rise-u5-v12-selective .navlinks{display:none}#rise-u5-v12-selective .stats{grid-template-columns:1fr}#rise-u5-v12-selective .stat .panelbody{min-height:auto}#rise-u5-v12-selective .formgrid{grid-template-columns:1fr}#rise-u5-v12-selective .field.full{grid-column:auto}}
+&lt;/style&gt;
+&lt;div class="shell"&gt;
+&lt;div class="ribbon"&gt;● RISE AI · U5 V1.2 · TYPOGRAPHY REFINEMENT · DỮ LIỆU GIẢ LẬP&lt;/div&gt;
+&lt;header class="top"&gt;
+  &lt;div class="brand"&gt;♧ Riser &lt;em&gt;AI&lt;/em&gt;&lt;/div&gt;
+  &lt;nav class="navlinks" aria-label="Điều hướng minh họa"&gt;
+    &lt;span&gt;Trung tâm&lt;/span&gt;&lt;span&gt;Hồ sơ&lt;/span&gt;&lt;span class="current"&gt;Escrow &amp; Đối soát&lt;/span&gt;&lt;span&gt;Giám sát&lt;/span&gt;&lt;span&gt;Nhật ký&lt;/span&gt;
+  &lt;/nav&gt;
+  &lt;span class="adminpill"&gt;ADMIN · DEMO&lt;/span&gt;
+&lt;/header&gt;
+&lt;main class="page"&gt;
+  &lt;div class="back"&gt;&lt;span&gt;← Trung tâm quản trị&lt;/span&gt;&lt;span style="color:#648174"&gt;U5 / TRUST LEDGER WORKFLOW&lt;/span&gt;&lt;/div&gt;
+  &lt;section class="hero"&gt;
+    &lt;div&gt;
+      &lt;div class="kicker"&gt;✦ 05 / SỔ QUỸ &amp; ĐỐI SOÁT&lt;/div&gt;
+      &lt;h2&gt;Mỗi bút toán,&lt;br&gt;&lt;em&gt;một dấu vết rõ ràng.&lt;/em&gt;&lt;/h2&gt;
+      &lt;p&gt;Kiểm tra số dư, phát hiện sai lệch và truy vết bút toán theo từng chiến dịch. Mọi đề nghị phải qua cơ chế phê duyệt độc lập.&lt;/p&gt;
+      &lt;span class="pill"&gt;♧ Sổ mô phỏng · OFF-CHAIN · Không chuyển tiền thật&lt;/span&gt;
+    &lt;/div&gt;
+    &lt;svg viewBox="0 0 190 185" width="100%" style="max-width:185px" role="img" aria-label="Minh họa sổ kế toán và khiên bảo vệ"&gt;
+      &lt;ellipse cx="94" cy="173" rx="83" ry="8" fill="#123e32" opacity=".4"/&gt;
+      &lt;g stroke="#123e32" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"&gt;
+        &lt;rect x="21" y="24" width="131" height="132" rx="14" fill="#ffca8a" transform="rotate(-7 90 90)"/&gt;
+        &lt;rect x="36" y="41" width="102" height="101" rx="6" fill="#fff7e6" transform="rotate(-7 90 90)"/&gt;
+        &lt;path d="M55 70h62M55 88h62M55 106h62M55 124h62" fill="none" stroke-width="3"/&gt;
+        &lt;rect x="60" y="62" width="22" height="9" rx="2" fill="#4cdfa7"/&gt;
+        &lt;rect x="62" y="80" width="22" height="9" rx="2" fill="#75d0f3"/&gt;
+        &lt;rect x="65" y="98" width="22" height="9" rx="2" fill="#ffba74"/&gt;
+        &lt;path d="M146 57l35 14v27q-4 30 -35 45 -32 -15 -35 -45V71z" fill="#76d2f4"/&gt;
+        &lt;path d="M125 98l15 13 25 -31" fill="none" stroke-width="6"/&gt;
+        &lt;circle cx="33" cy="140" r="20" fill="#b8e596"/&gt;
+        &lt;path d="M25 140h16M33 132v16" stroke-width="3"/&gt;
+      &lt;/g&gt;
+    &lt;/svg&gt;
+  &lt;/section&gt;
+
+  &lt;section class="controls"&gt;
+    &lt;div&gt;&lt;div class="eyebrow"&gt;✦ CHẾ ĐỘ XEM TRƯỚC UI&lt;/div&gt;&lt;div class="muted"&gt;Chọn một tình huống để kiểm tra các khối và trạng thái.&lt;/div&gt;&lt;/div&gt;
+    &lt;div class="switches" role="group" aria-label="Chế độ xem trước Escrow"&gt;
+      &lt;button class="active" type="button" data-mode="consistent" aria-pressed="true"&gt;Nhất quán&lt;/button&gt;
+      &lt;button type="button" data-mode="mismatch" aria-pressed="false"&gt;Có sai lệch&lt;/button&gt;
+      &lt;button type="button" data-mode="error" aria-pressed="false"&gt;API không khả dụng&lt;/button&gt;
+    &lt;/div&gt;
+  &lt;/section&gt;
+  &lt;div id="u5ty-banner" class="banner" role="status" aria-live="polite"&gt;
+    &lt;div class="bannericon" id="u5ty-symbol"&gt;✓&lt;/div&gt;
+    &lt;div&gt;&lt;strong id="u5ty-btitle"&gt;Đối chiếu tài khoản đang chọn: Nhất quán&lt;/strong&gt;&lt;p id="u5ty-bdesc"&gt;Các cấu phần trong mẫu khớp nhau. Kết quả chỉ dùng để duyệt giao diện.&lt;/p&gt;&lt;/div&gt;
+  &lt;/div&gt;
+  &lt;section&gt;
+    &lt;div class="sectitle"&gt;01 / TOÀN CẢNH HỆ THỐNG&lt;/div&gt;
+    &lt;div class="stats"&gt;
+      &lt;article class="panel mint stat"&gt;
+        &lt;div class="panelhead"&gt;&lt;strong&gt;01 / PLAN · TÀI KHOẢN&lt;/strong&gt;&lt;span&gt;▤&lt;/span&gt;&lt;/div&gt;
+        &lt;div class="panelbody"&gt;&lt;div class="muted"&gt;Tổng tài khoản&lt;/div&gt;&lt;div id="u5ty-total" class="statval"&gt;02&lt;/div&gt;&lt;div class="muted"&gt;Tài khoản trong dữ liệu minh họa&lt;/div&gt;&lt;/div&gt;
+      &lt;/article&gt;
+      &lt;article class="panel sky stat"&gt;
+        &lt;div class="panelhead"&gt;&lt;strong&gt;02 / REVIEW · NHẤT QUÁN&lt;/strong&gt;&lt;span&gt;✓&lt;/span&gt;&lt;/div&gt;
+        &lt;div class="panelbody"&gt;&lt;div class="muted"&gt;Tài khoản có số dư khớp&lt;/div&gt;&lt;div id="u5ty-ok" class="statval"&gt;01&lt;/div&gt;&lt;div class="muted"&gt;Đối chiếu theo tám cấu phần&lt;/div&gt;&lt;/div&gt;
+      &lt;/article&gt;
+      &lt;article class="panel apricot stat"&gt;
+        &lt;div class="panelhead"&gt;&lt;strong&gt;03 / RECORD · XEM XÉT&lt;/strong&gt;&lt;span&gt;!&lt;/span&gt;&lt;/div&gt;
+        &lt;div class="panelbody"&gt;&lt;div class="muted"&gt;Tài khoản có sai lệch&lt;/div&gt;&lt;div id="u5ty-alert" class="statval"&gt;01&lt;/div&gt;&lt;div class="muted"&gt;Cần kiểm tra, chưa kết luận sai phạm&lt;/div&gt;&lt;/div&gt;
+      &lt;/article&gt;
+    &lt;/div&gt;
+  &lt;/section&gt;
+
+  &lt;section&gt;
+    &lt;div class="sectitle"&gt;02 / CHỌN TÀI KHOẢN VÀ KIỂM TRA SỐ DƯ&lt;/div&gt;
+    &lt;div class="masterdetail"&gt;
+      &lt;article class="panel sage"&gt;
+        &lt;div class="panelhead"&gt;&lt;strong&gt;Danh sách tài khoản&lt;/strong&gt;&lt;span class="badge gray"&gt;Tra cứu&lt;/span&gt;&lt;/div&gt;
+        &lt;div class="panelbody"&gt;
+          &lt;label for="u5ty-search" class="tiny" style="display:block;margin-bottom:8px"&gt;UUID chiến dịch&lt;/label&gt;
+          &lt;div class="searchrow"&gt;&lt;input id="u5ty-search" placeholder="Nhập UUID thử nghiệm" aria-label="UUID chiến dịch"/&gt;&lt;button class="btn" id="u5ty-find" type="button"&gt;Xem sổ&lt;/button&gt;&lt;/div&gt;
+          &lt;div class="muted" style="margin-bottom:15px"&gt;Chọn nhanh tài khoản hoặc nhập UUID của fixture.&lt;/div&gt;
+          &lt;div id="u5ty-accounts"&gt;&lt;/div&gt;
+          &lt;div id="u5ty-search-msg" class="feedback" role="status" aria-live="polite"&gt;&lt;/div&gt;
+        &lt;/div&gt;
+      &lt;/article&gt;
+      &lt;article class="panel mint"&gt;
+        &lt;div class="panelhead"&gt;&lt;strong&gt;Escrow theo chiến dịch&lt;/strong&gt;&lt;span id="u5ty-status" class="badge"&gt;Nhất quán&lt;/span&gt;&lt;/div&gt;
+        &lt;div class="panelbody"&gt;&lt;div id="u5ty-account-detail"&gt;&lt;/div&gt;&lt;/div&gt;
+      &lt;/article&gt;
+    &lt;/div&gt;
+  &lt;/section&gt;
+
+  &lt;section id="u5ty-reconciliation"&gt;
+    &lt;div class="sectitle"&gt;03 / ĐỐI CHIẾU TÁM CẤU PHẦN SỐ DƯ&lt;/div&gt;
+    &lt;article class="panel mint"&gt;
+      &lt;div class="panelhead"&gt;&lt;strong&gt;Hệ thống lưu trữ ↔ Ledger tính toán&lt;/strong&gt;&lt;span id="u5ty-reconbadge" class="badge"&gt;Nhất quán&lt;/span&gt;&lt;/div&gt;
+      &lt;div class="panelbody"&gt;
+        &lt;div class="muted" style="margin-bottom:14px"&gt;Đối chiếu toàn bộ tám cấu phần của cùng một tài khoản, không trộn số liệu các chiến dịch.&lt;/div&gt;
+        &lt;div class="tablewrap" id="u5ty-tablewrap"&gt;
+          &lt;table aria-label="Bảng tám cấu phần số dư"&gt;
+            &lt;thead&gt;&lt;tr&gt;&lt;th scope="col"&gt;Cấu phần&lt;/th&gt;&lt;th scope="col"&gt;Lưu trong hệ thống&lt;/th&gt;&lt;th scope="col"&gt;Tính từ Ledger&lt;/th&gt;&lt;th scope="col"&gt;Kết quả&lt;/th&gt;&lt;/tr&gt;&lt;/thead&gt;
+            &lt;tbody id="u5ty-reconrows"&gt;&lt;/tbody&gt;
+          &lt;/table&gt;
+        &lt;/div&gt;
+        &lt;div class="muted" style="margin-top:15px"&gt;Mỗi trạng thái Khớp / Sai lệch / Thiếu dữ liệu phải phản ánh kết quả Backend khi triển khai thực tế.&lt;/div&gt;
+      &lt;/div&gt;
+    &lt;/article&gt;
+  &lt;/section&gt;
+
+  &lt;div class="split"&gt;
+    &lt;section&gt;
+      &lt;div class="sectitle"&gt;04 / BÚT TOÁN LIÊN QUAN&lt;/div&gt;
+      &lt;article class="panel sky"&gt;
+        &lt;div class="panelhead"&gt;&lt;strong&gt;Sổ cái của tài khoản đang chọn&lt;/strong&gt;&lt;span id="u5ty-ledgerbadge" class="badge sky"&gt;Fixture&lt;/span&gt;&lt;/div&gt;
+        &lt;div class="panelbody"&gt;
+          &lt;div class="tabs" role="group" aria-label="Bộ lọc bút toán"&gt;
+            &lt;button data-filter="all" type="button" class="active" aria-pressed="true"&gt;Tất cả&lt;/button&gt;
+            &lt;button data-filter="CREDIT" type="button" aria-pressed="false"&gt;CREDIT&lt;/button&gt;
+            &lt;button data-filter="DEBIT" type="button" aria-pressed="false"&gt;DEBIT&lt;/button&gt;
+            &lt;button data-filter="NEUTRAL" type="button" aria-pressed="false"&gt;NEUTRAL&lt;/button&gt;
+          &lt;/div&gt;
+          &lt;div id="u5ty-ledger"&gt;&lt;/div&gt;
+          &lt;div class="pager"&gt;
+            &lt;small id="u5ty-ledger-page"&gt;Trang 1/1&lt;/small&gt;
+            &lt;div style="display:flex;gap:8px"&gt;&lt;button type="button" id="u5ty-ledger-prev" class="btn"&gt;← Trước&lt;/button&gt;&lt;button type="button" id="u5ty-ledger-next" class="btn"&gt;Sau →&lt;/button&gt;&lt;/div&gt;
+          &lt;/div&gt;
+        &lt;/div&gt;
+      &lt;/article&gt;
+    &lt;/section&gt;
+
+    &lt;section&gt;
+      &lt;div class="sectitle"&gt;05 / HÀNH ĐỘNG KIỂM SOÁT&lt;/div&gt;
+      &lt;article class="panel apricot"&gt;
+        &lt;div class="panelhead"&gt;&lt;strong&gt;Đề nghị điều chỉnh / tất toán&lt;/strong&gt;&lt;span class="badge warn"&gt;Dual Control&lt;/span&gt;&lt;/div&gt;
+        &lt;div class="panelbody"&gt;
+          &lt;div class="infonote" style="margin-bottom:16px"&gt;&lt;strong&gt;Không tự duyệt đề nghị&lt;/strong&gt;&lt;div class="muted"&gt;Admin đề xuất và Admin phê duyệt phải là hai người khác nhau. Gửi đề nghị không có nghĩa sổ đã thay đổi.&lt;/div&gt;&lt;/div&gt;
+          &lt;form id="u5ty-form" class="formgrid"&gt;
+            &lt;div class="field full"&gt;&lt;label for="u5ty-kind"&gt;Loại đề nghị&lt;/label&gt;&lt;select id="u5ty-kind"&gt;&lt;option value="adjustment"&gt;Điều chỉnh sổ&lt;/option&gt;&lt;option value="settlement"&gt;Tất toán mô phỏng&lt;/option&gt;&lt;/select&gt;&lt;/div&gt;
+            &lt;div class="field" id="u5ty-directionbox"&gt;&lt;label for="u5ty-direction"&gt;Chiều điều chỉnh&lt;/label&gt;&lt;select id="u5ty-direction"&gt;&lt;option value="CREDIT"&gt;CREDIT&lt;/option&gt;&lt;option value="DEBIT"&gt;DEBIT&lt;/option&gt;&lt;option value="NEUTRAL"&gt;NEUTRAL&lt;/option&gt;&lt;/select&gt;&lt;/div&gt;
+            &lt;div class="field" id="u5ty-amountbox"&gt;&lt;label for="u5ty-amount"&gt;Giá trị mô phỏng (VND)&lt;/label&gt;&lt;input id="u5ty-amount" type="number" min="1" step="1" placeholder="VD: 100000"/&gt;&lt;/div&gt;
+            &lt;div class="field full"&gt;&lt;label for="u5ty-reason"&gt;Lý do đề nghị&lt;/label&gt;&lt;textarea id="u5ty-reason" rows="4" maxlength="2000" placeholder="Nhập lý do cụ thể để kiểm tra biểu mẫu..."&gt;&lt;/textarea&gt;&lt;/div&gt;
+            &lt;div class="field full"&gt;&lt;label class="ack"&gt;&lt;input type="checkbox" id="u5ty-ack"/&gt; Tôi xác nhận đây là sổ quỹ mô phỏng, không phải giao dịch tiền thật.&lt;/label&gt;&lt;/div&gt;
+            &lt;div class="field full"&gt;&lt;button id="u5ty-submit" type="submit" class="btn primary" style="width:100%"&gt;Kiểm tra đề nghị · Preview&lt;/button&gt;&lt;/div&gt;
+            &lt;div class="field full"&gt;&lt;div class="feedback" id="u5ty-form-result" role="status" aria-live="polite"&gt;&lt;/div&gt;&lt;/div&gt;
+          &lt;/form&gt;
+        &lt;/div&gt;
+      &lt;/article&gt;
+    &lt;/section&gt;
+  &lt;/div&gt;
+
+  &lt;section&gt;
+    &lt;div class="sectitle"&gt;06 / LỊCH SỬ ĐỐI SOÁT TOÀN HỆ THỐNG&lt;/div&gt;
+    &lt;article class="panel sage"&gt;
+      &lt;div class="panelhead"&gt;&lt;strong&gt;Các lần chạy đối soát&lt;/strong&gt;&lt;button class="btn primary" id="u5ty-newrun" type="button"&gt;↻ Tạo lượt đối soát · Demo&lt;/button&gt;&lt;/div&gt;
+      &lt;div class="panelbody"&gt;
+        &lt;div id="u5ty-runs"&gt;&lt;/div&gt;
+        &lt;div class="pager"&gt;
+          &lt;small id="u5ty-run-page"&gt;Trang 1/1&lt;/small&gt;
+          &lt;div style="display:flex;gap:8px"&gt;&lt;button class="btn" id="u5ty-run-prev" type="button"&gt;← Trước&lt;/button&gt;&lt;button class="btn" id="u5ty-run-next" type="button"&gt;Sau →&lt;/button&gt;&lt;/div&gt;
+        &lt;/div&gt;
+        &lt;div id="u5ty-run-detail" class="runinfo" hidden&gt;&lt;/div&gt;
+        &lt;div id="u5ty-run-feedback" class="feedback" role="status" aria-live="polite"&gt;&lt;/div&gt;
+      &lt;/div&gt;
+    &lt;/article&gt;
+  &lt;/section&gt;
+
+  &lt;div class="footnote"&gt;⚠ &lt;strong&gt;Quy tắc nghiệp vụ:&lt;/strong&gt; Sai lệch không đồng nghĩa sai phạm. Trạng thái API lỗi không đồng nghĩa số dư bằng 0. Đề nghị điều chỉnh/tất toán chỉ trở thành giao dịch ghi nhận khi Backend cho phép theo quy trình. Bản tương tác này không gửi bất kỳ yêu cầu API nào.&lt;/div&gt;
+&lt;/main&gt;
+&lt;footer class="footer"&gt;
+  &lt;div&gt;&lt;div class="brand"&gt;♧ Riser &lt;em&gt;AI&lt;/em&gt;&lt;/div&gt;&lt;small&gt;Admin Operations · Community Signature B2&lt;/small&gt;&lt;/div&gt;
+  &lt;small&gt;U5 V1.2 · Typography Refinement Only&lt;br&gt;Desktop 1440px · Chưa tích hợp React&lt;/small&gt;
+&lt;/footer&gt;
+&lt;/div&gt;
+&lt;div id="u5ty-modal" class="modalbackdrop" hidden role="presentation"&gt;
+  &lt;div class="modal" role="dialog" aria-modal="true" aria-labelledby="u5ty-modal-title"&gt;
+    &lt;h3 id="u5ty-modal-title"&gt;Tạo lượt đối soát mô phỏng?&lt;/h3&gt;
+    &lt;p&gt;Chỉ thêm một dòng vào danh sách xem trước. Không khởi chạy Backend, không lưu dữ liệu và không thay đổi số dư.&lt;/p&gt;
+    &lt;div class="modalactions"&gt;&lt;button type="button" class="btn" id="u5ty-cancel"&gt;Hủy&lt;/button&gt;&lt;button type="button" class="btn primary" id="u5ty-confirm"&gt;Xác nhận demo&lt;/button&gt;&lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+&lt;/div&gt;
+&lt;script&gt;
+(function(){
+const root=document.getElementById('rise-u5-v12-selective');if(!root||root.dataset.ready)return;root.dataset.ready='yes';
+const $=s=&gt;root.querySelector(s),$$=s=&gt;Array.from(root.querySelectorAll(s));
+const money=n=&gt;new Intl.NumberFormat('vi-VN').format(n)+' ₫';
+const accountData={
+a:{name:'Chiến dịch A · Fixture',uuid:'00000000-0000-4000-8000-000000000001',status:'Nhất quán',stored:[1250000,1900000,450000,100000,100000,0,0,0],computed:[1250000,1900000,450000,100000,100000,0,0,0],entries:[
+{type:'CONTRIBUTION',direction:'CREDIT',amount:1900000,id:'LEDGER-A001'},
+{type:'RESERVE',direction:'DEBIT',amount:450000,id:'LEDGER-A002'},
+{type:'REFUND_RESERVE',direction:'DEBIT',amount:100000,id:'LEDGER-A003'},
+{type:'DISBURSEMENT',direction:'DEBIT',amount:100000,id:'LEDGER-A004'},
+{type:'RELEASE',direction:'CREDIT',amount:200000,id:'LEDGER-A005'}
+]},
+b:{name:'Chiến dịch B · Fixture',uuid:'00000000-0000-4000-8000-000000000002',status:'Có sai lệch',stored:[1250000,1900000,450000,100000,100000,0,0,0],computed:[1200000,1900000,470000,100000,100000,0,0,0],entries:[
+{type:'CONTRIBUTION',direction:'CREDIT',amount:1900000,id:'LEDGER-B001'},
+{type:'RESERVE',direction:'DEBIT',amount:470000,id:'LEDGER-B002'},
+{type:'ADJUSTMENT',direction:'CREDIT',amount:10000,id:'LEDGER-B003'},
+{type:'DISBURSEMENT',direction:'DEBIT',amount:100000,id:'LEDGER-B004'},
+{type:'REFUND_RESERVE',direction:'DEBIT',amount:100000,id:'LEDGER-B005'},
+{type:'RELEASE',direction:'CREDIT',amount:25000,id:'LEDGER-B006'}
+]}};
+const names=['Khả dụng','Đã xác nhận','Đang dự trữ','Dự trữ hoàn tiền','Đã giải ngân','Đã hoàn tiền','Điều chỉnh tăng','Điều chỉnh giảm'];
+let mode='consistent',selected='a',filter='all',ledgerPage=0,runPage=0,selectedRun=null,runCounter=3;
+let runs=[
+{id:'QA-RUN-003',status:'Cần xem xét',accounts:2,alerts:1},
+{id:'QA-RUN-002',status:'Nhất quán',accounts:2,alerts:0},
+{id:'QA-RUN-001',status:'Cần xem xét',accounts:2,alerts:1},
+{id:'QA-RUN-000',status:'Nhất quán',accounts:2,alerts:0}
+];
+const badge=(txt,type='')=&gt;'&lt;span class="badge '+type+'"&gt;'+txt+'&lt;/span&gt;';
+const empty=(icon,title,text)=&gt;'&lt;div class="empty"&gt;&lt;div class="emptyicon"&gt;'+icon+'&lt;/div&gt;&lt;strong&gt;'+title+'&lt;/strong&gt;&lt;p&gt;'+text+'&lt;/p&gt;&lt;/div&gt;';
+function renderBanner(){
+const b=$('#u5ty-banner'),title=$('#u5ty-btitle'),desc=$('#u5ty-bdesc');
+b.className='banner'+(mode==='mismatch'?' mismatch':mode==='error'?' error':'');
+if(mode==='error'){
+$('#u5ty-symbol').textContent='!';title.textContent='Không thể tải dữ liệu Escrow';
+desc.textContent='Không kết luận số dư bằng 0, không giữ số liệu cũ như dữ liệu hiện tại.';
+}else if(mode==='mismatch'){
+$('#u5ty-symbol').textContent='!';title.textContent='Chiến dịch B: Phát hiện sai lệch trong mẫu QA';
+desc.textContent='Số dư khả dụng và khoản đang dự trữ khác nhau giữa hệ thống với Ledger. Cần kiểm tra các bút toán liên quan.';
+}else{
+$('#u5ty-symbol').textContent='✓';title.textContent='Chiến dịch A: Tám cấu phần nhất quán';
+desc.textContent='Các cấu phần khớp trong dữ liệu minh họa; không phải kết quả Backend thật.';
+}
+$$('[data-mode]').forEach(b=&gt;{const active=b.dataset.mode===mode;b.classList.toggle('active',active);b.setAttribute('aria-pressed',String(active))});
+}
+function renderStats(){
+const err=mode==='error';$('#u5ty-total').textContent=err?'—':'02';$('#u5ty-ok').textContent=err?'—':'01';$('#u5ty-alert').textContent=err?'—':'01';
+}
+function renderAccounts(){
+if(mode==='error'){
+$('#u5ty-accounts').innerHTML=empty('!','Không tải được tài khoản','Không có dữ liệu hiện tại để chọn chiến dịch.');
+$('#u5ty-find').disabled=true;$('#u5ty-search').disabled=true;return;
+}
+$('#u5ty-find').disabled=false;$('#u5ty-search').disabled=false;
+$('#u5ty-accounts').innerHTML=Object.entries(accountData).map(([id,d])=&gt;'&lt;button type="button" class="account '+(id===selected?'chosen':'')+'" data-account="'+id+'" aria-pressed="'+(id===selected)+'"&gt;&lt;span&gt;&lt;strong&gt;'+d.name+'&lt;/strong&gt;&lt;small&gt;UUID …'+d.uuid.slice(-6)+' · Chọn để đối chiếu&lt;/small&gt;&lt;/span&gt;'+badge(d.status,id==='b'?'warn':'')+'&lt;/button&gt;').join('');
+}
+function renderBalances(){
+const detail=$('#u5ty-account-detail'),status=$('#u5ty-status');
+if(mode==='error'){
+status.className='badge gray';status.textContent='Chưa xác định';
+detail.innerHTML=empty('!','Không thể xác định số dư','API tạm thời không khả dụng. Không hiển thị dữ liệu của tài khoản trước đó.');
+return;
+}
+const d=accountData[selected];status.className='badge'+(selected==='b'?' warn':'');status.textContent=d.status;
+detail.innerHTML='&lt;h3 style="font-size:21px;font-weight:950;letter-spacing:-.035em;margin:0 0 5px"&gt;'+d.name+'&lt;/h3&gt;&lt;div class="muted"&gt;Số dư đang lưu trong hệ thống · VND mô phỏng&lt;/div&gt;&lt;div class="balances"&gt;'+names.slice(0,6).map((n,i)=&gt;'&lt;div class="bal"&gt;&lt;small&gt;'+n+'&lt;/small&gt;&lt;strong&gt;'+money(d.stored[i])+'&lt;/strong&gt;&lt;/div&gt;').join('')+'&lt;/div&gt;&lt;div class="muted" style="margin-top:14px"&gt;Các cấu phần có thể kiểm tra đối chiếu ở bảng đầy đủ bên dưới.&lt;/div&gt;';
+}
+function renderReconciliation(){
+const tag=$('#u5ty-reconbadge'),wrap=$('#u5ty-tablewrap');
+if(mode==='error'){
+tag.className='badge gray';tag.textContent='Chưa xác định';wrap.innerHTML=empty('!','Không thể đối chiếu','Thiếu dữ liệu hợp lệ từ Backend; không đưa ra kết luận nhất quán hay sai lệch.');return;
+}
+if(!wrap.querySelector('table'))wrap.innerHTML='&lt;table aria-label="Bảng đối chiếu tám cấu phần"&gt;&lt;thead&gt;&lt;tr&gt;&lt;th&gt;Cấu phần&lt;/th&gt;&lt;th&gt;Lưu trong hệ thống&lt;/th&gt;&lt;th&gt;Tính từ Ledger&lt;/th&gt;&lt;th&gt;Kết quả&lt;/th&gt;&lt;/tr&gt;&lt;/thead&gt;&lt;tbody id="u5ty-reconrows"&gt;&lt;/tbody&gt;&lt;/table&gt;';
+const d=accountData[selected],bad=d.stored.some((v,i)=&gt;v!==d.computed[i]);tag.className='badge'+(bad?' warn':'');tag.textContent=bad?'Có sai lệch':'Nhất quán';
+$('#u5ty-reconrows').innerHTML=names.map((n,i)=&gt;{const match=d.stored[i]===d.computed[i];return '&lt;tr class="'+(match?'':'alert')+'"&gt;&lt;th scope="row"&gt;'+n+'&lt;/th&gt;&lt;td&gt;'+money(d.stored[i])+'&lt;/td&gt;&lt;td&gt;'+money(d.computed[i])+'&lt;/td&gt;&lt;td&gt;'+badge(match?'Khớp':'Sai lệch',match?'':'danger')+(match?'':'&lt;div class="under"&gt;Chênh '+money(Math.abs(d.stored[i]-d.computed[i]))+'&lt;/div&gt;')+'&lt;/td&gt;&lt;/tr&gt;'}).join('');
+}
+function renderLedger(){
+const d=accountData[selected],err=mode==='error',items=err?[]:d.entries.filter(e=&gt;filter==='all'||e.direction===filter);
+const pages=Math.max(1,Math.ceil(items.length/3));ledgerPage=Math.min(ledgerPage,pages-1);
+$$('[data-filter]').forEach(b=&gt;{const active=b.dataset.filter===filter;b.classList.toggle('active',active);b.setAttribute('aria-pressed',String(active));b.disabled=err});
+$('#u5ty-ledgerbadge').textContent=err?'Không khả dụng':d.entries.length+' bút toán';
+$('#u5ty-ledger').innerHTML=err?empty('!','Không thể tải Ledger','Không sử dụng lịch sử cũ để thay thế dữ liệu hiện tại.'):items.length?items.slice(ledgerPage*3,ledgerPage*3+3).map((e,i)=&gt;'&lt;div class="entry"&gt;&lt;div class="entrynum"&gt;'+String(ledgerPage*3+i+1).padStart(2,'0')+'&lt;/div&gt;&lt;div class="info"&gt;&lt;strong&gt;'+e.type+'&lt;/strong&gt;&lt;small&gt;'+e.id+' · QA Fixture&lt;/small&gt;&lt;/div&gt;&lt;div class="value"&gt;'+e.direction+'&lt;div class="under"&gt;'+money(e.amount)+'&lt;/div&gt;&lt;/div&gt;&lt;/div&gt;').join(''):empty('▤','Không có bút toán theo bộ lọc','Chọn bộ lọc khác để xem các bản ghi minh họa.');
+$('#u5ty-ledger-page').textContent=err?'Không có trang':'Trang '+(ledgerPage+1)+' / '+pages+' · '+items.length+' bản ghi';
+$('#u5ty-ledger-prev').disabled=err||ledgerPage===0;$('#u5ty-ledger-next').disabled=err||ledgerPage&gt;=pages-1;
+}
+function syncKind(){
+const adjust=$('#u5ty-kind').value==='adjustment';
+$('#u5ty-directionbox').hidden=!adjust;$('#u5ty-amountbox').hidden=!adjust;
+}
+function renderForm(){
+const err=mode==='error';
+Array.from($('#u5ty-form').elements).forEach(el=&gt;el.disabled=err);
+$('#u5ty-form-result').textContent=err?'API không khả dụng: không thể tạo đề nghị ở trạng thái hiện tại.':'';
+$('#u5ty-form-result').className='feedback'+(err?' err':'');syncKind();
+}
+function renderRuns(){
+if(mode==='error'){
+$('#u5ty-runs').innerHTML=empty('!','Không tải được lịch sử','Không kết luận các lượt đối soát trước đây là kết quả hiện tại.');
+$('#u5ty-newrun').disabled=true;$('#u5ty-run-detail').hidden=true;$('#u5ty-run-page').textContent='Không có trang';$('#u5ty-run-prev').disabled=true;$('#u5ty-run-next').disabled=true;return;
+}
+$('#u5ty-newrun').disabled=false;
+const pages=Math.max(1,Math.ceil(runs.length/2));runPage=Math.min(runPage,pages-1);
+$('#u5ty-runs').innerHTML=runs.slice(runPage*2,runPage*2+2).map(r=&gt;'&lt;div class="historyrow"&gt;&lt;div&gt;&lt;strong&gt;'+r.id+' · QA Fixture&lt;/strong&gt;&lt;p&gt;'+r.accounts+' tài khoản kiểm tra · '+r.alerts+' tài khoản có sai lệch&lt;/p&gt;&lt;/div&gt;&lt;div style="display:flex;align-items:center;gap:9px;flex-wrap:wrap"&gt;'+badge(r.status,r.alerts?'warn':'')+'&lt;button class="btn" data-run="'+r.id+'" type="button"&gt;Xem báo cáo&lt;/button&gt;&lt;/div&gt;&lt;/div&gt;').join('');
+$('#u5ty-run-page').textContent='Trang '+(runPage+1)+' / '+pages;$('#u5ty-run-prev').disabled=runPage===0;$('#u5ty-run-next').disabled=runPage&gt;=pages-1;
+if(selectedRun)renderRunDetail();
+}
+function renderRunDetail(){
+const r=runs.find(x=&gt;x.id===selectedRun),box=$('#u5ty-run-detail');if(!r||mode==='error'){box.hidden=true;return}
+box.hidden=false;
+box.innerHTML='&lt;div style="display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap"&gt;&lt;strong style="font-size:14px"&gt;Báo cáo '+r.id+'&lt;/strong&gt;'+badge(r.status,r.alerts?'warn':'')+'&lt;/div&gt;&lt;p class="muted" style="margin:10px 0"&gt;Kiểm tra '+r.accounts+' tài khoản. Kết quả chỉ minh họa bố cục của báo cáo đối soát.&lt;/p&gt;&lt;div class="runfinding"&gt;&lt;div&gt;&lt;strong&gt;Chiến dịch A&lt;/strong&gt;&lt;div class="under"&gt;8/8 cấu phần khớp · Fixture&lt;/div&gt;&lt;/div&gt;&lt;button type="button" data-inspect="a" class="btn"&gt;Xem tài khoản&lt;/button&gt;&lt;/div&gt;'+(r.alerts?'&lt;div class="runfinding"&gt;&lt;div&gt;&lt;strong&gt;Chiến dịch B&lt;/strong&gt;&lt;div class="under"&gt;2 cấu phần sai lệch · Fixture&lt;/div&gt;&lt;/div&gt;&lt;button type="button" data-inspect="b" class="btn"&gt;Kiểm tra&lt;/button&gt;&lt;/div&gt;':'&lt;div class="muted" style="margin-top:8px"&gt;Không có sai lệch trong lượt đối soát minh họa này.&lt;/div&gt;');
+}
+function render(){renderBanner();renderStats();renderAccounts();renderBalances();renderReconciliation();renderLedger();renderForm();renderRuns();}
+function selectAccount(id){
+if(!accountData[id])return;
+selected=id;mode=id==='a'?'consistent':'mismatch';ledgerPage=0;filter='all';
+$('#u5ty-search-msg').textContent='';render();
+}
+$$('[data-mode]').forEach(b=&gt;b.addEventListener('click',()=&gt;{mode=b.dataset.mode;selected=mode==='mismatch'?'b':'a';ledgerPage=0;filter='all';selectedRun=null;$('#u5ty-run-detail').hidden=true;render()}));
+root.addEventListener('click',e=&gt;{
+const a=e.target.closest('[data-account]');if(a){selectAccount(a.dataset.account);return}
+const run=e.target.closest('[data-run]');if(run){selectedRun=run.dataset.run;renderRunDetail();return}
+const inspect=e.target.closest('[data-inspect]');if(inspect){selectAccount(inspect.dataset.inspect);$('#u5ty-reconciliation').scrollIntoView({behavior:'smooth',block:'start'});return}
+const f=e.target.closest('[data-filter]');if(f){filter=f.dataset.filter;ledgerPage=0;renderLedger()}
+});
+$('#u5ty-find').addEventListener('click',()=&gt;{
+const raw=$('#u5ty-search').value.trim(),found=Object.entries(accountData).find(([key,d])=&gt;d.uuid.toLowerCase()===raw.toLowerCase());
+if(!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(raw)){$('#u5ty-search-msg').textContent='UUID phải có định dạng hợp lệ.';return}
+if(found){selectAccount(found[0]);$('#u5ty-search-msg').textContent='Đã chọn tài khoản từ fixture.'}
+else $('#u5ty-search-msg').textContent='UUID hợp lệ nhưng không thuộc bộ dữ liệu xem trước.';
+});
+$('#u5ty-search').addEventListener('keydown',e=&gt;{if(e.key==='Enter'){$('#u5ty-find').click()}});
+$('#u5ty-ledger-prev').addEventListener('click',()=&gt;{if(ledgerPage&gt;0){ledgerPage--;renderLedger()}});
+$('#u5ty-ledger-next').addEventListener('click',()=&gt;{ledgerPage++;renderLedger()});
+$('#u5ty-run-prev').addEventListener('click',()=&gt;{if(runPage&gt;0){runPage--;renderRuns()}});
+$('#u5ty-run-next').addEventListener('click',()=&gt;{runPage++;renderRuns()});
+$('#u5ty-kind').addEventListener('change',()=&gt;{syncKind();$('#u5ty-ack').checked=false});
+$('#u5ty-form').addEventListener('submit',e=&gt;{
+e.preventDefault();if(mode==='error')return;
+const adjust=$('#u5ty-kind').value==='adjustment',amount=$('#u5ty-amount').value,reason=$('#u5ty-reason').value.trim(),result=$('#u5ty-form-result');
+if(!reason||!$('#u5ty-ack').checked||(adjust&amp;&amp;(!amount||!Number.isSafeInteger(Number(amount))||Number(amount)&lt;=0))){result.className='feedback err';result.textContent='Cần nhập lý do, giá trị nguyên dương nếu điều chỉnh và xác nhận sổ mô phỏng.';return}
+result.className='feedback';result.textContent='Biểu mẫu hợp lệ trong preview cho '+accountData[selected].name+'. Chưa gửi API hoặc tạo đề nghị thật. Khi tích hợp, đề nghị phải chờ Admin khác duyệt.';
+});
+const modal=$('#u5ty-modal');
+function closeModal(){modal.hidden=true;$('#u5ty-newrun').focus()}
+$('#u5ty-newrun').addEventListener('click',()=&gt;{if(mode==='error')return;modal.hidden=false;$('#u5ty-cancel').focus()});
+$('#u5ty-cancel').addEventListener('click',closeModal);
+modal.addEventListener('click',e=&gt;{if(e.target===modal)closeModal()});
+root.addEventListener('keydown',e=&gt;{if(e.key==='Escape'&amp;&amp;!modal.hidden)closeModal();if(e.key==='Tab'&amp;&amp;!modal.hidden){const buttons=[$('#u5ty-cancel'),$('#u5ty-confirm')];if(e.shiftKey&amp;&amp;document.activeElement===buttons[0]){e.preventDefault();buttons[1].focus()}else if(!e.shiftKey&amp;&amp;document.activeElement===buttons[1]){e.preventDefault();buttons[0].focus()}}});
+$('#u5ty-confirm').addEventListener('click',()=&gt;{
+runCounter++;const id='PREVIEW-RUN-'+String(runCounter).padStart(3,'0');runs.unshift({id,status:'Cần xem xét',accounts:2,alerts:1});runPage=0;selectedRun=id;renderRuns();closeModal();
+$('#u5ty-run-feedback').textContent='Đã thêm một dòng giả lập vào preview. Không có yêu cầu Backend nào được thực hiện.';
+});
+syncKind();render();
+})();
+&lt;/script&gt;
+&lt;/div&gt;
+</textarea>
+<textarea id="src-U6" hidden>
+&lt;div id="rise-u6-u5cards"&gt;
+&lt;style&gt;
+#rise-u6-u5cards{font-family:"Be Vietnam Pro",system-ui,sans-serif;font-size:12px;line-height:1.65;color:#123e32;--ink:#123e32;--forest:#0d372b;--mint:#49e1a7;--mintbg:#d9f8e6;--sky:#71d0f3;--skybg:#dcf2ff;--apricot:#ffba74;--apricotbg:#ffe5c3;--sage:#dce7b3;--sagebg:#edf1d5;--coral:#ffb6a5}
+#rise-u6-u5cards *{box-sizing:border-box}
+#rise-u6-u5cards [hidden]{display:none!important}
+#rise-u6-u5cards button,#rise-u6-u5cards input,#rise-u6-u5cards select{font:inherit}
+#rise-u6-u5cards button{cursor:pointer}
+#rise-u6-u5cards button:disabled{opacity:.45;cursor:not-allowed;box-shadow:none}
+#rise-u6-u5cards button:focus-visible,#rise-u6-u5cards select:focus-visible,#rise-u6-u5cards input:focus-visible{outline:3px solid #d38242;outline-offset:2px}
+#rise-u6-u5cards .shell{border:2px solid var(--ink);border-radius:18px;background:#f7f8ef;overflow:hidden;max-width:1180px;margin:auto}
+#rise-u6-u5cards .ribbon{background:#ecc58c;padding:8px 12px;color:#6c4721;text-align:center;font-weight:900;font-size:10px;letter-spacing:.05em}
+#rise-u6-u5cards .nav{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:19px 24px;background:var(--forest);color:#fff4dc}
+#rise-u6-u5cards .brand{font-size:23px;font-weight:950;letter-spacing:-.06em}
+#rise-u6-u5cards .brand em{color:#ffd08a;font-style:normal}
+#rise-u6-u5cards .navlinks{display:flex;gap:20px;align-items:center;flex-wrap:wrap;font-size:11px;font-weight:850}
+#rise-u6-u5cards .navlinks b{color:#ffd08a;border-bottom:2px solid #ffd08a;padding-bottom:5px}
+#rise-u6-u5cards .adminpill{border:1px solid #8bb6a3;border-radius:30px;padding:6px 11px;color:#e6faec;font-size:10px;font-weight:900}
+#rise-u6-u5cards .main{padding:24px 23px 38px;display:grid;gap:22px}
+#rise-u6-u5cards .crumb{display:flex;justify-content:space-between;gap:10px;font-size:11px;font-weight:850;color:#227052}
+#rise-u6-u5cards .hero{background:linear-gradient(112deg,#103b2d,#286b52);border:2px solid var(--ink);border-radius:20px;box-shadow:5px 6px 0 #adc9ac;padding:27px 30px;display:grid;grid-template-columns:minmax(0,1fr) 142px;gap:15px;align-items:center;color:#fff4dc}
+#rise-u6-u5cards .hero .eyebrow{color:#b8efa8;font-size:10px;font-weight:950;letter-spacing:.1em}
+#rise-u6-u5cards .hero h2{font-size:clamp(27px,4.2vw,42px);line-height:1.2;font-weight:950;letter-spacing:-.045em;margin:12px 0;color:#fff4dc}
+#rise-u6-u5cards .hero h2 em{color:#ffd08a;font-style:normal}
+#rise-u6-u5cards .hero p{font-size:12px;color:#e5f8eb;line-height:1.85;max-width:580px}
+#rise-u6-u5cards .hero .tag{display:inline-block;margin-top:9px;background:#e1ffeb;border:1px solid #84b897;border-radius:30px;padding:7px 11px;color:#1c5842;font-size:10px;font-weight:850}
+#rise-u6-u5cards .rail{display:flex;gap:7px;flex-wrap:wrap;padding:7px;border:2px solid var(--ink);border-radius:13px;background:#fffdf6;box-shadow:3px 4px 0 #bfceba}
+#rise-u6-u5cards .rail span{font-size:11px;font-weight:850;padding:9px 14px;border-radius:8px}
+#rise-u6-u5cards .rail span.selected{background:var(--forest);color:#fff9e9}
+#rise-u6-u5cards .statebar{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;background:#fffdf6;border:2px solid var(--ink);border-radius:15px;padding:14px 16px;box-shadow:4px 5px 0 #bccdbb}
+#rise-u6-u5cards .statebar strong{font-size:11px;font-weight:950;color:#177051}
+#rise-u6-u5cards .sub{font-size:11px;line-height:1.7;color:#4f7060}
+#rise-u6-u5cards .modebuttons{display:flex;gap:7px;flex-wrap:wrap}
+#rise-u6-u5cards .modebuttons button{background:#fffdf7;border:2px solid var(--ink);border-radius:9px;padding:9px 12px;font-size:11px;font-weight:900;color:var(--ink)}
+#rise-u6-u5cards .modebuttons button.active{background:var(--mint);box-shadow:3px 4px 0 var(--ink)}
+#rise-u6-u5cards .board{display:grid;grid-template-columns:minmax(0,69fr) minmax(0,31fr);align-items:start;gap:19px}
+#rise-u6-u5cards .section{min-width:0}
+#rise-u6-u5cards .sectitle{font-size:11px;color:#186b51;font-weight:950;letter-spacing:.055em;display:flex;align-items:center;gap:11px;margin:0 0 13px}
+#rise-u6-u5cards .sectitle:after{content:"";height:2px;background:#d0dece;flex:1}
+#rise-u6-u5cards .panel{--head:var(--mint);--body:var(--mintbg);--shadow:#83bda0;--inner:#effff5;border:2.5px solid var(--ink);border-radius:18px;box-shadow:5px 6px 0 var(--shadow);background:var(--body);overflow:hidden;min-width:0}
+#rise-u6-u5cards .panel.mint{--head:#49e1a7;--body:#d9f8e6;--shadow:#83bda0;--inner:#effff5}
+#rise-u6-u5cards .panel.sky{--head:#71d0f3;--body:#dcf2ff;--shadow:#8fbfd2;--inner:#effaff}
+#rise-u6-u5cards .panel.apricot{--head:#ffba74;--body:#ffe5c3;--shadow:#d8aa79;--inner:#fff5e5}
+#rise-u6-u5cards .panel.sage{--head:#dce7b3;--body:#edf1d5;--shadow:#b6c69b;--inner:#f9fbed}
+#rise-u6-u5cards .panelhead{background:var(--head);border-bottom:2px solid var(--ink);min-height:50px;padding:13px 16px;display:flex;justify-content:space-between;align-items:center;gap:10px;color:#123e32}
+#rise-u6-u5cards .panelhead strong{font-size:12px;font-weight:950;line-height:1.4;min-width:0}
+#rise-u6-u5cards .panelbody{padding:18px 17px}
+#rise-u6-u5cards .btn{border:2px solid var(--ink);background:#fffdf7;border-radius:9px;padding:9px 12px;font-size:11px;font-weight:900;color:var(--ink);white-space:nowrap}
+#rise-u6-u5cards .btn.primary{background:var(--mint);box-shadow:3px 4px 0 var(--ink)}
+#rise-u6-u5cards .btn:hover:not(:disabled){transform:translateY(-1px)}
+#rise-u6-u5cards .badge{display:inline-flex;align-items:center;gap:4px;border:1px solid #4a9871;border-radius:99px;background:#ccf7df;color:#205e46;padding:5px 9px;font-size:10px;font-weight:900;white-space:nowrap}
+#rise-u6-u5cards .badge.warning{background:#ffdbab;border-color:#bc813b;color:#82500e}
+#rise-u6-u5cards .badge.critical{background:#ffd1c6;border-color:#c9755d;color:#953c2d}
+#rise-u6-u5cards .badge.neutral{background:#eff2eb;border-color:#b1bfb2;color:#506959}
+#rise-u6-u5cards .badge.info{background:#def4fe;border-color:#89bcd0;color:#205f76}
+#rise-u6-u5cards .filtergrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}
+#rise-u6-u5cards .field{display:grid;gap:6px;min-width:0}
+#rise-u6-u5cards .field label{font-size:11px;font-weight:900}
+#rise-u6-u5cards .field select,#rise-u6-u5cards .field input{width:100%;min-width:0;background:#fffefa;border:1.5px solid #8fb39f;border-radius:9px;padding:10px 11px;color:var(--ink);font-size:12px}
+#rise-u6-u5cards .filterfooter{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-top:15px}
+#rise-u6-u5cards .feedback{color:#1d6d51;font-size:11px;font-weight:750}
+#rise-u6-u5cards .feedback.error{color:#a23e2e}
+#rise-u6-u5cards .resulttitle{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:25px 0 13px}
+#rise-u6-u5cards .resulttitle strong{font-size:16px;font-weight:950}
+#rise-u6-u5cards .finding{margin-bottom:17px}
+#rise-u6-u5cards .finding .panelhead strong{font-size:12px}
+#rise-u6-u5cards .findingtitle{font-size:18px;line-height:1.48;letter-spacing:-.017em;font-weight:900;color:var(--ink);margin:11px 0 14px;overflow-wrap:break-word}
+#rise-u6-u5cards .guidance{background:var(--inner);border:1.5px solid #b6c8bd;border-radius:11px;padding:13px 15px;margin-bottom:16px}
+#rise-u6-u5cards .guidance strong{font-size:12px;font-weight:950;display:block;margin-bottom:6px}
+#rise-u6-u5cards .guidance p{font-size:12px;line-height:1.7;color:#395e4e;margin:0}
+#rise-u6-u5cards .metagrid{display:grid;grid-template-columns:1.2fr 1fr .8fr;gap:12px;margin-top:5px}
+#rise-u6-u5cards .metagrid div{min-width:0}
+#rise-u6-u5cards .metagrid small{color:#4e6d5e;font-size:10px;display:block}
+#rise-u6-u5cards .metagrid strong{font-size:12px;font-weight:900;display:block;margin-top:5px;line-height:1.45;overflow-wrap:anywhere;font-variant-numeric:tabular-nums}
+#rise-u6-u5cards .metagrid strong.count{font-size:24px;line-height:1.2}
+#rise-u6-u5cards .findingfoot{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-top:17px}
+#rise-u6-u5cards .newcount{font-size:10px;font-weight:850;color:#754f26}
+#rise-u6-u5cards .details{background:var(--inner);border:1.5px solid #acc2b2;border-radius:10px;padding:13px;margin-top:14px;display:grid;gap:5px}
+#rise-u6-u5cards .details strong{font-size:12px;font-weight:900}
+#rise-u6-u5cards .details p{font-size:11px;margin:0;overflow-wrap:anywhere}
+#rise-u6-u5cards .ruleintro{font-size:11px;color:#4c6b51;line-height:1.8;margin:0 0 15px}
+#rise-u6-u5cards .rulesection{padding:13px 0 16px}
+#rise-u6-u5cards .rulesection+.rulesection{border-top:1px solid #bac9aa}
+#rise-u6-u5cards .rulename{font-size:12px;font-weight:950;overflow-wrap:anywhere;line-height:1.45}
+#rise-u6-u5cards .rate{font-size:27px;font-weight:950;letter-spacing:-.04em;line-height:1.2;margin:8px 0 4px;font-variant-numeric:tabular-nums}
+#rise-u6-u5cards .rulestats{font-size:11px;line-height:1.8;color:#436653}
+#rise-u6-u5cards .rulestats b{color:var(--ink);font-weight:950}
+#rise-u6-u5cards .legenditem{padding:10px 0}
+#rise-u6-u5cards .legenditem+.legenditem{border-top:1px solid #bfd2dd}
+#rise-u6-u5cards .legenditem strong{font-size:12px;font-weight:900;display:block;margin:8px 0 3px}
+#rise-u6-u5cards .legenditem p{font-size:11px;color:#466578;line-height:1.7;margin:0}
+#rise-u6-u5cards .pager{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;padding:4px 0 18px}
+#rise-u6-u5cards .empty{border:2px solid #b6cdbc;background:#fffdf7;border-radius:13px;padding:34px 14px;text-align:center;margin-bottom:15px}
+#rise-u6-u5cards .empty strong{display:block;font-size:15px;font-weight:900}
+#rise-u6-u5cards .empty p{font-size:11px;color:#547063;margin:7px 0 0}
+#rise-u6-u5cards .policy{border:2px solid var(--ink);border-radius:13px;background:#ffe5c3;box-shadow:4px 5px 0 #dab588;padding:15px 17px;font-size:12px;line-height:1.8}
+#rise-u6-u5cards .policy strong{font-weight:950}
+@media(max-width:830px){#rise-u6-u5cards .board{grid-template-columns:1fr}#rise-u6-u5cards .hero{grid-template-columns:1fr}#rise-u6-u5cards .hero svg{display:none}#rise-u6-u5cards .navlinks{display:none}#rise-u6-u5cards .main{padding:17px 13px 30px}}
+@media(max-width:460px){#rise-u6-u5cards .filtergrid{grid-template-columns:1fr}#rise-u6-u5cards .metagrid{grid-template-columns:1fr 1fr}}
+&lt;/style&gt;
+&lt;div class="shell"&gt;
+&lt;div class="ribbon"&gt;RISE AI · U6 V1.2.2 · U5 CARD SYSTEM · DỮ LIỆU QA GIẢ LẬP&lt;/div&gt;
+&lt;header class="nav"&gt;&lt;div class="brand"&gt;♧ Riser &lt;em&gt;AI&lt;/em&gt;&lt;/div&gt;&lt;div class="navlinks"&gt;&lt;span&gt;Trung tâm&lt;/span&gt;&lt;span&gt;Escrow&lt;/span&gt;&lt;b&gt;Cảnh báo AI&lt;/b&gt;&lt;span&gt;Nhật ký&lt;/span&gt;&lt;/div&gt;&lt;span class="adminpill"&gt;ADMIN · DEMO&lt;/span&gt;&lt;/header&gt;
+&lt;main class="main"&gt;
+&lt;div class="crumb"&gt;&lt;span&gt;ADMIN / GIÁM SÁT&lt;/span&gt;&lt;span&gt;06 / MONITORING SIGNAL BOARD&lt;/span&gt;&lt;/div&gt;
+&lt;section class="hero"&gt;
+  &lt;div&gt;
+    &lt;div class="eyebrow"&gt;✦ GIÁM SÁT THIỆN NGUYỆN&lt;/div&gt;
+    &lt;h2&gt;Tín hiệu cần kiểm tra.&lt;br&gt;&lt;em&gt;Con người đưa ra kết luận.&lt;/em&gt;&lt;/h2&gt;
+    &lt;p&gt;Theo dõi các phát hiện theo mức độ và trạng thái đánh giá. Hệ thống AI chỉ đưa ra tín hiệu hỗ trợ, không xác nhận sai phạm.&lt;/p&gt;
+    &lt;span class="tag"&gt;Giám sát hỗ trợ · Admin quyết định độc lập&lt;/span&gt;
+  &lt;/div&gt;
+  &lt;svg viewBox="0 0 155 155" width="140" role="img" aria-label="Radar giám sát minh họa"&gt;
+    &lt;g stroke="#123e32" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"&gt;
+      &lt;circle cx="69" cy="72" r="55" fill="#ffdb9d"/&gt;&lt;circle cx="69" cy="72" r="39" fill="#b9efc7"/&gt;&lt;circle cx="69" cy="72" r="20" fill="#f5fff7"/&gt;
+      &lt;path d="M69 72L112 38A55 55 0 0 1 124 78Z" fill="#71d0f3"/&gt;&lt;path d="M69 72l42-36" stroke-width="5"/&gt;
+      &lt;circle cx="109" cy="42" r="8" fill="#ff9f91"/&gt;&lt;path d="M120 90l28 11v20q-5 19-28 29-23-10-28-29v-20z" fill="#ffba74"/&gt;&lt;path d="M107 120l10 9 18-22" stroke-width="5" fill="none"/&gt;
+    &lt;/g&gt;
+  &lt;/svg&gt;
+&lt;/section&gt;
+&lt;div class="rail" aria-label="Điều hướng quản trị minh họa"&gt;&lt;span&gt;Xét duyệt&lt;/span&gt;&lt;span class="selected"&gt;Cảnh báo AI&lt;/span&gt;&lt;span&gt;Truyền sự kiện&lt;/span&gt;&lt;span&gt;Nhật ký&lt;/span&gt;&lt;/div&gt;
+&lt;div class="statebar"&gt;
+  &lt;div&gt;&lt;strong&gt;✦ TRẠNG THÁI DỮ LIỆU&lt;/strong&gt;&lt;div class="sub"&gt;Thử ba tình huống xem trước.&lt;/div&gt;&lt;/div&gt;
+  &lt;div class="modebuttons" role="group" aria-label="Chọn trạng thái"&gt;
+    &lt;button type="button" data-mode="data" class="active" aria-pressed="true"&gt;Có dữ liệu&lt;/button&gt;
+    &lt;button type="button" data-mode="empty" aria-pressed="false"&gt;Danh sách trống&lt;/button&gt;
+    &lt;button type="button" data-mode="error" aria-pressed="false"&gt;API không khả dụng&lt;/button&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+&lt;div class="board"&gt;
+&lt;section class="section"&gt;
+&lt;div class="sectitle"&gt;01 / PHÁT HIỆN CẦN XEM XÉT&lt;/div&gt;
+&lt;div class="panel mint"&gt;
+  &lt;div class="panelhead"&gt;&lt;strong&gt;Bộ lọc và tra cứu&lt;/strong&gt;&lt;button type="button" id="u6u5-refresh" class="btn"&gt;↻ Làm mới&lt;/button&gt;&lt;/div&gt;
+  &lt;div class="panelbody"&gt;
+    &lt;form id="u6u5-form"&gt;
+      &lt;div class="filtergrid"&gt;
+        &lt;div class="field"&gt;&lt;label for="u6u5-status"&gt;Trạng thái đánh giá&lt;/label&gt;&lt;select id="u6u5-status"&gt;&lt;option value="OPEN"&gt;Chưa đánh giá&lt;/option&gt;&lt;option value=""&gt;Tất cả&lt;/option&gt;&lt;option value="ACKNOWLEDGED"&gt;Đã ghi nhận&lt;/option&gt;&lt;option value="CONCERN_CONFIRMED"&gt;Xác nhận quan ngại&lt;/option&gt;&lt;option value="DISMISSED"&gt;Không đủ căn cứ&lt;/option&gt;&lt;/select&gt;&lt;/div&gt;
+        &lt;div class="field"&gt;&lt;label for="u6u5-severity"&gt;Mức độ cảnh báo&lt;/label&gt;&lt;select id="u6u5-severity"&gt;&lt;option value=""&gt;Tất cả mức độ&lt;/option&gt;&lt;option value="CRITICAL"&gt;Rất cao&lt;/option&gt;&lt;option value="HIGH"&gt;Cao&lt;/option&gt;&lt;option value="MEDIUM"&gt;Trung bình&lt;/option&gt;&lt;option value="LOW"&gt;Thấp&lt;/option&gt;&lt;option value="INFO"&gt;Thông tin&lt;/option&gt;&lt;/select&gt;&lt;/div&gt;
+        &lt;div class="field"&gt;&lt;label for="u6u5-category"&gt;Nhóm cảnh báo&lt;/label&gt;&lt;input id="u6u5-category" placeholder="VD: EVIDENCE_REUSE"/&gt;&lt;/div&gt;
+        &lt;div class="field"&gt;&lt;label for="u6u5-campaign"&gt;UUID chiến dịch&lt;/label&gt;&lt;input id="u6u5-campaign" placeholder="Lọc theo chiến dịch"/&gt;&lt;/div&gt;
+      &lt;/div&gt;
+      &lt;div class="filterfooter"&gt;
+        &lt;span class="feedback" id="u6u5-filtermsg" role="status" aria-live="polite"&gt;Mặc định: tín hiệu chưa đánh giá&lt;/span&gt;
+        &lt;div style="display:flex;gap:8px;flex-wrap:wrap"&gt;&lt;button class="btn" type="button" id="u6u5-reset"&gt;Đặt lại&lt;/button&gt;&lt;button class="btn primary" type="submit"&gt;Áp dụng bộ lọc&lt;/button&gt;&lt;/div&gt;
+      &lt;/div&gt;
+    &lt;/form&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+&lt;div class="resulttitle"&gt;&lt;strong&gt;Danh sách phát hiện&lt;/strong&gt;&lt;span class="badge info" id="u6u5-total"&gt;— kết quả&lt;/span&gt;&lt;/div&gt;
+&lt;div id="u6u5-results" aria-live="polite"&gt;&lt;/div&gt;
+&lt;div class="pager"&gt;&lt;span class="feedback" id="u6u5-page"&gt;Trang 1/1&lt;/span&gt;&lt;div style="display:flex;gap:8px"&gt;&lt;button type="button" class="btn" id="u6u5-prev"&gt;← Trước&lt;/button&gt;&lt;button type="button" class="btn" id="u6u5-next"&gt;Sau →&lt;/button&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;/section&gt;
+&lt;aside class="section"&gt;
+  &lt;div class="sectitle"&gt;02 / THỐNG KÊ QUY TẮC&lt;/div&gt;
+  &lt;div class="panel sage"&gt;
+    &lt;div class="panelhead"&gt;&lt;strong&gt;Hiệu quả quy tắc&lt;/strong&gt;&lt;span class="badge neutral"&gt;Đã kết luận&lt;/span&gt;&lt;/div&gt;
+    &lt;div class="panelbody"&gt;
+      &lt;p class="ruleintro"&gt;Tỷ lệ chỉ tính trên các phát hiện đã có đánh giá xác nhận hoặc không đủ căn cứ; không phải xác suất AI đúng.&lt;/p&gt;
+      &lt;div id="u6u5-rules"&gt;&lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+  &lt;div class="panel sky" style="margin-top:19px"&gt;
+    &lt;div class="panelhead"&gt;&lt;strong&gt;Cách hiểu cảnh báo&lt;/strong&gt;&lt;span&gt;ⓘ&lt;/span&gt;&lt;/div&gt;
+    &lt;div class="panelbody"&gt;
+      &lt;div class="legenditem"&gt;&lt;span class="badge critical"&gt;Rất cao / Cao&lt;/span&gt;&lt;strong&gt;Mức ưu tiên kiểm tra&lt;/strong&gt;&lt;p&gt;Không phải kết luận sai phạm.&lt;/p&gt;&lt;/div&gt;
+      &lt;div class="legenditem"&gt;&lt;span class="badge warning"&gt;Trung bình&lt;/span&gt;&lt;strong&gt;Mức độ tín hiệu&lt;/strong&gt;&lt;p&gt;Được phân loại từ dữ liệu Monitoring.&lt;/p&gt;&lt;/div&gt;
+      &lt;div class="legenditem"&gt;&lt;span class="badge neutral"&gt;Chưa đánh giá&lt;/span&gt;&lt;strong&gt;Trạng thái đánh giá&lt;/strong&gt;&lt;p&gt;Chưa có quyết định đánh giá của Admin.&lt;/p&gt;&lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/aside&gt;
+&lt;/div&gt;
+&lt;div class="policy"&gt;&lt;strong&gt;Lưu ý:&lt;/strong&gt; AI chỉ đưa ra tín hiệu và gợi ý kiểm tra. Mọi đánh giá thuộc thẩm quyền Admin sau khi xem hồ sơ và bằng chứng. Tất cả số liệu trong giao diện này là QA fixture, không kết nối Backend.&lt;/div&gt;
+&lt;/main&gt;
+&lt;/div&gt;
+&lt;script&gt;
+(function(){
+const root=document.getElementById("rise-u6-u5cards");if(!root||root.dataset.ready)return;root.dataset.ready="1";
+const $=s=&gt;root.querySelector(s),$$=s=&gt;Array.from(root.querySelectorAll(s));
+const safe=s=&gt;String(s??"").replace(/&amp;/g,"&amp;amp;").replace(/&lt;/g,"&amp;lt;").replace(/&gt;/g,"&amp;gt;").replace(/"/g,"&amp;quot;").replace(/'/g,"&amp;#39;");
+const uuid=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const sevName={CRITICAL:"Rất cao",HIGH:"Cao",MEDIUM:"Trung bình",LOW:"Thấp",INFO:"Thông tin"};
+const statusName={OPEN:"Chưa đánh giá",ACKNOWLEDGED:"Đã ghi nhận",CONCERN_CONFIRMED:"Xác nhận quan ngại",DISMISSED:"Không đủ căn cứ"};
+const records=[
+{id:"QA-FINDING-001",severity:"CRITICAL",status:"OPEN",category:"EVIDENCE_REUSE",rule:"RULE-EVIDENCE-REUSE",campaign:"00000000-0000-4000-8000-000000000001",title:"Có tín hiệu trùng mã tệp minh chứng giữa nhiều chiến dịch.",guide:"Đối chiếu tệp gốc, lịch sử minh chứng và các chiến dịch liên quan trước khi đánh giá.",count:7,newCount:3,last:"19/11/2026 · 15:42"},
+{id:"QA-FINDING-002",severity:"HIGH",status:"OPEN",category:"ACTIVITY_SPIKE",rule:"RULE-ACTIVITY-SPIKE",campaign:"00000000-0000-4000-8000-000000000002",title:"Một chuỗi hoạt động xuất hiện nhiều lần trong thời gian ngắn.",guide:"Đối chiếu nguồn sự kiện và các mốc thời gian để xác định nguyên nhân.",count:5,newCount:2,last:"19/11/2026 · 13:18"},
+{id:"QA-FINDING-003",severity:"MEDIUM",status:"OPEN",category:"EVIDENCE_REUSE",rule:"RULE-EVIDENCE-REUSE",campaign:"00000000-0000-4000-8000-000000000001",title:"Tham chiếu minh chứng của một cột mốc cần được rà soát.",guide:"Kiểm tra mã cột mốc, lịch sử cập nhật và tệp tham chiếu.",count:2,newCount:1,last:"18/11/2026 · 16:30"},
+{id:"QA-FINDING-004",severity:"LOW",status:"ACKNOWLEDGED",category:"ACTIVITY_SPIKE",rule:"RULE-ACTIVITY-SPIKE",campaign:"00000000-0000-4000-8000-000000000002",title:"Tín hiệu hoạt động đã được Admin ghi nhận để theo dõi.",guide:"Xem lịch sử ghi nhận nếu có thêm sự kiện mới.",count:3,newCount:0,last:"17/11/2026 · 10:15"},
+{id:"QA-FINDING-005",severity:"INFO",status:"DISMISSED",category:"EVENT_SEQUENCE",rule:"RULE-EVENT-SEQUENCE",campaign:"00000000-0000-4000-8000-000000000001",title:"Tín hiệu thứ tự sự kiện được đánh giá không đủ căn cứ.",guide:"Đối chiếu biên bản đánh giá nếu cần mở lại hồ sơ.",count:1,newCount:0,last:"16/11/2026 · 09:10"}
+];
+const ruleData=[{rule:"RULE-EVIDENCE-REUSE",confirmed:6,dismissed:2,open:3},{rule:"RULE-ACTIVITY-SPIKE",confirmed:2,dismissed:3,open:4},{rule:"RULE-EVENT-SEQUENCE",confirmed:0,dismissed:0,open:2}];
+let mode="data",page=0,expanded=null,filter={status:"OPEN",severity:"",category:"",campaign:""};
+const badge=(txt,cls="")=&gt;'&lt;span class="badge '+cls+'"&gt;'+safe(txt)+'&lt;/span&gt;';
+const empty=(h,p)=&gt;'&lt;div class="empty"&gt;&lt;strong&gt;'+safe(h)+'&lt;/strong&gt;&lt;p&gt;'+safe(p)+'&lt;/p&gt;&lt;/div&gt;';
+function filtered(){return records.filter(f=&gt;(!filter.status||f.status===filter.status)&amp;&amp;(!filter.severity||f.severity===filter.severity)&amp;&amp;(!filter.category||f.category.toLowerCase().includes(filter.category.toLowerCase()))&amp;&amp;(!filter.campaign||f.campaign.toLowerCase()===filter.campaign.toLowerCase()))}
+function renderRules(){
+if(mode==="error"){$("#u6u5-rules").innerHTML=empty("Không tải được thống kê","Chưa xác định kết quả từ API.");return}
+$("#u6u5-rules").innerHTML=ruleData.map(r=&gt;{
+const n=r.confirmed+r.dismissed;const rate=n?(100*r.confirmed/n).toFixed(1)+"%":"—";
+return '&lt;div class="rulesection"&gt;&lt;div class="rulename"&gt;'+safe(r.rule)+'&lt;/div&gt;&lt;div class="rate"&gt;'+rate+'&lt;/div&gt;&lt;div class="sub"&gt;'+(n?"Trên "+n+" ca đã kết luận":"Chưa đủ dữ liệu kết luận")+'&lt;/div&gt;&lt;div class="rulestats"&gt;&lt;b&gt;'+r.confirmed+'&lt;/b&gt; xác nhận · &lt;b&gt;'+r.dismissed+'&lt;/b&gt; không đủ căn cứ · &lt;b&gt;'+r.open+'&lt;/b&gt; chưa đánh giá&lt;/div&gt;&lt;/div&gt;'
+}).join("");
+}
+function renderFindings(){
+if(mode==="error"){
+$("#u6u5-results").innerHTML=empty("Không tải được phát hiện","Không sử dụng danh sách cũ hoặc hiển thị số 0 khi API lỗi.");
+$("#u6u5-total").textContent="Chưa xác định";$("#u6u5-page").textContent="Không khả dụng";$("#u6u5-prev").disabled=true;$("#u6u5-next").disabled=true;return}
+const list=mode==="empty"?[]:filtered();const pages=Math.max(1,Math.ceil(list.length/2));page=Math.min(page,pages-1);
+$("#u6u5-total").textContent=list.length+" phát hiện · Fixture";$("#u6u5-page").textContent="Trang "+(page+1)+"/"+pages;$("#u6u5-prev").disabled=page===0;$("#u6u5-next").disabled=page&gt;=pages-1;
+if(!list.length){$("#u6u5-results").innerHTML=empty("Không có phát hiện phù hợp","Thử điều chỉnh bộ lọc để xem những nhóm tín hiệu khác.");return}
+$("#u6u5-results").innerHTML=list.slice(page*2,page*2+2).map(f=&gt;{
+const tone=f.severity==="CRITICAL"||f.severity==="HIGH"?"apricot":f.severity==="MEDIUM"?"sky":"sage";
+const badgeTone=f.severity==="CRITICAL"||f.severity==="HIGH"?"critical":f.severity==="MEDIUM"?"warning":"info";
+return '&lt;article class="panel '+tone+' finding"&gt;&lt;div class="panelhead"&gt;&lt;strong&gt;PHÁT HIỆN · '+safe(f.id)+'&lt;/strong&gt;'+badge("Mức độ: "+sevName[f.severity],badgeTone)+'&lt;/div&gt;&lt;div class="panelbody"&gt;&lt;span class="badge neutral"&gt;'+safe(statusName[f.status])+'&lt;/span&gt;&lt;h3 class="findingtitle"&gt;'+safe(f.title)+'&lt;/h3&gt;&lt;div class="guidance"&gt;&lt;strong&gt;HƯỚNG KIỂM TRA ĐỀ XUẤT&lt;/strong&gt;&lt;p&gt;'+safe(f.guide)+'&lt;/p&gt;&lt;/div&gt;&lt;div class="metagrid"&gt;&lt;div&gt;&lt;small&gt;Chiến dịch&lt;/small&gt;&lt;strong&gt;'+safe(f.campaign.slice(0,12))+'…&lt;/strong&gt;&lt;/div&gt;&lt;div&gt;&lt;small&gt;Ghi nhận gần nhất&lt;/small&gt;&lt;strong&gt;'+safe(f.last)+'&lt;/strong&gt;&lt;/div&gt;&lt;div&gt;&lt;small&gt;Số lần ghi nhận&lt;/small&gt;&lt;strong class="count"&gt;'+f.count+'&lt;/strong&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="findingfoot"&gt;&lt;span class="newcount"&gt;'+(f.newCount?f.newCount+" lần xuất hiện mới được ghi nhận":"Không có lần xuất hiện mới")+'&lt;/span&gt;&lt;button type="button" class="btn" data-detail="'+safe(f.id)+'" aria-expanded="'+(expanded===f.id)+'"&gt;'+(expanded===f.id?"Thu gọn":"Xem mã và quy tắc")+'&lt;/button&gt;&lt;/div&gt;'+(expanded===f.id?'&lt;div class="details"&gt;&lt;strong&gt;Thông tin kỹ thuật · QA fixture&lt;/strong&gt;&lt;p&gt;Mã phát hiện: '+safe(f.id)+'&lt;/p&gt;&lt;p&gt;Quy tắc: '+safe(f.rule)+'&lt;/p&gt;&lt;p&gt;Nhóm: '+safe(f.category)+'&lt;/p&gt;&lt;p&gt;Hồ sơ thực tế thuộc route /admin/monitoring/findings/:id.&lt;/p&gt;&lt;/div&gt;':'')+'&lt;/div&gt;&lt;/article&gt;'
+}).join("");
+}
+function render(){$$("[data-mode]").forEach(b=&gt;{let a=b.dataset.mode===mode;b.classList.toggle("active",a);b.setAttribute("aria-pressed",String(a))});renderFindings();renderRules()}
+$$("[data-mode]").forEach(b=&gt;b.addEventListener("click",()=&gt;{mode=b.dataset.mode;expanded=null;page=0;render()}));
+$("#u6u5-form").addEventListener("submit",e=&gt;{
+e.preventDefault();const id=$("#u6u5-campaign").value.trim();
+if(id&amp;&amp;!uuid.test(id)){$("#u6u5-filtermsg").textContent="UUID chiến dịch không hợp lệ.";$("#u6u5-filtermsg").className="feedback error";return}
+filter={status:$("#u6u5-status").value,severity:$("#u6u5-severity").value,category:$("#u6u5-category").value.trim(),campaign:id};page=0;expanded=null;
+$("#u6u5-filtermsg").textContent="Đã áp dụng bộ lọc vào dữ liệu giả lập.";$("#u6u5-filtermsg").className="feedback";renderFindings();
+});
+$("#u6u5-reset").addEventListener("click",()=&gt;{
+$("#u6u5-status").value="OPEN";$("#u6u5-severity").value="";$("#u6u5-category").value="";$("#u6u5-campaign").value="";
+filter={status:"OPEN",severity:"",category:"",campaign:""};page=0;expanded=null;$("#u6u5-filtermsg").textContent="Đã đặt lại bộ lọc.";$("#u6u5-filtermsg").className="feedback";renderFindings();
+});
+$("#u6u5-refresh").addEventListener("click",()=&gt;{$("#u6u5-filtermsg").textContent="Đã làm mới fixture, không gọi API.";render()});
+$("#u6u5-prev").addEventListener("click",()=&gt;{page=Math.max(0,page-1);expanded=null;renderFindings()});
+$("#u6u5-next").addEventListener("click",()=&gt;{page++;expanded=null;renderFindings()});
+root.addEventListener("click",e=&gt;{const b=e.target.closest("[data-detail]");if(b){expanded=expanded===b.dataset.detail?null:b.dataset.detail;renderFindings()}});
+render();
+})();
+&lt;/script&gt;
+&lt;/div&gt;
+</textarea>
+<textarea id="src-U6card" hidden>&lt;!doctype html&gt;
+&lt;html lang="vi"&gt;&lt;head&gt;&lt;meta charset="UTF-8"&gt;&lt;meta name="viewport" content="width=device-width,initial-scale=1"&gt;&lt;title&gt;Rise AI | U6 V1.2.2 — Rule card refinement&lt;/title&gt;
+&lt;style&gt;
+:root{font-family:'Be Vietnam Pro',system-ui,-apple-system,'Segoe UI',sans-serif;color:#123e32;background:#f7f8ef;line-height:1.5;font-synthesis:none}
+*{box-sizing:border-box}
+body{margin:0;padding:48px 28px}
+.wrap{max-width:1120px;margin:auto}
+.topline{font-size:12px;letter-spacing:.075em;font-weight:900;color:#236851;margin:0 0 17px}
+.card{background:#dcf2ff;border:3px solid #123e32;border-radius:20px;box-shadow:6px 7px 0 #8ebed0;overflow:hidden}
+.cardhead{display:flex;align-items:center;justify-content:space-between;gap:18px;background:#71d0f3;color:#123e32;padding:18px 24px;border-bottom:2px solid #123e32}
+.cardhead h2{font-size:20px;letter-spacing:-.02em;font-weight:900;margin:0}
+.pill{background:#fffdf2;border:1.5px solid #518c9a;border-radius:99px;padding:7px 13px;color:#1b524d;font-size:12px;font-weight:850;white-space:nowrap}
+.body{padding:22px 24px 25px}
+.intro{font-size:14px;color:#315d69;max-width:920px;line-height:1.75;margin:0 0 19px;font-weight:550}
+.rows{display:grid;gap:13px}
+.rule-row{display:grid;grid-template-columns:minmax(0,1.13fr) minmax(0,.79fr) minmax(0,1.58fr) minmax(0,1fr);gap:11px;align-items:stretch;border-radius:17px;background:#c9e8f5;padding:11px}
+.module{min-width:0;border-radius:13px;border:1.5px solid #9bc6cb;background:#fffef9;padding:13px 14px;min-height:118px;display:flex;flex-direction:column;justify-content:center;gap:8px}
+.module .label{font-size:11px;line-height:1.3;color:#356675;font-weight:900;letter-spacing:.035em;text-transform:uppercase}
+.rule-name{font-weight:900;font-size:15px;line-height:1.5;overflow-wrap:anywhere;letter-spacing:-.015em}
+.rate-module{background:#e9faef;border-color:#9ac9ad}
+.rate-value{font-size:31px;font-weight:950;line-height:1.13;letter-spacing:-.06em;font-variant-numeric:tabular-nums;white-space:nowrap}
+.detail{font-size:12px;font-weight:700;color:#416b57}
+.outcomes{padding:12px 13px;gap:7px}
+.outcome{display:grid;grid-template-columns:27px minmax(0,1fr);align-items:center;gap:8px;border-radius:8px;padding:8px 9px;background:#e6f6ed;min-height:39px}
+.outcome:nth-of-type(2){background:#fff0dc}
+.outcome .num{font-size:21px;font-weight:950;line-height:1;font-variant-numeric:tabular-nums}
+.outcome .text{font-size:12px;font-weight:750;line-height:1.35;color:#335848}
+.pending{background:#fff0d8;border-color:#dec398}
+.pending .label{color:#80501f}
+.pending .count{font-size:30px;font-weight:950;line-height:1.1;font-variant-numeric:tabular-nums}
+.pending .desc{font-size:12px;font-weight:700;color:#785b33}
+.no-data{font-size:14px;font-weight:800;color:#476e68;line-height:1.4}
+.note{margin:18px 3px 0;font-size:12px;color:#426676;line-height:1.75;font-weight:600}
+@media(max-width:870px){body{padding:25px 13px}.card{overflow:hidden}.body{overflow-x:auto;padding:18px 14px 22px}.rows{min-width:782px}.intro{font-size:13px}.cardhead{padding:16px}.cardhead h2{font-size:18px}.rule-row{grid-template-columns:1.1fr .78fr 1.6fr 1fr}}
+&lt;/style&gt;&lt;/head&gt;&lt;body&gt;&lt;main class="wrap"&gt;
+&lt;p class="topline"&gt;RISE AI · U6 V1.2.2 · CHỈ ĐIỀU CHỈNH CARD HIỆU QUẢ QUY TẮC · DỮ LIỆU GIẢ LẬP&lt;/p&gt;
+&lt;section class="card" aria-label="Hiệu quả quy tắc"&gt;&lt;header class="cardhead"&gt;&lt;h2&gt;Hiệu quả quy tắc&lt;/h2&gt;&lt;span class="pill"&gt;03 quy tắc · QA fixture&lt;/span&gt;&lt;/header&gt;&lt;div class="body"&gt;
+&lt;p class="intro"&gt;Tỷ lệ xác nhận được tính trên các phát hiện đã có kết luận của Admin; không phải xác suất AI đúng trên mọi cảnh báo.&lt;/p&gt;
+&lt;div class="rows"&gt;
+&lt;article class="rule-row"&gt;&lt;div class="module"&gt;&lt;span class="label"&gt;Quy tắc&lt;/span&gt;&lt;strong class="rule-name"&gt;RULE-EVIDENCE-REUSE&lt;/strong&gt;&lt;/div&gt;&lt;div class="module rate-module"&gt;&lt;span class="label"&gt;Tỷ lệ xác nhận&lt;/span&gt;&lt;strong class="rate-value"&gt;75,0%&lt;/strong&gt;&lt;span class="detail"&gt;6 / 8 ca kết luận&lt;/span&gt;&lt;/div&gt;&lt;div class="module outcomes"&gt;&lt;span class="label"&gt;Kết quả đã kết luận&lt;/span&gt;&lt;div class="outcome"&gt;&lt;span class="num"&gt;6&lt;/span&gt;&lt;span class="text"&gt;Xác nhận quan ngại&lt;/span&gt;&lt;/div&gt;&lt;div class="outcome"&gt;&lt;span class="num"&gt;2&lt;/span&gt;&lt;span class="text"&gt;Không đủ căn cứ&lt;/span&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="module pending"&gt;&lt;span class="label"&gt;Chưa đánh giá&lt;/span&gt;&lt;strong class="count"&gt;3&lt;/strong&gt;&lt;span class="desc"&gt;Phát hiện đang mở&lt;/span&gt;&lt;/div&gt;&lt;/article&gt;
+&lt;article class="rule-row"&gt;&lt;div class="module"&gt;&lt;span class="label"&gt;Quy tắc&lt;/span&gt;&lt;strong class="rule-name"&gt;RULE-ACTIVITY-SPIKE&lt;/strong&gt;&lt;/div&gt;&lt;div class="module rate-module"&gt;&lt;span class="label"&gt;Tỷ lệ xác nhận&lt;/span&gt;&lt;strong class="rate-value"&gt;40,0%&lt;/strong&gt;&lt;span class="detail"&gt;2 / 5 ca kết luận&lt;/span&gt;&lt;/div&gt;&lt;div class="module outcomes"&gt;&lt;span class="label"&gt;Kết quả đã kết luận&lt;/span&gt;&lt;div class="outcome"&gt;&lt;span class="num"&gt;2&lt;/span&gt;&lt;span class="text"&gt;Xác nhận quan ngại&lt;/span&gt;&lt;/div&gt;&lt;div class="outcome"&gt;&lt;span class="num"&gt;3&lt;/span&gt;&lt;span class="text"&gt;Không đủ căn cứ&lt;/span&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="module pending"&gt;&lt;span class="label"&gt;Chưa đánh giá&lt;/span&gt;&lt;strong class="count"&gt;4&lt;/strong&gt;&lt;span class="desc"&gt;Phát hiện đang mở&lt;/span&gt;&lt;/div&gt;&lt;/article&gt;
+&lt;article class="rule-row"&gt;&lt;div class="module"&gt;&lt;span class="label"&gt;Quy tắc&lt;/span&gt;&lt;strong class="rule-name"&gt;RULE-EVENT-SEQUENCE&lt;/strong&gt;&lt;/div&gt;&lt;div class="module rate-module"&gt;&lt;span class="label"&gt;Tỷ lệ xác nhận&lt;/span&gt;&lt;strong class="rate-value"&gt;—&lt;/strong&gt;&lt;span class="detail"&gt;Chưa có ca kết luận&lt;/span&gt;&lt;/div&gt;&lt;div class="module outcomes"&gt;&lt;span class="label"&gt;Kết quả đã kết luận&lt;/span&gt;&lt;div class="outcome"&gt;&lt;span class="num"&gt;0&lt;/span&gt;&lt;span class="text"&gt;Xác nhận quan ngại&lt;/span&gt;&lt;/div&gt;&lt;div class="outcome"&gt;&lt;span class="num"&gt;0&lt;/span&gt;&lt;span class="text"&gt;Không đủ căn cứ&lt;/span&gt;&lt;/div&gt;&lt;/div&gt;&lt;div class="module pending"&gt;&lt;span class="label"&gt;Chưa đánh giá&lt;/span&gt;&lt;strong class="count"&gt;2&lt;/strong&gt;&lt;span class="desc"&gt;Phát hiện đang mở&lt;/span&gt;&lt;/div&gt;&lt;/article&gt;
+&lt;/div&gt;&lt;p class="note"&gt;Tỷ lệ = ca xác nhận quan ngại ÷ (ca xác nhận quan ngại + ca không đủ căn cứ). Các ca “Chưa đánh giá” không thuộc mẫu số. Trạng thái “Đã ghi nhận” được theo dõi riêng.&lt;/p&gt;
+&lt;/div&gt;&lt;/section&gt;&lt;/main&gt;&lt;/body&gt;&lt;/html&gt;</textarea>
+<script>const list=[{"id":"U3","title":"Donor Receipts · Cartoon Pastel V2.1 Font Fix","file":"U3_Donor_Receipts_V21_FontFix.html","note":"Font chữ gốc preview vẫn dùng fallback Arial/Noto; trước khi React QA cần gắn Be Vietnam Pro.","stamp":"15:53:17 19/11/2026","n":21879},{"id":"U4","title":"Transparency · V1.1","file":"U4_Transparency_V11.html","note":"Bản interactive U4 cuối đã duyệt.","stamp":"16:38:28 19/11/2026","n":24307},{"id":"U5","title":"Admin Escrow · V1.2 Selective Typography Refined","file":"U5_Admin_Escrow_V12_TypographyRefined.html","note":"Bản V1.2 chữ chọn lọc đã chốt; KHÔNG dùng V1.3.","stamp":"18:31:41 19/11/2026","n":40030},{"id":"U6","title":"Admin Monitoring · V1.2.2 Base","file":"U6_Admin_Monitoring_V122_Base.html","note":"Gốc toàn trang. Card Hiệu quả quy tắc cuối được chốt bằng file riêng bên cạnh.","stamp":"19:13:38 19/11/2026","n":23909},{"id":"U6card","title":"U6 Card · Hiệu quả quy tắc · FINAL","file":"U6_V122_Refined_Rule_Card.html","note":"HTML độc lập từ Library được chốt lúc 19:50 ngày 19/11/2026.","stamp":"19/11/2026 19:48","n":6043}];const $=s=>document.getElementById(s);const mk=x=>x.id==="U6card"?$("src-U6card").value:'<!doctype html><html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>'+x.title+'</title><style>html,body{margin:0;background:#f7f8ef}body{font-family:"Be Vietnam Pro",system-ui,sans-serif}.outer{max-width:1440px;margin:auto;padding:12px 16px}</style></head><body><div class="outer">'+$("src-"+x.id).value+'</div></body></html>';let current=list[0];function show(id){current=list.find(x=>x.id===id);$("view").srcdoc=mk(current);$("name").textContent=current.title;$("note").textContent=current.note;$("info").textContent="Nguồn: "+current.stamp+" · "+current.n+" ký tự nguyên mẫu";document.querySelectorAll('[data-unit]').forEach(b=>{b.classList.toggle("on",b.dataset.unit===id);b.setAttribute("aria-pressed",String(b.dataset.unit===id))})}list.forEach(x=>{let b=document.createElement("button");b.textContent=x.title;b.dataset.unit=x.id;b.onclick=()=>show(x.id);$("nav").appendChild(b)});$("dl").onclick=()=>{let url=URL.createObjectURL(new Blob([mk(current)],{type:"text/html;charset=utf-8"}));let a=document.createElement("a");a.href=url;a.download=current.file;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1500)};$("open").onclick=()=>window.open(URL.createObjectURL(new Blob([mk(current)],{type:"text/html;charset=utf-8"})),"_blank");show("U3")</script></body></html>
