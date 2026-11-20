@@ -91,20 +91,45 @@ export function AdminMonitoringPage(){
       </div>
       {findings.isSuccess?<><p className="mt-3 text-xs text-muted">Tổng số phù hợp: {countText(findings.data.totalElements)}</p><RecordPagination page={page} pages={findings.data.totalPages??0} onChange={setPage}/></>:null}
     </section>
-    <section className="admin-risk-rules" aria-labelledby="rule-precision">
-      <h2 id="rule-precision" className="text-xl font-bold text-brand-ink">Phân loại theo quy tắc đã được Admin đánh giá</h2>
-      <p className="mt-2 text-xs leading-6 text-muted">Tỷ lệ dưới đây chỉ dựa trên các cảnh báo đã có kết luận xác nhận/bác bỏ; không phải xác suất AI đúng cho mọi trường hợp.</p>
-      {precision.isPending?<div className="mt-5"><StatusMessage title="Đang tải thống kê quy tắc…"/></div>:null}
-      {precision.isError?<div className="mt-5"><StatusMessage error title="Không tải được thống kê rule" detail={precision.error.message}/></div>:null}
-      {precision.isSuccess&&!precision.data.length?<div className="mt-5"><StatusMessage title="Chưa có quy tắc được thống kê"/></div>:null}
-      <div className="admin-risk-rule-list">{precision.data?.map((rule,index)=><article key={rule.ruleId??index} className="admin-risk-rule">
-        <h3 className="break-all text-sm font-bold text-brand-ink">{rule.ruleId??'Rule chưa xác định'}</h3>
-        <p className="mt-2 text-sm">Xác nhận: {countText(rule.concernConfirmed)} · Không đủ căn cứ: {countText(rule.dismissed)}</p>
-        <p className="monitoring-rate">{typeof rule.precision==='number'?(rule.precision*100).toFixed(1)+'% trên các ca đã kết luận':'Chưa đủ dữ liệu kết luận'}</p>
-        <p className="mt-2 text-xs text-muted">Tổng {countText(rule.total)} · Đang mở {countText(rule.open)} · Đã ghi nhận {countText(rule.acknowledged)}</p>
-      </article>)}</div>
-    </section>
+    <aside className="monitoring-signal-legend" aria-label="Cách hiểu cảnh báo">
+      <div className="monitoring-legend-head"><strong>Cách hiểu cảnh báo</strong><span aria-hidden="true">ⓘ</span></div>
+      <div className="monitoring-legend-body">
+        <p><AdminState value="CRITICAL">Rất cao / Cao</AdminState><strong>Mức ưu tiên kiểm tra</strong><span>Không phải kết luận sai phạm.</span></p>
+        <p><AdminState value="MEDIUM">Trung bình</AdminState><strong>Mức độ tín hiệu</strong><span>Được phân loại từ dữ liệu Monitoring.</span></p>
+        <p><AdminState value="OPEN">Chưa đánh giá</AdminState><strong>Trạng thái đánh giá</strong><span>Chưa có quyết định của Admin.</span></p>
+      </div>
+    </aside>
     </div>
+    <section className="admin-risk-rules monitoring-rules-final" aria-labelledby="rule-precision">
+      <header className="monitoring-final-head">
+        <h2 id="rule-precision">Hiệu quả quy tắc</h2>
+        <span className="monitoring-final-pill">Thống kê Backend · Chỉ hỗ trợ đánh giá</span>
+      </header>
+      <div className="monitoring-final-body">
+        <p className="monitoring-final-intro">Tỷ lệ xác nhận chỉ được tính trên các ca có kết luận của Admin; không phải xác suất AI đúng trên mọi cảnh báo.</p>
+        {precision.isPending?<StatusMessage title="Đang tải thống kê quy tắc…"/>:null}
+        {precision.isError?<StatusMessage error title="Không tải được thống kê quy tắc" detail={precision.error.message}/>:null}
+        {precision.isSuccess&&!precision.data.length?<StatusMessage title="Chưa có quy tắc được thống kê"/>:null}
+        <div className="admin-risk-rule-list">
+          {precision.data?.map((rule,index)=>{
+            const confirmed=rule.concernConfirmed??0;
+            const dismissed=rule.dismissed??0;
+            const concluded=confirmed+dismissed;
+            const rate=concluded>0&&typeof rule.precision==='number'?(rule.precision*100).toFixed(1).replace('.',',')+'%':'—';
+            return <article key={rule.ruleId??index} className="monitoring-rule-row">
+              <div className="monitoring-rule-cell"><span className="monitoring-cell-label">Quy tắc</span><strong className="monitoring-cell-rule">{rule.ruleId??'Rule chưa xác định'}</strong></div>
+              <div className="monitoring-rule-cell monitoring-cell-rate"><span className="monitoring-cell-label">Tỷ lệ xác nhận</span><strong className="monitoring-cell-number">{rate}</strong><small>{concluded?countText(confirmed)+' / '+countText(concluded)+' ca kết luận':'Chưa có ca kết luận'}</small></div>
+              <div className="monitoring-rule-cell monitoring-cell-outcomes"><span className="monitoring-cell-label">Kết quả đã kết luận</span>
+                <div className="monitoring-outcome"><strong>{countText(confirmed)}</strong><span>Xác nhận quan ngại</span></div>
+                <div className="monitoring-outcome"><strong>{countText(dismissed)}</strong><span>Không đủ căn cứ</span></div>
+              </div>
+              <div className="monitoring-rule-cell monitoring-cell-pending"><span className="monitoring-cell-label">Chưa đánh giá</span><strong className="monitoring-cell-number">{countText(rule.open)}</strong><small>Phát hiện đang mở</small></div>
+            </article>;
+          })}
+        </div>
+        <p className="monitoring-final-note">Tỷ lệ = xác nhận quan ngại ÷ (xác nhận quan ngại + không đủ căn cứ). Ca chưa đánh giá không thuộc mẫu số. Trạng thái “Đã ghi nhận” được theo dõi riêng.</p>
+      </div>
+    </section>
     </Container>
   </div>;
 }

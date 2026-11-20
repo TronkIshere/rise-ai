@@ -1,0 +1,174 @@
+/* Rise AI U1-U6 Design Freeze delta · 2026-11-21.
+   Desktop-only; original user-approved structure and backend contracts preserved.
+   U1 intentionally untouched. U2-6 overrides scoped to their own route. */
+@media (min-width:1200px) {
+  /* U2 · PLAN / RECORD / REVIEW on chain timeline */
+  .campaign-detail-flow .chain-panel{
+    border:2.5px solid #123e32;border-radius:20px;background:#fffdf6;
+    box-shadow:5px 6px 0 #b0caba;color:#123d30;
+  }
+  .campaign-detail-flow .chain-heading{padding:0 0 15px;border-bottom:2px solid #b5d1c3}
+  .campaign-detail-flow .chain-flow-step{
+    border:2px solid #123e32;border-radius:15px;min-width:0;box-shadow:3px 4px 0 #c9d7cb;
+  }
+  .campaign-detail-flow .chain-flow-step[data-semantic="plan"]{background:#f0fff5;border-color:#267154}
+  .campaign-detail-flow .chain-flow-step[data-semantic="record"]{background:#fff6e8;border-color:#bd8244}
+  .campaign-detail-flow .chain-flow-step[data-semantic="review"]{background:#eef9ff;border-color:#317898}
+  .campaign-detail-flow .chain-flow-step .chain-state-warning{border:1.5px solid #965d28;background:#fff0d6}
+  /* U3 · Donor Cartoon Pastel V2 Strong Outline. Preserve BE Vietnam Pro typography.
+     Four backend-derived metrics, donor tabs, receipts and logic unchanged. */
+  .donor-dashboard{font-family:"Be Vietnam Pro","Noto Sans",system-ui,sans-serif}
+  .donor-dashboard .dashboard-metrics{grid-template-columns:repeat(4,minmax(0,1fr));gap:15px}
+  .donor-dashboard .dashboard-hero{
+    border:2.5px solid #123d30;box-shadow:6px 7px 0 #c6d4b9;
+  }
+  .donor-dashboard .dashboard-metric{
+    min-width:0;border:2.5px solid #123d30;box-shadow:5px 6px 0 #b6d7bc;
+    background:#f0fff5;
+  }
+  .donor-dashboard .dashboard-metric:nth-child(2){background:#fff6e8;box-shadow:5px 6px 0 #e0c39b}
+  .donor-dashboard .dashboard-metric:nth-child(3){background:#eef9ff;box-shadow:5px 6px 0 #add3e2}
+  .donor-dashboard .dashboard-metric:nth-child(4){background:#fff0df;box-shadow:5px 6px 0 #e1bdab}
+  .donor-dashboard .dashboard-metric::before{height:7px;width:100%;left:0;background:#4fe6ab}
+  .donor-dashboard .dashboard-metric:nth-child(2)::before{background:#ffb96c}
+  .donor-dashboard .dashboard-metric:nth-child(3)::before{background:#72d4fa}
+  .donor-dashboard .dashboard-metric:nth-child(4)::before{background:#eaa78a}
+  .donor-dashboard .dashboard-metric strong{font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+  .donor-dashboard .dashboard-tabbar{
+    border:2.5px solid #123d30;background:#d7f7e4;box-shadow:5px 5px 0 #b6d7bc;
+  }
+  .donor-dashboard .dashboard-section,.donor-dashboard .dashboard-section article{
+    border:2.5px solid #123d30;box-shadow:5px 6px 0 #d6dfc7;
+    background:#fffdf6;
+  }
+  .donor-dashboard .dashboard-section form{
+    border:2.5px solid #123d30;box-shadow:4px 5px 0 #e8d2a7;
+  }
+  .donor-dashboard .dashboard-hero h1,.donor-dashboard .dashboard-section h2,
+  .donor-dashboard .dashboard-section h3{font-family:"Be Vietnam Pro","Noto Sans",system-ui,sans-serif;letter-spacing:0}
+  /* U4 · Approved Transparency V1.1, four business cards + Data API.
+     CSS changes only; never alter source fidelity of Off-chain/Fuji/Unavailable. */
+  .chain-public-page{font-family:"Be Vietnam Pro","Noto Sans",system-ui,sans-serif;background:#f8f9f1;color:#153e32}
+  .chain-public-page .chain-container{max-width:1200px}
+  .chain-public-page .chain-public-hero{
+    background:linear-gradient(115deg,#0c3529,#175743 70%,#326d55);
+    color:#fff8e9;border:2.5px solid #153e32;border-radius:23px;
+    box-shadow:6px 6px 0 #b8d2c4;
+  }
+  .chain-public-page .chain-public-hero h1{color:#fff8e9;font-weight:900;letter-spacing:0}
+  .chain-public-page .chain-public-hero .chain-eyebrow{color:#ffcc87}
+  .chain-public-page .chain-public-grid{gap:20px}
+  .chain-public-page .chain-public-grid > .chain-panel{
+    padding:0 24px 25px;border:2.5px solid #153e32;border-radius:20px;
+    box-shadow:5px 6px 0 #b1d4c1;overflow:hidden;background:#d9f8e6;
+  }
+  .chain-public-page .chain-public-grid > .chain-panel:nth-child(2){background:#ffe5c3;box-shadow:5px 6px 0 #d7bda2}
+  .chain-public-page .chain-public-grid > .chain-panel:nth-child(3){background:#dcf2ff;box-shadow:5px 6px 0 #aeceda}
+  .chain-public-page .chain-public-grid > .chain-panel:nth-child(4){background:#edf1d5;box-shadow:5px 6px 0 #bfcda3}
+  .chain-public-page .chain-public-grid > .chain-panel > .chain-eyebrow{
+    margin:0 -24px;padding:15px 24px 4px;color:#123e32;
+    background:#49e1a7;letter-spacing:.07em;
+  }
+  .chain-public-page .chain-public-grid > .chain-panel > h2{
+    margin:0 -24px 18px;padding:1px 24px 14px;
+    background:#49e1a7;border-bottom:2px solid #153e32;color:#123e32;
+    font-family:"Be Vietnam Pro","Noto Sans",system-ui,sans-serif;
+  }
+  .chain-public-page .chain-public-grid > .chain-panel:nth-child(2) > :is(.chain-eyebrow,h2){background:#ffba74}
+  .chain-public-page .chain-public-grid > .chain-panel:nth-child(3) > :is(.chain-eyebrow,h2){background:#71d0f3}
+  .chain-public-page .chain-public-grid > .chain-panel:nth-child(4) > :is(.chain-eyebrow,h2){background:#dce7b3}
+  .chain-public-page .chain-public-full{
+    border:2.5px solid #153e32;border-radius:20px;box-shadow:5px 6px 0 #bfcda3;
+    background:#fffdf6;
+  }
+  .chain-public-page .chain-public-full .chain-heading{
+    padding:10px 0 18px;border-bottom:2px solid #dce7b3;
+  }
+  /* U5 · Freeze V1.2 typography refinement only; not V1.3 redesign */
+  .deep-admin-escrow .admin-ledger-lead dd{
+    font-family:"Be Vietnam Pro","Noto Sans",system-ui,sans-serif;
+    font-variant-numeric:tabular-nums;font-weight:900;font-size:clamp(21px,1.8vw,27px);
+    letter-spacing:-.02em;overflow-wrap:anywhere;
+  }
+  .deep-admin-escrow .admin-ledger-balances>div p:last-child{
+    font-variant-numeric:tabular-nums;font-weight:900;overflow-wrap:anywhere;line-height:1.25;
+  }
+  .deep-admin-escrow .admin-ledger-table td,
+  .deep-admin-escrow .admin-ledger-table th{font-variant-numeric:tabular-nums}
+  .deep-admin-escrow .admin-ledger-result{font-weight:850}
+  /* U6 · Approved V1.2.2 rule card, preserved left findings and legend in 72/28 area */
+  .deep-admin-monitoring .admin-risk-board{
+    display:grid;grid-template-columns:minmax(0,2.5fr) minmax(0,1fr);align-items:start;gap:16px;
+  }
+  .deep-admin-monitoring .monitoring-signal-legend{
+    min-width:0;border:3px solid #123e32;border-radius:20px;
+    background:#dcf2ff;box-shadow:6px 7px 0 #a7c9d4;overflow:hidden;
+  }
+  .deep-admin-monitoring .monitoring-legend-head{
+    display:flex;justify-content:space-between;align-items:center;
+    background:#71d0f3;border-bottom:2px solid #123e32;padding:16px 18px;
+    font-weight:900;font-size:17px;color:#123e32;
+  }
+  .deep-admin-monitoring .monitoring-legend-body{padding:15px 18px;display:grid;gap:13px}
+  .deep-admin-monitoring .monitoring-legend-body p{
+    display:flex;flex-direction:column;align-items:flex-start;gap:7px;min-width:0;
+    padding:11px;border:1.5px solid #9bc6cb;border-radius:12px;background:#fffdf6;
+  }
+  .deep-admin-monitoring .monitoring-legend-body p strong{font-size:13px;color:#123e32}
+  .deep-admin-monitoring .monitoring-legend-body p span:last-child{color:#365c59;font-size:12px;line-height:1.5}
+  .deep-admin-monitoring .monitoring-rules-final{
+    padding:0;margin-top:26px;min-width:0;border:3px solid #123e32;
+    border-radius:20px;box-shadow:6px 7px 0 #8ebed0;background:#dcf2ff;overflow:hidden;
+  }
+  .deep-admin-monitoring .monitoring-final-head{
+    display:flex;align-items:center;justify-content:space-between;gap:18px;
+    background:#71d0f3;border-bottom:2px solid #123e32;padding:18px 24px;
+  }
+  .deep-admin-monitoring .monitoring-final-head h2{
+    font-family:"Be Vietnam Pro","Noto Sans",system-ui,sans-serif;
+    font-size:20px;font-weight:900;letter-spacing:-.02em;margin:0;color:#123e32;
+  }
+  .deep-admin-monitoring .monitoring-final-pill{
+    border:1.5px solid #518c9a;background:#fffdf2;color:#1b524d;border-radius:99px;
+    padding:7px 13px;font-size:12px;font-weight:850;white-space:nowrap;
+  }
+  .deep-admin-monitoring .monitoring-final-body{padding:22px 24px 25px}
+  .deep-admin-monitoring .monitoring-final-intro{
+    font-size:14px;max-width:920px;line-height:1.75;color:#315d69;margin:0 0 19px;
+  }
+  .deep-admin-monitoring .admin-risk-rule-list{display:grid;gap:13px;margin-top:0;min-width:0}
+  .deep-admin-monitoring .monitoring-rule-row{
+    display:grid;grid-template-columns:minmax(0,1.13fr) minmax(0,.79fr) minmax(0,1.58fr) minmax(0,1fr);
+    gap:11px;align-items:stretch;background:#c9e8f5;border-radius:17px;padding:11px;min-width:0;
+  }
+  .deep-admin-monitoring .monitoring-rule-cell{
+    min-width:0;min-height:118px;display:flex;flex-direction:column;justify-content:center;gap:8px;
+    padding:13px 14px;border:1.5px solid #9bc6cb;border-radius:13px;background:#fffef9;
+  }
+  .deep-admin-monitoring .monitoring-cell-label{
+    font-size:11px;line-height:1.3;font-weight:900;letter-spacing:.035em;text-transform:uppercase;color:#356675;
+  }
+  .deep-admin-monitoring .monitoring-cell-rule{
+    font-size:15px;font-weight:900;line-height:1.5;letter-spacing:-.015em;overflow-wrap:anywhere;
+  }
+  .deep-admin-monitoring .monitoring-cell-rate{background:#e9faef;border-color:#9ac9ad}
+  .deep-admin-monitoring .monitoring-cell-number{
+    font-size:30px;line-height:1.13;font-weight:950;letter-spacing:-.05em;
+    color:#123e32;font-variant-numeric:tabular-nums;
+  }
+  .deep-admin-monitoring .monitoring-rule-cell small{font-size:12px;line-height:1.45;font-weight:700;color:#416b57}
+  .deep-admin-monitoring .monitoring-cell-outcomes{gap:7px;padding:12px 13px}
+  .deep-admin-monitoring .monitoring-outcome{
+    display:grid;grid-template-columns:27px minmax(0,1fr);align-items:center;gap:8px;
+    background:#e6f6ed;border-radius:8px;padding:8px 9px;min-height:39px;
+  }
+  .deep-admin-monitoring .monitoring-outcome:nth-of-type(2){background:#fff0dc}
+  .deep-admin-monitoring .monitoring-outcome strong{font-size:21px;font-weight:950;line-height:1}
+  .deep-admin-monitoring .monitoring-outcome span{font-size:12px;line-height:1.35;font-weight:750;color:#335848}
+  .deep-admin-monitoring .monitoring-cell-pending{background:#fff0d8;border-color:#dec398}
+  .deep-admin-monitoring .monitoring-cell-pending .monitoring-cell-label{color:#80501f}
+  .deep-admin-monitoring .monitoring-cell-pending small{color:#785b33}
+  .deep-admin-monitoring .monitoring-final-note{
+    font-size:12px;line-height:1.75;color:#426676;margin:18px 3px 0;font-weight:600;
+  }
+}

@@ -28,7 +28,7 @@ async function capture(page,name){
   const file=name+'.png';
   if(name.includes('fixture'))await page.evaluate(()=>{
     const label=document.createElement('div');
-    label.textContent='QA FIXTURE FUJI · DỮ LIỆU GIẢ LẬP · KHÔNG PHẢI GIAO DỊCH THẬT';
+    label.textContent=name.includes('monitoring')?'QA FIXTURE MONITORING · KHÔNG PHẢI ĐÁNH GIÁ THẬT':'QA FIXTURE FUJI · DỮ LIỆU GIẢ LẬP · KHÔNG PHẢI GIAO DỊCH THẬT';
     label.style.cssText='position:fixed;top:8px;right:8px;z-index:99999;background:#5d230a;color:#fff;padding:8px 12px;font:700 13px Arial;border-radius:7px;pointer-events:none';
     document.body.appendChild(label);
   });
@@ -150,6 +150,26 @@ try{
  expect('U5 FIXTURE admin pending and warning count',await adm.locator('.chain-panel-admin .chain-state-warning').count()>=1);
  await capture(adm,'pr42-u5-fixture-fuji-admin-1440');
  await af.close();
+
+ // U6 DESIGN visual-only rule-fixture. All other calls remain REAL Backend; not a claim about real Admin conclusions.
+ const mc=await context();
+ await mc.route('**/api/v1/admin/monitoring/findings/precision',async route=>{
+   await route.fulfill({status:200,contentType:'application/json',headers:{'Cache-Control':'no-store'},body:JSON.stringify({code:200,message:'OK',data:[
+     {ruleId:'RULE-EVIDENCE-REUSE',concernConfirmed:6,dismissed:2,open:3,acknowledged:1,precision:.75,total:12},
+     {ruleId:'RULE-ACTIVITY-SPIKE',concernConfirmed:2,dismissed:3,open:4,acknowledged:0,precision:.4,total:9},
+     {ruleId:'RULE-EVENT-SEQUENCE',concernConfirmed:0,dismissed:0,open:2,acknowledged:1,precision:null,total:3}
+   ]})});
+ });
+ const monitor=await mc.newPage();track(monitor);
+ await login(monitor,'admin@riseai.example');
+ await monitor.goto(origin+'/admin/monitoring',{waitUntil:'domcontentloaded'});
+ await monitor.locator('.monitoring-rule-row').first().waitFor({timeout:25000});
+ expect('U6 monitoring rules have three Backend-shaped fixture rows',await monitor.locator('.monitoring-rule-row').count()===3);
+ expect('U6 each rule uses four individually rounded cells',await monitor.locator('.monitoring-rule-row:first-child > .monitoring-rule-cell').count()===4);
+ expect('U6 precision empty denominator displays em dash',await monitor.locator('.monitoring-rule-row:last-child .monitoring-cell-rate .monitoring-cell-number').innerText()==='—');
+ expect('U6 final rule board spans main content',await monitor.locator('.monitoring-rules-final').evaluate(el=>el.getBoundingClientRect().width>=1000));
+ await capture(monitor,'u6-admin-monitoring-fixture-1440');
+ await mc.close();
  expect('No uncaught browser page errors',errors.length===0,errors);
  report.pass=true;
 }catch(e){report.failure=String(e);console.error('PR42 targeted visual QA failed',e);}

@@ -139,6 +139,7 @@ export function DonorDashboardPage() {
       <div className="dashboard-metric"><span>Khoản đóng góp đã ghi nhận</span><strong>{donations.isSuccess && typeof donations.data.totalElements === 'number' ? new Intl.NumberFormat('vi-VN').format(donations.data.totalElements) : '—'}</strong><small>Toàn bộ lịch sử của tài khoản</small></div>
       <div className="dashboard-metric"><span>Đang chờ xác nhận</span><strong>{donations.isSuccess ? pendingPageCount : '—'}</strong><small>Trong trang lịch sử đang xem</small></div>
       <div className="dashboard-metric"><span>Đã xác nhận / ghi nhận hoàn</span><strong>{donations.isSuccess ? confirmedPageCount : '—'}</strong><small>Trong trang lịch sử đang xem</small></div>
+      <div className="dashboard-metric"><span>Không được xác nhận</span><strong>{donations.isSuccess ? donationItems.filter(item=>item.donationStatus!=='PENDING'&&!isCountedDonation(item.donationStatus)).length : '—'}</strong><small>Trong trang lịch sử đang xem · dữ liệu Backend</small></div>
     </section>
     <div className="dashboard-disclaimer mt-7 rounded-xl border border-border bg-soft-sand p-4 text-xs leading-6 text-warning">
       Toàn bộ đóng góp, hoàn tiền và trạng thái tài chính ở đây chỉ là mô phỏng. Việc tạo đóng góp không đồng nghĩa đã được xác nhận.
