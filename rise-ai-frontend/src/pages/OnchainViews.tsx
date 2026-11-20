@@ -30,8 +30,7 @@ function DisbursementItem({item,baseUrl,now}:{item:ChainDisbursement;baseUrl?:st
   const tx=item.releaseTxHash||item.queueTxHash||item.reserveTxHash||item.payoutTxHash;
   const url=baseUrl && tx?baseUrl+tx:null;
   const time=remaining(item.releaseAt,now);
-  const semanticTone=isWarning?'review':item.chainStatus==='RELEASED_ON_CHAIN'||item.chainStatus==='RELEASED'?'record':'plan';
-  return <li className="chain-flow-step" data-semantic={semanticTone}>
+  return <li className="chain-flow-step">
     <div className="chain-flow-step-top">
       <strong>{item.requestCode||'Yêu cầu '+short(item.disbursementId)}</strong>
       <span className={isWarning?'chain-state chain-state-warning':'chain-state'}>{viChain(item.chainStatus)}</span>

@@ -10,7 +10,6 @@ import '@/styles/dashboard-suite.css';
 import '@/styles/functional-pages-b2.css';
 import '@/styles/b2-sample.css';
 import '@/styles/admin-operations.css';
-import '@/styles/design-freeze-u1-u6.css';
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
