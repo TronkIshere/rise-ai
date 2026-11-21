@@ -15,6 +15,7 @@ Status labels used by the backend docs: **IMPLEMENTED** (in code), **DESIGNED** 
 | `docs/design/` | Owner-approved UI design baselines and guardrails (read before any frontend redesign) |
 | `docs/frontend/` | Pointer to the frontend docs |
 | `docker-compose.yml`, `docs/local-docker-stack.md` | Whole app on one machine (MySQL, monitoring, backend, frontend, local Avalanche chain and gateway); local testing only |
+| `docs/handoff-2026-11-21.md`, `qa/docker-e2e/` | Handoff (Vietnamese): what was done and verified on 2026-11-21, known issues, next steps; rerunnable Docker E2E harness (Playwright + read-only MySQL checks) |
 | `docs/fuji-guide.md` | Fuji testnet: live deployment, read-only check (`verify-fuji.sh`), redeploy with keystore or Ledger, source verification, smoke test, gas fee proposal (Vietnamese) |
 | `docs/local-environment.md`, `scripts/check-env.sh` | Required local tool versions (JDK 21, Node >= 22.12, Maven wrapper, Docker) and a read-only check |
 | `rise-ai-backend/` | Spring Boot 3.3.5 / Java 21 / Maven backend |
