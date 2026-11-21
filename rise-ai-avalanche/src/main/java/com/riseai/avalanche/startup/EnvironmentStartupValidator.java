@@ -68,7 +68,7 @@ public class EnvironmentStartupValidator implements SmartInitializingSingleton {
         if (url == null) {
             return;
         }
-        ChainClient secondary = ChainClients.create(environment, url, properties.timeoutMs(), properties.minGapMs());
+        ChainClient secondary = ChainClients.create(environment, url, properties.timeoutMs(), properties.minGapMs(), properties.readOnly());
         try {
             long secondaryChain = secondary.chainId();
             EnvironmentGuard.checkChainId(environment, secondaryChain);

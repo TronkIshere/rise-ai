@@ -56,6 +56,8 @@ rise:
     dispute-auto-hold: true
     engine: ${RISE_ESCROW_ENGINE:simulated}
   avalanche:
+    # Isolated public Fuji reader: no HTTP mutations, background jobs or chain dispatch.
+    read-only: ${RISE_AVALANCHE_READ_ONLY:false}
     gateway-url: ${RISE_AVALANCHE_GATEWAY_URL:http://localhost:8082}
     internal-api-key: ${RISE_AVALANCHE_INTERNAL_API_KEY:}
     beneficiary-address: ${RISE_AVALANCHE_BENEFICIARY_ADDRESS:}

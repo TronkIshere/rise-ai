@@ -1,5 +1,7 @@
 package com.riseai.configuration;
 
+import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
+
 import com.riseai.service.impl.ChainAnchorRelay;
 import com.riseai.service.impl.ChainCommandRelay;
 import lombok.RequiredArgsConstructor;
@@ -8,6 +10,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 
+@ConditionalOnExpression("!${rise.avalanche.read-only:false}")
 @Configuration
 @EnableScheduling
 @ConditionalOnProperty(prefix = "rise.escrow", name = "engine", havingValue = "avalanche")

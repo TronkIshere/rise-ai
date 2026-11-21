@@ -24,6 +24,9 @@ public class SignerConfig {
     @Bean
     @ConditionalOnProperty(name = "avalanche.signers.enabled", havingValue = "true")
     SignerRegistry signerRegistry(AvalancheProperties properties, EnvironmentStartupValidator validator) {
+        if (properties.readOnly()) {
+            throw new EnvironmentGuardException("READ_ONLY_SIGNERS_FORBIDDEN", "signers cannot be enabled in read-only mode");
+        }
         AvalancheProperties.Signers signers = properties.signers();
         String mode = signers.mode() == null || signers.mode().isBlank() ? "dev" : signers.mode().trim();
         if (signers.keystoreMode()) {

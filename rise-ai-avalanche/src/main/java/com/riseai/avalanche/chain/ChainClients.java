@@ -15,6 +15,10 @@ public final class ChainClients {
 
     /** The endpoint pre-check runs first, so a rejected endpoint is never contacted. */
     public static ChainClient create(AvalancheEnvironment environment, String rpcUrl, int timeoutMs, int minGapMs) {
+        return create(environment, rpcUrl, timeoutMs, minGapMs, false);
+    }
+
+    public static ChainClient create(AvalancheEnvironment environment, String rpcUrl, int timeoutMs, int minGapMs, boolean readOnly) {
         EnvironmentGuard.checkEndpoint(environment, rpcUrl);
         RpcPacer pacer = new RpcPacer(minGapMs);
         OkHttpClient http = new OkHttpClient.Builder()
@@ -23,6 +27,6 @@ public final class ChainClients {
                 .callTimeout(Duration.ofMillis(timeoutMs * 2L))
                 .addInterceptor(new RetryAfterInterceptor(pacer))
                 .build();
-        return new ChainClient(Web3j.build(new HttpService(rpcUrl.trim(), http)), pacer);
+        return new ChainClient(Web3j.build(new HttpService(rpcUrl.trim(), http)), pacer, readOnly);
     }
 }

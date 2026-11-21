@@ -1,5 +1,7 @@
 package com.riseai.configuration;
 
+import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
+
 import com.riseai.enums.ReconciliationTrigger;
 import com.riseai.service.FundraisingCloseService;
 import com.riseai.service.ReconciliationService;
@@ -14,6 +16,7 @@ import java.time.Instant;
 import java.util.UUID;
 
 @Slf4j
+@ConditionalOnExpression("!${rise.avalanche.read-only:false}")
 @Configuration
 @EnableScheduling
 @ConditionalOnProperty(prefix = "rise.jobs", name = "enabled", havingValue = "true")

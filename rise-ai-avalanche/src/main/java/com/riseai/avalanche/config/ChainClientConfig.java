@@ -13,6 +13,6 @@ public class ChainClientConfig {
     ChainClient chainClient(AvalancheProperties properties) {
         EnvironmentGuard.requireEnvironment(properties.environment());
         return ChainClients.create(properties.environment(), properties.primaryUrl(),
-                properties.timeoutMs(), properties.minGapMs());
+                properties.timeoutMs(), properties.minGapMs(), properties.readOnly());
     }
 }

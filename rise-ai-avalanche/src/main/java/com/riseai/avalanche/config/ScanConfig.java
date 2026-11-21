@@ -14,6 +14,7 @@ import com.riseai.avalanche.scan.ScanRepository;
 import com.riseai.avalanche.scan.WsHintListener;
 import com.riseai.avalanche.startup.ValidatedEnvironment;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -23,7 +24,7 @@ import java.time.Clock;
 import java.util.regex.Pattern;
 
 @Configuration
-@ConditionalOnProperty(name = {"avalanche.tx.enabled", "avalanche.scan.enabled"}, havingValue = "true")
+@ConditionalOnExpression("${avalanche.tx.enabled:false} && ${avalanche.scan.enabled:false} && !${avalanche.read-only:false}")
 public class ScanConfig {
 
     private static final Pattern ADDRESS = Pattern.compile("0x[0-9a-fA-F]{40}");

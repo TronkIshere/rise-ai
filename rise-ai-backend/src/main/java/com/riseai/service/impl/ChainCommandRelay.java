@@ -14,6 +14,7 @@ import com.riseai.service.DisbursementService;
 import com.riseai.util.ChainValues;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.support.TransactionTemplate;
@@ -44,6 +45,8 @@ public class ChainCommandRelay {
     private final AlertNotifier alertNotifier;
     private final AvalancheEscrowProperties properties;
     private final TransactionTemplate transactions;
+    @Value("${rise.avalanche.read-only:false}")
+    private boolean readOnly;
 
     public ChainCommandRelay(ChainCommandRepository repository, DisbursementRepository disbursements, AvalancheGatewayClient gateway, ChainCommandWriter writer,
                              DisbursementService disbursementService, AlertNotifier alertNotifier, AvalancheEscrowProperties properties,
@@ -60,6 +63,7 @@ public class ChainCommandRelay {
 
     /** @return how many commands were sent or checked in this pass */
     public int relayOnce() {
+        if (readOnly) return 0;
         Set<UUID> headSeen = new HashSet<>();
         Instant now = Instant.now();
         int handled = 0;

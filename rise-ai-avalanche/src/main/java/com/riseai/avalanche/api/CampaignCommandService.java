@@ -30,7 +30,7 @@ import java.util.regex.Pattern;
 /**
  * Turns one backend command into one CampaignEscrow transaction. The signer role is decided here from the action, never by the
  * caller, and money-moving actions always use the approver. Business authorization stays in the backend; the contract enforces
- * balances, milestone caps, the objection window and open disputes. Executes only where signers exist (LOCAL_SIMULATION).
+ * balances, milestone caps, the objection window and open disputes. Executes only where signers exist; read-only HTTP and transport guards prohibit submission in audit mode.
  */
 @Service
 @ConditionalOnProperty(name = "avalanche.tx.enabled", havingValue = "true")
