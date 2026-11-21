@@ -236,23 +236,43 @@ Chưa có kịch bản trình duyệt tự động cho toàn bộ luồng đóng
 
 **Trang chủ:** lĩnh vực, chiến dịch đang kêu gọi, tiến độ theo cột mốc và giải thích quy trình đối chiếu.
 
+<div align="center">
+
 <img src="pics/01-trang-chu.jpg" alt="Trang chủ Rise AI" width="420">
+
+</div>
 
 **Chi tiết chiến dịch:** tiến độ gây quỹ, hành trình theo cột mốc, khối "Minh bạch & Xác thực" với trạng thái từng yêu cầu giải ngân trên chain: đang trong cửa sổ phản đối (đếm ngược), tạm dừng bởi guardian, đã giải ngân và người nhận đã xác nhận, kèm link Snowtrace.
 
+<div align="center">
+
 <img src="pics/02-chi-tiet-chien-dich-onchain.jpg" alt="Chi tiết chiến dịch với dòng thời gian giải ngân on-chain" width="520">
+
+</div>
 
 **Người quyên góp:** lịch sử đóng góp với trạng thái (chờ xác nhận, đã xác nhận, hoàn tiền, bị hủy), biên nhận từng khoản và nút yêu cầu hoàn tiền.
 
+<div align="center">
+
 <img src="pics/03-nguoi-quyen-gop.jpg" alt="Trang người quyên góp" width="640">
+
+</div>
 
 **Đối chiếu on-chain** (`/transparency`): trạng thái ký quỹ trên Fuji, chứng thực số dư của guardian, dấu ghi Merkle của LEDGER / AUDIT / FINDINGS với kết quả khớp hoặc không khớp, và lịch sử giao dịch lấy từ Avalanche Data API.
 
+<div align="center">
+
 <img src="pics/04-doi-chieu-onchain.jpg" alt="Trang đối chiếu on-chain" width="640">
+
+</div>
 
 **Admin: cảnh báo AI:** các phát hiện cần xem xét kèm hướng kiểm tra, và tỷ lệ xác nhận của từng quy tắc dựa trên kết luận của Admin. Cảnh báo chỉ để tham khảo, không tự ra quyết định.
 
+<div align="center">
+
 <img src="pics/05-admin-canh-bao-ai.jpg" alt="Trang cảnh báo AI của Admin" width="640">
+
+</div>
 
 ## Tài liệu
 
