@@ -123,7 +123,9 @@ Các lần chạy ngày 2026-11-21 dùng image Docker `maven:3.9-eclipse-temurin
 | Gateway (Anvil và MySQL thật qua Testcontainers) | xem [`rise-ai-avalanche/README.md`](rise-ai-avalanche/README.md#run-the-tests) | 118 chạy, 0 lỗi, 3 bỏ qua có chủ đích (2026-11-21) | [`ci.yml`](.github/workflows/ci.yml) |
 | Backend (MySQL thật qua Testcontainers, kiểm thử thuộc tính jqwik, kiểm thử đồng thời) | `cd rise-ai-backend && mvn clean test` | 204 chạy, 0 lỗi, 0 bỏ qua (2026-11-21) | [`testing-strategy.md`](rise-ai-backend/docs/testing-strategy.md) |
 | Giám sát | `cd rise-ai-monitoring && ./mvnw clean test` | 223 chạy, 0 lỗi, 0 bỏ qua (2026-11-21); simulator 2.000/2.000 kịch bản | [`TESTING.md`](rise-ai-monitoring/docs/TESTING.md) |
-| Frontend (kiến trúc, hợp đồng API, lint, typecheck, test, build) | `cd rise-ai-frontend && npm ci && npm run verify` | chạy trên CI (workflow "Frontend checks") | [`frontend-ci.yml`](.github/workflows/frontend-ci.yml) |
+| Frontend (kiến trúc, hợp đồng API, lint, typecheck, test, build) | `cd rise-ai-frontend && npm ci && npm run verify` | PASS: 37/37 test, hợp đồng API 116 path, lint, typecheck, build (2026-11-21, image `node:22`); chạy trên CI (workflow "Frontend checks") | [`frontend-ci.yml`](.github/workflows/frontend-ci.yml) |
+| E2E trình duyệt + API trên stack Docker (engine `simulated`, Playwright Chromium 1440×900): công khai, RBAC/IDOR, người tạo → admin → người quyên góp, hoàn tiền, giải ngân, tranh chấp, đối soát, finding giám sát | [`qa/docker-e2e/e2e.mjs`](qa/docker-e2e/README.md) và `supplement.mjs` | 61/61 và 3/3 PASS, 0 phản hồi 5xx (2026-11-21) | [`qa/docker-e2e/README.md`](qa/docker-e2e/README.md) |
+| Đối chiếu MySQL sau E2E (chỉ `SELECT`), gồm đẳng thức số dư ký quỹ | `python qa/docker-e2e/db-verify.py <thư mục kết quả>` | 14/14 PASS (2026-11-21) | [`db-verify.py`](qa/docker-e2e/db-verify.py) |
 | Fuji end-to-end, tranh chấp, guardian, neo Merkle | thủ công trên Fuji | giao dịch ở mục Avalanche | [`rise-ai-avalanche/README.md`](rise-ai-avalanche/README.md#fuji-runbook-testnet-only-adr-009) |
 
 ## Dành cho ban giám khảo
@@ -216,7 +218,7 @@ cd rise-ai-backend && mvn test -Dtest='EscrowLifecycleIntegrationTest,AvalancheE
 cd rise-ai-frontend && RISE_FE06_BASE_URL=http://127.0.0.1:5174 RISE_FE06_TARGET=docker npm run deploy:smoke
 ```
 
-Chưa có kịch bản trình duyệt tự động cho toàn bộ luồng đóng góp → giải ngân; luồng này được kiểm bằng test tích hợp backend và lượt chạy thủ công trên Fuji.
+Toàn bộ luồng đóng góp → giải ngân qua giao diện thật được kiểm tự động bằng [`qa/docker-e2e`](qa/docker-e2e/README.md) (61/61, engine `simulated`, không gửi giao dịch lên chain). Với engine `avalanche`, luồng này được kiểm bằng test tích hợp backend và lượt chạy thủ công trên Fuji (gần nhất 2026-11-14).
 
 ## Lộ trình
 
@@ -280,6 +282,8 @@ Chưa có kịch bản trình duyệt tự động cho toàn bộ luồng đóng
 - [`docs/fuji-guide.md`](docs/fuji-guide.md): Fuji, triển khai, verify, smoke test.
 - [`rise-ai-avalanche/README.md`](rise-ai-avalanche/README.md): gateway, contract, mô hình tin cậy, các lượt chạy Fuji.
 - [`docs/local-docker-stack.md`](docs/local-docker-stack.md): chạy toàn bộ ứng dụng bằng Docker.
+- [`qa/docker-e2e/README.md`](qa/docker-e2e/README.md): bộ E2E trình duyệt + API và đối chiếu MySQL, chạy lại được.
+- [`docs/handoff-2026-11-21.md`](docs/handoff-2026-11-21.md): bàn giao: đã làm gì, chạy được gì, vấn đề đã biết, việc tiếp theo.
 - [`rise-ai-backend/docs/README.md`](rise-ai-backend/docs/README.md): kiến trúc, quy tắc nghiệp vụ, máy trạng thái, API, bảo mật.
 - [`docs/ai-monitoring/README.md`](docs/ai-monitoring/README.md): giám sát AI.
 - [`docs/decisions-pending.md`](docs/decisions-pending.md): các quyết định đang chờ chủ dự án.
