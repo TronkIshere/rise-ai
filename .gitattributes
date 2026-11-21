@@ -1,2 +1,4 @@
 # Shell scripts run inside Linux containers; CRLF breaks them.
 *.sh text eol=lf
+# mvnw has no .sh extension but runs inside the monitoring Docker build; CRLF breaks it on Windows clones.
+mvnw text eol=lf
