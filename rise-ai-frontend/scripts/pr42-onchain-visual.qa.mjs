@@ -111,8 +111,8 @@ try{
  await login(donor,'donor1@riseai.example');
  await donor.locator('a[href="/donor"]').first().click();
  await donor.waitForURL('**/donor');
- await donor.locator('.chain-receipt').first().waitFor({timeout:25000});
- expect('U3 donor uses real donation code and no on-chain hash claim',await donor.getByText('Chưa có biên nhận on-chain riêng cho khoản này', {exact:false}).count()>0);
+ await donor.locator('.donor-receipt-b2').first().waitFor({timeout:25000});
+ expect('U3 donor uses real donation code and no on-chain hash claim',await donor.locator('.donor-receipt-b2').getByText('Chưa có biên nhận on-chain riêng cho khoản đóng góp này', {exact:false}).count()>0);
  await capture(donor,'pr42-u3-real-donor-receipt-1440');await dc.close();
 
  const ac=await context();const admin=await ac.newPage();track(admin);
