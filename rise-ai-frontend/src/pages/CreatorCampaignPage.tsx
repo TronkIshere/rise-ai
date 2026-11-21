@@ -3,6 +3,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { ArrowLeft, ArrowRight, CircleAlert, ClipboardCheck, FileText, Flag, Landmark, ShieldCheck } from 'lucide-react';
 import { Link, useParams } from 'react-router';
 import { useAuth } from '@/auth/auth-context';
+import { ApiError } from '@/api/client';
 import {
   cancelCreatorDisbursement, createCreatorDisbursement, createCreatorEvidence, createCreatorMilestone,
   creatorDisbursements, creatorEvidence, getCreatorCampaign, publishCreatorCampaign,
@@ -78,6 +79,18 @@ export function CreatorCampaignPage() {
     onSuccess(){setNotice('Đã hủy đề nghị giải ngân.');invalidate();},
   });
   const globalError=action.error??saveMilestone.error??start.error??saveEvidence.error??requestFunds.error??fixFunds.error??cancelFunds.error;
+  const globalErrorMessage = globalError instanceof ApiError && globalError.code === 'INSUFFICIENT_AVAILABLE_BALANCE'
+    ? 'Số dư ký quỹ khả dụng không đủ cho đề nghị này. Kiểm tra khoản đóng góp đã được Admin xác nhận và các khoản đang được giữ chỗ; ngân sách còn lại của cột mốc không phải số dư ký quỹ khả dụng.'
+    : globalError?.message;
+  const campaignNextStep = campaign.data?.campaignStatus === 'APPROVED'
+    ? 'Chiến dịch đã được duyệt nhưng chưa công bố. Chọn “Công bố chiến dịch” để chuyển sang hoạt động; sau đó có thể bắt đầu các cột mốc sẵn sàng.'
+    : campaign.data?.campaignStatus === 'ACTIVE'
+      ? 'Chiến dịch đã công bố. Bắt đầu cột mốc ở trạng thái “Sẵn sàng”, gửi minh chứng thực tế, rồi lập đề nghị giải ngân để Admin độc lập xét duyệt.'
+      : editable
+        ? 'Hoàn thiện hồ sơ và cột mốc, gửi xét duyệt, rồi công bố sau khi được Admin phê duyệt. Việc lưu bản nháp chưa làm chiến dịch công khai.'
+        : campaign.data?.campaignStatus === 'PENDING_REVIEW'
+          ? 'Chiến dịch đang chờ Admin xét duyệt. Sau khi được phê duyệt, bạn cần công bố chiến dịch trước khi bắt đầu cột mốc.'
+          : 'Theo dõi trạng thái chiến dịch và cột mốc bên dưới. Backend tiếp tục kiểm tra quyền hạn và điều kiện cho từng thao tác.';
   function selectMilestone(milestoneId: string, form: 'evidence' | null = null) {
     setSelected(milestoneId);
     setEvidencePage(0);
@@ -153,6 +166,7 @@ export function CreatorCampaignPage() {
           <div><dt>Ngân sách cột mốc</dt><dd>{milestones.isSuccess ? amountLabel(plannedTotal,campaign.data.currency) : '—'}</dd></div>
         </dl>
       </header>
+      <p className="creator-next-step rounded-xl bg-soft-mint p-4 text-sm leading-7 text-brand-ink" role="note"><strong>Bước tiếp theo: </strong>{campaignNextStep}</p>
       <div className="ops-review">
         <details>
           <summary><ClipboardCheck size={19} aria-hidden="true"/> Quy trình xét duyệt</summary>
@@ -167,7 +181,7 @@ export function CreatorCampaignPage() {
       </div>
       {notice?<p className="mt-6 rounded-xl bg-soft-mint p-4 text-sm text-brand-ink" role="status">{notice}</p>:null}
       {error?<p className="mt-5 text-sm text-danger" role="alert">{error}</p>:null}
-      {globalError?<p className="mt-5 text-sm text-danger" role="alert">{globalError.message}</p>:null}
+      {globalError?<p className="mt-5 text-sm text-danger" role="alert">{globalErrorMessage}</p>:null}
       <div className="ops-workbench">
       <section className="ops-panel ops-milestones" aria-labelledby="ops-milestones-title">
         <div className="ops-panel-heading"><span className="ops-icon" aria-hidden="true"><Flag size={22}/></span><h2 id="ops-milestones-title">Cột mốc triển khai</h2>{editable?<Button variant="outline" onClick={()=>openMilestone()}>+ Tạo cột mốc</Button>:null}</div>
@@ -189,6 +203,7 @@ export function CreatorCampaignPage() {
                 </dl>
                 <p className="ops-milestone-meta">Hạn: {dateLabel(m.dueAt)} · Minh chứng: {m.id===selected?(evidenceSummary.count??({loading:'Đang tải…',error:'Không tải được',unknown:'Chưa xác định',ready:'Có minh chứng (chưa có tổng số)',empty:'0'}[evidenceSummary.status])):(Number.isSafeInteger(m.evidenceCount)&&m.evidenceCount!>=0?m.evidenceCount:'Chưa tải')}</p>
               </div>
+              {m.milestoneStatus==='READY' && campaign.data.campaignStatus!=='ACTIVE' ? <p className="mt-3 text-sm leading-6 text-muted">Chưa thể bắt đầu: chiến dịch cần được công bố và ở trạng thái đang hoạt động.</p> : null}
               <div className="ops-milestone-actions">
                 {m.id?<Button variant="outline" aria-pressed={selected===m.id} aria-controls="ops-milestone-detail" onClick={()=>selectMilestone(m.id!)}>Minh chứng & giải ngân <ArrowRight size={16} aria-hidden="true"/></Button>:null}
                 {editable?<Button variant="outline" onClick={()=>openMilestone(m)}>Sửa</Button>:null}
@@ -210,6 +225,10 @@ export function CreatorCampaignPage() {
             {canAddEvidence && <Button type="button" variant="outline" aria-expanded={openForm==='evidence'} aria-controls={openForm==='evidence'?'ops-evidence-form':undefined} onClick={()=>setOpenForm(openForm==='evidence'?null:'evidence')}>Gửi minh chứng</Button>}
             {canRequestFunds && <Button type="button" aria-expanded={openForm==='disbursement'} aria-controls={openForm==='disbursement'?'ops-funds-form':undefined} onClick={()=>setOpenForm(openForm==='disbursement'?null:'disbursement')}>Đề nghị giải ngân</Button>}
           </div>
+        </div>
+        <div className="rounded-xl bg-soft-sand p-4 text-sm leading-7 text-brand-ink" role="note">
+          <p><strong>Gửi minh chứng: </strong>{canAddEvidence ? 'Cột mốc đủ điều kiện nhận minh chứng. Chọn “Gửi minh chứng” để bổ sung tài liệu có thật.' : !activeWork ? 'Cột mốc cần đang triển khai, đã gửi minh chứng hoặc đã giải ngân một phần. Nếu đang sẵn sàng, hãy bắt đầu cột mốc sau khi công bố chiến dịch.' : 'Chiến dịch cần đang hoạt động, tạm dừng hoặc đã hoàn thành để bổ sung minh chứng.'}</p>
+          <p className="mt-2"><strong>Đề nghị giải ngân: </strong>{campaign.data.campaignStatus!=='ACTIVE' ? 'Chỉ gửi khi chiến dịch đang hoạt động.' : !activeWork ? 'Bắt đầu triển khai cột mốc trước khi lập đề nghị.' : evidenceSummary.status==='loading' ? 'Đang tải dữ liệu minh chứng để xác định điều kiện.' : ['error','unknown'].includes(evidenceSummary.status) ? 'Tải lại minh chứng thành công trước khi xác định điều kiện gửi đề nghị.' : !evidenceSummary.hasEvidence ? 'Gửi ít nhất một minh chứng rồi chờ danh sách cập nhật để mở thao tác đề nghị.' : 'Đã có minh chứng. Chọn “Đề nghị giải ngân”; Backend vẫn kiểm tra ngân sách, số dư khả dụng, quyền và trạng thái khi gửi.'}</p>
         </div>
         <div className="ops-evidence-records" aria-labelledby="ops-evidence-title">
           {evidenceSummary.status==='loading'?<StatusMessage title="Đang tải minh chứng…"/>:null}
@@ -266,7 +285,7 @@ export function CreatorCampaignPage() {
         </form>:null}
         {canRequestFunds && openForm==='disbursement' ? <form id="ops-funds-form" aria-labelledby="ops-funds-title" onSubmit={e=>void submitFunds(e)} className="ops-action-form">
           <h3 id="ops-funds-title">Đề nghị giải ngân mô phỏng</h3>
-          <p className="text-xs leading-6 text-muted">Số tiền còn lại theo Backend: {amountLabel(activeMilestone.remainingAmount,campaign.data.currency)}. Admin độc lập xem xét, phê duyệt và ghi nhận giải ngân; Creator không chuyển tiền.</p>
+          <p className="text-xs leading-6 text-muted">Ngân sách cột mốc còn lại theo Backend: {amountLabel(activeMilestone.remainingAmount,campaign.data.currency)}. Đây không phải số dư ký quỹ khả dụng. Backend kiểm tra số dư khi nhận đề nghị; Admin độc lập xem xét, phê duyệt và ghi nhận giải ngân. Creator không chuyển tiền.</p>
           <Input id="disbursement-amount" label="Số tiền đề nghị (VND)" type="number" step="1" min="1" required value={amount} onChange={e=>setAmount(e.target.value)}/>
           <div><label htmlFor="disbursement-reason" className="mb-2 block text-sm font-semibold">Mục đích sử dụng</label><textarea id="disbursement-reason" required maxLength={2000} rows={3} className="w-full rounded-xl border border-border bg-surface p-3 text-sm" value={reason} onChange={e=>setReason(e.target.value)}/></div>
           <Button type="submit" loading={requestFunds.isPending}>Gửi đề nghị (không chuyển tiền)</Button>

@@ -398,3 +398,14 @@
 --u6-v122-fffdf2:#fffdf2;
 --u6-v122-fffef9:#fffef9;
 }
+
+/* Final functional-route completion: reuse canonical B2 colors; locked U1–U6 excluded. */
+@media (min-width:1200px) {
+:is(.rise-entry-page,.rise-workspace-page,.deep-donor-dispute,.creator-dashboard,.deep-creator-editor,.deep-creator-campaign,.admin-dashboard,.deep-admin-review,.deep-admin-finding,.deep-admin-delivery,.deep-admin-audit,.rise-notfound-page) {
+ --font-sans: 'Rise AI Approved Be Vietnam Pro', 'Segoe UI', system-ui, sans-serif;
+ --functional-outline: 2px solid var(--color-brand-ink);
+ --functional-shadow: 4px 4px 0 var(--color-brand-ink);
+ --functional-paper: var(--color-soft-sand);
+ --functional-mint: var(--color-soft-mint);
+}
+}

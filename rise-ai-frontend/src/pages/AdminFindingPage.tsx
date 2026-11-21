@@ -60,7 +60,7 @@ export function AdminFindingPage(){
     <AdminMonitoringNav/>
     {!id?<div className="mt-7"><StatusMessage error title="Thiếu ID phát hiện"/></div>:null}
     {detail.isPending?<div className="mt-7"><StatusMessage title="Đang tải cảnh báo…"/></div>:null}
-    {detail.isError?<div className="mt-7"><StatusMessage error title="Không tải được cảnh báo" detail={detail.error.message}/></div>:null}
+    {detail.isError?<div className="mt-7"><StatusMessage error title="Không tải được cảnh báo" detail={detail.error.message}/><Button variant="outline" onClick={()=>void detail.refetch()}>Thử tải lại cảnh báo</Button></div>:null}
     {detail.isSuccess&&!finding?<div className="mt-7"><StatusMessage error title="Backend không trả thông tin phát hiện"/></div>:null}
     {finding?<div className="investigation-desk">
       <div className="investigation-record">

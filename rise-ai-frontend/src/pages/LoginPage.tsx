@@ -27,7 +27,11 @@ export function LoginPage() {
     try {
       await login({ email: email.trim(), password });
     } catch (reason) {
-      setError(reason instanceof ApiError ? reason.message : 'Không đăng nhập được. Vui lòng kiểm tra thông tin.' );
+      setError(reason instanceof ApiError
+        ? reason.status === 401 ? 'Email hoặc mật khẩu không đúng. Vui lòng kiểm tra và thử lại.'
+          : reason.status === 429 ? 'Bạn đã thử đăng nhập nhiều lần. Vui lòng chờ một lát rồi thử lại.'
+          : reason.message
+        : 'Không đăng nhập được. Vui lòng kiểm tra thông tin.');
     } finally {
       setBusy(false);
     }

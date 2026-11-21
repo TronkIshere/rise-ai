@@ -193,7 +193,7 @@ export function AdminDeliveryPage(){
       <div className="delivery-queue-body">
         {outbox.isPending?<StatusMessage title="Đang tải Outbox…"/>:null}
         {outbox.isError?<StatusMessage error title="Không tải được Outbox" detail={outbox.error.message}/>:null}
-        {outbox.isSuccess&&!outbox.data.data?.length?<StatusMessage title="Không có sự kiện Outbox phù hợp"/>:null}
+        {outbox.isSuccess&&!outbox.data.data?.length?<StatusMessage title="Không có sự kiện Outbox phù hợp" detail={outboxFilter?'Không có sự kiện ở trạng thái đang lọc. Chọn “Tất cả” để xem các trạng thái khác.':'Chưa có sự kiện được Backend trả về.'}/>:null}
         {outbox.data?.data?.map((item,index)=><OutboxCard key={item.id??index} item={item} onDone={refresh}/>)}
         {outbox.isSuccess?<RecordPagination page={outboxPage} pages={outbox.data.totalPages??0} onChange={setOutboxPage}/>:null}
       </div>
@@ -210,7 +210,7 @@ export function AdminDeliveryPage(){
       <div className="delivery-queue-body">
         {alerts.isPending?<StatusMessage title="Đang tải thông báo…"/>:null}
         {alerts.isError?<StatusMessage error title="Không tải được thông báo" detail={alerts.error.message}/>:null}
-        {alerts.isSuccess&&!alerts.data.data?.length?<StatusMessage title="Không có thông báo phù hợp"/>:null}
+        {alerts.isSuccess&&!alerts.data.data?.length?<StatusMessage title="Không có thông báo phù hợp" detail={alertFilter?'Không có thông báo ở trạng thái đang lọc. Chọn “Tất cả” để mở rộng kết quả.':'Chưa có thông báo được Backend trả về.'}/>:null}
         {alerts.data?.data?.map((item,index)=><AlertCard key={item.id??index} item={item} onDone={refresh}/>)}
         {alerts.isSuccess?<RecordPagination page={alertPage} pages={alerts.data.totalPages??0} onChange={setAlertPage}/>:null}
       </div>

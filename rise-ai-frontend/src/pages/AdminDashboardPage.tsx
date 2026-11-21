@@ -1,3 +1,4 @@
+import { adminPageStatus } from '@/lib/admin-page-display';
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { ArrowUpRight, ClipboardCheck, Landmark, RefreshCcw, ShieldCheck, ScanSearch, BookOpenText } from 'lucide-react';
@@ -29,7 +30,7 @@ export function AdminDashboardPage(){
   const records=useQuery({queryKey:[...key,'queue',kind,status,page],queryFn:()=>listAdminQueue(kind,status,page)});
   function choose(value:AdminQueue){
     const next=adminQueues.find(x=>x.id===value);
-    setKind(value);setStatus(next?.defaultStatus??'');setPage(0);
+    setKind(value);setStatus(value==='disbursements'?'':next?.defaultStatus??'');setPage(0);
   }
   const metrics=[
     ['Đang chờ xác nhận',stats.data?.pendingDonations],
@@ -71,10 +72,15 @@ export function AdminDashboardPage(){
         <label htmlFor="admin-queue-status" className="text-sm font-semibold text-copy">Trạng thái</label>
         <select id="admin-queue-status" className="min-h-11 rounded-xl border border-border bg-surface px-4 text-sm" value={status} onChange={e=>{setStatus(e.target.value);setPage(0);}}>
           <option value="">Tất cả</option>
-          {adminStatusFilters[kind]?.map(x=><option key={x.value} value={x.value}>{x.label}</option>)}
+          {adminStatusFilters[kind]?.map(x=><option key={x.value} value={x.value}>{adminPageStatus(x.value)}</option>)}
         </select>
         {records.isSuccess?<p className="text-xs text-muted">{records.data.totalElements??0} bản ghi</p>:null}
       </div>
+      {kind==='disbursements'?<div className="mt-4 rounded-card border border-border bg-soft-mint p-4 text-sm leading-7 text-brand-ink" role="note">
+        <strong>Theo dõi đề nghị qua từng bước</strong>
+        <p>Đã gửi xét duyệt → Đang xét duyệt → Đã phê duyệt → Đã ghi giải ngân mô phỏng. Bộ lọc chỉ hiển thị trạng thái đang chọn; hồ sơ sẽ rời danh sách này khi chuyển sang bước tiếp theo.</p>
+        {status?<Button variant="outline" className="mt-2" onClick={()=>{setStatus('');setPage(0);}}>Xem tất cả đề nghị giải ngân</Button>:<p>Đang hiển thị tất cả trạng thái. Chọn một hồ sơ để xem minh chứng và hành động tiếp theo.</p>}
+      </div>:null}
       <div className="mt-6 space-y-4">
         {records.isPending?<StatusMessage title="Đang tải hàng chờ xét duyệt…"/>:null}
         {records.isError?<div className="space-y-3"><StatusMessage error title="Không tải được hàng chờ" detail={records.error.message}/><Button variant="outline" onClick={()=>void records.refetch()}>Thử lại</Button></div>:null}
@@ -89,7 +95,7 @@ export function AdminDashboardPage(){
                 {r.details?<p className="mt-2 line-clamp-2 text-sm leading-6 text-muted">{r.details}</p>:null}
                 {r.amount!==undefined?<p className="mt-2 text-sm font-bold text-brand">{amountLabel(r.amount,r.currency)}</p>:null}
               </div>
-              <span className="rounded-full bg-soft-sand px-3 py-2 text-xs font-semibold text-warning">{r.status}</span>
+              <span title={r.status} className="rounded-full bg-soft-sand px-3 py-2 text-xs font-semibold text-warning">{adminPageStatus(r.status)}</span>
             </div>
             {r.id?<Link className="mt-4 inline-flex min-h-11 items-center gap-2 font-bold text-brand hover:underline" to={'/admin/review/'+kind+'/'+encodeURIComponent(r.id)}>Xem và xử lý <ArrowUpRight size={16} aria-hidden="true"/></Link>:null}
           </article>;
