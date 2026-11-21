@@ -51,6 +51,37 @@ Tự kiểm tra bản triển khai, không cần khóa (chỉ đọc chain, cầ
 cd rise-ai-avalanche/contracts && bash scripts/forge.sh "sh scripts/verify-fuji.sh"   # mong đợi: ALL CHECKS PASSED
 ```
 
+## Luồng chạy và những gì được ghi lên chain
+
+```
+1. Người quyên góp gửi đóng góp (PENDING)
+2. Admin xác nhận                          → recordContribution
+3. Người tạo nộp minh chứng kèm SHA-256     → anchorEvidence (hash tệp do người tạo khai)
+4. Người tạo gửi đề nghị giải ngân          → reserve (giữ chỗ tiền, không vượt ngân sách cột mốc)
+5. Admin chấp thuận minh chứng              → decideEvidence;  Admin phê duyệt đề nghị
+6. Admin ra lệnh giải ngân                  → queueRelease (mở cửa sổ phản đối)
+      trong cửa sổ: người quyên góp mở tranh chấp → contract chặn (MilestoneDisputed)
+                    guardian đặt lệnh giữ          → contract chặn (MilestoneHeld)
+7. Hết cửa sổ, không bị chặn                → executeRelease → rVND tới người thụ hưởng
+                                            → recordPayout;  người thụ hưởng tự ký confirmReceipt
+Song song, không ảnh hưởng tiền:
+   mỗi hành động → outbox → dịch vụ giám sát → phát hiện (finding) → Admin xem xét
+   định kỳ: gốc Merkle của sổ cái, nhật ký kiểm toán và lịch sử phát hiện → RiseAnchor.anchor
+```
+
+Admin là người duyệt minh chứng và giải ngân. Người quyên góp không bỏ phiếu duyệt cột mốc; quyền của họ là chặn: mở tranh chấp trong cửa sổ phản đối thì contract không cho giải ngân. AI không ký giao dịch, không duyệt và không chặn tiền.
+
+| Dữ liệu ghi lên chain | Trong mã | Trên Fuji, contract version 2 (đọc on-chain 2026-11-21) |
+|---|---|---|
+| Đóng góp, giữ chỗ, giải ngân, payout, xác nhận nhận tiền | [`ChainCommandRecorder.java`](rise-ai-backend/src/main/java/com/riseai/service/impl/ChainCommandRecorder.java), [`AvalancheEscrowEngine.java`](rise-ai-backend/src/main/java/com/riseai/service/impl/AvalancheEscrowEngine.java) | Có: `recordContribution` 12, `reserve` 4, `queueRelease` 3, `executeRelease` 12 (gồm các lần bị chặn), `recordPayout` 2, `confirmReceipt` 1 |
+| Hash minh chứng của người tạo (`anchorEvidence`) và quyết định duyệt (`decideEvidence`) | [`ChainCommandRecorder.java` dòng 41–50](rise-ai-backend/src/main/java/com/riseai/service/impl/ChainCommandRecorder.java#L41-L50) | Có: 5 và 5 lần |
+| Tranh chấp, lệnh giữ và xác nhận dự trữ của guardian | `openDispute`, `placeHold`, `liftHold`, `attestReserves` | Có: 1, 2, 1, 1 lần |
+| Gốc Merkle sổ cái (LEDGER) và nhật ký kiểm toán (AUDIT) | [`AnchorRecords.java`](rise-ai-backend/src/main/java/com/riseai/service/impl/AnchorRecords.java#L27-L32), [`ChainAnchorRelay.java`](rise-ai-backend/src/main/java/com/riseai/service/impl/ChainAnchorRelay.java) | Có: LEDGER 4 lần, AUDIT 6 lần |
+| Gốc Merkle lịch sử phát hiện giám sát AI (FINDINGS): mã finding, sự kiện nguồn, người liên quan, mức độ, thời gian của mỗi lần phát hiện | [`AnchorRecords.java` dòng 33–34](rise-ai-backend/src/main/java/com/riseai/service/impl/AnchorRecords.java#L33-L34) | **Chưa**: 0 lần. Relay bỏ qua khi bảng còn trống ([dòng 70](rise-ai-backend/src/main/java/com/riseai/service/impl/ChainAnchorRelay.java#L70)) |
+| Nội dung do AI viết (ghi chú AI, lời giải thích của phát hiện) | Không đưa vào hash | Không |
+
+Số lần gọi lấy từ danh sách giao dịch của escrow và anchor v2 trên Routescan; số lần neo từ `anchorCount` (chạy `verify-fuji.sh`).
+
 ## Chức năng
 
 - **Người quyên góp:** xem chiến dịch, ghi nhận đóng góp mô phỏng, hủy khi còn chờ, yêu cầu hoàn tiền, mở và theo dõi phản ánh/tranh chấp.
@@ -186,6 +217,8 @@ Chưa có kịch bản trình duyệt tự động cho toàn bộ luồng đóng
 - **Ví trong ứng dụng:** để người quyên góp ký trực tiếp, kèm EIP-2612/EIP-3009 và một relayer trả gas, thay cho việc backend chuyển tiếp.
 - **Khóa cấp production:** KMS/HSM và multisig cho approver, thay keystore testnet.
 - **Kiểm toán contract độc lập** và phân tích tĩnh (Slither) trước khi có người dùng thật.
+- **Neo lịch sử phát hiện giám sát trên Fuji:** chạy một lượt có dịch vụ giám sát bật để `FINDINGS` có lần neo đầu tiên; sau đó đưa cả nội dung do AI viết vào hash bằng một loại neo mới, để không làm sai các gốc đã neo.
+- **Người quyên góp tham gia duyệt cột mốc**, bên cạnh quyền mở tranh chấp hiện có (cần sửa contract và triển khai lại).
 - **Hiệu chỉnh phí gas** của gateway theo số đo trên Fuji ([`docs/fuji-guide.md`](docs/fuji-guide.md) mục 6).
 - **Bản demo công khai** trên Fuji cho ban giám khảo tự thao tác.
 - **Avalanche L1 cho mạng từ thiện**, với các tổ chức kiểm toán làm validator; ICM để nối nhiều nền tảng.
