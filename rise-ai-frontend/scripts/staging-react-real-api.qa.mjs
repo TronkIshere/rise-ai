@@ -183,6 +183,44 @@ try {
   check('Campaign Discovery PNG dimensions match settled document',
     screenshot.width === 1440 && Math.abs(screenshot.height - geometry.documentHeight) <= 3, screenshot);
   report.screenshots.push('03-campaigns-route-1440.png');
+  // A SPA URL can update before React mounts the destination route.
+  // Wait for real destination content instead of assuming a URL event means render completion.
+  async function destinationVisible(selector) {
+    const element = page.locator(selector);
+    await element.waitFor({ state: 'visible', timeout: 15000 });
+    return element.isVisible();
+  }
+
+  // Route-level click regression: the approved landing-page preview must link to
+  // functional routes, while editorial sections remain in-page navigation.
+  await page.locator('.campaign-discovery .site-links a[href="/transparency"]').click();
+  await page.waitForURL('**/transparency');
+  check('Discovery Minh bạch opens the full Transparency page',
+    await destinationVisible('.chain-public-page.u4-approved-v11'));
+  await page.locator('.b2-sample-header .nav-search').click();
+  await page.waitForURL('**/campaigns#search');
+  check('Transparency search action opens Campaign Discovery search',
+    await destinationVisible('.campaign-discovery #search input[type="search"]'));
+  await page.locator('.campaign-discovery .site-links a[href="/#story"]').click();
+  await page.waitForURL('**/#story');
+  check('Discovery Câu chuyện opens the Homepage story section',
+    await destinationVisible('.b2-homepage #story'));
+  await page.locator('.b2-homepage .site-nav .nav-links a[href="/campaigns"]').click();
+  await page.waitForURL('**/campaigns');
+  check('Homepage Chiến dịch opens Campaign Discovery',
+    await destinationVisible('.campaign-discovery #results'));
+  await page.locator('.campaign-discovery .wordmark').first().click();
+  await page.waitForURL(origin + '/');
+  await page.locator('.b2-homepage .hero-buttons a[href="/campaigns"]').click();
+  await page.waitForURL('**/campaigns');
+  check('Homepage hero CTA opens the functional campaign route',
+    await destinationVisible('.campaign-discovery #search'));
+  await page.locator('.campaign-discovery .wordmark').first().click();
+  await page.waitForURL(origin + '/');
+  await page.locator('.b2-homepage .site-nav .nav-links a[href="/transparency"]').click();
+  await page.waitForURL('**/transparency');
+  check('Homepage Minh bạch opens the full U4 route',
+    await destinationVisible('.chain-public-page.u4-approved-v11'));
   report.pass = true;
 } catch (error) {
   report.failure = String(error);

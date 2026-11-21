@@ -19,16 +19,17 @@ export function B2TopNavigation({ site = false, showLogin = false }: { site?: bo
       ? <Link to="/" className="wordmark" aria-label="Riser AI — Trang chủ">{brand}</Link>
       : <a className="wordmark" href="#top" aria-label="Riser AI về đầu trang">{brand}</a>}
     <div className="nav-links">
-      {sections.map(([target, label]) => site
-        ? target === 'campaigns'
-          ? <Link key={target} to="/campaigns">{label}</Link>
-          : <B2SectionLink key={target} path="/" target={target}>{label}</B2SectionLink>
-        : <a key={target} href={'#' + target}>{label}</a>)}
+      {sections.map(([target, label]) => {
+        if (target === 'campaigns') return <Link key={target} to="/campaigns">{label}</Link>;
+        if (target === 'transparency') return <Link key={target} to="/transparency">{label}</Link>;
+        return site
+          ? <B2SectionLink key={target} path="/" target={target}>{label}</B2SectionLink>
+          : <a key={target} href={'#' + target}>{label}</a>;
+      })}
     </div>
     <div className="nav-actions">
-      {site
-        ? <><B2SectionLink path="/campaigns" target="search" className="nav-search" label="Tìm chiến dịch">{searchIcon}</B2SectionLink><Link className="nav-cta" to="/campaigns">{explore}</Link></>
-        : <><a className="nav-search" href="#campaigns" aria-label="Tìm chiến dịch">{searchIcon}</a><a className="nav-cta" href="#campaigns">{explore}</a></>}
+      <B2SectionLink path="/campaigns" target="search" className="nav-search" label="Tìm chiến dịch">{searchIcon}</B2SectionLink>
+      <Link className="nav-cta" to="/campaigns">{explore}</Link>
       {showLogin ? <Link className="b2-sample-login-link" to="/login">Đăng nhập</Link> : null}
     </div>
   </nav>;

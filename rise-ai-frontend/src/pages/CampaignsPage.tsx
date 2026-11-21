@@ -5,6 +5,7 @@ import { RotateCcw, Search } from 'lucide-react';
 import type { CampaignCategory, CampaignResponse } from '@/api/contracts';
 import { listActiveCampaigns } from '@/api/campaigns';
 import { CampaignMedia } from '@/components/ui/CampaignMedia';
+import { B2SectionLink } from '@/components/ui/B2SectionLink';
 import { amountLabel, categoryLabel, categoryOptions, usableCampaignImageUrl } from '@/lib/campaign-display';
 import {
   campaignHeroArt, campaignLeadArt, campaignMeadowArt,
@@ -47,9 +48,9 @@ function CampaignHeader() {
     <nav className="site-links" aria-label="Điều hướng chính">
       <a href="#search">Khám phá</a>
       <Link to="/campaigns" aria-current="page">Chiến dịch</Link>
-      <Link to="/#story">Câu chuyện</Link>
-      <Link to="/#milestones">Tiến độ</Link>
-      <Link to="/#transparency">Minh bạch</Link>
+      <B2SectionLink path="/" target="story">Câu chuyện</B2SectionLink>
+      <B2SectionLink path="/" target="milestones">Tiến độ</B2SectionLink>
+      <Link to="/transparency">Minh bạch</Link>
     </nav>
     <div className="site-actions">
       <a href="#search" className="search-link" aria-label="Tìm chiến dịch"><Search size={19} aria-hidden="true" /></a>
