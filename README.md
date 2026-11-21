@@ -230,6 +230,30 @@ Chưa có kịch bản trình duyệt tự động cho toàn bộ luồng đóng
 - **Avalanche L1 cho mạng từ thiện**, với các tổ chức kiểm toán làm validator; ICM để nối nhiều nền tảng.
 - **Đăng nhập hai lớp cho Admin** và chính sách lưu trữ dữ liệu ([`docs/decisions-pending.md`](docs/decisions-pending.md)).
 
+## Ảnh giao diện
+
+> Ảnh chụp từ giao diện React thật ở độ rộng desktop, nhưng dùng **dữ liệu QA giả lập** (dải "QA FIXTURE · API GIẢ LẬP" trên đầu mỗi ảnh). Địa chỉ contract, số block và tx hash trong ảnh là giá trị mẫu, không phải dữ liệu Fuji; dữ liệu Fuji thật nằm ở mục "Avalanche được tận dụng thế nào".
+
+**Trang chủ:** lĩnh vực, chiến dịch đang kêu gọi, tiến độ theo cột mốc và giải thích quy trình đối chiếu.
+
+<img src="pics/01-trang-chu.jpg" alt="Trang chủ Rise AI" width="420">
+
+**Chi tiết chiến dịch:** tiến độ gây quỹ, hành trình theo cột mốc, khối "Minh bạch & Xác thực" với trạng thái từng yêu cầu giải ngân trên chain: đang trong cửa sổ phản đối (đếm ngược), tạm dừng bởi guardian, đã giải ngân và người nhận đã xác nhận, kèm link Snowtrace.
+
+<img src="pics/02-chi-tiet-chien-dich-onchain.jpg" alt="Chi tiết chiến dịch với dòng thời gian giải ngân on-chain" width="520">
+
+**Người quyên góp:** lịch sử đóng góp với trạng thái (chờ xác nhận, đã xác nhận, hoàn tiền, bị hủy), biên nhận từng khoản và nút yêu cầu hoàn tiền.
+
+<img src="pics/03-nguoi-quyen-gop.jpg" alt="Trang người quyên góp" width="640">
+
+**Đối chiếu on-chain** (`/transparency`): trạng thái ký quỹ trên Fuji, chứng thực số dư của guardian, dấu ghi Merkle của LEDGER / AUDIT / FINDINGS với kết quả khớp hoặc không khớp, và lịch sử giao dịch lấy từ Avalanche Data API.
+
+<img src="pics/04-doi-chieu-onchain.jpg" alt="Trang đối chiếu on-chain" width="640">
+
+**Admin: cảnh báo AI:** các phát hiện cần xem xét kèm hướng kiểm tra, và tỷ lệ xác nhận của từng quy tắc dựa trên kết luận của Admin. Cảnh báo chỉ để tham khảo, không tự ra quyết định.
+
+<img src="pics/05-admin-canh-bao-ai.jpg" alt="Trang cảnh báo AI của Admin" width="640">
+
 ## Tài liệu
 
 - [`docs/INDEX.md`](docs/INDEX.md): mục lục toàn repo.
