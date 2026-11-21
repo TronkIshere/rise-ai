@@ -17,10 +17,13 @@ Luồng chính: người quyên góp đóng góp → Admin xác nhận → ngư�
 | Điểm mạnh của Avalanche | Cách Rise AI dùng |
 |---|---|
 | C-Chain tương thích EVM | Ba contract Solidity (`CampaignEscrow`, `RiseVND`, `RiseAnchor`) chạy nguyên trên Anvil và Fuji; ví MetaMask và Snowtrace dùng trực tiếp |
-| Khối được chấp nhận là cuối cùng, nhanh | Gateway chờ 1 xác nhận rồi mới báo backend; backend chỉ chuyển đề nghị sang RELEASED sau khi `executeRelease` được xác nhận. Đo trên Fuji: trung bình **1,48 s/khối** (khối 61.054.000–61.054.100); release chạy **7 s** sau khi guardian gỡ lệnh giữ |
-| Phí thấp | Phí trung vị **0,00025 AVAX** mỗi giao dịch của nền tảng; 60 giao dịch của escrow v2 tốn tổng **0,01267 AVAX** (Routescan) |
-| Explorer có verify mã nguồn | Ba contract đã verify; mỗi giao dịch trong API và giao diện có link Snowtrace; guardian và người thụ hưởng ký từ tab "Write Contract" |
-| Avalanche Data API | Nguồn độc lập để đối chiếu: RECORDED, INDEPENDENT, REVERTED, UNRECORDED |
+| Khối được chấp nhận là cuối cùng, nhanh | Gateway chờ 1 xác nhận rồi mới báo backend; backend chỉ chuyển đề nghị sang RELEASED sau khi `executeRelease` được xác nhận. Đo trên Fuji: trung bình **1,48 s/khối** (khối 61.054.000–61.054.100); release chạy **7 s** sau khi guardian gỡ lệnh giữ (khối 61.054.609 → 61.054.615). Cách đo: [`docs/fuji-guide.md` mục 7](docs/fuji-guide.md#7-số-đo-trong-readme-và-cách-đo-lại-đọc-2026-11-21-không-cần-khóa) |
+| Phí thấp | Phí trung vị **0,00025 AVAX** mỗi giao dịch của nền tảng; 60 giao dịch của escrow v2 tốn tổng **0,01267 AVAX** (Routescan, đọc 2026-11-21, [cách đo](docs/fuji-guide.md)) |
+| Explorer có verify mã nguồn | Ba contract đã verify. Mỗi giao dịch trong API `/api/v1/transparency/*` có `explorerUrl`; trên Fuji, trang `/transparency` liệt kê từng giao dịch kèm link, trang chiến dịch có link cho từng yêu cầu giải ngân, panel admin hiện 8 lệnh gần nhất. Guardian và người thụ hưởng ký từ tab "Write Contract" |
+| Avalanche Data API | Nguồn độc lập để đối chiếu: RECORDED, INDEPENDENT, REVERTED, UNRECORDED ([`AvalancheDataApiClient.java`](rise-ai-backend/src/main/java/com/riseai/client/AvalancheDataApiClient.java)) |
+| Event log của EVM | Contract phát event cho mọi thay đổi trạng thái; gateway quét log bằng `eth_getLogs` theo con trỏ khối ([`LogScanner.java`](rise-ai-avalanche/src/main/java/com/riseai/avalanche/scan/LogScanner.java), [`CampaignEvents.java`](rise-ai-avalanche/src/main/java/com/riseai/avalanche/contract/CampaignEvents.java)) |
+| Giao dịch EIP-1559 trên C-Chain | Gateway tự ký bằng keystore, cấp nonce theo từng ví, theo dõi trạng thái và gửi lại giao dịch kẹt với phí cao hơn ([`SubmissionService.java`](rise-ai-avalanche/src/main/java/com/riseai/avalanche/tx/SubmissionService.java), [`NonceAllocator.java`](rise-ai-avalanche/src/main/java/com/riseai/avalanche/tx/NonceAllocator.java), [`TxTracker.java`](rise-ai-avalanche/src/main/java/com/riseai/avalanche/tx/TxTracker.java)) |
+| Chỉ chạy đúng mạng | Từ chối chain 1, 43114 và URL chứa "mainnet" ở gateway ([`EnvironmentGuard.java` dòng 14](rise-ai-avalanche/src/main/java/com/riseai/avalanche/env/EnvironmentGuard.java#L14)) và ở script deploy ([`Deploy.s.sol` dòng 34](rise-ai-avalanche/contracts/script/Deploy.s.sol#L34)); manifest phải khớp chain id và chỉ nhận rVND 2 chữ số thập phân, từ chối USDC ([`ManifestVerifier.java` dòng 30](rise-ai-avalanche/src/main/java/com/riseai/avalanche/contract/ManifestVerifier.java#L30)) |
 | Testnet Fuji | Chạy end-to-end, tranh chấp, guardian và neo Merkle trên mạng thật |
 
 **Triển khai trên Fuji (contract version 2, 2026-11-14), cả ba đã verify mã nguồn:**
@@ -31,7 +34,7 @@ Luồng chính: người quyên góp đóng góp → Admin xác nhận → ngư�
 | RiseVND (rVND) | [`0x4Fd2ba7be8DfE084b5b8A78f67f45F781e40e80A`](https://testnet.snowtrace.io/address/0x4Fd2ba7be8DfE084b5b8A78f67f45F781e40e80A) | [`0x17e33407…ba28`](https://testnet.snowtrace.io/tx/0x17e334079616683c7c0cb24095fa6461573458bd119a15458097aac3c369ba28) |
 | RiseAnchor | [`0x57C043B4830EfFF02A752476d77Ce45A21c14f4f`](https://testnet.snowtrace.io/address/0x57C043B4830EfFF02A752476d77Ce45A21c14f4f) | [`0x1654e8c7…ec4b`](https://testnet.snowtrace.io/tx/0x1654e8c7a0acdde29b1d0d8a429a1185b733ebf7559965c89519a1e79726ec4b) |
 
-Escrow v2 có 60 giao dịch từ 5 ví (49 thành công, 11 bị contract từ chối đúng luật). Một số giao dịch tiêu biểu:
+Tính tới 2026-11-21, escrow v2 có 60 giao dịch từ 5 ví (49 thành công, 11 bị contract từ chối đúng luật). Một số giao dịch tiêu biểu:
 
 | Bước | Ai ký | Giao dịch |
 |---|---|---|
@@ -111,14 +114,16 @@ Backend sở hữu mọi quyết định nghiệp vụ và sổ cái. Lệnh ghi
 
 ## Kiểm thử
 
+Các lần chạy ngày 2026-11-21 dùng image Docker `maven:3.9-eclipse-temurin-21` và `ghcr.io/foundry-rs/foundry:v1.8.7`; mọi bộ test cũng chạy trên CI ở mỗi pull request ([`ci.yml`](.github/workflows/ci.yml)).
+
 | Bộ test | Lệnh | Kết quả | Evidence |
 |---|---|---|---|
 | Contract (unit, fuzz 256 lần, 7 bất biến) | `cd rise-ai-avalanche/contracts && bash scripts/install-deps.sh && bash scripts/forge.sh "forge test --summary"` | 93 pass, 0 fail, 0 skip (2026-11-21) | [`contracts/test/`](rise-ai-avalanche/contracts/test), [bất biến](rise-ai-avalanche/contracts/test/CampaignEscrowInvariants.t.sol) |
 | Bản triển khai Fuji (chỉ đọc) | `bash scripts/forge.sh "sh scripts/verify-fuji.sh"` | 14/14 PASS (2026-11-21) | [`verify-fuji.sh`](rise-ai-avalanche/contracts/scripts/verify-fuji.sh) |
-| Gateway (Anvil và MySQL thật qua Testcontainers) | xem [`rise-ai-avalanche/README.md`](rise-ai-avalanche/README.md#run-the-tests) | chạy trên CI mỗi pull request | [`ci.yml`](.github/workflows/ci.yml) |
-| Backend (MySQL thật qua Testcontainers, kiểm thử thuộc tính jqwik, kiểm thử đồng thời) | `cd rise-ai-backend && mvn clean test` | chạy trên CI mỗi pull request | [`testing-strategy.md`](rise-ai-backend/docs/testing-strategy.md) |
-| Giám sát | `cd rise-ai-monitoring && ./mvnw clean test` | chạy trên CI; simulator 2.000/2.000 kịch bản | [`TESTING.md`](rise-ai-monitoring/docs/TESTING.md) |
-| Frontend (kiến trúc, hợp đồng API, lint, typecheck, test, build) | `cd rise-ai-frontend && npm ci && npm run verify` | chạy trên CI | [`frontend-ci.yml`](.github/workflows/frontend-ci.yml) |
+| Gateway (Anvil và MySQL thật qua Testcontainers) | xem [`rise-ai-avalanche/README.md`](rise-ai-avalanche/README.md#run-the-tests) | 118 chạy, 0 lỗi, 3 bỏ qua có chủ đích (2026-11-21) | [`ci.yml`](.github/workflows/ci.yml) |
+| Backend (MySQL thật qua Testcontainers, kiểm thử thuộc tính jqwik, kiểm thử đồng thời) | `cd rise-ai-backend && mvn clean test` | 204 chạy, 0 lỗi, 0 bỏ qua (2026-11-21) | [`testing-strategy.md`](rise-ai-backend/docs/testing-strategy.md) |
+| Giám sát | `cd rise-ai-monitoring && ./mvnw clean test` | 223 chạy, 0 lỗi, 0 bỏ qua (2026-11-21); simulator 2.000/2.000 kịch bản | [`TESTING.md`](rise-ai-monitoring/docs/TESTING.md) |
+| Frontend (kiến trúc, hợp đồng API, lint, typecheck, test, build) | `cd rise-ai-frontend && npm ci && npm run verify` | chạy trên CI (workflow "Frontend checks") | [`frontend-ci.yml`](.github/workflows/frontend-ci.yml) |
 | Fuji end-to-end, tranh chấp, guardian, neo Merkle | thủ công trên Fuji | giao dịch ở mục Avalanche | [`rise-ai-avalanche/README.md`](rise-ai-avalanche/README.md#fuji-runbook-testnet-only-adr-009) |
 
 ## Dành cho ban giám khảo
@@ -132,7 +137,7 @@ Backend sở hữu mọi quyết định nghiệp vụ và sổ cái. Lệnh ghi
 
 ### Khởi chạy bằng một lệnh
 
-Yêu cầu: Docker có Compose v2.17 trở lên. Lần build đầu mất vài phút (tải Maven, npm, Solidity).
+Yêu cầu: Docker có Compose v2.17 trở lên. Lần build đầu mất vài phút (tải Maven, npm, Solidity). Chạy test ngoài Docker thì cần thêm JDK 21 và Maven 3.9+ (backend không có Maven wrapper) và Node 22.12 trở lên.
 
 ```bash
 cp .env.example .env     # rồi đổi mọi giá trị; .env không được commit
@@ -144,7 +149,7 @@ Stack này dùng **chain Anvil cục bộ** (31337) với khóa dùng một lầ
 | Dịch vụ | Cổng trên máy | Ghi chú |
 |---|---|---|
 | Giao diện | http://127.0.0.1:5174 | Nginx, `/api` chuyển tới backend |
-| Backend | http://127.0.0.1:8080 | Swagger: `/swagger-ui.html` |
+| Backend | http://127.0.0.1:8080 | Chạy profile `prod`, nên Swagger tắt; Swagger `/swagger-ui.html` chỉ có khi chạy backend ở chế độ phát triển |
 | Gateway Avalanche | http://127.0.0.1:8082 | |
 | Anvil | http://127.0.0.1:8545 | chain 31337 |
 | MySQL, giám sát | không mở ra ngoài | |
@@ -173,7 +178,8 @@ Có trong dữ liệu mẫu khi `RISE_SEED_ENABLED=true` (mặc định trong `.
 
 - **Stack Docker cục bộ:** không cần ví.
 - **Kiểm tra Fuji:** chỉ cần trình duyệt (Snowtrace) hoặc `verify-fuji.sh`.
-- **Tự ký trên Fuji** (vai trò guardian hoặc người thụ hưởng): thêm mạng Fuji vào Core hoặc MetaMask (RPC `https://api.avax-test.network/ext/bc/C/rpc`, chain id 43113, ký hiệu AVAX, explorer `https://testnet.snowtrace.io`), nhận AVAX testnet từ faucet. Không cần USDC: escrow chỉ giữ rVND mô phỏng. Hướng dẫn: [`docs/fuji-guide.md`](docs/fuji-guide.md).
+- **Tài khoản trong app không gắn với ví.** Người quyên góp, người tạo và Admin không cần ví; ví người thụ hưởng là một địa chỉ cấu hình (`RISE_AVALANCHE_BENEFICIARY_ADDRESS`), guardian là một ví độc lập được ghi vào contract lúc deploy.
+- **Tự ký trên Fuji** (vai trò guardian hoặc người thụ hưởng): thêm mạng Fuji vào Core hoặc MetaMask (RPC `https://api.avax-test.network/ext/bc/C/rpc`, chain id 43113, ký hiệu AVAX, explorer `https://testnet.snowtrace.io`), nhận AVAX testnet từ faucet của Avalanche (`https://core.app/tools/testnet-faucet/`, chọn C-Chain; điều kiện nhận do faucet đặt). Không cần USDC: escrow chỉ giữ rVND mô phỏng, do script deploy mint vào treasury. Hướng dẫn: [`docs/fuji-guide.md`](docs/fuji-guide.md).
 
 ### Kịch bản end-to-end (stack Docker, dữ liệu mẫu)
 
@@ -184,7 +190,7 @@ Chiến dịch dùng: **"Hope Kitchen Weekly Meals (Demo)"** của `creator3`, �
 | 1 | Khách | Mở `/campaigns`, chọn chiến dịch | Trang chi tiết có khối "Minh bạch & Xác thực" với trạng thái mở chiến dịch trên chain và các yêu cầu giải ngân (tự làm mới mỗi 30 giây) |
 | 2 | `donor1` | `/login` → **"Đăng nhập"**; trên trang chiến dịch bấm **"Ghi nhận đóng góp mô phỏng"**, nhập số tiền, tích ô xác nhận, bấm **"Gửi yêu cầu mô phỏng"** | Đóng góp ở trạng thái PENDING trong `/donor` |
 | 3 | `admin` | `/admin` → hàng đợi **"Đóng góp"** → **"Xem và xử lý"** → **"Xác nhận đóng góp mô phỏng"** | Đóng góp CONFIRMED; backend xếp lệnh `recordContribution` lên chain |
-| 4 | `creator3` | `/creator` → mở chiến dịch → **"Minh chứng & giải ngân"** ở cột mốc 1 → **"Bắt đầu"** (xác nhận hộp thoại) → **"Gửi minh chứng"**, điền và gửi | Minh chứng SUBMITTED; lệnh `anchorEvidence` (hash minh chứng) |
+| 4 | `creator3` | `/creator` → **"Quản lý"** ở chiến dịch → **"Minh chứng & giải ngân"** ở cột mốc 1 → **"Bắt đầu"** (xác nhận hộp thoại) → **"Gửi minh chứng"**, điền và gửi | Minh chứng SUBMITTED; lệnh `anchorEvidence` (hash minh chứng) |
 | 5 | `creator3` | **"Đề nghị giải ngân"** → nhập số tiền ≤ 20.000.000 → **"Gửi đề nghị (không chuyển tiền)"** | Đề nghị SUBMITTED; tiền được giữ chỗ, lệnh `reserve` |
 | 6 | `admin` | `/admin` → hàng đợi **"Giải ngân"** → **"Xem và xử lý"** → **"Bắt đầu xét duyệt"**; ở phần minh chứng bấm **"Chấp thuận minh chứng"**; rồi **"Phê duyệt đề nghị"** | Minh chứng ACCEPTED (lệnh `decideEvidence`); đề nghị APPROVED |
 | 7 | `admin` | **"Ghi sổ giải ngân mô phỏng"** | Đề nghị vẫn APPROVED; khối "Minh bạch & Xác thực" và `/admin/escrow` ("Lệnh và thời gian chờ on-chain") hiện "Đang trong cửa sổ phản đối" với đồng hồ đếm ngược; lệnh `queueRelease` |
@@ -195,7 +201,7 @@ Trên stack cục bộ (Anvil 31337), giao diện cố ý không giả dữ li�
 
 Nhánh phụ:
 
-- **Tranh chấp chặn giải ngân:** trong bước 8, `donor1` mở phản ánh trên `/donor` (**"Gửi phản ánh"**); backend giữ đề nghị ở trạng thái tranh chấp và contract từ chối release (`MilestoneDisputed`). Admin vào hàng đợi **"Tranh chấp"** → **"Nhận xử lý phản ánh"** → **"Bác bỏ phản ánh"** hoặc **"Chấp nhận phản ánh"**.
+- **Tranh chấp chặn giải ngân:** ngay sau bước 7, trong cửa sổ phản đối (mặc định chỉ 2 phút; muốn thong thả thì đặt `RISE_AVALANCHE_RELEASE_DELAY=PT10M` trong `.env`), `donor1` mở phản ánh trên `/donor` (**"Gửi phản ánh"**); backend giữ đề nghị ở trạng thái tranh chấp và contract từ chối release (`MilestoneDisputed`). Admin vào hàng đợi **"Tranh chấp"** → **"Nhận xử lý phản ánh"** → **"Bác bỏ phản ánh"** hoặc **"Chấp nhận phản ánh"**.
 - **Hoàn tiền:** `donor1` bấm **"Yêu cầu hoàn tiền"** → **"Gửi yêu cầu hoàn tiền"**; Admin ở hàng đợi **"Hoàn tiền"**: **"Chấp thuận hoàn tiền mô phỏng"** → **"Ghi sổ hoàn tiền mô phỏng"**.
 - **Từ chối:** Admin có **"Từ chối minh chứng"**, **"Yêu cầu thêm minh chứng"**, **"Từ chối đề nghị"**.
 - **Giám sát:** `/admin/monitoring` liệt kê các phát hiện; mỗi phát hiện cần ghi chú khi xem xét.

@@ -92,3 +92,24 @@ Mục tiêu: một luồng chính đầy đủ, lấy tx hash cho báo cáo. Ví
 Đo từ receipt trên Fuji (2026-11-14): giao dịch do gateway gửi dùng `maxPriorityFeePerGas` = 1 gwei (mặc định `avalanche.tx.priority-fee-gwei`, ghi chú trong mã là "to calibrate"), trong khi base fee lúc đó là 10 wei; mỗi giao dịch tốn khoảng 0,00025 AVAX. Giao dịch MetaMask của guardian trên cùng contract dùng giá 160 wei. Gas limit cố định 500.000 cho hầu hết lệnh (`CampaignCommandService`), và receipt ghi `gasUsed` = 250.000 cho các giao dịch đó; nguyên nhân chưa kiểm chứng.
 
 Thử nghiệm đề xuất (cần chủ dự án chạy trên Fuji và quan sát thời gian xác nhận): `AVALANCHE_TX_PRIORITYFEEGWEI=0` (phí tối đa còn 2 × base fee), và ước lượng gas (`eth_estimateGas` + biên) thay cho hằng số 500.000. Chưa đổi mặc định vì chưa có số đo thời gian xác nhận với tip 0.
+
+## 7. Số đo trong README và cách đo lại (đọc 2026-11-21, không cần khóa)
+
+| Số đo | Giá trị | Cách đo |
+|---|---|---|
+| Khoảng cách khối trung bình | 1,48 s/khối | `eth_getBlockByNumber` khối 61.054.000 (timestamp 1794646920) và 61.054.100 (1794647068): 148 s / 100 khối |
+| Thời gian từ `liftHold` tới release | 7 s | timestamp khối 61.054.609 (09:15:51 UTC) và 61.054.615 (09:15:58 UTC), lấy từ `eth_getTransactionReceipt` của hai tx trong bảng guardian ở `rise-ai-avalanche/README.md` |
+| Giao dịch của escrow v2 | 60 tx: 49 thành công, 11 bị từ chối; 5 ví gửi | `https://api.routescan.io/v2/network/testnet/evm/43113/etherscan/api?module=account&action=txlist&address=0x183600b4392E2344df90e8d24b9e925832E32031` (đếm `isError`, `from`) |
+| Phí | trung vị 0,00025 AVAX/tx của ví nền tảng (55 tx), khoảng 1e-11 AVAX/tx của ví độc lập (5 tx); tổng 0,01267 AVAX | cùng danh sách trên: `gasUsed × gasPrice` |
+| Số lần neo | LEDGER 4, AUDIT 6, FINDINGS 0 | `sh scripts/verify-fuji.sh` (dòng `info anchors`) |
+
+Số giao dịch và phí sẽ tăng nếu có giao dịch mới tới contract sau ngày đo.
+
+Ví dụ đo khoảng cách khối:
+
+```bash
+RPC=https://api.avax-test.network/ext/bc/C/rpc
+for b in 61054000 61054100; do
+  curl -s -X POST -H 'Content-Type: application/json' \
+    --data "{\"jsonrpc\":\"2.0\",\"id\":1,\"method\":\"eth_getBlockByNumber\",\"params\":[\"$(printf '0x%x' $b)\",false]}" $RPC
+done   # so sánh trường timestamp
