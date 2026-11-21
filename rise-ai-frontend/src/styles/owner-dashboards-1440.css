@@ -1,0 +1,187 @@
+/* Owner-requested dashboard visual polish, Desktop 1440 only.
+   Scope: /admin queue + /donor U3 readability; no business flow, tokens or approved U1/U2/U4-U6 changes.
+   Baseline: PR #48 for Admin, U3 Cartoon Pastel V2 Strong Outline for Donor. */
+@media (min-width:1200px) {
+  /* Admin: operational hierarchy, matching the established strong-outline community palette. */
+  .rise-dashboard.admin-dashboard {
+    font-family:var(--font-sans);
+    background:var(--color-canvas);
+  }
+  .rise-dashboard.admin-dashboard .dashboard-inner {max-width:1250px}
+  .rise-dashboard.admin-dashboard .dashboard-hero {
+    display:flex;
+    gap:26px;
+    align-items:center;
+    min-height:0;
+    padding:32px 34px;
+    background:linear-gradient(115deg,var(--color-soft-mint),var(--color-soft-sand));
+    border:3px solid var(--color-brand-ink);
+    border-radius:22px;
+    box-shadow:7px 8px 0 var(--color-brand-ink);
+  }
+  .rise-dashboard.admin-dashboard .dashboard-hero::before,
+  .rise-dashboard.admin-dashboard .dashboard-hero::after {display:none}
+  .rise-dashboard.admin-dashboard .dashboard-hero > div:first-child {flex:1 1 520px;min-width:0}
+  .rise-dashboard.admin-dashboard .dashboard-hero > div:last-child {flex:0 1 390px;align-items:stretch}
+  .rise-dashboard.admin-dashboard .dashboard-hero h1 {
+    font-size:clamp(34px,3.3vw,47px);
+    letter-spacing:-.045em;
+    line-height:1.2;
+    color:var(--color-brand-ink);
+  }
+  .rise-dashboard.admin-dashboard .dashboard-hero p:last-child {
+    font-size:14px;
+    line-height:1.8;
+    color:var(--color-copy);
+    font-weight:600;
+  }
+  .rise-dashboard.admin-dashboard .dashboard-hero a {
+    border:2px solid var(--color-brand-ink);
+    border-radius:12px;
+    box-shadow:3px 4px 0 var(--color-brand-ink);
+    padding:12px 15px;
+    font-size:13px;
+    line-height:1.55;
+    justify-content:center;
+    text-align:center;
+    text-decoration:none;
+  }
+  .rise-dashboard.admin-dashboard .dashboard-hero a:hover {transform:translate(1px,1px);box-shadow:2px 3px 0 var(--color-brand-ink)}
+  .rise-dashboard.admin-dashboard .dashboard-stat-section {
+    background:var(--color-surface);
+    border:2px solid var(--color-brand-ink);
+    border-radius:20px;
+    box-shadow:5px 6px 0 var(--color-subtle);
+  }
+  .rise-dashboard.admin-dashboard .dashboard-stat-section > div.grid > div {
+    border:2px solid var(--color-brand-ink);
+    border-radius:16px;
+    box-shadow:4px 5px 0 var(--color-border);
+    min-height:135px;
+    padding:20px;
+  }
+  .rise-dashboard.admin-dashboard .dashboard-stat-section > div.grid > div:nth-child(1) {background:var(--color-soft-mint)}
+  .rise-dashboard.admin-dashboard .dashboard-stat-section > div.grid > div:nth-child(2) {background:var(--color-soft-sand)}
+  .rise-dashboard.admin-dashboard .dashboard-stat-section > div.grid > div:nth-child(3) {background:var(--color-canvas)}
+  .rise-dashboard.admin-dashboard .dashboard-stat-section > div.grid > div:nth-child(4) {background:var(--color-subtle)}
+  .rise-dashboard.admin-dashboard .dashboard-stat-section > div.grid > div p:first-child {font-size:13px;font-weight:800;line-height:1.55;color:var(--color-brand-ink)}
+  .rise-dashboard.admin-dashboard .dashboard-stat-section > div.grid > div p:last-child {font-size:36px;line-height:1.2;font-weight:900;color:var(--color-brand-ink);font-variant-numeric:tabular-nums}
+  .rise-dashboard.admin-dashboard .dashboard-stat-section > div:not(.grid) {
+    border:2px solid var(--color-brand-ink);
+    background:var(--color-soft-mint);
+    color:var(--color-brand-ink);
+    font-size:14px;
+    line-height:1.8;
+  }
+  .rise-dashboard.admin-dashboard .dashboard-section:not(.dashboard-stat-section) {
+    border:2px solid var(--color-brand-ink);
+    border-radius:20px;
+    background:var(--color-surface);
+    box-shadow:5px 6px 0 var(--color-subtle);
+  }
+  .rise-dashboard.admin-dashboard .dashboard-tabbar {
+    background:var(--color-soft-mint);
+    border:2px solid var(--color-border);
+    border-radius:16px;
+    box-shadow:none;
+    padding:10px;
+    gap:9px;
+  }
+  .rise-dashboard.admin-dashboard .dashboard-tabbar button {
+    border:2px solid var(--color-brand-ink);
+    border-radius:11px;
+    font-size:13px;
+    font-weight:850;
+    line-height:1.55;
+    box-shadow:2px 3px 0 var(--color-border);
+  }
+  .rise-dashboard.admin-dashboard .dashboard-tabbar button[aria-pressed="true"] {
+    background:var(--color-brand);
+    color:var(--color-surface);
+    box-shadow:3px 4px 0 var(--color-brand-ink);
+  }
+  .rise-dashboard.admin-dashboard #admin-queue-status {
+    border:2px solid var(--color-brand-ink);
+    color:var(--color-brand-ink);
+    background:var(--color-surface);
+    font-size:14px;
+  }
+  .rise-dashboard.admin-dashboard .dashboard-section article {
+    border:2px solid var(--color-brand-ink);
+    border-radius:16px;
+    background:var(--color-surface);
+    box-shadow:4px 5px 0 var(--color-border);
+    padding:24px;
+  }
+  .rise-dashboard.admin-dashboard .dashboard-section article::before {left:0;top:0;width:100%;height:5px;background:var(--color-brand)}
+  .rise-dashboard.admin-dashboard .dashboard-section article h3 {font-size:19px;line-height:1.4;color:var(--color-brand-ink)}
+  .rise-dashboard.admin-dashboard .dashboard-section article p {font-size:13px;line-height:1.65}
+  .rise-dashboard.admin-dashboard .dashboard-section article > a {
+    border:2px solid var(--color-brand-ink);
+    border-radius:10px;
+    padding:8px 12px;
+    background:var(--color-soft-mint);
+    text-decoration:none;
+    box-shadow:2px 3px 0 var(--color-border);
+    font-size:13px;
+  }
+  .rise-dashboard.admin-dashboard .dashboard-section article > a:hover {background:var(--color-subtle)}
+  .rise-dashboard.admin-dashboard .dashboard-section article [data-status] {
+    display:inline-flex;
+    align-items:center;
+    border:2px solid var(--color-warning);
+    color:var(--color-warning);
+    background:var(--color-soft-sand);
+    font-size:12px;
+    line-height:1.35;
+    font-weight:850;
+    white-space:normal;
+    text-align:center;
+  }
+  .rise-dashboard.admin-dashboard .dashboard-section article [data-status="CONFIRMED"],
+  .rise-dashboard.admin-dashboard .dashboard-section article [data-status="APPROVED"],
+  .rise-dashboard.admin-dashboard .dashboard-section article [data-status="RELEASED"],
+  .rise-dashboard.admin-dashboard .dashboard-section article [data-status="VERIFIED"] {
+    background:var(--color-soft-mint);
+    color:var(--color-brand);
+    border-color:var(--color-brand);
+  }
+  .rise-dashboard.admin-dashboard .dashboard-section article [data-status="FAILED"],
+  .rise-dashboard.admin-dashboard .dashboard-section article [data-status="REJECTED"],
+  .rise-dashboard.admin-dashboard .dashboard-section article [data-status="DISPUTED"] {
+    background:var(--color-surface);
+    color:var(--color-danger);
+    border-color:var(--color-danger);
+  }
+  .rise-dashboard.admin-dashboard :is(a,button,select):focus-visible {
+    outline:3px solid var(--color-brand);
+    outline-offset:3px;
+  }
+
+  /* Donor U3: preserve approved illustration/composition; fix overly small desktop copy. */
+  .rise-dashboard.donor-dashboard.u3-approved-v2 .u3-hero p {font-size:14px;line-height:1.8;max-width:500px}
+  .rise-dashboard.donor-dashboard.u3-approved-v2 .u3-eyebrow {font-size:12px}
+  .rise-dashboard.donor-dashboard.u3-approved-v2 .u3-statbar {font-size:12px;line-height:1.5;padding:11px 14px}
+  .rise-dashboard.donor-dashboard.u3-approved-v2 .u3-statbody {padding:17px}
+  .rise-dashboard.donor-dashboard.u3-approved-v2 .u3-statbody small {font-size:12px;line-height:1.6}
+  .rise-dashboard.donor-dashboard.u3-approved-v2 .u3-sectionhead small {font-size:12px}
+  .rise-dashboard.donor-dashboard.u3-approved-v2 .u3-disclaimer {font-size:13px;line-height:1.7;max-width:1040px}
+  .rise-dashboard.donor-dashboard.u3-approved-v2 .u3-tabs button {font-size:13px;min-height:44px}
+  .rise-dashboard.donor-dashboard.u3-approved-v2 .u3-recorditem {padding:16px 14px;min-height:86px;gap:13px}
+  .rise-dashboard.donor-dashboard.u3-approved-v2 .u3-recordname {font-size:14px;line-height:1.45}
+  .rise-dashboard.donor-dashboard.u3-approved-v2 .u3-recordcode {font-size:11px;line-height:1.65}
+  .rise-dashboard.donor-dashboard.u3-approved-v2 .u3-recordright {font-size:13px;min-width:108px}
+  .rise-dashboard.donor-dashboard.u3-approved-v2 .u3-status {font-size:11px;line-height:1.4;padding:6px 9px}
+  .rise-dashboard.donor-dashboard.u3-approved-v2 .u3-status:is([data-status="CONFIRMED"],[data-status="RECORDED"]) {font-size:11px;padding:6px 9px}
+  .rise-dashboard.donor-dashboard.u3-approved-v2 .u3-note {font-size:12px;line-height:1.7}
+  .rise-dashboard.donor-dashboard.u3-approved-v2 .u3-empty p,
+  .rise-dashboard.donor-dashboard.u3-approved-v2 .u3-sheet p {font-size:13px;line-height:1.75}
+  .rise-dashboard.donor-dashboard.u3-approved-v2 .u3-receipt-head {font-size:12px;line-height:1.55}
+  .rise-dashboard.donor-dashboard.u3-approved-v2 :is(button,a,input,textarea,select):focus-visible {
+    outline:3px solid var(--u3-v2-ink);
+    outline-offset:4px;
+  }
+}
+@media (prefers-reduced-motion:reduce) {
+  .rise-dashboard.admin-dashboard .dashboard-hero a {transition:none;transform:none}
+}
