@@ -73,6 +73,8 @@ Docker-gated tests skip silently when Testcontainers cannot reach Docker, so che
 
 Rise AI contracts added afterwards (`CampaignEscrow`, `RiseVND`, `RiseAnchor`): `forge test --summary` reports 143 passed, 0 failed, 1 skipped in total, 66 of them new. The 5 invariants ran 64 runs of 64 calls with 1,431 of 4,096 calls reverting as expected. Three deliberate mutations on a scratch copy (held balance not reduced, payout to the caller, objection window and dispute check removed) were each caught. These contracts have no security review and run locally only.
 
+**Re-run 2026-11-21** (branch `contest/avalanche-readiness`, same images): gateway `mvn clean test` 118 run, 0 failures, 0 errors, 3 skipped (the three optional tests below), BUILD SUCCESS; `forge clean && forge test --summary` 14 suites, 93 passed, 0 failed, 0 skipped (the FreelaX suites are gone), 7 invariants at 64 runs × 64 calls with 1,341 expected reverts; `sh scripts/verify-fuji.sh` against the live Fuji deployment 14/14 PASS (read-only, see `docs/fuji-guide.md`).
+
 The skipped tests are optional: `AnvilWebContextTest`, `FujiReadOnlyWebContextTest`, one case in `ManifestIntegrationTest`, and the Foundry `UsdcForkTest`. The table above covers the imported FreelaX escrow only. CI now runs both suites on every pull request (`avalanche-gateway` and `avalanche-contracts` jobs in `.github/workflows/ci.yml`).
 
 ## Fuji runbook (testnet only, ADR-009)
