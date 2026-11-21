@@ -1,11 +1,12 @@
 import { useState, type FormEvent } from 'react';
 import { Navigate, useLocation } from 'react-router';
-import { ArrowRight, HandHeart, HeartHandshake, LockKeyhole, Mail, ShieldCheck, Sprout, Users } from 'lucide-react';
+import { ArrowRight, HeartHandshake, LockKeyhole, Mail, ShieldCheck } from 'lucide-react';
 import { useAuth } from '@/auth/auth-context';
 import { ApiError } from '@/api/client';
 import { Container } from '@/components/layout/Container';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
+import { LoginValueArt } from '@/pages/LoginValueArt';
 
 export function LoginPage() {
   const { user, login } = useAuth();
@@ -37,13 +38,12 @@ export function LoginPage() {
     <Container className="deep-inner rise-entry-layout">
       <section className="rise-entry-art" aria-label="Giới thiệu Rise AI">
         <div className="b2-login-story">
-          <p className="rise-entry-seal">Rise AI</p>
           <h1><span>Kết nối lòng tốt</span><span>Lan tỏa tác động</span><em>vì <strong>cộng đồng</strong></em></h1>
           <p>Nền tảng thiện nguyện minh bạch, kết nối những tấm lòng nhân ái với các dự án tạo tác động tích cực cho xã hội.</p>
           <ul className="b2-login-values">
-            <li><HandHeart aria-hidden="true" /><span><strong>Ủng hộ</strong> những dự án ý nghĩa</span></li>
-            <li><Users aria-hidden="true" /><span><strong>Đồng hành</strong> cùng cộng đồng</span></li>
-            <li><Sprout aria-hidden="true" /><span><strong>Tạo tác động</strong> bền vững và minh bạch</span></li>
+            <li><LoginValueArt kind="support" /><span><strong>Ủng hộ</strong> những dự án ý nghĩa</span></li>
+            <li><LoginValueArt kind="community" /><span><strong>Đồng hành</strong> cùng cộng đồng</span></li>
+            <li><LoginValueArt kind="impact" /><span><strong>Tạo tác động</strong> bền vững và minh bạch</span></li>
           </ul>
         </div>
         <div className="b2-login-photo-strip" role="img" aria-label="Minh họa chăm sóc sức khỏe, niềm vui trẻ em và hỗ trợ tại cộng đồng">

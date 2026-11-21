@@ -96,6 +96,11 @@ jobs:
         env:
           RISE_STAGING_BASE_URL: http://127.0.0.1:5174
         run: node scripts/staging-react-real-api.qa.mjs
+      - name: Capture PR42 on-chain UI off-chain and Fuji fixture evidence
+        working-directory: rise-ai-frontend
+        env:
+          RISE_STAGING_BASE_URL: http://127.0.0.1:5174
+        run: node scripts/pr42-onchain-visual.qa.mjs
       - name: Collect diagnostic logs if failed
         if: failure()
         run: |

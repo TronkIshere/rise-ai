@@ -35,6 +35,15 @@
 .campaign-flow-status-tags .campaign-flow-tag-warm{
   background:#f9ebd0;border-color:#e1c995;color:#85531d;
 }
+@media(min-width:761px){
+  .campaign-flow-status-tags .chain-badge{line-height:inherit}
+  .campaign-flow-status-tags .chain-badge:is([data-chain-state="loading"],[data-chain-state="off-chain"]){
+    background:var(--cf-cream);border-color:var(--cf-line);color:var(--cf-muted);
+  }
+  .campaign-flow-status-tags .chain-badge[data-chain-state="unavailable"]{
+    background:#f9ebd0;border-color:#e1c995;color:#85531d;
+  }
+}
 .campaign-flow-title{
   max-width:900px;margin:0;color:#073b2d;
   font-size:clamp(31px,3.4vw,49px);font-weight:950;letter-spacing:-.043em;line-height:1.17;

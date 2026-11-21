@@ -1,0 +1,32 @@
+/* Exact final card declarations, scoped and tokenized; no prototype data/whole-page style. */
+@media(min-width:1200px){
+.deep-admin-monitoring.admin-ops .u6-rule-card{background:var(--u6-v122-dcf2ff);border:3px solid var(--u6-v122-123e32);border-radius:20px;box-shadow:6px 7px 0 var(--u6-v122-8ebed0);overflow:hidden}
+.deep-admin-monitoring.admin-ops .u6-rule-card .u6-cardhead{display:flex;align-items:center;justify-content:space-between;gap:18px;background:var(--u6-v122-71d0f3);color:var(--u6-v122-123e32);padding:18px 24px;border-bottom:2px solid var(--u6-v122-123e32)}
+.deep-admin-monitoring.admin-ops .u6-rule-card .u6-cardhead h2{font-size:20px;letter-spacing:-.02em;font-weight:900;margin:0;color:inherit;line-height:1.5}
+.deep-admin-monitoring.admin-ops .u6-rule-card .u6-pill{background:var(--u6-v122-fffdf2);border:1.5px solid var(--u6-v122-518c9a);border-radius:99px;padding:7px 13px;color:var(--u6-v122-1b524d);font-size:12px;font-weight:850;white-space:nowrap}
+.deep-admin-monitoring.admin-ops .u6-rule-card .u6-rule-body{padding:22px 24px 25px}
+.deep-admin-monitoring.admin-ops .u6-rule-card .u6-intro{font-size:14px;color:var(--u6-v122-315d69);max-width:920px;line-height:1.75;margin:0 0 19px;font-weight:550}
+.deep-admin-monitoring.admin-ops .u6-rule-card .u6-rows{display:grid;gap:13px}
+.deep-admin-monitoring.admin-ops .u6-rule-card .u6-rule-row{display:grid;grid-template-columns:minmax(0,1.13fr) minmax(0,.79fr) minmax(0,1.58fr) minmax(0,1fr);gap:11px;align-items:stretch;border-radius:17px;background:var(--u6-v122-c9e8f5);padding:11px}
+.deep-admin-monitoring.admin-ops .u6-rule-card .u6-module{min-width:0;border-radius:13px;border:1.5px solid var(--u6-v122-9bc6cb);background:var(--u6-v122-fffef9);padding:13px 14px;min-height:118px;display:flex;flex-direction:column;justify-content:center;gap:8px}
+.deep-admin-monitoring.admin-ops .u6-rule-card .u6-module .u6-label{font-size:11px;line-height:1.3;color:var(--u6-v122-356675);font-weight:900;letter-spacing:.035em;text-transform:uppercase}
+.deep-admin-monitoring.admin-ops .u6-rule-card .u6-rule-name{font-weight:900;font-size:15px;line-height:1.5;overflow-wrap:anywhere;letter-spacing:-.015em}
+.deep-admin-monitoring.admin-ops .u6-rule-card .u6-rate-module{background:var(--u6-v122-e9faef);border-color:var(--u6-v122-9ac9ad)}
+.deep-admin-monitoring.admin-ops .u6-rule-card .u6-rate-value{font-size:31px;font-weight:950;line-height:1.13;letter-spacing:-.06em;font-variant-numeric:tabular-nums;white-space:nowrap}
+.deep-admin-monitoring.admin-ops .u6-rule-card .u6-detail{font-size:12px;font-weight:700;color:var(--u6-v122-416b57)}
+.deep-admin-monitoring.admin-ops .u6-rule-card .u6-outcomes{padding:12px 13px;gap:7px}
+.deep-admin-monitoring.admin-ops .u6-rule-card .u6-outcome{display:grid;grid-template-columns:27px minmax(0,1fr);align-items:center;gap:8px;border-radius:8px;padding:8px 9px;background:var(--u6-v122-e6f6ed);min-height:39px}
+.deep-admin-monitoring.admin-ops .u6-rule-card .u6-outcome:nth-of-type(2){background:var(--u6-v122-fff0dc)}
+.deep-admin-monitoring.admin-ops .u6-rule-card .u6-outcome .u6-num{font-size:21px;font-weight:950;line-height:1;font-variant-numeric:tabular-nums}
+.deep-admin-monitoring.admin-ops .u6-rule-card .u6-outcome .u6-text{font-size:12px;font-weight:750;line-height:1.35;color:var(--u6-v122-335848)}
+.deep-admin-monitoring.admin-ops .u6-rule-card .u6-pending{background:var(--u6-v122-fff0d8);border-color:var(--u6-v122-dec398)}
+.deep-admin-monitoring.admin-ops .u6-rule-card .u6-pending .u6-label{color:var(--u6-v122-80501f)}
+.deep-admin-monitoring.admin-ops .u6-rule-card .u6-pending .u6-count{font-size:30px;font-weight:950;line-height:1.1;font-variant-numeric:tabular-nums}
+.deep-admin-monitoring.admin-ops .u6-rule-card .u6-pending .u6-desc{font-size:12px;font-weight:700;color:var(--u6-v122-785b33)}
+.deep-admin-monitoring.admin-ops .u6-rule-card .u6-no-data{font-size:14px;font-weight:800;color:var(--u6-v122-476e68);line-height:1.4}
+.deep-admin-monitoring.admin-ops .u6-rule-card .u6-note{margin:18px 3px 0;font-size:12px;color:var(--u6-v122-426676);line-height:1.75;font-weight:600}
+
+.deep-admin-monitoring.admin-ops .u6-rule-card{width:100%;min-width:0;margin-top:16px;padding:0;font-family:var(--font-rise-approved);color:var(--u6-v122-123e32);line-height:1.5;font-synthesis:none;font-variant-numeric:tabular-nums}
+.deep-admin-monitoring.admin-ops .u6-rule-card .u6-module{overflow-wrap:anywhere}
+.deep-admin-monitoring.admin-ops .u6-rule-card .u6-num{overflow-wrap:anywhere}
+}

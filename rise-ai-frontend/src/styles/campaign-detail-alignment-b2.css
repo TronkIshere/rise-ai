@@ -1,0 +1,701 @@
+/* Rise AI / PR #42 — Campaign Detail full-page B2 alignment.
+   Owner scope: contrast, typography, vertical rhythm and integration of U1/U2.
+   Route-scoped: NO changes to Contribution, Discovery, Donor, Admin, Footer or global tokens.
+   Design tokens are taken from src/styles/tokens.css; do not add a second palette. */
+
+.campaign-detail-flow {
+  --detail-paper: var(--color-soft-sand);
+  --detail-ink: var(--color-brand-ink);
+  --detail-border: color-mix(in srgb, var(--color-brand) 27%, var(--color-border));
+  --detail-muted: color-mix(in srgb, var(--color-copy) 74%, var(--color-muted));
+  color: var(--detail-ink);
+  background:
+    radial-gradient(ellipse 800px 340px at 86% 4%, color-mix(in srgb, var(--color-soft-sand) 68%, var(--color-soft-mint)) 0%, transparent 78%),
+    linear-gradient(180deg, color-mix(in srgb, var(--color-soft-mint) 70%, var(--color-surface)) 0%, var(--color-canvas) 470px, color-mix(in srgb, var(--color-soft-sand) 84%, var(--color-canvas)) 100%);
+}
+
+/* Entry: clearer back-navigation band and readable campaign heading. */
+.campaign-detail-flow .campaign-flow-topband {
+  background: linear-gradient(100deg, color-mix(in srgb, var(--color-soft-mint) 80%, var(--color-surface)), var(--color-soft-sand));
+  border-bottom: 1px solid var(--detail-border);
+}
+.campaign-detail-flow .campaign-flow-topband::before { opacity: .14; }
+.campaign-detail-flow .campaign-flow-back {
+  font-size: 14px;
+  font-weight: 850;
+  color: var(--color-brand-ink);
+}
+.campaign-detail-flow .campaign-flow-container {
+  padding-top: 47px;
+  padding-bottom: 76px;
+}
+.campaign-detail-flow .campaign-flow-status-tags {
+  gap: 10px;
+  margin-bottom: 20px;
+}
+.campaign-detail-flow .campaign-flow-status-tags > span {
+  min-height: 31px;
+  font-size: 11px;
+  line-height: 1.35;
+  letter-spacing: .045em;
+  border-color: var(--detail-border);
+  color: var(--color-brand-ink);
+}
+/* Existing U1 semantic backgrounds (off-chain/verified/unavailable) stay authoritative. */
+.campaign-detail-flow .campaign-flow-status-tags .chain-badge { white-space: normal; }
+.campaign-detail-flow .campaign-flow-title {
+  color: var(--color-brand-ink);
+  max-width: 960px;
+  font-size: clamp(36px, 3.6vw, 51px);
+  font-weight: 950;
+  letter-spacing: -.035em;
+  line-height: 1.15;
+}
+.campaign-detail-flow .campaign-flow-intro {
+  color: var(--color-copy);
+  max-width: 850px;
+  margin-top: 19px;
+  font-size: 17px;
+  font-weight: 600;
+  line-height: 1.75;
+}
+.campaign-detail-flow .campaign-flow-facts {
+  color: var(--color-brand-ink);
+  font-size: 13px;
+  font-weight: 750;
+  gap: 14px 27px;
+  margin-top: 27px;
+  padding-bottom: 27px;
+  border-color: var(--detail-border);
+}
+.campaign-detail-flow .campaign-flow-facts svg { color: var(--color-brand); }
+.campaign-detail-flow .campaign-flow-columns {
+  margin-top: 34px;
+  gap: 32px;
+}
+
+/* Preserve media fidelity: improve the no-image placeholder, don't invent an image. */
+.campaign-detail-flow .campaign-flow-cover {
+  background: var(--detail-paper);
+  border-color: var(--detail-border);
+  box-shadow: 0 14px 32px color-mix(in srgb, var(--color-brand-ink) 10%, transparent);
+}
+.campaign-detail-flow .campaign-flow-cover-image [role="img"] {
+  background: linear-gradient(125deg,
+    var(--color-brand-ink) 0%,
+    var(--color-brand-hover) 66%,
+    color-mix(in srgb, var(--color-brand) 92%, var(--color-soft-mint)) 100%);
+  color: var(--color-soft-sand);
+}
+.campaign-detail-flow .campaign-flow-cover-image [role="img"] svg {
+  height: 56px;
+  width: 56px;
+  color: var(--color-soft-sand);
+}
+.campaign-detail-flow .campaign-flow-cover-image [role="img"] span {
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--color-soft-sand);
+}
+.campaign-detail-flow .campaign-flow-cover-caption {
+  font-size: 11px;
+  font-weight: 850;
+  background: var(--color-brand-ink);
+  color: var(--color-soft-sand);
+}
+
+/* Editorial dossier cards: a distinct foreground layer, larger Vietnamese copy. */
+.campaign-detail-flow :is(.campaign-flow-story,.campaign-flow-gallery,.campaign-flow-milestones) {
+  margin-top: 33px;
+  padding: 32px 37px;
+  background: var(--detail-paper);
+  border-color: var(--detail-border);
+  box-shadow: 0 9px 24px color-mix(in srgb, var(--color-brand-ink) 8%, transparent);
+}
+.campaign-detail-flow .campaign-flow-story::before {
+  background: radial-gradient(circle, color-mix(in srgb, var(--color-brand) 54%, var(--color-border)) 2px, transparent 3px) center / 4px 24px repeat-y;
+}
+.campaign-detail-flow .campaign-flow-eyebrow {
+  font-size: 11px;
+  color: var(--color-brand);
+  letter-spacing: .115em;
+}
+.campaign-detail-flow :is(.campaign-flow-story-section h2,.campaign-flow-gallery h2,.campaign-flow-heading-row h2) {
+  font-size: 23px;
+  line-height: 1.3;
+  color: var(--color-brand-ink);
+  font-weight: 900;
+}
+.campaign-detail-flow .campaign-flow-story-section {
+  margin-top: 29px;
+  padding-bottom: 28px;
+  border-bottom-color: var(--detail-border);
+}
+.campaign-detail-flow .campaign-flow-story-section p {
+  font-size: 15px;
+  line-height: 1.82;
+  font-weight: 500;
+  color: var(--color-copy);
+}
+.campaign-detail-flow .campaign-flow-heading-row p,
+.campaign-detail-flow .campaign-flow-gallery > p {
+  font-size: 13px;
+  line-height: 1.75;
+  color: var(--detail-muted);
+}
+.campaign-detail-flow .campaign-flow-milestone-list { gap: 16px; margin-top: 24px; }
+.campaign-detail-flow .campaign-flow-milestone {
+  padding: 21px;
+  background: color-mix(in srgb, var(--color-surface) 88%, var(--color-soft-mint));
+  border-color: var(--detail-border);
+  box-shadow: 0 3px 8px color-mix(in srgb, var(--color-brand-ink) 4%, transparent);
+}
+.campaign-detail-flow .campaign-flow-milestone-number {
+  background: var(--color-soft-mint);
+  color: var(--color-brand-ink);
+  font-size: 16px;
+}
+.campaign-detail-flow .campaign-flow-milestone-head h3 {
+  font-size: 16px;
+  font-weight: 850;
+  line-height: 1.45;
+  color: var(--color-brand-ink);
+}
+.campaign-detail-flow .campaign-flow-milestone-description {
+  font-size: 14px;
+  color: var(--color-copy);
+  line-height: 1.75;
+}
+.campaign-detail-flow .campaign-flow-milestone-details {
+  font-size: 12px;
+  line-height: 1.65;
+  color: var(--detail-muted);
+  gap: 10px 22px;
+}
+
+/* Funding sidebar remains exactly where the approved two-column layout placed it. */
+.campaign-detail-flow :is(.campaign-flow-summary,.campaign-flow-organization) {
+  background: var(--detail-paper);
+  border-color: var(--detail-border);
+  box-shadow: 0 11px 28px color-mix(in srgb, var(--color-brand-ink) 9%, transparent);
+}
+.campaign-detail-flow .campaign-flow-summary h2 {
+  font-size: 24px;
+  line-height: 1.27;
+  color: var(--color-brand-ink);
+}
+.campaign-detail-flow .campaign-flow-summary-stats small {
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--detail-muted);
+}
+.campaign-detail-flow .campaign-flow-summary-stats strong {
+  font-size: 15px;
+  color: var(--color-brand-ink);
+}
+.campaign-detail-flow .campaign-flow-organization h2 { font-size: 18px; }
+.campaign-detail-flow .campaign-flow-organization p:not(.campaign-flow-eyebrow) {
+  font-size: 13px;
+  line-height: 1.7;
+  color: var(--detail-muted);
+}
+.campaign-detail-flow .campaign-flow-disclaimer {
+  font-size: 13px;
+  line-height: 1.75;
+  color: color-mix(in srgb, var(--color-warning) 65%, var(--color-brand-ink));
+  background: color-mix(in srgb, var(--color-soft-sand) 74%, var(--color-warning) 26%);
+  border-color: color-mix(in srgb, var(--color-warning) 40%, var(--color-border));
+}
+.campaign-detail-flow .campaign-flow-cta,
+.campaign-detail-flow .campaign-flow-cta-secondary { font-size: 14px; }
+
+@media (min-width: 1280px) {
+  .campaign-detail-flow .campaign-flow-aside {
+    --detail-sidebar-top: 6rem;
+    position: static;
+    display: flex;
+    flex-direction: column;
+    align-self: stretch;
+  }
+  .campaign-detail-flow .campaign-flow-summary-track { flex: 1 0 auto; min-width: 0; }
+  .campaign-detail-flow .campaign-flow-summary {
+    position: sticky;
+    top: var(--detail-sidebar-top);
+    padding: 20px;
+    max-height: calc(100dvh - var(--detail-sidebar-top) - 1rem);
+    overflow: auto;
+  }
+  .campaign-detail-flow .campaign-flow-summary h2 { margin-block: 8px 16px; }
+  .campaign-detail-flow .campaign-flow-summary-stats { margin-top: 16px; padding-top: 14px; }
+  .campaign-detail-flow .campaign-flow-summary .campaign-flow-disclaimer { margin-top: 14px; padding: 12px; }
+  .campaign-detail-flow .campaign-flow-summary .campaign-flow-cta { margin-top: 14px; }
+  .campaign-detail-flow .campaign-flow-summary .campaign-flow-cta-secondary { margin-top: 8px; }
+  .campaign-detail-flow .campaign-flow-summary-context {
+    grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr);
+    gap: 10px;
+    margin-top: 16px;
+    padding-top: 14px;
+    border-top: 1px solid var(--detail-border);
+    font-size: 13px;
+    line-height: 1.5;
+  }
+  .campaign-detail-flow .campaign-flow-summary-context dt {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    color: var(--detail-muted);
+    font-weight: 700;
+  }
+  .campaign-detail-flow .campaign-flow-summary-context dd {
+    margin: 3px 0 0 22px;
+    color: var(--color-brand-ink);
+    font-weight: 750;
+    overflow-wrap: anywhere;
+  }
+}
+
+/* U2 is one of the campaign's editorial milestones, not a separate tech dashboard. */
+.campaign-detail-flow .campaign-flow-onchain {
+  margin-top: 33px;
+  padding: 32px 37px;
+  background: var(--detail-paper);
+  color: var(--color-brand-ink);
+  border: 1px solid var(--detail-border);
+  border-radius: 24px;
+  box-shadow: 0 9px 24px color-mix(in srgb, var(--color-brand-ink) 8%, transparent);
+}
+.campaign-detail-flow .campaign-flow-onchain .chain-heading {
+  justify-content: flex-start;
+  align-items: flex-start;
+  gap: 13px;
+  margin-bottom: 22px;
+}
+.campaign-detail-flow .campaign-flow-onchain .campaign-flow-heading-icon {
+  color: var(--color-brand);
+  background: var(--color-soft-mint);
+}
+.campaign-detail-flow .campaign-flow-onchain .chain-heading-copy { flex: 1; min-width: 0; }
+.campaign-detail-flow .campaign-flow-onchain .chain-heading h2 {
+  margin: 0;
+  font-size: 23px;
+  line-height: 1.3;
+  color: var(--color-brand-ink);
+}
+.campaign-detail-flow .campaign-flow-onchain .chain-eyebrow {
+  font-size: 11px;
+  font-weight: 900;
+  color: var(--color-brand);
+  letter-spacing: .12em;
+  margin-bottom: 7px;
+}
+.campaign-detail-flow .campaign-flow-onchain .chain-heading-copy > p:last-child {
+  margin-top: 7px;
+  font-size: 13px;
+  color: var(--detail-muted);
+  line-height: 1.65;
+}
+.campaign-detail-flow .campaign-flow-onchain .chain-link {
+  color: var(--color-brand-hover);
+  font-size: 13px;
+  min-height: 44px;
+}
+.campaign-detail-flow .campaign-flow-onchain .chain-heading > .chain-link {
+  flex: 0 0 auto;
+  margin-left: auto;
+  align-self: flex-start;
+}
+.campaign-detail-flow .campaign-flow-onchain .chain-muted {
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.75;
+  color: var(--color-copy);
+}
+.campaign-detail-flow .campaign-flow-onchain .chain-heading + .chain-muted {
+  padding: 17px 20px;
+  background: color-mix(in srgb, var(--color-surface) 84%, var(--color-soft-mint));
+  border: 1px solid var(--detail-border);
+  border-radius: 16px;
+}
+.campaign-detail-flow .campaign-flow-onchain .chain-flow-list { gap: 15px; margin-top: 18px; }
+.campaign-detail-flow .campaign-flow-onchain .chain-flow-step {
+  position: relative;
+  padding: 20px 22px;
+  border: 1px solid var(--detail-border);
+  border-radius: 17px;
+  background: color-mix(in srgb, var(--color-surface) 90%, var(--color-soft-mint));
+  box-shadow: none;
+}
+.campaign-detail-flow .campaign-flow-onchain .chain-flow-step-top { font-size: 15px; }
+.campaign-detail-flow .campaign-flow-onchain .chain-flow-step p {
+  font-size: 13px;
+  color: var(--detail-muted);
+}
+.campaign-detail-flow .campaign-flow-onchain .chain-footnote {
+  padding-top: 16px;
+  font-size: 12.5px;
+  line-height: 1.7;
+  color: var(--detail-muted);
+  border-top-color: var(--detail-border);
+}
+
+/* Only the Detail route is visually reviewed at 1440px; preserve runtime usability. */
+@media (max-width: 1000px) {
+  .campaign-detail-flow .campaign-flow-onchain .chain-heading { flex-wrap: wrap; }
+  .campaign-detail-flow .campaign-flow-onchain .chain-heading > .chain-link { margin-left: 59px; }
+}
+@media (max-width: 640px) {
+  .campaign-detail-flow .campaign-flow-container { padding-top: 30px; padding-bottom: 52px; }
+  .campaign-detail-flow :is(.campaign-flow-story,.campaign-flow-gallery,.campaign-flow-milestones,.campaign-flow-onchain) { padding: 24px 21px; }
+  .campaign-detail-flow .campaign-flow-title { font-size: 35px; }
+  .campaign-detail-flow .campaign-flow-onchain .chain-heading > .chain-link { margin-left: 0; }
+}
+
+/* Owner-approved Campaign Detail composition. Desktop only. */
+@media (min-width: 1280px) {
+  div:has(> #main-content > .campaign-detail-flow) > header {
+    background: #102f25;
+    color: #fff8ec;
+    border-color: #315044;
+  }
+  div:has(> #main-content > .campaign-detail-flow) > header > div { max-width: 1360px; }
+  div:has(> #main-content > .campaign-detail-flow) > header nav { background: transparent; }
+  div:has(> #main-content > .campaign-detail-flow) > header :is(nav a, nav button, strong, strong + span) {
+    color: #fff8ec;
+  }
+  div:has(> #main-content > .campaign-detail-flow[data-content-ready="true"]) > a + div {
+    display: none;
+  }
+  .campaign-detail-flow {
+    --detail-paper: #fff6e4;
+    --detail-ink: #102f25;
+    --detail-muted: #384c40;
+    --detail-orange: #a33d08;
+    position: relative;
+    overflow-x: clip;
+    background: #fbedd4;
+  }
+  .campaign-detail-flow .campaign-flow-topband {
+    position: relative;
+    z-index: 1;
+    background: transparent;
+    border: 0;
+  }
+  .campaign-detail-flow .campaign-flow-topband::before { content: none; }
+  .campaign-detail-flow .campaign-flow-topband > div,
+  .campaign-detail-flow .campaign-flow-container { max-width: 1360px; padding-inline: 40px; }
+  .campaign-detail-flow[data-content-ready="true"] .campaign-flow-back { color: #fff8ec; }
+  .campaign-detail-flow .campaign-flow-container { padding-top: 29px; padding-bottom: 40px; }
+  .campaign-detail-flow .detail-hero-copy {
+    min-height: 387px;
+    max-width: 655px;
+    padding-bottom: 30px;
+    color: #fff8ec;
+  }
+  .campaign-detail-flow .campaign-flow-cover {
+    position: absolute;
+    z-index: -1;
+    inset: 0 0 auto;
+    height: 526px;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: #112f23;
+    box-shadow: none;
+    clip-path: polygon(0 0,100% 0,100% 98%,94% 97%,88% 96%,80% 98%,73% 97%,66% 99%,60% 95%,52% 97%,45% 93%,39% 92%,32% 89%,25% 88%,18% 90%,10% 93%,0 99%);
+  }
+  .campaign-detail-flow .campaign-flow-cover-image { border-radius: 0; width: 100%; height: 100%; }
+  .campaign-detail-flow .campaign-flow-cover-image img { object-position: center 45%; }
+  .campaign-detail-flow .campaign-flow-cover-image [role="img"] {
+    background: #173f31 url('/b2-home/hero-community.jpg') center 42% / cover no-repeat;
+  }
+  .campaign-detail-flow [data-illustration="kitchen"] .campaign-flow-cover-image [role="img"] {
+    background-image: url('/campaign-detail/hero.webp');
+  }
+  .campaign-detail-flow .campaign-flow-cover-image [role="img"] :is(svg,span) { display: none; }
+  .campaign-detail-flow .campaign-flow-cover::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: linear-gradient(90deg,#071e16 0%,#0a291ee8 23%,#102f238a 42%,transparent 71%);
+  }
+  .campaign-detail-flow .campaign-flow-cover-caption {
+    z-index: 1;
+    inset: 18px max(3vw,32px) auto auto;
+    max-width: 280px;
+    padding: 10px 15px;
+    border-radius: 10px;
+    background: #fff6e4;
+    color: #102f25;
+  }
+  .campaign-detail-flow .campaign-flow-status-tags { margin-bottom: 18px; }
+  .campaign-detail-flow .campaign-flow-status-tags > span:first-child { background: #a33d08; border-color: #dc793e; color: #fffaf0; }
+  .campaign-detail-flow .campaign-flow-status-tags .campaign-flow-tag-warm {
+    border-color: #eac09c;
+    background: #f7c5b0;
+    color: #4e271c;
+  }
+  .campaign-detail-flow .campaign-flow-title {
+    max-width: 608px;
+    color: #fff8e8;
+    font: 700 54px/1.04 'Times New Roman', Georgia, serif;
+    letter-spacing: -.038em;
+    text-wrap: balance;
+  }
+  .campaign-detail-flow .campaign-flow-intro {
+    max-width: 480px;
+    color: #fff8ec;
+    font-size: 19px;
+    line-height: 1.44;
+  }
+  .campaign-detail-flow .campaign-flow-facts {
+    max-width: 570px;
+    margin-top: 23px;
+    padding: 0;
+    color: #fff8ec;
+    border: 0;
+    gap: 12px 20px;
+  }
+  .campaign-detail-flow .campaign-flow-facts svg { flex: 0 0 17px; color: #fff8ec; }
+  .campaign-detail-flow .campaign-flow-columns {
+    grid-template-columns: minmax(0,1fr) 375px;
+    gap: 28px;
+    margin-top: 0;
+  }
+  .campaign-detail-flow .campaign-flow-story {
+    position: relative;
+    margin: 0;
+    padding: 30px 12px 24px 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+  }
+  .campaign-detail-flow .campaign-flow-story::before {
+    inset: 54px auto auto -95px;
+    width: 94px;
+    height: 220px;
+    opacity: .7;
+    background: url('/b2-home/botanical-edge.svg') left center / contain no-repeat;
+  }
+  .campaign-detail-flow .campaign-flow-story > .campaign-flow-eyebrow {
+    margin: 0 0 12px;
+    font: italic 700 30px/1 'Times New Roman', Georgia, serif;
+    text-transform: none;
+    letter-spacing: -.03em;
+    color: var(--detail-orange);
+  }
+  .campaign-detail-flow .detail-story-intro {
+    display: grid;
+    grid-template-columns: minmax(0,1fr) minmax(180px,245px);
+    gap: 23px;
+    align-items: center;
+    margin-bottom: 26px;
+  }
+  .campaign-detail-flow .detail-story-intro h2 {
+    font: 700 43px/1.02 'Times New Roman', Georgia, serif;
+    letter-spacing: -.035em;
+    color: var(--detail-ink);
+  }
+  .campaign-detail-flow .detail-story-copy { margin-top: 14px; white-space: pre-line; overflow-wrap: anywhere; font-size: 15px; line-height: 1.64; }
+  .campaign-detail-flow .detail-story-art {
+    position: relative;
+    margin: 0 8px 0 2px;
+    padding: 9px 9px 5px;
+    background: #fff9ed;
+    box-shadow: 0 7px 16px #654b323f;
+    transform: rotate(-6deg);
+  }
+  .campaign-detail-flow .detail-story-art::before {
+    content: "";
+    position: absolute;
+    width: 83px;height: 23px;
+    inset: -10px auto auto 25%;
+    background: #f1c058;
+    opacity: .92;
+    transform: rotate(10deg);
+  }
+  .campaign-detail-flow .detail-story-art img { width: 100%; height: 158px; object-fit: cover; }
+  .campaign-detail-flow .detail-story-art figcaption { padding: 3px 0 0; color: #55462e; font-size: 11px; }
+  .campaign-detail-flow .detail-story-cards {
+    display: grid;
+    grid-template-columns: repeat(3,minmax(0,1fr));
+    gap: 14px;
+  }
+  .campaign-detail-flow .detail-story-cards .campaign-flow-story-section {
+    margin: 0;
+    padding: 18px 15px 60px;
+    border: 0;
+    border-radius: 20px 20px 17px 23px;
+    position: relative;
+    overflow: hidden;
+    background: #f4e6cc;
+  }
+  .campaign-detail-flow .detail-story-cards .campaign-flow-story-section::after {
+    content: "";
+    position: absolute;
+    inset: auto 0 0;
+    height: 45px;
+    pointer-events: none;
+    background: url('/campaign-detail/landscape.webp') center 69% / cover no-repeat;
+    mask-image: linear-gradient(transparent,black 30%);
+  }
+  .campaign-detail-flow .detail-story-cards .campaign-flow-story-section:nth-child(2) { background-color: #e9eddb; }
+  .campaign-detail-flow .detail-story-cards .campaign-flow-story-section:nth-child(3) { background-color: #f6e6d7; }
+  .campaign-detail-flow .campaign-flow-story-section h2 {
+    display: flex;
+    gap: 7px;
+    align-items: center;
+    font-size: 17px;
+    font-weight: 850;
+    line-height: 1.23;
+    color: var(--detail-ink);
+  }
+  .campaign-detail-flow .campaign-flow-story-section h2 svg { flex: 0 0 25px; color: var(--detail-orange); }
+  .campaign-detail-flow .detail-story-cards .campaign-flow-story-section:nth-child(2) svg { color: #235940; }
+  .campaign-detail-flow .detail-story-cards .campaign-flow-story-section p { margin-top: 11px; font-size: 14px; line-height: 1.55; }
+  .campaign-detail-flow .campaign-flow-milestones {
+    position: relative;
+    z-index: 0;
+    margin: 26px 0 0;
+    padding: 25px 0 42px;
+    border: 0;
+    border-radius: 0;
+    background: none;
+    box-shadow: none;
+  }
+  .campaign-detail-flow .campaign-flow-milestones::before {
+    content: "";
+    position: absolute;
+    inset: -16px auto -11px calc((100vw - 1360px) / -2 - 40px);
+    z-index: -1;
+    width: 100vw;
+    background: #163d31 url('/b2-home/forest-deep.svg') center / cover no-repeat;
+    clip-path: polygon(0 4%,5% 2%,11% 4%,18% 1%,25% 4%,32% 2%,39% 5%,47% 2%,53% 4%,64% 1%,75% 4%,87% 1%,100% 3%,100% 98%,89% 100%,80% 97%,70% 99%,60% 97%,53% 100%,42% 97%,31% 100%,22% 97%,11% 99%,0 97%);
+  }
+  .campaign-detail-flow .campaign-flow-milestones[data-illustration="kitchen"]::before {
+    background-image: url('/campaign-detail/forest.webp');
+  }
+  .campaign-detail-flow .campaign-flow-milestones .campaign-flow-heading-icon { display: none; }
+  .campaign-detail-flow .campaign-flow-milestones .campaign-flow-heading-row h2 {
+    font: 700 41px/1.08 'Times New Roman', Georgia, serif;
+    color: #fff8e8;
+  }
+  .campaign-detail-flow .campaign-flow-milestones .campaign-flow-heading-row p { color: #fff8ec; font-size: 14px; }
+  .campaign-detail-flow .detail-milestone-count { color: #ffb06b; font-size: 52px; font-style: italic; }
+  .campaign-detail-flow .campaign-flow-milestone-list {
+    grid-template-columns: repeat(3,minmax(0,1fr));
+    gap: 17px;
+    margin-top: 27px;
+    padding-top: 13px;
+    border-top: 2px dashed #f2ce77;
+  }
+  .campaign-detail-flow .campaign-flow-milestone {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: flex-start;
+    gap: 8px;
+    min-width: 0;
+    padding: 10px 10px 17px;
+    border: 0;
+    border-radius: 19px 22px 17px 23px;
+    background: #fff4dc;
+  }
+  .campaign-detail-flow .campaign-flow-milestone-number {
+    position: absolute;
+    z-index: 1;
+    inset: -25px auto auto calc(50% - 18px);
+    width: 36px;
+    height: 36px;
+    border: 3px solid #fff8ec;
+    border-radius: 50%;
+    background: #a33d08;
+    color: white;
+  }
+  .campaign-detail-flow .detail-milestone-art {
+    position: relative;
+    margin: 0;
+    overflow: hidden;
+    border-radius: 12px;
+  }
+  .campaign-detail-flow .detail-milestone-art img { width: 100%; height: 122px; object-fit: cover; }
+  .campaign-detail-flow .detail-milestone-art figcaption {
+    position: absolute;
+    inset: auto 0 0 auto;
+    padding: 3px 7px;
+    border-radius: 6px 0 0;
+    background: #102f25;
+    color: #fff6e4;
+    font-size: 10px;
+  }
+  .campaign-detail-flow .campaign-flow-milestone-body { padding-inline: 5px; }
+  .campaign-detail-flow .campaign-flow-milestone-head { display: flex; flex-wrap: wrap; gap: 6px; }
+  .campaign-detail-flow .campaign-flow-milestone-details { gap: 6px 12px; }
+  .campaign-detail-flow .campaign-flow-milestone-details svg { display: inline-block; vertical-align: -.14em; }
+  .campaign-detail-flow .campaign-flow-aside { z-index: 1; }
+  .campaign-detail-flow .campaign-flow-summary {
+    border-color: #e9dfc8;
+    border-radius: 26px;
+    background: #fff8e9;
+    box-shadow: 0 14px 30px #3c342a24;
+    scrollbar-width: thin;
+  }
+  .campaign-detail-flow .campaign-flow-summary h2 { margin-top: 0; }
+  .campaign-detail-flow .detail-funding { position: relative; }
+  .campaign-detail-flow .detail-funding > div:first-child > div:first-child { min-height: 75px; padding-right: 92px; }
+  .campaign-detail-flow .detail-funding:has(.detail-funding-ring) > div:first-child > div:first-child > p { display: none; }
+  .campaign-detail-flow .detail-funding-ring {
+    position: absolute;
+    inset: 0 0 auto auto;
+    width: 83px;height: 83px;
+    place-items: center;
+    color: var(--detail-ink);
+  }
+  .campaign-detail-flow .detail-funding-ring svg { grid-area: 1 / 1; transform: rotate(-90deg); }
+  .campaign-detail-flow .detail-funding-ring span { grid-area: 1 / 1; font-size: 21px; font-weight: 900; }
+  .campaign-detail-flow .detail-funding-ring circle:first-child { stroke: #d9e4ce; stroke-width: 10; }
+  .campaign-detail-flow .detail-funding-ring circle:last-child { stroke: #276846; stroke-width: 10; stroke-linecap: round; }
+  .campaign-detail-flow .campaign-flow-summary-stats {
+    border: 0;
+    border-radius: 12px;
+    padding: 12px;
+    background: #f4ead4;
+  }
+  .campaign-detail-flow .campaign-flow-summary .campaign-flow-cta { color: white; background: #a63d08; }
+  .campaign-detail-flow .campaign-flow-summary .campaign-flow-cta:hover { background: #863407; }
+  .campaign-detail-flow .campaign-flow-summary .campaign-flow-disclaimer { color: #392824; background: #eee1d7; border-color: #e4c7b9; }
+  .campaign-detail-flow .campaign-flow-summary .campaign-flow-disclaimer strong { display: block; margin-bottom: 4px; }
+  .campaign-detail-flow .campaign-flow-summary-context { grid-template-columns: 1fr; gap: 7px; }
+  .campaign-detail-flow .campaign-flow-onchain { margin-top: 32px; }
+  .campaign-detail-flow .campaign-flow-onchain .chain-heading > .chain-link {
+    border: 1px solid #276846;
+    border-radius: 10px;
+    padding: 0 10px;
+    display: inline-flex;
+    align-items: center;
+    text-align: center;
+    text-decoration: none;
+    background: #f1f4e5;
+  }
+  .campaign-detail-flow .detail-chain-offchain {
+    align-items: center;
+    margin-bottom: 7px;
+    padding: 5px 12px;
+    border-radius: 10px;
+    background: #f8d8bc;
+    color: #572909;
+    font-size: 14px;
+    font-weight: 850;
+  }
+  .campaign-detail-flow .detail-footer-landscape {
+    position: relative;
+    z-index: -1;
+    height: 243px;
+    margin-top: -33px;
+    background: url('/campaign-detail/landscape.webp') center bottom / cover no-repeat;
+    mask-image: linear-gradient(transparent,black 22%);
+  }
+}

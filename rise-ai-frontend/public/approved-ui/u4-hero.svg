@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 230 210" width="100%" style="max-width:220px" role="img" aria-label="Minh họa sổ ghi chép và khiên xác minh">
+          <ellipse cx="122" cy="190" rx="105" ry="10" fill="#113e31" opacity=".4"/>
+          <g stroke="#103c30" stroke-width="4" stroke-linejoin="round" stroke-linecap="round">
+            <path d="M38 169q-17 -28 0 -55q30 19 15 55" fill="#8fe0b3"/>
+            <path d="M39 166l4 -28" fill="none"/>
+            <rect x="48" y="19" width="131" height="161" rx="13" fill="#ffca8a" transform="rotate(-8 114 100)"/>
+            <rect x="65" y="40" width="100" height="121" rx="7" fill="#fff8e6" transform="rotate(-8 114 100)"/>
+            <rect x="92" y="12" width="48" height="22" rx="7" fill="#56e0a8" transform="rotate(-8 116 23)"/>
+            <path d="M84 81l58 -8M84 100l35 -5M83 132l55 -8M85 146l35 -5" fill="none"/>
+            <path d="M107 113l10 7 15 -22" fill="none" stroke="#15976b" stroke-width="6"/>
+            <path d="M171 58l43 17v26q-4 35 -43 52 -40 -17 -43 -52V75z" fill="#78d4f6"/>
+            <path d="M149 103l17 13 27 -33" stroke-width="6" fill="none"/>
+            <circle cx="174" cy="160" r="29" fill="#fff1c8"/>
+            <circle cx="174" cy="160" r="18" fill="#ffdfa2" stroke="none"/>
+            <path d="M195 182l14 23" stroke-width="9"/>
+          </g>
+          <path d="M30 54l5 12 12 5 -12 5 -5 12 -5 -12 -12 -5 12 -5z" fill="#ffd184" stroke="#103c30" stroke-width="2"/>
+        </svg>

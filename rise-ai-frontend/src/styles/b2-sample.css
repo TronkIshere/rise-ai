@@ -1901,3 +1901,105 @@
 }
 
 .creator-operations .ops-icon svg { display: inline-block; }
+
+/* BEGIN RISE LOGIN ILLUSTRATED VALUES v1 */
+/* RISE LOGIN VALUE ART v1 — only the three decorative /login icons.
+   Homepage / Campaign Detail / U1 / U2 / U3 / footer are unaffected. */
+@media (min-width: 1200px) {
+  .b2-sample-main .rise-entry-page .b2-login-story h1 {
+    /* Compensate visually for removing the small Rise AI seal. */
+    margin-top: 46px;
+  }
+  .b2-sample-main .rise-entry-page .b2-login-values {
+    gap: 13px;
+  }
+  .b2-sample-main .rise-entry-page .b2-login-values li {
+    min-height: 58px;
+    gap: 15px;
+    transition: transform 220ms ease;
+  }
+  .b2-sample-main .rise-entry-page .b2-login-value-art {
+    position: relative;
+    display: grid;
+    place-items: center;
+    isolation: isolate;
+    flex: 0 0 56px;
+    width: 56px;
+    height: 56px;
+    border-radius: 19px;
+    border: 1px solid var(--b2-art-edge);
+    background: linear-gradient(145deg, #fffdf2 0%, var(--b2-art-paper) 82%);
+    box-shadow: inset 0 2px 1px #ffffffcf, 0 5px 0 var(--b2-art-bottom), 0 10px 18px #00180f42;
+    transform: rotate(-3deg);
+    transition: transform 250ms cubic-bezier(.2,1.6,.35,1), box-shadow 250ms ease;
+  }
+  .b2-sample-main .rise-entry-page .b2-login-value-art--support {
+    --b2-art-edge: #d9b46c; --b2-art-paper: #fff0cf; --b2-art-bottom: #b78846;
+  }
+  .b2-sample-main .rise-entry-page .b2-login-value-art--community {
+    --b2-art-edge: #7bb9aa; --b2-art-paper: #e5f8ed; --b2-art-bottom: #3f9984;
+  }
+  .b2-sample-main .rise-entry-page .b2-login-value-art--impact {
+    --b2-art-edge: #a5c985; --b2-art-paper: #f0f8dc; --b2-art-bottom: #6b9b51;
+  }
+  .b2-sample-main .rise-entry-page .b2-login-values .b2-login-value-picto {
+    display: block;
+    position: relative;
+    z-index: 2;
+    width: 43px;
+    height: 43px;
+    padding: 0;
+    border-radius: 0;
+    background: none;
+    overflow: visible;
+    filter: drop-shadow(0 1.5px 1px #3524142f);
+  }
+  .b2-sample-main .rise-entry-page .b2-login-value-shine {
+    position: absolute;
+    top: 5px;
+    left: 7px;
+    width: 14px;
+    height: 6px;
+    border-radius: 50%;
+    transform: rotate(-35deg);
+    background: #ffffffb3;
+    pointer-events: none;
+  }
+  .b2-sample-main .rise-entry-page .b2-login-values li:hover .b2-login-value-art {
+    transform: translateY(-4px) rotate(2deg) scale(1.055);
+    box-shadow: inset 0 2px 1px #ffffffcf, 0 8px 0 var(--b2-art-bottom), 0 16px 24px #00180f42;
+  }
+  .b2-sample-main .rise-entry-page .b2-login-values li:hover strong {
+    color: #ffe1a4;
+  }
+  .b2-sample-main .rise-entry-page .b2-login-values strong {
+    transition: color 200ms ease;
+  }
+  /* Small hand-painted details are inside the SVG, not icon-font glyphs. */
+  .b2-sample-main .rise-entry-page .b2-picto-heart-shadow { fill: #b86429; }
+  .b2-sample-main .rise-entry-page .b2-picto-heart { fill: #f2a82a; stroke: #aa621e; stroke-width: 1.8; }
+  .b2-sample-main .rise-entry-page .b2-picto-heart-glint { fill: none; stroke: #fff6c6; stroke-width: 3; stroke-linecap: round; }
+  .b2-sample-main .rise-entry-page .b2-picto-hand { fill: #f6bb81; stroke: #99613b; stroke-width: 1.7; stroke-linejoin: round; }
+  .b2-sample-main .rise-entry-page .b2-picto-cuff { fill: #278a65; stroke: #165d47; stroke-width: 1.8; }
+  .b2-sample-main .rise-entry-page .b2-picto-detail { fill: none; stroke: #ffffffa8; stroke-width: 2; stroke-linecap: round; }
+  .b2-sample-main .rise-entry-page .b2-picto-face-side { fill: #ffcd98; stroke: #99643c; stroke-width: 1.8; }
+  .b2-sample-main .rise-entry-page .b2-picto-face-side-alt { fill: #ffdba7; stroke: #99643c; stroke-width: 1.8; }
+  .b2-sample-main .rise-entry-page .b2-picto-person-side { fill: #55aa83; stroke: #247159; stroke-width: 1.8; }
+  .b2-sample-main .rise-entry-page .b2-picto-person-side-alt { fill: #f1b94f; stroke: #a56d22; stroke-width: 1.8; }
+  .b2-sample-main .rise-entry-page .b2-picto-face { fill: #ffd8ac; stroke: #986440; stroke-width: 1.8; }
+  .b2-sample-main .rise-entry-page .b2-picto-person { fill: #379b84; stroke: #206750; stroke-width: 1.9; }
+  .b2-sample-main .rise-entry-page .b2-picto-sun { fill: #ffbe55; stroke: #d78b25; stroke-width: 1.8; }
+  .b2-sample-main .rise-entry-page .b2-picto-ground { fill: #f0bf62; stroke: #b17a32; stroke-width: 1.8; }
+  .b2-sample-main .rise-entry-page .b2-picto-stem { fill: none; stroke: #276c40; stroke-width: 3.3; stroke-linecap: round; }
+  .b2-sample-main .rise-entry-page .b2-picto-leaf-left { fill: #71c360; stroke: #277849; stroke-width: 1.8; }
+  .b2-sample-main .rise-entry-page .b2-picto-leaf-right { fill: #39a96d; stroke: #21794f; stroke-width: 1.8; }
+  .b2-sample-main .rise-entry-page .b2-picto-leaf-vein { fill: none; stroke: #e6f6b2; stroke-width: 1.5; stroke-linecap: round; }
+  .b2-sample-main .rise-entry-page .b2-picto-soil { fill: none; stroke: #fff0b7; stroke-width: 2; stroke-linecap: round; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .b2-sample-main .rise-entry-page .b2-login-values li,
+  .b2-sample-main .rise-entry-page .b2-login-values li strong,
+  .b2-sample-main .rise-entry-page .b2-login-value-art { transition: none; }
+  .b2-sample-main .rise-entry-page .b2-login-values li:hover .b2-login-value-art { transform: rotate(-3deg); }
+}
+/* END RISE LOGIN ILLUSTRATED VALUES v1 */

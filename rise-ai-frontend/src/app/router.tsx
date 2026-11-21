@@ -21,6 +21,7 @@ import { CampaignDetailPage } from '@/pages/CampaignDetailPage';
 import { LoginPage } from '@/pages/LoginPage';
 import { WorkspacePage } from '@/pages/WorkspacePage';
 import { NotFoundPage } from '@/pages/NotFoundPage';
+import { TransparencyPage } from '@/pages/TransparencyPage';
 
 export const router = createBrowserRouter([
   // B2 owns its approved header and footer. Other routes retain SiteShell.
@@ -30,7 +31,8 @@ export const router = createBrowserRouter([
   {
     element: <SiteShell />,
     children: [
-      { path: '/campaigns/:slug', element: <CampaignDetailPage /> },
+      { path: '/transparency', handle: { b2Sample: 'all' }, element: <TransparencyPage /> },
+      { path: '/campaigns/:slug', handle: { b2Sample: 'all' }, element: <CampaignDetailPage /> },
       { path: '/login', handle: { b2Sample: 'all', footer: false }, element: <LoginPage /> },
       { path: '/campaigns/:slug/contribute', element: <RequireAuth><RequireRole role="DONOR"><ContributePage /></RequireRole></RequireAuth> },
       { path: '/donor', element: <RequireAuth><RequireRole role="DONOR"><DonorDashboardPage /></RequireRole></RequireAuth> },

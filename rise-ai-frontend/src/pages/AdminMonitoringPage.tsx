@@ -4,7 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { ArrowRight, RefreshCcw, ScanSearch } from 'lucide-react';
 import { Link } from 'react-router';
 import { useAuth } from '@/auth/auth-context';
-import { listFindings, listRulePrecision, type FindingFilters, type FindingReviewStatus, type FindingSeverity } from '@/api/monitoring';
+import { listFindings, listRulePrecision, type FindingFilters, type FindingReviewStatus, type FindingSeverity, type RulePrecision } from '@/api/monitoring';
 import { Container } from '@/components/layout/Container';
 import { Button } from '@/components/ui/Button';
 import { AdminMonitoringNav } from '@/components/ui/AdminMonitoringNav';
@@ -12,6 +12,7 @@ import { Input } from '@/components/ui/Input';
 import { RecordPagination } from '@/components/ui/RecordPagination';
 import { StatusMessage } from '@/components/ui/StatusMessage';
 import { findingStatusText, reviewStates, severityStates, severityText, countText, timeText, shortRef } from '@/lib/monitoring-display';
+import { assessRulePrecision, ruleCount } from '@/lib/rule-precision-display';
 
 const uuid=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 export function AdminMonitoringPage(){
@@ -37,7 +38,7 @@ export function AdminMonitoringPage(){
       <p>Theo dõi mức độ và trạng thái đánh giá. Cảnh báo chỉ là tín hiệu tham khảo cho người kiểm tra.</p>
     </AdminMasthead>
     <AdminMonitoringNav/>
-    <div className="admin-risk-board">
+    <div className="admin-risk-board u6-findings-board">
     <section className="admin-risk-list" aria-labelledby="finding-list">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h2 id="finding-list" className="flex items-center gap-2 text-xl font-bold text-brand-ink"><ScanSearch aria-hidden="true" size={22} className="text-brand"/> Các phát hiện cần xem xét</h2>
@@ -91,20 +92,28 @@ export function AdminMonitoringPage(){
       </div>
       {findings.isSuccess?<><p className="mt-3 text-xs text-muted">Tổng số phù hợp: {countText(findings.data.totalElements)}</p><RecordPagination page={page} pages={findings.data.totalPages??0} onChange={setPage}/></>:null}
     </section>
-    <section className="admin-risk-rules" aria-labelledby="rule-precision">
-      <h2 id="rule-precision" className="text-xl font-bold text-brand-ink">Phân loại theo quy tắc đã được Admin đánh giá</h2>
-      <p className="mt-2 text-xs leading-6 text-muted">Tỷ lệ dưới đây chỉ dựa trên các cảnh báo đã có kết luận xác nhận/bác bỏ; không phải xác suất AI đúng cho mọi trường hợp.</p>
-      {precision.isPending?<div className="mt-5"><StatusMessage title="Đang tải thống kê quy tắc…"/></div>:null}
-      {precision.isError?<div className="mt-5"><StatusMessage error title="Không tải được thống kê rule" detail={precision.error.message}/></div>:null}
-      {precision.isSuccess&&!precision.data.length?<div className="mt-5"><StatusMessage title="Chưa có quy tắc được thống kê"/></div>:null}
-      <div className="admin-risk-rule-list">{precision.data?.map((rule,index)=><article key={rule.ruleId??index} className="admin-risk-rule">
-        <h3 className="break-all text-sm font-bold text-brand-ink">{rule.ruleId??'Rule chưa xác định'}</h3>
-        <p className="mt-2 text-sm">Xác nhận: {countText(rule.concernConfirmed)} · Không đủ căn cứ: {countText(rule.dismissed)}</p>
-        <p className="monitoring-rate">{typeof rule.precision==='number'?(rule.precision*100).toFixed(1)+'% trên các ca đã kết luận':'Chưa đủ dữ liệu kết luận'}</p>
-        <p className="mt-2 text-xs text-muted">Tổng {countText(rule.total)} · Đang mở {countText(rule.open)} · Đã ghi nhận {countText(rule.acknowledged)}</p>
-      </article>)}</div>
-    </section>
     </div>
+    <section className="u6-rule-card" aria-labelledby="rule-precision">
+      <header className="u6-cardhead"><h2 id="rule-precision">Hiệu quả quy tắc</h2><span className="u6-pill">{precision.isSuccess?`${precision.data.length} quy tắc`:precision.isPending?'Đang tải':'Không khả dụng'}</span></header>
+      <div className="u6-rule-body">
+        <p className="u6-intro">Tỷ lệ xác nhận được tính trên các phát hiện đã có kết luận của Admin; không phải xác suất AI đúng trên mọi cảnh báo.</p>
+        {precision.isPending?<StatusMessage title="Đang tải thống kê quy tắc…"/>:null}
+        {precision.isError?<StatusMessage error title="Không tải được thống kê quy tắc" detail={precision.error.message}/>:null}
+        {precision.isSuccess&&!precision.data.length?<StatusMessage title="Chưa có quy tắc được thống kê"/>:null}
+        {precision.isSuccess?<div className="u6-rows">{precision.data.map((rule,index)=><RulePrecisionRow key={rule.ruleId??index} rule={rule}/>)}</div>:null}
+        <p className="u6-note">Tỷ lệ = ca xác nhận quan ngại ÷ (ca xác nhận quan ngại + ca không đủ căn cứ). Các ca “Chưa đánh giá” không thuộc mẫu số. Trạng thái “Đã ghi nhận” được theo dõi riêng.</p>
+      </div>
+    </section>
     </Container>
   </div>;
+}
+
+function RulePrecisionRow({rule}:{rule:RulePrecision}){
+  const result=assessRulePrecision(rule);
+  return <article className="u6-rule-row" data-precision-state={result.state}>
+    <div className="u6-module"><span className="u6-label">Quy tắc</span><strong className="u6-rule-name">{rule.ruleId||'Quy tắc chưa xác định'}</strong><span className="u6-detail">Tổng {ruleCount(rule.total)} phát hiện</span></div>
+    <div className="u6-module u6-rate-module"><span className="u6-label">Tỷ lệ xác nhận</span><strong className="u6-rate-value">{result.precisionText}</strong><span className="u6-detail">{result.state==='valid'?`${ruleCount(rule.concernConfirmed)} / ${ruleCount(result.concluded)} ca kết luận`:result.state==='no-conclusion'?'Chưa có ca kết luận':'Cần xác minh dữ liệu'}</span>{result.issue?<span className="u6-no-data" role="alert">{result.issue}</span>:null}</div>
+    <div className="u6-module u6-outcomes"><span className="u6-label">Kết quả đã kết luận</span><div className="u6-outcome"><span className="u6-num">{ruleCount(rule.concernConfirmed)}</span><span className="u6-text">Xác nhận quan ngại</span></div><div className="u6-outcome"><span className="u6-num">{ruleCount(rule.dismissed)}</span><span className="u6-text">Không đủ căn cứ</span></div></div>
+    <div className="u6-module u6-pending"><span className="u6-label">Chưa đánh giá</span><strong className="u6-count">{ruleCount(rule.open)}</strong><span className="u6-desc">Phát hiện đang mở</span><span className="u6-desc">Đã ghi nhận: {ruleCount(rule.acknowledged)}</span></div>
+  </article>;
 }
