@@ -2254,9 +2254,9 @@
   content:"";
   position:absolute;
   z-index:-1;
-  inset:auto 0 -25px;
-  height:170px;
-  background:url("/b2-home/footer-hills.svg") center bottom/100% 100% no-repeat;
+  inset:auto 0 0;
+  height:145px;
+  background:url("/b2-home/footer-hills.svg") center top/100% 170px no-repeat;
   opacity:.32;
   pointer-events:none;
 }

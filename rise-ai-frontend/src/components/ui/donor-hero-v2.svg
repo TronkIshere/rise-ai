@@ -1,0 +1,15 @@
+<svg class="heroart" viewBox="0 0 350 280" role="img" aria-label="Hình minh họa cartoon hộp đóng góp có trái tim">
+<ellipse cx="180" cy="250" rx="115" ry="15" fill="#63a784" opacity=".42"/>
+<circle cx="277" cy="58" r="33" fill="#fff2ac" stroke="#123d30" stroke-width="4"/>
+<path d="m277 40 5 12 13 5-13 4-5 14-5-14-13-4 13-5Z" fill="#ffb96c" stroke="#123d30" stroke-width="2"/>
+<path d="M54 214Q20 152 53 118q33 44 23 107M67 206q36-72 59-49-2 53-50 72" fill="#4fe6ab" stroke="#123d30" stroke-width="4"/>
+<g transform="rotate(-8 178 159)">
+<path d="M110 103q0-13 15-13h113q16 0 16 13l-8 124q-1 15-17 15h-98q-16 0-17-15Z" fill="#ffb96c" stroke="#123d30" stroke-width="5"/>
+<path d="M106 101h150v25H106Z" fill="#4fe6ab" stroke="#123d30" stroke-width="5"/>
+<path d="M155 111h52" stroke="#123d30" stroke-width="7" stroke-linecap="round"/>
+<path d="M180 157c-13-21-34-7-31 10 3 19 31 34 31 34s29-17 31-35c2-18-23-30-31-9Z" fill="#fffaf1" stroke="#123d30" stroke-width="4"/>
+<path d="M154 218q6 7 12 0M199 218q6 7 12 0M176 229q8 7 16 0" fill="none" stroke="#123d30" stroke-width="3.5" stroke-linecap="round"/>
+</g>
+<g transform="rotate(13 181 72)"><circle cx="181" cy="72" r="28" fill="#ffe08a" stroke="#123d30" stroke-width="4"/><circle cx="181" cy="72" r="18" fill="none" stroke="#ac6c1f" stroke-width="2"/><path d="M181 59v27m-9-19q9-8 17 0-1 8-16 8-7 8 17 8" stroke="#935b18" stroke-width="3" fill="none"/></g>
+<g transform="translate(244 124) rotate(8)"><rect width="95" height="39" rx="10" fill="#eef9ff" stroke="#123d30" stroke-width="3"/><text x="47" y="25" text-anchor="middle" font-size="14" font-weight="900" fill="#123d30">+1 ♥ tốt</text></g>
+</svg>

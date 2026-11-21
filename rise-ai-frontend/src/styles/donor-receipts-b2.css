@@ -1,0 +1,179 @@
+/* Rise AI · PR #42 · U3 Donor Receipts — presentation only, scoped to /donor.
+   Colors reuse the approved B2 02 RECORD system. No API, auth or payment behavior changes. */
+.rise-dashboard.donor-dashboard .dashboard-section article.donor-receipt-row {
+  padding: 0;
+  background: #fff6e8;
+  border: 1px solid #e7c5a4;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 11px 0 #173b2d1b, 0 19px 31px #173b2d12;
+}
+.rise-dashboard.donor-dashboard .dashboard-section article.donor-receipt-row::before { display: none; }
+.donor-dashboard .donor-receipt-b2 {
+  display: grid;
+  grid-template-columns: 108px minmax(0, 1fr);
+  min-width: 0;
+  color: #673410;
+}
+.donor-dashboard .donor-receipt-b2-rail {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 11px;
+  padding: 31px 12px 22px;
+  background: #ffb96c;
+  color: #673410;
+  text-align: center;
+}
+.donor-dashboard .donor-receipt-b2-rail span {
+  font-size: 11px;
+  font-weight: 950;
+  letter-spacing: .14em;
+}
+.donor-dashboard .donor-receipt-b2-rail strong {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 53px;
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: -.055em;
+}
+.donor-dashboard .donor-receipt-b2-main {
+  min-width: 0;
+  padding: 26px 29px 24px;
+  background: #fff6e8;
+}
+.donor-dashboard .donor-receipt-b2-eyebrow {
+  color: #ad4619;
+  font-size: 12px;
+  font-weight: 950;
+  letter-spacing: .075em;
+}
+.donor-dashboard .donor-receipt-b2-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20px;
+  margin-top: 10px;
+}
+.donor-dashboard .donor-receipt-b2-heading h3 {
+  margin: 0;
+  color: #ad4619;
+  font-size: 22px;
+  font-weight: 950;
+  line-height: 1.28;
+  overflow-wrap: anywhere;
+}
+.donor-dashboard .donor-receipt-b2-amount {
+  margin-top: 8px;
+  color: #673410;
+  font-size: 24px;
+  font-weight: 900;
+  letter-spacing: -.025em;
+}
+.donor-dashboard .donor-receipt-b2-status {
+  flex-shrink: 0;
+  max-width: 190px;
+  border: 1px solid #c07d44;
+  border-radius: 999px;
+  padding: 9px 12px;
+  background: #ffe9c6;
+  color: #673410;
+  font-size: 12px;
+  font-weight: 850;
+  line-height: 1.4;
+  text-align: center;
+}
+.donor-dashboard .donor-receipt-b2[data-donation-status='CONFIRMED'] .donor-receipt-b2-status,
+.donor-dashboard .donor-receipt-b2[data-donation-status='PARTIALLY_REFUNDED'] .donor-receipt-b2-status {
+  border-color: #6aa789;
+  background: #dcf5e5;
+  color: #144a37;
+}
+.donor-dashboard .donor-receipt-b2[data-donation-status='REFUNDED'] .donor-receipt-b2-status,
+.donor-dashboard .donor-receipt-b2[data-donation-status='REFUND_PENDING'] .donor-receipt-b2-status {
+  border-color: #78b8d4;
+  background: #e4f6ff;
+  color: #18465d;
+}
+.donor-dashboard .donor-receipt-b2[data-donation-status='FAILED'] .donor-receipt-b2-status,
+.donor-dashboard .donor-receipt-b2[data-donation-status='CANCELLED'] .donor-receipt-b2-status {
+  border-color: #c58d89;
+  background: #fae8e6;
+  color: #7d312d;
+}
+.donor-dashboard .donor-receipt-b2-title {
+  margin-top: 20px;
+  color: #673410;
+  font-size: 16px;
+  font-weight: 900;
+  line-height: 1.4;
+}
+.donor-dashboard .donor-receipt-b2-details {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 11px;
+  margin-top: 10px;
+}
+.donor-dashboard .donor-receipt-b2-details > div {
+  min-width: 0;
+  border: 1px solid #e7c7a5;
+  border-radius: 11px;
+  padding: 11px 13px;
+  background: #fffdf6;
+}
+.donor-dashboard .donor-receipt-b2-details dt {
+  margin-bottom: 4px;
+  color: #73523c;
+  font-size: 12px;
+  font-weight: 700;
+}
+.donor-dashboard .donor-receipt-b2-details dd {
+  margin: 0;
+  color: #4b291d;
+  font-size: 14px;
+  font-weight: 850;
+  line-height: 1.55;
+  overflow-wrap: anywhere;
+}
+.donor-dashboard .donor-receipt-b2-notice {
+  margin-top: 16px;
+  border-left: 3px solid #c06f35;
+  padding: 8px 13px;
+  background: #fff0dc;
+  color: #614836;
+  font-size: 13px;
+  font-weight: 650;
+  line-height: 1.7;
+}
+.donor-dashboard .donor-receipt-b2-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 42px;
+  margin-top: 13px;
+  color: #9b411a;
+  font-size: 13px;
+  font-weight: 900;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+.donor-dashboard .donor-receipt-b2-link:hover { color: #673410; }
+.donor-dashboard .donor-receipt-actions {
+  margin: 0;
+  padding: 0 29px 23px 137px;
+  background: #fff6e8;
+}
+@media (max-width: 850px) {
+  .donor-dashboard .donor-receipt-b2-heading { flex-direction: column; gap: 10px; }
+  .donor-dashboard .donor-receipt-b2-status { max-width: none; }
+  .donor-dashboard .donor-receipt-b2-details { grid-template-columns: 1fr; }
+}
+@media (max-width: 620px) {
+  .donor-dashboard .donor-receipt-b2 { grid-template-columns: 74px minmax(0, 1fr); }
+  .donor-dashboard .donor-receipt-b2-rail { padding: 23px 5px; }
+  .donor-dashboard .donor-receipt-b2-rail strong { font-size: 39px; }
+  .donor-dashboard .donor-receipt-b2-main { padding: 20px 15px 18px; }
+  .donor-dashboard .donor-receipt-b2-heading h3 { font-size: 18px; }
+  .donor-dashboard .donor-receipt-b2-amount { font-size: 20px; }
+  .donor-dashboard .donor-receipt-actions { padding: 0 15px 20px 89px; }
+}

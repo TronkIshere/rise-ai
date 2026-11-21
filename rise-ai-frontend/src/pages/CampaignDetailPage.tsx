@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { Link, useParams } from 'react-router';
-import { ArrowLeft, ArrowUpRight, CalendarDays, CheckCircle2, HeartHandshake, MapPin, ShieldCheck, UsersRound } from 'lucide-react';
+import { ArrowLeft, ArrowUpRight, CalendarDays, CheckCircle2, Heart, HeartHandshake, MapPin, ShieldCheck, Sprout, TriangleAlert, UsersRound, type LucideIcon } from 'lucide-react';
 import { ApiError } from '@/api/client';
 import { getCampaignBySlug, listCampaignMilestones } from '@/api/campaigns';
 import type { CampaignResponse } from '@/api/contracts';
@@ -9,12 +9,17 @@ import { CampaignChainPanel, ChainBadge } from '@/pages/OnchainViews';
 import { CampaignMedia } from '@/components/ui/CampaignMedia';
 import { FundingProgress } from '@/components/ui/FundingProgress';
 import { StatusMessage } from '@/components/ui/StatusMessage';
-import { amountLabel, categoryLabel, dateLabel, milestoneLabel, usableCampaignImageUrl, statusLabel } from '@/lib/campaign-display';
+import { amountLabel, categoryLabel, dateLabel, milestoneLabel, progressLabel, progressValue, usableCampaignImageUrl, statusLabel } from '@/lib/campaign-display';
 
-function DetailSection({ heading, children }: { heading: string; children?: string }) {
+function datePeriod(start?: string, end?: string) {
+  if (start && end) return dateLabel(start) + ' – ' + dateLabel(end);
+  return start ? dateLabel(start) : end ? 'Đến ' + dateLabel(end) : undefined;
+}
+
+function DetailSection({ heading, children, icon: Icon }: { heading: string; children?: string; icon?: LucideIcon }) {
   if (!children?.trim()) return null;
   return <section className="campaign-flow-story-section">
-    <h2>{heading}</h2>
+    <h2>{Icon ? <Icon className="detail-story-icon hidden xl:inline-block" size={25} aria-hidden="true" /> : null}{heading}</h2>
     <p>{children}</p>
   </section>;
 }
@@ -41,10 +46,12 @@ function DetailMilestones({ campaign }: { campaign: CampaignResponse }) {
     enabled: Boolean(campaignId),
   });
   const entries = [...(milestones.data ?? [])].sort((a, b) => (a.sequenceNumber ?? 0) - (b.sequenceNumber ?? 0));
-  return <section className="campaign-flow-milestones" aria-labelledby="detail-milestones-heading">
+  const isFood = campaign.category === 'FOOD_SECURITY';
+  const genericArt = campaign.category === 'EDUCATION' ? '/b2-home/campaign-learning.jpg' : '/b2-home/story-scene-community.jpg';
+  return <section className="campaign-flow-milestones" data-illustration={isFood ? 'kitchen' : 'community'} aria-labelledby="detail-milestones-heading">
     <div className="campaign-flow-heading-row">
       <span className="campaign-flow-heading-icon" aria-hidden="true"><CheckCircle2 size={22}/></span>
-      <div><h2 id="detail-milestones-heading">Hành trình theo cột mốc</h2>
+      <div><h2 id="detail-milestones-heading"><span className="detail-milestone-count hidden xl:inline">{entries.length || ''} </span>Hành trình theo cột mốc</h2>
         <p>Thông tin tiến độ được đồng bộ từ Backend, không phải minh chứng đã được xác thực độc lập.</p></div>
     </div>
     {!campaignId ? <StatusMessage title="Chưa công bố cột mốc" detail="Hồ sơ chưa có mã chiến dịch." /> : null}
@@ -55,6 +62,10 @@ function DetailMilestones({ campaign }: { campaign: CampaignResponse }) {
     {campaignId && milestones.isSuccess && entries.length > 0 ? <ol className="campaign-flow-milestone-list">
       {entries.map((item, index) => <li key={item.id ?? index} className="campaign-flow-milestone">
         <span className="campaign-flow-milestone-number">{String(item.sequenceNumber ?? index + 1).padStart(2, '0')}</span>
+        <figure className="detail-milestone-art hidden xl:block">
+          <img loading="lazy" alt="" src={isFood ? '/campaign-detail/milestone-' + (index % 3 + 1) + '.webp' : genericArt} />
+          <figcaption>Ảnh minh họa</figcaption>
+        </figure>
         <div className="campaign-flow-milestone-body">
           <div className="campaign-flow-milestone-head"><h3>{item.title ?? 'Cột mốc đang cập nhật'}</h3>
             <span>{milestoneLabel(item.milestoneStatus)}</span></div>
@@ -62,7 +73,7 @@ function DetailMilestones({ campaign }: { campaign: CampaignResponse }) {
           <div className="campaign-flow-milestone-details">
             <span>Kinh phí dự kiến: {amountLabel(item.plannedAmount, campaign.currency)}</span>
             <span>Giải ngân mô phỏng: {amountLabel(item.releasedAmount, campaign.currency)}</span>
-            {item.dueAt ? <span>Dự kiến: {dateLabel(item.dueAt)}</span> : null}
+            {item.startAt || item.dueAt ? <span><CalendarDays size={13} aria-hidden="true"/> Dự kiến: {datePeriod(item.startAt, item.dueAt)}</span> : null}
           </div>
         </div>
       </li>)}
@@ -73,38 +84,57 @@ function DetailMilestones({ campaign }: { campaign: CampaignResponse }) {
 function DetailContent({ campaign, slug }: { campaign: CampaignResponse; slug: string }) {
   const active = campaign.campaignStatus === 'ACTIVE' && campaign.acceptingDonations === true;
   const title = campaign.title?.trim() || 'Hồ sơ chiến dịch chưa có tiêu đề';
+  const isFood = campaign.category === 'FOOD_SECURITY';
+  const schedule = datePeriod(campaign.startAt, campaign.endAt);
+  const raised = campaign.funding?.netRaised;
+  const progress = progressValue(raised, campaign.targetAmount);
+  const share = progressLabel(raised, campaign.targetAmount);
   return <>
+    <div className="detail-hero-copy">
     <div className="campaign-flow-status-tags">
       <span>{categoryLabel(campaign.category)}</span>
       <span>{statusLabel(campaign.campaignStatus)}</span>
-      <span className="campaign-flow-tag-warm">GIAO DỊCH MÔ PHỎNG</span>
+      <span className="campaign-flow-tag-warm">DEMO / MÔ PHỎNG</span>
       <ChainBadge />
     </div>
     <h1 className="campaign-flow-title">{title}</h1>
     {campaign.shortDescription ? <p className="campaign-flow-intro">{campaign.shortDescription}</p> : null}
     <div className="campaign-flow-facts">
       {campaign.location ? <span><MapPin size={17} aria-hidden="true"/>{campaign.location}</span> : null}
-      {campaign.publishedAt ? <span><CalendarDays size={17} aria-hidden="true"/>Công bố: {dateLabel(campaign.publishedAt)}</span> : null}
-      {campaign.organization?.name ? <span><HeartHandshake size={17} aria-hidden="true"/>{campaign.organization.name}</span> : null}
+      {schedule || campaign.publishedAt ? <span><CalendarDays size={17} aria-hidden="true"/>{schedule ? 'Dự kiến: ' + schedule : 'Công bố: ' + dateLabel(campaign.publishedAt)}</span> : null}
+      {campaign.beneficiaryCount != null ? <span><UsersRound size={17} aria-hidden="true"/>{new Intl.NumberFormat('vi-VN').format(campaign.beneficiaryCount)} người thụ hưởng dự kiến</span>
+        : campaign.organization?.name ? <span><HeartHandshake size={17} aria-hidden="true"/>{campaign.organization.name}</span> : null}
+    </div>
     </div>
     <div className="campaign-flow-columns">
       <div className="campaign-flow-primary">
-        <div className="campaign-flow-cover">
+        <div className="campaign-flow-cover" data-illustration={isFood ? 'kitchen' : 'community'}>
           <CampaignMedia
             src={usableCampaignImageUrl(campaign.coverImageUrl)}
             alt={'Ảnh đại diện: ' + title}
             className="campaign-flow-cover-image"
             renderCaption={(hasImage) => <span className="campaign-flow-cover-caption">
-              {hasImage ? 'ẢNH TỪ HỒ SƠ / KHÔNG THAY THẾ MINH CHỨNG' : 'MINH HỌA / CHƯA CÓ ẢNH ĐẠI DIỆN'}
+              {hasImage ? 'ẢNH TỪ HỒ SƠ / KHÔNG THAY THẾ MINH CHỨNG' : 'ẢNH MINH HỌA · KHÔNG PHẢI ẢNH THẬT CỦA CHIẾN DỊCH'}
             </span>}
           />
         </div>
         <div className="campaign-flow-story">
-          <div className="campaign-flow-eyebrow">CÂU CHUYỆN &amp; TÁC ĐỘNG</div>
-          <DetailSection heading="Câu chuyện chiến dịch">{campaign.fullDescription}</DetailSection>
-          <DetailSection heading="Vấn đề cần giải quyết">{campaign.problemStatement}</DetailSection>
-          <DetailSection heading="Giải pháp đề xuất">{campaign.solutionDescription}</DetailSection>
-          <DetailSection heading="Tác động mong muốn">{campaign.impactGoals}</DetailSection>
+          <div className="campaign-flow-eyebrow">Câu chuyện chiến dịch</div>
+          <div className="detail-story-intro">
+            <div>
+              <h2>Cùng cộng đồng tạo tác động</h2>
+              {campaign.fullDescription ? <p className="detail-story-copy">{campaign.fullDescription}</p> : null}
+            </div>
+            <figure className="detail-story-art hidden xl:block">
+              <img src={isFood ? '/campaign-detail/story.webp' : '/b2-home/story-scene-community.jpg'} alt="" loading="lazy"/>
+              <figcaption>Ảnh minh họa</figcaption>
+            </figure>
+          </div>
+          <div className="detail-story-cards">
+            <DetailSection heading="Vấn đề" icon={TriangleAlert}>{campaign.problemStatement}</DetailSection>
+            <DetailSection heading="Cách tiếp cận" icon={Sprout}>{campaign.solutionDescription}</DetailSection>
+            <DetailSection heading="Tác động kỳ vọng" icon={Heart}>{campaign.impactGoals}</DetailSection>
+          </div>
           <DetailSection heading="Những người được hỗ trợ">{campaign.beneficiaryDescription}</DetailSection>
           {!campaign.fullDescription && !campaign.problemStatement && !campaign.solutionDescription && !campaign.impactGoals && !campaign.beneficiaryDescription
             ? <p className="campaign-flow-muted">Nội dung chi tiết đang được cập nhật từ Backend.</p> : null}
@@ -114,20 +144,43 @@ function DetailContent({ campaign, slug }: { campaign: CampaignResponse; slug: s
         {campaign.id ? <CampaignChainPanel campaignId={campaign.id} /> : null}
       </div>
       <aside className="campaign-flow-aside" aria-label="Tiến độ và hành động">
-        <div className="campaign-flow-summary">
-          <p className="campaign-flow-eyebrow">HỒ SƠ TÀI TRỢ / MÔ PHỎNG</p>
-          <h2>Đồng hành cùng chiến dịch</h2>
-          <FundingProgress raised={campaign.funding?.netRaised} target={campaign.targetAmount} currency={campaign.currency} />
-          <div className="campaign-flow-summary-stats">
-            <div><small>Đã giải ngân (mô phỏng)</small><strong>{amountLabel(campaign.funding?.totalDisbursed, campaign.currency)}</strong></div>
-            <div><small>Người thụ hưởng dự kiến</small>
-              <strong>{campaign.beneficiaryCount == null ? 'Chưa cập nhật' : new Intl.NumberFormat('vi-VN').format(campaign.beneficiaryCount)}</strong></div>
+        <div className="campaign-flow-summary-track">
+          <div className="campaign-flow-summary">
+            <h2>Tiến độ chiến dịch</h2>
+            <div className="detail-funding">
+              <FundingProgress raised={raised} target={campaign.targetAmount} currency={campaign.currency} />
+              {share.endsWith('%') ? <div className="detail-funding-ring hidden xl:grid" aria-hidden="true">
+                <svg viewBox="0 0 92 92" fill="none" aria-hidden="true">
+                  <circle cx="46" cy="46" r="38" pathLength="100" />
+                  <circle cx="46" cy="46" r="38" pathLength="100" strokeDasharray={progress + ' 100'} />
+                </svg>
+                <span>{share}</span>
+              </div> : null}
+            </div>
+            <div className="campaign-flow-summary-stats">
+              <div><small>Đã giải ngân (mô phỏng)</small><strong>{amountLabel(campaign.funding?.totalDisbursed, campaign.currency)}</strong></div>
+              <div><small>Người thụ hưởng dự kiến</small>
+                <strong>{campaign.beneficiaryCount == null ? 'Chưa cập nhật' : new Intl.NumberFormat('vi-VN').format(campaign.beneficiaryCount)}</strong></div>
+            </div>
+            {active ? <Link className="campaign-flow-cta" to={'/campaigns/' + encodeURIComponent(slug) + '/contribute'}>
+              Ghi nhận đóng góp mô phỏng <ArrowUpRight size={18} aria-hidden="true"/>
+            </Link> : <p className="campaign-flow-unavailable" role="status">Chiến dịch hiện chưa tiếp nhận đóng góp.</p>}
+            <div className="campaign-flow-disclaimer">
+              <strong>DEMO / MÔ PHỎNG</strong>
+              <p>Không nhận hoặc chuyển tiền thật. Khoản đóng góp chờ Admin xác nhận trên Backend.</p>
+            </div>
+            <Link className="campaign-flow-cta-secondary" to="/campaigns">Khám phá chiến dịch khác</Link>
+            {schedule || campaign.publishedAt || campaign.location ? <dl className="campaign-flow-summary-context hidden xl:grid">
+              {schedule || campaign.publishedAt ? <div>
+                <dt><CalendarDays size={15} aria-hidden="true"/> {schedule ? 'Thời gian dự kiến' : 'Công bố'}</dt>
+                <dd>{schedule ?? dateLabel(campaign.publishedAt)}</dd>
+              </div> : null}
+              {campaign.location ? <div>
+                <dt><MapPin size={15} aria-hidden="true"/> Địa điểm</dt>
+                <dd>{campaign.location}</dd>
+              </div> : null}
+            </dl> : null}
           </div>
-          <p className="campaign-flow-disclaimer">Đây là hệ thống mô phỏng. Không nhận hoặc chuyển tiền thật. Mọi khoản đóng góp chỉ được ghi nhận qua Backend và chờ Admin xác nhận.</p>
-          {active ? <Link className="campaign-flow-cta" to={'/campaigns/' + encodeURIComponent(slug) + '/contribute'}>
-            Ghi nhận đóng góp mô phỏng <ArrowUpRight size={18} aria-hidden="true"/>
-          </Link> : <p className="campaign-flow-unavailable" role="status">Chiến dịch hiện chưa tiếp nhận đóng góp.</p>}
-          <Link className="campaign-flow-cta-secondary" to="/campaigns">Khám phá chiến dịch khác</Link>
         </div>
         {campaign.organization?.name ? <section className="campaign-flow-organization">
           <p className="campaign-flow-eyebrow">ĐƠN VỊ TRIỂN KHAI</p>
@@ -151,7 +204,7 @@ export function CampaignDetailPage() {
     enabled: Boolean(slug),
   });
   const missing = campaign.error instanceof ApiError && campaign.error.status === 404;
-  return <div className="campaign-flow campaign-detail-flow">
+  return <div className="campaign-flow campaign-detail-flow" data-content-ready={Boolean(slug && campaign.isSuccess)}>
     <div className="campaign-flow-topband"><Container>
       <Link className="campaign-flow-back" to="/campaigns"><ArrowLeft size={17} aria-hidden="true"/> Trở về Campaign Discovery</Link>
     </Container></div>
@@ -166,5 +219,6 @@ export function CampaignDetailPage() {
       </div> : null}
       {slug && campaign.isSuccess ? <DetailContent campaign={campaign.data} slug={slug} /> : null}
     </Container>
+    {slug && campaign.isSuccess ? <div className="detail-footer-landscape hidden xl:block" aria-hidden="true"/> : null}
   </div>;
 }

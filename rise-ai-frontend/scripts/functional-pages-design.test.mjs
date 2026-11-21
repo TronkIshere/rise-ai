@@ -22,7 +22,7 @@ test('functional route pages share one scoped B2 editorial design system',()=>{
   for(const [name,scope] of deepRoutes){
     const text=page(name);
     assert.ok(text.includes('rise-deep-page '+scope),name+': missing page scope');
-    const heading = name === 'DisputeThreadPage' || name === 'CreatorCampaignEditorPage' ? 'b2-concept-banner' : 'rise-deep-topline';
+    const heading = name === 'AdminEscrowPage' ? 'u5-hero' : name === 'DisputeThreadPage' || name === 'CreatorCampaignEditorPage' ? 'b2-concept-banner' : 'rise-deep-topline';
     assert.ok(text.includes(heading),name+': missing scoped page heading');
     assert.ok(text.includes('<Container className="deep-inner'),name+': missing container');
     assert.ok(text.includes('</Container>'),name+': broken closing wrapper');

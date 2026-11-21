@@ -1,0 +1,270 @@
+/* Rise AI · PR #42 · Owner visual review 18/11/2026.
+   Only Campaign Detail (/campaigns/:slug): sticky funding panel, controls,
+   organizer & AI notices, plus the existing U2 explorer link.
+   The homepage B2 header/footer are reused by a route handle, not restyled here.
+   No U1 story/cards/hero/milestones or global palette changes. */
+
+/* Keep the progress card sticky within its track. The organizer and AI
+   notices use page scroll so the sidebar needs no internal scroll area. */
+@media (min-width: 1001px) {
+  .campaign-detail-flow .campaign-flow-aside {
+    position: static;
+    display: flex;
+    flex-direction: column;
+    align-self: stretch;
+    max-height: none;
+    overflow: visible;
+    padding: 18px 7px 16px 0;
+  }
+  .campaign-detail-flow .campaign-flow-summary-track {
+    flex: 1 0 auto;
+    min-width: 0;
+  }
+  .campaign-detail-flow .campaign-flow-summary {
+    position: sticky;
+    top: 42px;
+    max-height: none;
+    overflow: visible;
+    scrollbar-width: auto;
+  }
+}
+.campaign-detail-flow .campaign-flow-summary {
+  padding-top: 26px;
+}
+.campaign-detail-flow .campaign-flow-summary h2 {
+  margin: 0 0 19px;
+  padding: 2px 0 1px;
+  color: var(--color-brand-ink);
+  font-size: 24px;
+  font-weight: 950;
+  line-height: 1.34;
+  overflow-wrap: break-word;
+}
+.campaign-detail-flow .campaign-flow-summary-stats small {
+  color: var(--color-copy);
+  font-size: 13px;
+  font-weight: 650;
+  line-height: 1.55;
+}
+.campaign-detail-flow .campaign-flow-summary-stats strong {
+  color: var(--color-brand-ink);
+  font-size: 16px;
+}
+
+/* The primary donation action is already strong orange and stays unchanged.
+   The secondary action should read as an action, not a disabled-looking label. */
+.campaign-detail-flow .campaign-flow-cta-secondary {
+  border: 1.5px solid #2B6A5A;
+  background: #BFDCCF;
+  color: #123C34;
+  font-size: 14px;
+  font-weight: 900;
+}
+.campaign-detail-flow .campaign-flow-cta-secondary:hover {
+  background: #B2D4C4;
+  color: #123C34;
+}
+
+.campaign-detail-flow .campaign-flow-summary .campaign-flow-disclaimer {
+  background: #F1D8CC;
+  color: #4A281C;
+  border-color: #C98B73;
+}
+.campaign-detail-flow .campaign-flow-summary .campaign-flow-disclaimer p {
+  color: #6A4335;
+}
+
+/* Both small sidebar notices: stronger paper/sage surfaces, legible labels,
+   preserve original wording, icons, component dimensions and order. */
+.campaign-detail-flow .campaign-flow-organization {
+  background: #CFE4DB;
+  border: 1px solid #2E6A5B;
+}
+.campaign-detail-flow .campaign-flow-organization .campaign-flow-eyebrow {
+  color: #143D36;
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: .09em;
+}
+.campaign-detail-flow .campaign-flow-organization h2 {
+  color: #143D36;
+  font-size: 19px;
+  font-weight: 900;
+  line-height: 1.44;
+}
+.campaign-detail-flow .campaign-flow-organization p:not(.campaign-flow-eyebrow) {
+  color: #36574F;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.7;
+}
+.campaign-detail-flow .campaign-flow-organization .campaign-flow-verified {
+  font-size: 14px;
+  font-weight: 800;
+}
+.campaign-detail-flow .campaign-flow-organization p.campaign-flow-verified {
+  color: #143D36;
+}
+.campaign-detail-flow .campaign-flow-organization .campaign-flow-verified svg {
+  color: #2E6A5B;
+  flex-shrink: 0;
+}
+.campaign-detail-flow .campaign-flow-ai-note {
+  background: #D7ECE4;
+  border: 1px solid #8EB9AA;
+  color: #173F37;
+  font-size: 14px;
+  font-weight: 650;
+  line-height: 1.75;
+}
+.campaign-detail-flow .campaign-flow-ai-note p {
+  margin: 0;
+  color: #356257;
+  font-size: 14px;
+  font-weight: 650;
+  line-height: 1.75;
+}
+.campaign-detail-flow .campaign-flow-ai-note svg {
+  color: #173F37;
+  flex-shrink: 0;
+}
+
+/* Visible explorer link: prior pale-on-pale button was unreadable in U2 QA. */
+.campaign-detail-flow .campaign-flow-onchain.chain-panel .chain-heading > .chain-link {
+  border: 2px solid var(--color-soft-sand);
+  border-radius: 11px;
+  background: var(--color-soft-sand);
+  padding: 10px 15px;
+  color: var(--color-brand-ink);
+  font-size: 13px;
+  font-weight: 900;
+  text-decoration: none;
+}
+.campaign-detail-flow .campaign-flow-onchain.chain-panel .chain-heading > .chain-link:hover {
+  border-color: var(--color-soft-sand);
+  background: color-mix(in srgb, var(--color-soft-sand) 82%, var(--color-warning) 18%);
+  color: var(--color-brand-ink);
+}
+.campaign-detail-flow .campaign-flow-cta-secondary:focus-visible,
+.campaign-detail-flow .campaign-flow-onchain.chain-panel .chain-heading > .chain-link:focus-visible {
+  outline: 3px solid var(--color-warning);
+  outline-offset: 3px;
+}
+
+/* No new responsive design; maintain normal stacking below the desktop grid. */
+@media (max-width: 1000px) {
+  .campaign-detail-flow .campaign-flow-aside {
+    max-height: none;
+    overflow: visible;
+    padding: 0;
+  }
+}
+
+
+/* RISE-U2-HOMEPAGE-123-PALETTE-BEGIN
+   Inspired by the actual approved B2 Homepage Transparency records:
+   01 PLAN:   #4FE6AB / #F0FFF5 / #144A37
+   02 RECORD: #FFB96C / #FFF6E8 / #673410
+   03 REVIEW: #72D4FA / #EEF9FF / #18465D
+   Only the Campaign Detail sidebar and its two action links.
+   No grid, size, positioning, scroll, content, chain or footer changes. */
+
+/* Funding card: retain cream identity while adding a quiet visual outline. */
+.campaign-detail-flow .campaign-flow-summary {
+  background: linear-gradient(165deg, #fffaf0 0%, #f8fff6 100%);
+  border-color: #aecdbd;
+  box-shadow: 0 15px 32px rgb(9 44 31 / 12%), inset 0 0 0 1px rgb(174 205 189 / 24%);
+}
+.campaign-detail-flow .campaign-flow-summary h2,
+.campaign-detail-flow .campaign-flow-summary-stats strong {
+  color: #144a37;
+}
+.campaign-detail-flow .campaign-flow-summary .text-muted,
+.campaign-detail-flow .campaign-flow-summary-stats small {
+  color: #365d4f;
+}
+.campaign-detail-flow .campaign-flow-summary-stats {
+  background: #fff5e2;
+  box-shadow: inset 0 0 0 1px #e7d6b7;
+}
+
+/* Step 02 — RECORD: clear simulation notice in a warm outlined card. */
+.campaign-detail-flow .campaign-flow-disclaimer {
+  background: #fff6e8;
+  border-color: #ffb96c;
+  color: #673410;
+  box-shadow: inset 0 3px 0 #ffb96c;
+}
+.campaign-detail-flow .campaign-flow-disclaimer strong,
+.campaign-detail-flow .campaign-flow-disclaimer b {
+  color: #ad4619;
+}
+
+/* Step 01 — PLAN: bright mint, dark readable organizer card. */
+.campaign-detail-flow .campaign-flow-organization {
+  background: #f0fff5;
+  border-color: #7ccea6;
+  box-shadow: inset 0 4px 0 #4fe6ab, 0 9px 20px rgb(20 74 55 / 11%);
+}
+.campaign-detail-flow .campaign-flow-organization .campaign-flow-eyebrow {
+  color: #176e51;
+}
+.campaign-detail-flow .campaign-flow-organization h2,
+.campaign-detail-flow .campaign-flow-organization .campaign-flow-verified {
+  color: #144a37;
+}
+.campaign-detail-flow .campaign-flow-organization p:not(.campaign-flow-eyebrow) {
+  color: #365d4f;
+}
+.campaign-detail-flow .campaign-flow-organization .campaign-flow-verified svg {
+  color: #176e51;
+}
+
+/* Step 03 — REVIEW: distinct sky blue for the AI advisory. */
+.campaign-detail-flow .campaign-flow-ai-note {
+  background: #eef9ff;
+  border-color: #72d4fa;
+  color: #18465d;
+  box-shadow: inset 0 4px 0 #72d4fa, 0 8px 18px rgb(20 106 149 / 11%);
+}
+.campaign-detail-flow .campaign-flow-ai-note p {
+  color: #18465d;
+}
+.campaign-detail-flow .campaign-flow-ai-note svg {
+  color: #146a95;
+}
+
+/* Buttons gain Homepage-like depth; no size or spacing changes. */
+.campaign-detail-flow .campaign-flow-cta {
+  background: #b64713;
+  color: #fffaf0;
+  box-shadow: 0 5px 0 #783017, 0 11px 18px rgb(91 37 18 / 25%);
+}
+.campaign-detail-flow .campaign-flow-cta:hover {
+  background: #c6531c;
+  box-shadow: 0 6px 0 #783017, 0 12px 19px rgb(91 37 18 / 27%);
+}
+.campaign-detail-flow .campaign-flow-cta-secondary {
+  background: #bdf0d7;
+  border-color: #278767;
+  color: #144a37;
+  box-shadow: 0 4px 0 #377b61, 0 9px 15px rgb(15 69 51 / 14%);
+}
+.campaign-detail-flow .campaign-flow-cta-secondary:hover {
+  background: #a2eac8;
+  color: #144a37;
+  box-shadow: 0 5px 0 #377b61, 0 10px 16px rgb(15 69 51 / 16%);
+}
+/* RISE-U2-HOMEPAGE-123-PALETTE-END */
+
+
+/* RISE-U2-RECORD02-FINAL-BEGIN */
+/* Approved Homepage B2 Pastel Semantic Color Palette — 02 / RECORD.
+   Override the older stronger dusty-pink declaration without touching layout,
+   cards 01/03, U1, timeline, Footer, or API-related rules. */
+.campaign-detail-flow .campaign-flow-disclaimer {
+  background-color: #FFF6E8 !important;
+  border-color: #FFB96C !important;
+  color: #673410 !important;
+}
+/* RISE-U2-RECORD02-FINAL-END */

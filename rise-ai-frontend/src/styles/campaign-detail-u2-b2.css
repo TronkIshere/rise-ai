@@ -1,0 +1,202 @@
+/* Rise AI · PR #42 · U2 Timeline / On-chain B2 alignment.
+   Scoped exclusively to /campaigns/:slug through .campaign-detail-flow.
+   Inherits the U1 approved Campaign Detail and B2 runtime semantic tokens.
+   No effect on Admin, Donor, Transparency, Contribution or shared chrome.
+   Only styling: original Backend state, timer, Snowtrace and 30s polling remain intact. */
+
+.campaign-detail-flow .campaign-flow-onchain.chain-panel {
+  margin-top: 28px;
+  padding: 28px 30px 26px;
+  color: var(--color-soft-sand);
+  background: var(--color-brand-ink);
+  border: 1px solid color-mix(in srgb, var(--color-brand) 52%, var(--color-brand-ink));
+  border-radius: 23px;
+  box-shadow: 0 14px 28px color-mix(in srgb, var(--color-brand-ink) 18%, transparent);
+}
+
+/* Milestones continuity: dark forest heading, same icon and clear B2 hierarchy. */
+.campaign-detail-flow .campaign-flow-onchain.chain-panel .chain-heading {
+  align-items: flex-start;
+  justify-content: flex-start;
+  flex-wrap: wrap;
+  gap: 13px;
+  padding: 0 0 19px;
+  margin: 0 0 19px;
+  border-bottom: 1px dashed color-mix(in srgb, var(--color-soft-sand) 48%, transparent);
+}
+.campaign-detail-flow .campaign-flow-onchain.chain-panel .campaign-flow-heading-icon {
+  flex: 0 0 46px;
+  height: 46px;
+  color: var(--color-brand-ink);
+  background: var(--color-soft-sand);
+}
+.campaign-detail-flow .campaign-flow-onchain.chain-panel .chain-heading-copy {
+  flex: 1 1 290px;
+  min-width: 0;
+}
+.campaign-detail-flow .campaign-flow-onchain.chain-panel .chain-eyebrow {
+  margin: 0 0 8px;
+  color: color-mix(in srgb, var(--color-soft-sand) 78%, var(--color-warning));
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: .12em;
+}
+.campaign-detail-flow .campaign-flow-onchain.chain-panel .chain-heading h2 {
+  color: var(--color-soft-sand);
+  font-size: 24px;
+  font-weight: 900;
+  line-height: 1.28;
+  letter-spacing: -.02em;
+}
+.campaign-detail-flow .campaign-flow-onchain.chain-panel .chain-heading-copy > p:last-child {
+  margin: 9px 0 0;
+  color: color-mix(in srgb, var(--color-soft-sand) 90%, var(--color-soft-mint));
+  font-size: 14px;
+  line-height: 1.7;
+}
+.campaign-detail-flow .campaign-flow-onchain.chain-panel .chain-heading > .chain-link {
+  margin: 6px 0 0 auto;
+  padding: 0 5px;
+  min-height: 44px;
+  flex: 0 0 auto;
+  color: var(--color-soft-sand);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 4px;
+  font-size: 13px;
+  font-weight: 850;
+}
+.campaign-detail-flow .campaign-flow-onchain.chain-panel .chain-heading > .chain-link:hover {
+  color: var(--color-surface);
+}
+
+/* Off-chain, loading, empty and error states are visibly distinct and truthful. */
+.campaign-detail-flow .campaign-flow-onchain.chain-panel > .chain-muted,
+.campaign-detail-flow .campaign-flow-onchain.chain-panel > .chain-error {
+  margin: 4px 0 13px;
+  padding: 17px 19px;
+  color: var(--color-brand-ink);
+  background: var(--color-soft-sand);
+  border: 1px solid color-mix(in srgb, var(--color-border) 72%, var(--color-brand));
+  border-radius: 15px;
+  font-size: 14px;
+  font-weight: 650;
+  line-height: 1.75;
+}
+.campaign-detail-flow .campaign-flow-onchain.chain-panel > .chain-error {
+  border-color: color-mix(in srgb, var(--color-danger) 42%, var(--color-border));
+  color: var(--color-danger);
+}
+.campaign-detail-flow .campaign-flow-onchain.chain-panel > .chain-error button {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  margin-left: 9px;
+  font-weight: 850;
+  color: var(--color-danger);
+}
+
+/* Actual backend disbursements remain one card per entry, styled like B2 milestones. */
+.campaign-detail-flow .campaign-flow-onchain.chain-panel .chain-flow-list {
+  display: grid;
+  gap: 14px;
+  margin: 17px 0 0;
+  padding: 0;
+}
+.campaign-detail-flow .campaign-flow-onchain.chain-panel .chain-flow-step {
+  position: relative;
+  min-width: 0;
+  padding: 20px 22px 19px;
+  color: var(--color-brand-ink);
+  background: var(--color-soft-sand);
+  border: 1px solid color-mix(in srgb, var(--color-border) 70%, var(--color-brand));
+  border-left: 4px solid var(--color-brand);
+  border-radius: 17px;
+  box-shadow: 0 5px 12px color-mix(in srgb, var(--color-brand-ink) 9%, transparent);
+}
+.campaign-detail-flow .campaign-flow-onchain.chain-panel .chain-flow-step-top {
+  align-items: center;
+  gap: 11px;
+  margin-bottom: 9px;
+  color: var(--color-brand-ink);
+  font-size: 15px;
+  line-height: 1.48;
+}
+.campaign-detail-flow .campaign-flow-onchain.chain-panel .chain-flow-step-top strong {
+  overflow-wrap: anywhere;
+  font-weight: 900;
+}
+.campaign-detail-flow .campaign-flow-onchain.chain-panel .chain-flow-step p {
+  margin: 6px 0;
+  color: var(--color-copy);
+  font-size: 14px;
+  line-height: 1.75;
+}
+.campaign-detail-flow .campaign-flow-onchain.chain-panel .chain-state {
+  display: inline-flex;
+  min-height: 31px;
+  align-items: center;
+  padding: 6px 11px;
+  color: var(--color-brand-ink);
+  background: var(--color-soft-mint);
+  border: 1px solid color-mix(in srgb, var(--color-border) 60%, var(--color-brand));
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 850;
+  line-height: 1.35;
+}
+.campaign-detail-flow .campaign-flow-onchain.chain-panel .chain-state-warning {
+  color: var(--color-warning);
+  background: color-mix(in srgb, var(--color-soft-sand) 78%, var(--color-warning));
+  border-color: color-mix(in srgb, var(--color-warning) 40%, var(--color-border));
+}
+.campaign-detail-flow .campaign-flow-onchain.chain-panel .chain-flow-step .chain-flow-timer {
+  padding: 8px 11px;
+  margin: 10px 0 9px;
+  font-size: 14px;
+  font-weight: 900;
+  color: var(--color-warning);
+  background: color-mix(in srgb, var(--color-soft-sand) 86%, var(--color-warning));
+  border-left: 3px solid var(--color-warning);
+  border-radius: 5px;
+}
+.campaign-detail-flow .campaign-flow-onchain.chain-panel .chain-flow-step .chain-flow-received {
+  color: var(--color-brand-hover);
+  font-weight: 900;
+}
+.campaign-detail-flow .campaign-flow-onchain.chain-panel .chain-flow-step .chain-link {
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+  gap: 7px;
+  margin-top: 3px;
+  color: var(--color-brand-hover);
+  font-size: 13px;
+  font-weight: 850;
+  text-underline-offset: 4px;
+}
+
+/* Footer disclosure legible over forest; no global Footer changes. */
+.campaign-detail-flow .campaign-flow-onchain.chain-panel .chain-footnote {
+  margin: 20px 0 0;
+  padding: 16px 0 0;
+  color: color-mix(in srgb, var(--color-soft-sand) 92%, var(--color-soft-mint));
+  border-top: 1px dashed color-mix(in srgb, var(--color-soft-sand) 45%, transparent);
+  font-size: 13px;
+  font-weight: 650;
+  line-height: 1.75;
+}
+
+/* Preserve existing runtime accessibility/responsiveness; no mobile redesign. */
+@media (max-width: 1000px) {
+  .campaign-detail-flow .campaign-flow-onchain.chain-panel .chain-heading > .chain-link {
+    margin-left: 59px;
+  }
+}
+@media (max-width: 640px) {
+  .campaign-detail-flow .campaign-flow-onchain.chain-panel {
+    padding: 24px 21px;
+  }
+  .campaign-detail-flow .campaign-flow-onchain.chain-panel .chain-heading > .chain-link {
+    margin-left: 0;
+  }
+}

@@ -16,10 +16,10 @@ function useClock(){
 }
 export function ChainBadge(){
   const query=useQuery({queryKey:['transparency','chain'],queryFn:getChainConfig,staleTime:REFRESH_MS,refetchInterval:REFRESH_MS});
-  if(query.isPending)return <span className="chain-badge chain-badge-muted">Đang kiểm tra ký quỹ…</span>;
-  if(query.isError)return <span className="chain-badge chain-badge-muted">Chưa xác minh trạng thái ký quỹ</span>;
-  if(isFuji(query.data))return <span className="chain-badge"><ShieldCheck size={15} aria-hidden="true"/> Ký quỹ on-chain · Avalanche Fuji</span>;
-  return <span className="chain-badge chain-badge-muted">Ký quỹ mô phỏng · Không phải Fuji</span>;
+  if(query.isPending)return <span className="chain-badge chain-badge-muted" data-chain-state="loading">Đang kiểm tra ký quỹ…</span>;
+  if(!query.isError && isFuji(query.data))return <span className="chain-badge" data-chain-state="fuji"><ShieldCheck size={15} aria-hidden="true"/> Ký quỹ on-chain · Avalanche Fuji</span>;
+  if(query.isError || query.data?.onChain)return <span className="chain-badge chain-badge-muted" data-chain-state="unavailable">Chưa xác minh trạng thái ký quỹ</span>;
+  return <span className="chain-badge chain-badge-muted" data-chain-state="off-chain">Ký quỹ mô phỏng · Không phải Fuji</span>;
 }
 function ChainExplorer({url,label}:{url?:string|null;label:string}){
   const href=safeSnowtrace(url);
@@ -62,11 +62,16 @@ function ChainContent({campaign,now,admin=false}:{campaign:CampaignChain;now:num
 export function CampaignChainPanel({campaignId}:{campaignId:string}){
   const now=useClock();
   const query=useQuery({queryKey:['transparency','campaign',campaignId],queryFn:()=>getCampaignChain(campaignId),enabled:Boolean(campaignId),refetchInterval:REFRESH_MS});
-  return <section className="chain-panel" aria-label="Dòng thời gian giải ngân on-chain">
-    <div className="chain-heading"><div><p className="chain-eyebrow">MINH BẠCH GIẢI NGÂN</p><h2>Hành trình giải ngân trên chain</h2></div>
+  return <section className="chain-panel campaign-flow-onchain" aria-label="Dòng thời gian giải ngân on-chain">
+    <div className="chain-heading campaign-flow-heading-row">
+      <span className="campaign-flow-heading-icon" aria-hidden="true"><ShieldCheck size={22}/></span>
+      <div className="chain-heading-copy"><p className="chain-eyebrow">MINH BẠCH GIẢI NGÂN</p>
+        <h2>Minh bạch &amp; Xác thực</h2>
+        <p>Dữ liệu trạng thái được đồng bộ từ Backend; không thay thế xác nhận của người thụ hưởng.</p></div>
       <Link to="/transparency" className="chain-link">Đối chiếu on-chain</Link></div>
     {query.isPending?<p className="chain-muted">Đang tải trạng thái từ Backend…</p>:null}
     {query.isError?<p role="alert" className="chain-error">Không thể lấy trạng thái on-chain. <button type="button" onClick={()=>void query.refetch()}>Thử lại</button></p>:null}
+    {query.data && !query.data.onChain ? <span className="detail-chain-offchain hidden xl:inline-flex">Off-chain</span> : null}
     {query.data?<ChainContent campaign={query.data} now={now}/>:null}
     <p className="chain-footnote">Tự làm mới mỗi 30 giây · Số tiền và giải ngân trên Rise AI đều là mô phỏng.</p>
   </section>;
