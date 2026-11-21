@@ -138,7 +138,9 @@ try{
  await fuji.getByText('Avalanche Fuji · Chain ID 43113').waitFor();
  await fuji.getByText('Không khớp — cần xem xét').waitFor();
  await fuji.getByText('Ngoài sổ — cần xem xét').waitFor();
- expect('U4 FIXTURE anchors Data API and reserves shown',await fuji.getByRole('heading',{name:'Chứng thực số dư'}).isVisible()&&await fuji.getByRole('heading',{name:'Lịch sử giao dịch đối chiếu'}).isVisible());
+ expect('U4 FIXTURE reserve attestation heading shown',await fuji.getByRole('heading',{name:'Chứng thực số dư',exact:true}).isVisible());
+ expect('U4 FIXTURE activity history heading shown',await fuji.getByRole('heading',{name:'Lịch sử giao dịch',exact:true}).isVisible());
+ expect('U4 FIXTURE Data API activity label shown',await fuji.locator('.chain-public-full').getByText('05 / DATA API · NHẬT KÝ ĐỐI CHIẾU',{exact:true}).isVisible());
  await capture(fuji,'pr42-u4-fixture-fuji-transparency-1440');
  await fc.close();
 
