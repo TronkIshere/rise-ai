@@ -187,7 +187,7 @@ function EditForm({ initial, id }: {initial?:CampaignResponse;id?:string}) {
     <section hidden={chapter !== 4} id="creator-review">
     <h2 tabIndex={-1}>5. Rà soát và lưu bản nháp</h2>
     <dl className="b2-studio-review"><dt>Tên chiến dịch</dt><dd>{form.title.trim() || "Chưa nhập"}</dd><dt>Khu vực triển khai</dt><dd>{form.location.trim() || "Chưa nhập"}</dd><dt>Mục tiêu mô phỏng</dt><dd>{form.targetAmount > 0 ? amountLabel(form.targetAmount, "VND") : "Chưa nhập"}</dd></dl>
-    <p>Bạn có thể gửi xét duyệt từ hồ sơ chiến dịch sau khi hoàn tất các cột mốc và thông tin tổ chức.</p>
+    <p>Lưu chỉ tạo bản nháp, chưa công bố chiến dịch. Sau khi hoàn tất các cột mốc và thông tin tổ chức, bạn gửi xét duyệt từ trang Quản lý. Khi được Admin phê duyệt, hãy công bố chiến dịch để bắt đầu cột mốc.</p>
     </section>
     <div className="b2-studio-actions">
       {error && <p role="alert" className="text-danger">{error}</p>}
@@ -232,7 +232,7 @@ export function CreatorCampaignEditorPage() {
     <header className="b2-concept-banner b2-studio-banner">
       <div>
         <Link to={id ? '/creator/campaigns/' + encodeURIComponent(id) : '/creator'}><ArrowLeft size={17} aria-hidden="true" /> Quay lại</Link>
-        <h1>Campaign Creation <em>Studio</em></h1>
+        <h1>{id ? 'Chỉnh sửa' : 'Khởi tạo'} <em>chiến dịch</em></h1>
         <p>{id ? 'Chỉnh sửa bản nháp chiến dịch.' : 'Tạo chiến dịch mới và kết nối nguồn lực từ cộng đồng.'}</p>
       </div>
       <svg className="b2-studio-paper-edge" viewBox="0 0 1440 44" preserveAspectRatio="none" aria-hidden="true" focusable="false">
@@ -243,7 +243,7 @@ export function CreatorCampaignEditorPage() {
     {id&&campaign.isPending?<div className="mt-6"><StatusMessage title="Đang tải bản nháp…"/></div>:null}
     {id&&campaign.isError?<div className="mt-6"><StatusMessage error title="Không tải được chiến dịch" detail={campaign.error.message}/></div>:null}
     {id&&campaign.isSuccess&&!owned?<div className="mt-6"><StatusMessage error title="Không phải chiến dịch bạn quản lý"/></div>:null}
-    {id&&campaign.isSuccess&&owned&&!editableCampaign(campaign.data.campaignStatus)?<div className="mt-6 flex items-start gap-3 rounded-xl bg-soft-sand p-5 text-sm text-warning"><AlertTriangle size={20} aria-hidden="true"/> Chỉ có thể sửa khi chiến dịch ở trạng thái DRAFT hoặc REJECTED.</div>:null}
+    {id&&campaign.isSuccess&&owned&&!editableCampaign(campaign.data.campaignStatus)?<div className="mt-6 flex items-start gap-3 rounded-xl bg-soft-sand p-5 text-sm text-warning"><AlertTriangle size={20} aria-hidden="true"/> Chỉ có thể chỉnh sửa khi chiến dịch là bản nháp hoặc bị từ chối và cần điều chỉnh. Các chiến dịch đã gửi duyệt hoặc công bố được bảo toàn theo quy định của Backend.</div>:null}
     {(!id || (campaign.isSuccess&&owned&&editableCampaign(campaign.data.campaignStatus)))?<EditForm key={id??'new'} id={id} initial={campaign.data}/>:null}
     </Container>
   </div>;

@@ -1,3 +1,4 @@
+import { adminPageStatus } from '@/lib/admin-page-display';
 import { useState, type FormEvent } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { AlertTriangle, ArrowRight, ArrowRightToLine, BookOpenText, Box, ChevronRight, ClipboardList, Clock3, CodeXml, FileText, History, ListChecks, LockKeyhole, RefreshCcw, ScanSearch, ShieldCheck, UserRound, Users } from 'lucide-react';
@@ -11,8 +12,8 @@ import { RecordPagination } from '@/components/ui/RecordPagination';
 import { StatusMessage } from '@/components/ui/StatusMessage';
 import { countText, readableJson, shortRef, timeText } from '@/lib/monitoring-display';
 
-const auditActions: Record<string,string> = { MONITORING_FINDING_REVIEWED:'Đánh giá cảnh báo giám sát', CAMPAIGN_APPROVED:'Phê duyệt chiến dịch', RECONCILIATION_RUN_CREATED:'Tạo lượt đối soát' };
-const auditObjects: Record<string,string> = { CAMPAIGN:'Chiến dịch', MONITORING_FINDING:'Cảnh báo giám sát', RECONCILIATION_RUN:'Lượt đối soát' };
+const auditActions: Record<string,string> = {"USER_LOGIN":"Đăng nhập","USER_LOGOUT":"Đăng xuất","USER_REGISTERED":"Đăng ký tài khoản","USER_PROFILE_UPDATED":"Cập nhật hồ sơ tài khoản","USER_ROLES_CHANGED":"Cập nhật vai trò","USER_SUSPENDED":"Tạm khóa tài khoản","USER_REACTIVATED":"Mở lại tài khoản","CAMPAIGN_CREATED":"Tạo chiến dịch","CAMPAIGN_UPDATED":"Cập nhật chiến dịch","MILESTONE_CREATED":"Tạo cột mốc","MILESTONE_UPDATED":"Cập nhật cột mốc","MILESTONE_READY":"Cột mốc sẵn sàng","MILESTONE_CANCELLED":"Hủy cột mốc","MILESTONE_DELETED":"Xóa cột mốc","ORGANIZATION_CREATED":"Tạo tổ chức","ORGANIZATION_UPDATED":"Cập nhật tổ chức","ORGANIZATION_DELETED":"Xóa tổ chức","ORGANIZATION_VERIFICATION_RESET":"Đề nghị xác minh lại tổ chức","DISPUTE_OPENED":"Mở phản ánh","DISPUTE_MESSAGE_ADDED":"Bổ sung trao đổi phản ánh","DISPUTE_REASSIGNED":"Phân công lại phản ánh","DISBURSEMENT_REQUESTED":"Gửi đề nghị giải ngân","REFUND_REQUESTED":"Gửi yêu cầu hoàn tiền","DONATION_CREATED":"Tạo đóng góp mô phỏng","DONATION_STATUS_CHANGED":"Cập nhật trạng thái đóng góp","MILESTONE_EVIDENCE_SUBMITTED":"Gửi minh chứng cột mốc","EVIDENCE_ACCEPTED":"Chấp thuận minh chứng","EVIDENCE_REJECTED":"Từ chối minh chứng","SETTLEMENT_PROPOSED":"Đề xuất tất toán","ADJUSTMENT_REQUESTED":"Đề nghị điều chỉnh sổ","OUTBOX_EVENT_REQUEUED":"Xếp lại hàng chờ sự kiện","ALERT_NOTIFICATION_REQUEUED":"Xếp lại hàng chờ thông báo","RECONCILIATION_RUN_COMPLETED":"Hoàn tất lượt đối soát","ESCROW_ACCOUNT_OPENED":"Mở tài khoản ký quỹ","ESCROW_STATUS_CHANGED":"Cập nhật trạng thái ký quỹ","MONITORING_FINDING_REOPENED":"Mở lại cảnh báo giám sát", MONITORING_FINDING_REVIEWED:'Đánh giá cảnh báo giám sát', CAMPAIGN_APPROVED:'Phê duyệt chiến dịch', RECONCILIATION_RUN_CREATED:'Tạo lượt đối soát' };
+const auditObjects: Record<string,string> = { USER:'Tài khoản', ORGANIZATION:'Tổ chức', MILESTONE:'Cột mốc', DONATION:'Đóng góp mô phỏng', REFUND_REQUEST:'Yêu cầu hoàn tiền', DISBURSEMENT_REQUEST:'Đề nghị giải ngân', DISPUTE:'Phản ánh', EVIDENCE:'Minh chứng', ESCROW_ACCOUNT:'Tài khoản ký quỹ', ESCROW_LEDGER_ENTRY:'Bút toán ký quỹ', CAMPAIGN:'Chiến dịch', MONITORING_FINDING:'Cảnh báo giám sát', RECONCILIATION_RUN:'Lượt đối soát' };
 const auditStates: Record<string,string> = { OPEN:'Chưa đánh giá', ACKNOWLEDGED:'Đã ghi nhận', PENDING_REVIEW:'Chờ xét duyệt', APPROVED:'Đã phê duyệt' };
 const uuid=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const auditMarkers = new Map([
@@ -65,9 +66,9 @@ function AuditEntry({log}:{log:AuditEvent}){
         </dl>
       </div>
       {(log.previousState!=null||log.newState!=null) && <dl className="journal-record-change">
-        <div><dt><History size={18} aria-hidden="true"/>Trước</dt><dd>{auditStates[log.previousState??''] ?? log.previousState ?? '—'}</dd></div>
+        <div><dt><History size={18} aria-hidden="true"/>Trước</dt><dd>{auditStates[log.previousState??''] ?? adminPageStatus(log.previousState)}</dd></div>
         <ArrowRight size={24} aria-hidden="true"/>
-        <div data-outcome={outcome}><dt><OutcomeIcon size={18} aria-hidden="true"/>Sau</dt><dd>{auditStates[log.newState??''] ?? log.newState ?? '—'}</dd></div>
+        <div data-outcome={outcome}><dt><OutcomeIcon size={18} aria-hidden="true"/>Sau</dt><dd>{auditStates[log.newState??''] ?? adminPageStatus(log.newState)}</dd></div>
       </dl>}
     </div>
     <span className="journal-event-mark"><Marker size={21} aria-hidden="true"/></span>
@@ -83,9 +84,9 @@ function AuditEntry({log}:{log:AuditEvent}){
       </p>
     </div>
     {(log.previousState!=null||log.newState!=null) && <dl className="admin-journal-transition">
-      <div><dt>Trước</dt><dd>{auditStates[log.previousState??''] ?? log.previousState ?? '—'}</dd></div>
+      <div><dt>Trước</dt><dd>{auditStates[log.previousState??''] ?? adminPageStatus(log.previousState)}</dd></div>
       <ArrowRight size={19} aria-hidden="true"/>
-      <div><dt>Sau</dt><dd>{auditStates[log.newState??''] ?? log.newState ?? '—'}</dd></div>
+      <div><dt>Sau</dt><dd>{auditStates[log.newState??''] ?? adminPageStatus(log.newState)}</dd></div>
     </dl>}
     <details className="admin-journal-details">
       <summary><FileText className="journal-closed-file" size={19} aria-hidden="true"/>Dấu vết &amp; định danh<ChevronRight className="journal-closed-chevron" size={17} aria-hidden="true"/></summary>
@@ -200,7 +201,7 @@ export function AdminAuditPage(){
         </div>
       <div className="journal-stream">
         {query.isPending?<StatusMessage title="Đang tải nhật ký…"/>:null}
-        {query.isError?<StatusMessage error title="Không truy xuất được nhật ký" detail={query.error.message}/>:null}
+        {query.isError?<div><StatusMessage error title="Không truy xuất được nhật ký" detail={query.error.message}/><Button variant="outline" onClick={()=>void query.refetch()}>Thử tải lại nhật ký</Button></div>:null}
         {query.isSuccess&&!query.data.data?.length?<StatusMessage title="Không tìm thấy sự kiện phù hợp" detail="Thử điều chỉnh bộ lọc để mở rộng kết quả."/>:null}
         {query.data?.data?.length ? <ol className="journal-timeline" aria-label="Dòng thời gian nhật ký">
           {query.data.data.map((log,index)=><AuditEntry key={log.id??index} log={log}/>)}
