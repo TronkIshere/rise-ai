@@ -101,6 +101,17 @@ jobs:
         env:
           RISE_STAGING_BASE_URL: http://127.0.0.1:5174
         run: node scripts/pr42-onchain-visual.qa.mjs
+      - name: Seed clearly labeled one-time finding in disposable QA MySQL
+        run: |
+          mysql_id=$(docker ps --filter ancestor=mysql:8.4 --format '{{.ID}}' | head -1)
+          test -n "$mysql_id"
+          docker exec -i "$mysql_id" mysql -uroot -pci-only-root-password rise_ai < rise-ai-frontend/scripts/qa-three-blockers-finding.sql
+      - name: Accept three previously blocked role workflows in real Chromium
+        working-directory: rise-ai-frontend
+        env:
+          RISE_STAGING_BASE_URL: http://127.0.0.1:5174
+          RISE_QA_DEMO_PASSWORD: Demo@12345
+        run: node scripts/qa-three-blockers-isolated.mjs
       - name: Collect diagnostic logs if failed
         if: failure()
         run: |
