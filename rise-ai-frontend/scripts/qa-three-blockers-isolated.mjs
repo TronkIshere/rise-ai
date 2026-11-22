@@ -153,7 +153,7 @@ try {
       const [savedResponse] = await Promise.all([
         session.page.waitForResponse(r =>
           r.request().method() === 'PUT' && r.url().includes('/api/v1/campaigns/' + campaign.id), { timeout: 12000 }),
-        session.page.getByRole('button', { name: 'Lưu bản nháp' }).click(),
+        session.page.locator('.b2-editor-form button[type="submit"]').click(),
       ]);
       assert(savedResponse.status() === 200, 'UI save API returned ' + savedResponse.status());
       await session.page.waitForURL(base + '/creator/campaigns/' + campaign.id, { timeout: 20000 });
