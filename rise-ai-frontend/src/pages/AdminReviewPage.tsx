@@ -1,3 +1,5 @@
+import { ApiError } from '@/api/client';
+import { adminPageStatus } from '@/lib/admin-page-display';
 import { WorkspaceIllustration } from '@/components/ui/WorkspaceIllustration';
 import { evidenceState, evidenceTypes } from '@/lib/creator-display';
 import { AdminMasthead, AdminState } from '@/components/ui/AdminOperations';
@@ -132,7 +134,7 @@ export function AdminReviewPage(){
       <div>
         <AdminMasthead eyebrow={adminQueues.find(item=>item.id===kind)?.label ?? 'Hồ sơ xét duyệt'} title={heading} art="checklist">
           <div className="admin-review-priority">
-            <AdminState value={status}>{reviewStatusLabels[status] ?? (status || 'Chưa rõ trạng thái')}</AdminState>
+            <AdminState value={status}>{reviewStatusLabels[status] ?? adminPageStatus(status)}</AdminState>
             {amount!==undefined && <strong>{amountLabel(amount,readValue(r,'currency')||'VND')}</strong>}
           </div>
         </AdminMasthead>
@@ -190,7 +192,18 @@ export function AdminReviewPage(){
           <h2>Quyết định của Admin</h2>
           <p className="mt-2 text-xs leading-6 text-muted">Không tự phê duyệt hồ sơ liên quan đến bạn. Kiểm tra chứng cứ, quyền và điều kiện nghiệp vụ trước khi xác nhận.</p>
           {kind==='disputes'&&!thread.isSuccess?<p role="alert" className="mt-3 text-sm font-semibold text-warning">Chưa thể kết luận: cần tải được các trao đổi của tranh chấp.</p>:null}
-          <AdminDecisionForm choices={actions} onExecute={(operation,reason)=>performAdminAction(kind,id,operation as AdminOperation,reason,user?.id)} onComplete={refresh}/>
+          {kind==='disbursements'?<p className="mt-3 text-sm leading-7 text-brand-ink" role="note">{status==='SUBMITTED'?'Bước tiếp theo: nhận hồ sơ bằng “Bắt đầu xét duyệt”, sau đó kiểm tra minh chứng trước khi phê duyệt.':status==='UNDER_REVIEW'?'Kiểm tra và xét duyệt minh chứng liên quan. Backend kiểm tra số dư khả dụng và điều kiện cột mốc khi phê duyệt.':status==='APPROVED'?'Đề nghị đã được phê duyệt. Kiểm tra lại thông tin trước khi ghi sổ giải ngân mô phỏng; đây không phải chuyển tiền thật.':status==='NEEDS_MORE_EVIDENCE'?'Đang chờ Creator bổ sung minh chứng và gửi lại đề nghị. Không thể phê duyệt ở bước này.':'Hồ sơ hiện không ở bước chờ xét duyệt hoặc ghi sổ; xem trạng thái và lịch sử liên quan.'}</p>:null}
+          <AdminDecisionForm choices={actions} onExecute={async(operation,reason)=>{
+            try{return await performAdminAction(kind,id,operation as AdminOperation,reason,user?.id);}
+            catch(error){
+              if(error instanceof ApiError && error.code==='INSUFFICIENT_AVAILABLE_BALANCE'){
+                const localized=new ApiError(error.status,'Số dư ký quỹ khả dụng không đủ để thực hiện thao tác. Kiểm tra số dư, các khoản đang dành riêng và giá trị đề nghị trước khi thử lại. Mã lỗi: '+error.code,error.code,error.correlationId);
+                localized.cause=error;
+                throw localized;
+              }
+              throw error;
+            }
+          }} onComplete={refresh}/>
         </div>
         <div className="flex items-start gap-3 rounded-xl bg-soft-sand p-5 text-xs leading-6 text-warning"><ShieldAlert className="mt-1 shrink-0" size={20} aria-hidden="true"/>
           Quyết định ghi sổ hoặc phê duyệt chỉ tác động hệ thống mô phỏng; không chuyển tiền ngoài đời thực.

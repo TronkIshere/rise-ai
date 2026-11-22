@@ -56,7 +56,7 @@ export function CreatorDashboardPage() {
   return <div className="rise-dashboard creator-dashboard"><Container className="dashboard-inner py-10 sm:py-14">
     <div className="dashboard-hero flex flex-wrap items-end justify-between gap-4">
       <div>
-        <p className="text-xs font-bold uppercase tracking-widest text-brand">CREATOR WORKSPACE</p>
+        <p className="text-xs font-bold uppercase tracking-widest text-brand">KHÔNG GIAN NGƯỜI TẠO</p>
         <h1 className="mt-3 text-3xl font-extrabold text-brand-ink sm:text-4xl">Quản lý hành trình thiện nguyện</h1>
         <p className="mt-3 max-w-2xl text-sm leading-7 text-muted">Tổ chức, dự án và minh chứng đều được quản lý bằng dữ liệu thực của Backend. Mọi dòng tiền chỉ là mô phỏng.</p>
       </div>
@@ -102,10 +102,10 @@ export function CreatorDashboardPage() {
     </section>
     <section className="dashboard-section mt-14" aria-labelledby="creator-campaigns">
       <h2 id="creator-campaigns" className="flex items-center gap-2 text-2xl font-extrabold text-brand-ink"><ClipboardList className="text-brand" aria-hidden="true"/> Chiến dịch của tôi</h2>
-      <p className="mt-2 text-sm text-muted">Các bản nháp và chiến dịch đã gửi duyệt chỉ xuất hiện trong không gian Creator, không tự động công khai.</p>
+      <p className="mt-2 text-sm text-muted">Lưu bản nháp → gửi xét duyệt → được Admin phê duyệt → công bố chiến dịch → bắt đầu cột mốc. Chiến dịch được duyệt chưa tự động công khai; bước công bố được thực hiện trong trang Quản lý.</p>
       <div className="mt-5 space-y-4">
         {campaigns.isSuccess && campaigns.data.data?.length?campaigns.data.data.map(c=><article key={c.id} className="flex flex-wrap items-center justify-between gap-5 rounded-card border border-border bg-surface p-6">
-          <div><p className="text-xs font-semibold text-brand">{campaignState(c.campaignStatus)}</p><h3 className="mt-2 text-lg font-bold text-brand-ink">{c.title}</h3><p className="mt-2 text-sm text-muted">{c.organization?.name??'Chưa có tổ chức'} · {amountLabel(c.targetAmount,c.currency)}</p></div>
+          <div><p className="text-xs font-semibold text-brand">{campaignState(c.campaignStatus)}</p><h3 className="mt-2 text-lg font-bold text-brand-ink">{c.title}</h3><p className="mt-2 text-sm text-muted">{c.organization?.name??'Chưa có tổ chức'} · {amountLabel(c.targetAmount,c.currency)}</p>{c.campaignStatus==='APPROVED'?<p className="mt-3 text-sm font-semibold text-brand">Bước tiếp theo: mở Quản lý và công bố chiến dịch.</p>:null}</div>
           {c.id?<Link className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-border px-4 text-sm font-bold text-brand hover:bg-soft-mint" to={'/creator/campaigns/'+encodeURIComponent(c.id)}>Quản lý <ArrowUpRight size={16} aria-hidden="true"/></Link>:null}
         </article>):null}
       </div>
