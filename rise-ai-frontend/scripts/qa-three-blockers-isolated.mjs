@@ -81,7 +81,7 @@ async function capture(session, name) {
   const measure = await session.page.evaluate(() => ({
     width: window.innerWidth, height: window.innerHeight, dpr: window.devicePixelRatio,
     scrollWidth: document.documentElement.scrollWidth,
-    rootFont: getComputedStyle(document.body).fontFamily,
+    rootFont: window.getComputedStyle(document.body).fontFamily,
   }));
   assert(measure.width === 1440 && measure.height === 900 && measure.dpr === 1, name + ' viewport mismatch');
   assert(measure.scrollWidth <= 1440, name + ' horizontal overflow ' + measure.scrollWidth);
