@@ -51,7 +51,8 @@ public class AvalancheController {
     public ConfigResponse config() {
         DeploymentManifest m = service.deployment().manifest();
         return new ConfigResponse(envName(), true, chainId(), m.escrow(), m.token(), m.tokenKind(), m.anchor(), m.contractVersion(), service.reader().paused(),
-                service.backendSignersAvailable(), service.signerAddress(SignerRole.OPERATOR), service.signerAddress(SignerRole.APPROVER),
+                service.backendSignersAvailable(), service.backendSignersAvailable() ? service.signerAddress(SignerRole.OPERATOR) : m.operator(),
+                service.backendSignersAvailable() ? service.signerAddress(SignerRole.APPROVER) : m.approver(),
                 service.environment().environment() == AvalancheEnvironment.AVALANCHE_FUJI ? FUJI_EXPLORER : null, m.guardian(),
                 GUARDIAN_HOLD_MAX_SECONDS);
     }

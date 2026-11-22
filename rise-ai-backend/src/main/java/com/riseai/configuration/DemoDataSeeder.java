@@ -1,5 +1,7 @@
 package com.riseai.configuration;
 
+import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
+
 import com.riseai.dto.request.CampaignRequest;
 import com.riseai.dto.request.CreateDisbursementRequest;
 import com.riseai.dto.request.CreateDonationRequest;
@@ -55,6 +57,7 @@ import java.util.Map;
 import java.util.UUID;
 
 @Slf4j
+@ConditionalOnExpression("!${rise.avalanche.read-only:false}")
 @Component
 @RequiredArgsConstructor
 @ConditionalOnProperty(prefix = "rise.seed", name = "enabled", havingValue = "true")

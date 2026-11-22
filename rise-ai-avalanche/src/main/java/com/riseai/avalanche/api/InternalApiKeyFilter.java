@@ -38,6 +38,12 @@ public class InternalApiKeyFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
             throws ServletException, IOException {
+        if (properties.readOnly()) {
+            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+            response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+            objectMapper.writeValue(response.getOutputStream(), new ApiError(Instant.now(), 403, "READ_ONLY_MODE", request.getRequestURI()));
+            return;
+        }
         String configured = properties.internalApiKey();
         String supplied = request.getHeader("X-Internal-Api-Key");
         if (configured == null || configured.isBlank() || supplied == null

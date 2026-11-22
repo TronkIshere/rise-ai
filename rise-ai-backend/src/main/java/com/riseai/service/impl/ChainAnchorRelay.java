@@ -10,6 +10,7 @@ import com.riseai.repository.ChainAnchorRepository;
 import com.riseai.service.AlertNotifier;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.support.TransactionTemplate;
@@ -37,6 +38,8 @@ public class ChainAnchorRelay {
     private final AlertNotifier alertNotifier;
     private final AvalancheEscrowProperties properties;
     private final TransactionTemplate transactions;
+    @Value("${rise.avalanche.read-only:false}")
+    private boolean readOnly;
 
     public ChainAnchorRelay(ChainAnchorRepository repository, AnchorRecords records, AvalancheGatewayClient gateway, AlertNotifier alertNotifier,
                             AvalancheEscrowProperties properties, PlatformTransactionManager transactionManager) {
@@ -49,6 +52,7 @@ public class ChainAnchorRelay {
     }
 
     public void anchorOnce() {
+        if (readOnly) return;
         for (String kind : AnchorRecords.KINDS) {
             try {
                 anchor(kind);

@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.riseai.configuration.AvalancheEscrowProperties;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -27,6 +28,8 @@ public class AvalancheGatewayClient {
     private final AvalancheEscrowProperties properties;
     private final ObjectMapper objectMapper;
     private final HttpClient httpClient;
+    @Value("${rise.avalanche.read-only:false}")
+    private boolean readOnly;
 
     public AvalancheGatewayClient(AvalancheEscrowProperties properties, ObjectMapper objectMapper) {
         this.properties = properties;
@@ -167,6 +170,9 @@ public class AvalancheGatewayClient {
     }
 
     private Result send(HttpRequest request, boolean lookup) {
+        if (readOnly && !"GET".equals(request.method())) {
+            return new Result(Outcome.REJECTED, null, "Fuji instance is read-only");
+        }
         HttpResponse<String> response;
         try {
             response = httpClient.send(request, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));

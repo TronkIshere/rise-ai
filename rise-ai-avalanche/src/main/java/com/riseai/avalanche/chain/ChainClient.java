@@ -28,10 +28,17 @@ public class ChainClient {
 
     private final Web3j web3j;
     private final RpcPacer pacer;
+    private final boolean readOnly;
+    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(ChainClient.class);
 
     public ChainClient(Web3j web3j, RpcPacer pacer) {
+        this(web3j, pacer, false);
+    }
+
+    public ChainClient(Web3j web3j, RpcPacer pacer, boolean readOnly) {
         this.web3j = web3j;
         this.pacer = pacer;
+        this.readOnly = readOnly;
     }
 
     public long chainId() {
@@ -71,6 +78,10 @@ public class ChainClient {
 
     /** Raw submission. An RPC error is returned as a message; only transport failures throw. */
     public SendOutcome sendRawTransaction(String signedHex) {
+        if (readOnly) {
+            log.warn("Read-only RPC blocked method=eth_sendRawTransaction");
+            throw new ChainClientException("READ_ONLY_MODE: eth_sendRawTransaction is forbidden");
+        }
         pacer.await();
         EthSendTransaction response;
         try {
@@ -146,6 +157,7 @@ public class ChainClient {
 
     /** Same, simulated as coming from {@code from}: needed to reproduce the revert reason of a sender-dependent failure. */
     public CallResult call(String from, String to, String data) {
+        if (readOnly) log.info("Read-only RPC method=eth_call");
         pacer.await();
         EthCall response;
         try {
@@ -196,6 +208,7 @@ public class ChainClient {
     }
 
     private <R extends Response<?>, T> T call(String method, IoCall<R> request, Function<R, T> extract) {
+        if (readOnly) log.info("Read-only RPC method={}", method);
         pacer.await();
         R response;
         try {

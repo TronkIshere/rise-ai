@@ -6,7 +6,15 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 /** No default for the environment and no property that can add a chain id or enable another environment. */
 @ConfigurationProperties(prefix = "avalanche")
 public record AvalancheProperties(AvalancheEnvironment environment, Rpc rpc, Signers signers, String deploymentManifest,
-                                  String internalApiKey) {
+                                  String internalApiKey, boolean readOnly) {
+
+    @org.springframework.boot.context.properties.bind.ConstructorBinding
+    public AvalancheProperties { }
+
+    /** Existing callers retain the original write-enabled default. */
+    public AvalancheProperties(AvalancheEnvironment environment, Rpc rpc, Signers signers, String deploymentManifest, String internalApiKey) {
+        this(environment, rpc, signers, deploymentManifest, internalApiKey, false);
+    }
 
     /**
      * Signers are opt-in. Mode "dev" (default): ephemeral keys, LOCAL_SIMULATION only. Mode "keystore": two operator-held

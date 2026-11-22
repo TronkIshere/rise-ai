@@ -28,7 +28,7 @@ import java.time.Clock;
 
 /**
  * Transaction tracking beans. The tracker needs only the database and a verified environment. The submission service
- * additionally needs development signers, which exist only in LOCAL_SIMULATION, so there is no submission path in Fuji.
+ * additionally needs explicitly enabled signers; read-only mode refuses submission and omits reconciliation workers.
  */
 @Configuration
 @ConditionalOnProperty(name = "avalanche.tx.enabled", havingValue = "true")
@@ -77,11 +77,14 @@ public class TxConfig {
 
     @Bean
     @ConditionalOnProperty(name = "avalanche.signers.enabled", havingValue = "true")
-    SubmissionService submissionService(ChainClient chainClient, ValidatedEnvironment validatedEnvironment,
+    SubmissionService submissionService(AvalancheProperties properties, ChainClient chainClient, ValidatedEnvironment validatedEnvironment,
                                         SignerRegistry signerRegistry, TxRepository txRepository, NonceAllocator nonceAllocator,
                                         TransactionTemplate avalancheTransactionTemplate, TxProperties txProperties,
                                         ErrorClassifier errorClassifier, TxTransitions txTransitions, Clock avalancheClock,
                                         DeploymentHolder deploymentHolder) {
+        if (properties.readOnly()) {
+            throw new EnvironmentGuardException("READ_ONLY_SUBMISSION_FORBIDDEN", "transaction submission is disabled in read-only mode");
+        }
         if (deploymentHolder.deployment() == null) {
             throw new EnvironmentGuardException("MANIFEST_REQUIRED",
                     "avalanche.deployment-manifest is required to submit transactions: only the manifest contracts may be called");
@@ -102,7 +105,7 @@ public class TxConfig {
     SecondaryProvider secondaryProvider(AvalancheProperties properties, ValidatedEnvironment validatedEnvironment) {
         String url = properties.secondaryUrl();
         return new SecondaryProvider(url == null ? null
-                : ChainClients.create(validatedEnvironment.environment(), url, properties.timeoutMs(), properties.minGapMs()));
+                : ChainClients.create(validatedEnvironment.environment(), url, properties.timeoutMs(), properties.minGapMs(), properties.readOnly()));
     }
 
     @Bean
@@ -116,6 +119,7 @@ public class TxConfig {
     }
 
     @Bean(initMethod = "start", destroyMethod = "close")
+    @ConditionalOnProperty(name = "avalanche.read-only", havingValue = "false", matchIfMissing = true)
     TxReconcileScheduler txReconcileScheduler(TxTracker txTracker, TxProperties txProperties) {
         return new TxReconcileScheduler(txTracker, txProperties.reconcileIntervalMs());
     }

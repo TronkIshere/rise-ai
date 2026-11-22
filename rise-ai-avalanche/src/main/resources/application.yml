@@ -11,6 +11,8 @@ spring:
 
 # No default environment: startup fails unless LOCAL_SIMULATION or AVALANCHE_FUJI is set explicitly.
 avalanche:
+  # Disables all mutating HTTP calls, signers and background tx/scan workers; GETs remain available.
+  read-only: ${AVALANCHE_READ_ONLY:false}
   environment: ${AVALANCHE_ENVIRONMENT:}
   rpc:
     primary:
