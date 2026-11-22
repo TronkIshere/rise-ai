@@ -95,7 +95,7 @@ export function AdminDashboardPage(){
                 {r.details?<p className="mt-2 line-clamp-2 text-sm leading-6 text-muted">{r.details}</p>:null}
                 {r.amount!==undefined?<p className="mt-2 text-sm font-bold text-brand">{amountLabel(r.amount,r.currency)}</p>:null}
               </div>
-              <span title={r.status} className="rounded-full bg-soft-sand px-3 py-2 text-xs font-semibold text-warning">{adminPageStatus(r.status)}</span>
+              <span title={r.status} data-status={r.status} className="rounded-full bg-soft-sand px-3 py-2 text-xs font-semibold text-warning">{adminPageStatus(r.status)}</span>
             </div>
             {r.id?<Link className="mt-4 inline-flex min-h-11 items-center gap-2 font-bold text-brand hover:underline" to={'/admin/review/'+kind+'/'+encodeURIComponent(r.id)}>Xem và xử lý <ArrowUpRight size={16} aria-hidden="true"/></Link>:null}
           </article>;

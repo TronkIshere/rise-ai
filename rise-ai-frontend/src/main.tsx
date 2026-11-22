@@ -20,6 +20,7 @@ import '@/styles/admin-escrow-approved-v12.css';
 import '@/styles/donor-dashboard-approved-v2.css';
 import '@/styles/admin-rule-card-approved-v122.css';
 import '@/styles/final-functional-completion.css';
+import '@/styles/owner-dashboards-1440.css';
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>

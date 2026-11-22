@@ -409,3 +409,20 @@
  --functional-mint: var(--color-soft-mint);
 }
 }
+
+/* PR #50 Owner color-only adjustment — Admin Desktop 1440, values reused from approved U3/U4/U5 palettes.
+   No changes to global semantic colors or the locked Donor U3 color set. */
+@media (min-width:1200px) {
+  .rise-dashboard.admin-dashboard {
+    --admin-pastel-canvas: #f7f8ef;
+    --admin-pastel-paper: #fffdf7;
+    --admin-pastel-mint: #d9f8e6;
+    --admin-pastel-apricot: #ffe5c3;
+    --admin-pastel-sky: #dcf2ff;
+    --admin-pastel-coral: #ffe0d8;
+    --admin-pastel-sage: #edf1d5;
+    --admin-pastel-apricot-ink: #8a4b0d;
+    --admin-pastel-sky-ink: #135873;
+    --admin-pastel-coral-ink: #a64331;
+  }
+}

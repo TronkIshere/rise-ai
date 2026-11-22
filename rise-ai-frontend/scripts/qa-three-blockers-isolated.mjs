@@ -120,6 +120,16 @@ try {
       'Cross-donor dispute access was not denied: ' + wrongOwner.status);
     const session = await uiSession('donor3@riseai.example');
     try {
+      // Integrated PR #48 + #50: actual Donor U3 with locked illustration and readable records.
+      await spaGo(session.page, '/donor', '.rise-dashboard.donor-dashboard.u3-approved-v2');
+      await session.page.locator('.u3-recorditem').first().waitFor({ timeout: 20000 });
+      await session.page.locator('.donor-receipt-b2').first().waitFor({ timeout: 20000 });
+      const donorReadability = await session.page.locator('.u3-recordname').first().evaluate(
+        el => parseFloat(window.getComputedStyle(el).fontSize));
+      assert(donorReadability >= 14, 'PR #50 donor record typography not applied: ' + donorReadability);
+      const donorGeom = await capture(session, '04-integrated-pr50-donor-dashboard');
+      report.cases.push({ name: 'G2-04-integrated-donor-locked-design', status: 'PASS',
+        recordFontPx: donorReadability, geometry: donorGeom, api: 'real seeded isolated backend' });
       await spaGo(session.page, '/donor/disputes/' + item.id, '.deep-donor-dispute .b2-dossier');
       await session.page.locator('.b2-message').first().waitFor({ timeout: 25000 });
       const body = await session.page.locator('.b2-dossier').innerText();
@@ -179,6 +189,27 @@ try {
     assert(Array.isArray(history), 'Finding history unavailable');
     const session = await uiSession('admin@riseai.example');
     try {
+      // Integrated PR #48 + #50: confirm Owner-locked pastel semantic color tokens at 1440px.
+      await spaGo(session.page, '/admin', '.rise-dashboard.admin-dashboard');
+      await session.page.locator('.dashboard-stat-section > div.grid > div').first().waitFor({ timeout: 20000 });
+      const adminPalette = await session.page.evaluate(() => {
+        const root = document.querySelector('.rise-dashboard.admin-dashboard');
+        const hero = document.querySelector('.rise-dashboard.admin-dashboard .dashboard-hero');
+        const cards = [...document.querySelectorAll('.rise-dashboard.admin-dashboard .dashboard-stat-section > div.grid > div')];
+        return { heroBorder: window.getComputedStyle(hero).borderTopWidth,
+          cardColors: cards.map(el => window.getComputedStyle(el).backgroundColor),
+          pastelCanvas: window.getComputedStyle(root).getPropertyValue('--admin-pastel-canvas').trim() };
+      });
+      assert(adminPalette.heroBorder === '3px', 'PR #50 Admin hero outline not loaded: ' + adminPalette.heroBorder);
+      assert(adminPalette.cardColors.length === 4, 'Admin stat card count changed');
+      assert(JSON.stringify(adminPalette.cardColors) === JSON.stringify([
+        'rgb(217, 248, 230)', 'rgb(255, 229, 195)',
+        'rgb(220, 242, 255)', 'rgb(255, 224, 216)']),
+        'PR #50 semantic pastel colors mismatch: ' + JSON.stringify(adminPalette.cardColors));
+      assert(adminPalette.pastelCanvas === '#f7f8ef', 'Admin canvas token not loaded');
+      const adminGeom = await capture(session, '05-integrated-pr50-admin-dashboard');
+      report.cases.push({ name: 'G2-05-integrated-admin-locked-colors', status: 'PASS',
+        palette: adminPalette, geometry: adminGeom, api: 'real seeded isolated backend' });
       await spaGo(session.page, '/admin/monitoring/findings/' + findingId, '.deep-admin-finding .investigation-desk');
       await session.page.locator('.investigation-fact-list li').first().waitFor({ timeout: 15000 });
       assert((await session.page.locator('.admin-finding-occurrence').count()) === 1,
@@ -200,8 +231,8 @@ try {
   });
 } finally {
   await browser.close();
-  report.pass = report.cases.length === 3 && report.cases.every(x => x.status === 'PASS');
+  report.pass = report.cases.length === 5 && report.cases.every(x => x.status === 'PASS');
   await writeFile(resolve(output, 'qa-results.json'), JSON.stringify(report, null, 2));
 }
-console.log('THREE BLOCKED QA CASES: ' + (report.pass ? 'PASS 3/3' : 'FAIL'));
+console.log('INTEGRATED UI PR48+PR50 QA: ' + (report.pass ? 'PASS 5/5' : 'FAIL'));
 if (!report.pass) process.exitCode = 1;
