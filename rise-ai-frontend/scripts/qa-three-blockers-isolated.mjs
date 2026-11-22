@@ -150,10 +150,11 @@ try {
       await input.fill(updated);
       await session.page.locator('.b2-studio-chapters button').last().click();
       await session.page.locator('#creator-review').waitFor({ state: 'visible' });
-      const saveResponsePromise = session.page.waitForResponse(r =>
-        r.request().method() === 'PUT' && r.url().includes('/api/v1/campaigns/' + campaign.id), { timeout: 30000 });
-      await session.page.getByRole('button', { name: 'Lưu bản nháp' }).click();
-      const savedResponse = await saveResponsePromise;
+      const [savedResponse] = await Promise.all([
+        session.page.waitForResponse(r =>
+          r.request().method() === 'PUT' && r.url().includes('/api/v1/campaigns/' + campaign.id), { timeout: 12000 }),
+        session.page.getByRole('button', { name: 'Lưu bản nháp' }).click(),
+      ]);
       assert(savedResponse.status() === 200, 'UI save API returned ' + savedResponse.status());
       await session.page.waitForURL(base + '/creator/campaigns/' + campaign.id, { timeout: 20000 });
       const persisted = await apiGet(token, '/api/v1/campaigns/' + campaign.id);
